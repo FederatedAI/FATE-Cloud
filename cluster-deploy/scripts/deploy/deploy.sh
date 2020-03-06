@@ -25,7 +25,7 @@ source ./default-configurations.sh
 cloud_version=$(grep -E -m 1 -o "<version>(.*)</version>" ${cloudpath}/cloud-manager/pom.xml|  awk -F '[<>]' '{print $3}')
 fate_manager_version=$(grep -E -m 1 -o "<version>(.*)</version>" ${cloudpath}/fate-manager/pom.xml|  awk -F '[<>]' '{print $3}')
 fateboard_version=
-
+if [  ! -e ${cloudpath}/cluster-deploy/packages ]; then mkdir ${cloudpath}/cluster-deploy/packages;fi
 usage(){
   echo "usage: sh $0 {all|module_name} {install|package|distribute}"
 }
