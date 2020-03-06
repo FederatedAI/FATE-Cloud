@@ -20,7 +20,7 @@ A Federated Site is an enterprise, institution, or organization that participate
 # Deploy #
 Currently，Cloud Manager can be deployed as a separate service and does not depend on FATE. It is only required that the machine where it is located supports the jdk and MySQL environments.
 
-If you start deploying FATE Manager, it is important to ensure that the FATE system has been deployed. The FATE Manager service is integrated into the FATE Board service of the FATE cluster as a plugin. If you have already deployed the FATE Board, you need to  update the FATE Board to the new version with FATE Manager. For more detailed deployment information, please refer to *[FATE Cloud Deployment](https://github.com/FederatedAI/FATE-Cloud/blob/master/cluster-deploy/scripts/deploy/deploy.sh)*.
+If you start deploying FATE Manager, it is important to ensure that the FATE system has been deployed. The FATE Manager service is integrated into the FATE Board service of the FATE cluster as a plugin. If you have already deployed the FATE Board, you need to  update the FATE Board to the new version with FATE Manager. For more detailed deployment information, please refer to *[FATE Cloud Deployment](https://github.com/FederatedAI/FATE-Cloud/blob/master/cluster-deploy/doc/FATE-Cloud_deployment_guide%20.md)*.
  
 # Usage #
 ## Adding a new site  ##
