@@ -174,7 +174,7 @@ public class StationController {
         String httpURI = httpServletRequest.getRequestURI();
         MyRequestWrapper myRequestWrapper = new MyRequestWrapper(httpServletRequest);
         String httpBody = myRequestWrapper.getBody();
-
+        logger.info("Head Information | partyId:{},role:{},key:{},timestamp:{},nonce:{},httpURI:{},httpBody:{},signature:{}", partyId, role, appKey, timestamp, nonce, httpURI, httpBody, signature);
         Station station = stationService.findStation(Long.parseLong(partyId));
         if (null == station) {
             return 1;
