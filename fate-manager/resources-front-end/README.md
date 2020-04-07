@@ -1,7 +1,3 @@
-# fate-manage
-Fate-manage
-
-
 ## Build Setup
 
 # Install dependencies
