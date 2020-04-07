@@ -1,7 +1,3 @@
-# Cloud-Manager-web
-Cloud-Manager api服务内部管理系统web端
-
-
 ## Build Setup
 
 # Install dependencies
