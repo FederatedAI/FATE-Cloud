@@ -1,8 +1,8 @@
 {
-  "name": "fdn-marketplace-open-web",
-  "version": "3.9.0",
+  "name": "fate-manager",
+  "version": "alpha",
   "license": "MIT",
-  "description": "fdn-marketplace-open-web",
+  "description": "fate-manager",
   "author": "webank",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
@@ -15,7 +15,7 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "axios": "0.18.0",
+    "axios": "0.19.2",
     "clipboard": "^2.0.4",
     "echarts": "^4.2.1",
     "element-ui": "2.12.0",
@@ -82,7 +82,7 @@
     "vue-style-loader": "4.1.2",
     "vue-template-compiler": "2.5.17",
     "webpack": "4.16.5",
-    "webpack-bundle-analyzer": "2.13.1",
+    "webpack-bundle-analyzer": "3.4.0",
     "webpack-cli": "3.1.0",
     "webpack-dev-server": "3.1.14",
     "webpack-merge": "4.1.4"
