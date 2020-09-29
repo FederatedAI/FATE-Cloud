@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `institutions` varchar(128) DEFAULT NULL COMMENT 'site belongs to institutions',
   `component_version` text DEFAULT NULL COMMENT 'fate component version',
   `fate_version` varchar(32) DEFAULT NULL COMMENT 'fate version',
-  `fate_serving_version` varchar(32) DEFAULT NULL COMMENT 'fate serving version',
+  `fate_serving_version` text DEFAULT NULL COMMENT 'fate serving version',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'site status,1 not joined,2 joined,3 removed',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
