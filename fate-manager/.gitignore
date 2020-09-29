@@ -4,7 +4,7 @@
 *.idea
 logs/
 runtime/
-conf/
+
 
 # Log file
 *.log
