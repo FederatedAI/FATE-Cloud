@@ -1,0 +1,106 @@
+.partyuser-box {
+    .partyuser {
+        margin: 24px 36px;
+
+        .partyuser-header {
+            height: 34px;
+            margin-bottom: 24px;
+
+            .title {
+                color: #217AD9;
+                font-size: 32px;
+                font-weight: 600;
+                vertical-align: middle;
+            }
+            .radio{
+                float: left;
+                .el-radio-button__inner{
+                    padding: 8px 0px;
+                    font-size: 18px;
+                    width: 180px;
+                    height: 36px;
+                    border-left: 0px solid #DCDFE6;
+                    border-radius:0;
+                    border:0;
+                    line-height: 23px;
+    
+                }
+                .el-radio-button{
+                    
+                    .el-radio-button__inner{
+                        color: #217AD9;
+                        background-color: #E6EBF0 !important;
+                    }
+                }
+                .is-active{
+                    .el-radio-button__inner{
+                        color: #fff;
+                        background-color: #217AD9 !important;
+                    }
+                }
+            }
+            .input {
+                float: right;
+                line-height: 34px;
+                width: 260px;
+
+                .search {
+                    cursor: pointer;
+                    margin-right: 0px
+                }
+            }
+
+            .sel-role {
+                float: right;
+                width: 85px;
+                margin-left: 16px;
+            }
+
+            .sel-institutions {
+                float: right;
+                width: 115px;
+                margin-left: 16px;
+            }
+        }
+
+        .partyuser-body {
+            background-color: #fff;
+            position: absolute;
+            width: calc(100% - 72px);
+            height: calc(100% - 172px);
+            .table {
+                width: 100%;
+                height: calc(100% - 104px);
+                .el-table {
+                    width: calc(100% - 72px);
+                    height:100% !important;
+                    .has-gutter {
+                        color: #4E5766;
+                    }
+
+                    .edit {
+                        margin-right: 20px;
+                        cursor: pointer;
+                        color: #217AD9
+                    }
+
+                    .delete {
+                        cursor: pointer;
+                        color: #217AD9
+                    }
+
+                    .el-badge__content.is-fixed.is-dot {
+                        top: 2px;
+                    }
+
+                    .el-input__inner {
+                        background-color: #fff;
+                        width: 150px;
+                    }
+
+                }
+            }
+        }
+    }
+
+}
