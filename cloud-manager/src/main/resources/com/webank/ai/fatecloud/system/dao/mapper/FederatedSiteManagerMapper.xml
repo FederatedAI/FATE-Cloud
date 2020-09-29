@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper">
+
+    <resultMap id="siteMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">
+        <id property="id" column="id"></id>
+        <result property="siteName" column="site_name"></result>
+        <result property="partyId" column="party_id"></result>
+        <result property="secretInfo" column="secret_info"></result>
+        <result property="registrationLink" column="registration_link"></result>
+        <result property="networkAccessEntrances" column="network_access_entrances"></result>
+        <result property="networkAccessExits" column="network_access_exits"></result>
+        <result property="institutions" column="institutions"></result>
+        <result property="componentVersion" column="component_version"></result>
+        <result property="fateVersion" column="fate_version"></result>
+        <result property="fateServingVersion" column="fate_serving_version"></result>
+        <result property="status" column="status"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="activationTime" column="activation_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <result property="detectiveStatus" column="detective_status"></result>
+        <result property="lastDetectiveTime" column="last_detective_time"></result>
+        <result property="groupId" column="group_id"></result>
+        <association property="federatedGroupSetDo"
+                     javaType="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo">
+            <id property="groupId" column="group_id"></id>
+            <result property="groupName" column="group_name"></result>
+            <result property="role" column="role"></result>
+            <result property="rangeInfo" column="range_info"></result>
+            <result property="total" column="total"></result>
+            <result property="used" column="used"></result>
+            <result property="status" column="status"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+        </association>
+    </resultMap>
+
+    <select id="findSiteByPartyId" resultMap="siteMap">
+        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g where s.party_id=#{partyId} and
+        s.group_id=g.group_id and s.secret_info like concat('%',#{secretInfo},'%')
+        <foreach collection="status" open=" and s.status  in (" close=")" item="statusItem" separator=",">
+            #{statusItem}
+        </foreach>
+
+    </select>
+
+    <select id="findSite" parameterType="long" resultMap="siteMap">
+        SELECT s.*,g.role,g.group_name FROM t_federated_site_manager s,t_federated_group_set g where s.id=#{id} and
+        s.group_id=g.group_id
+    </select>
+
+    <!--    <select id="findSiteByPartyId" parameterType="long" resultMap="siteMap">-->
+    <!--        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g where s.party_id=#{partyId} and-->
+    <!--        s.group_id=g.group_id and s.status = 2 -->
+    <!--    </select>-->
+
+
+    <select id="findSitesCount" parameterType="com.webank.ai.fatecloud.system.pojo.qo.SiteListQo" resultType="long">
+        SELECT count(1) FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            s.group_id=g.group_id
+
+            <if test="condition != null">
+                and (s.party_id like #{condition} or s.site_name like #{condition})
+            </if>
+            <if test="fateVersion != null">
+                and s.fate_version=#{fateVersion}
+            </if>
+            <if test="fateServingVersion != null">
+                and s.fate_serving_version=#{fateServingVersion}
+            </if>
+            <if test="institutions != null">
+                and s.institutions=#{institutions}
+            </if>
+            <if test="status != null">
+                and s.status=#{status}
+            </if>
+            <if test="role != null">
+                and g.role=#{role}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="findPagedSites" resultMap="siteMap">
+        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            s.group_id=g.group_id
+
+            <if test="siteListQo.condition!=null">
+                and (s.party_id like #{siteListQo.condition} or s.site_name like #{siteListQo.condition})
+            </if>
+            <if test="siteListQo.fateVersion!=null">
+                and s.fate_version=#{siteListQo.fateVersion}
+            </if>
+            <if test="siteListQo.fateServingVersion!=null">
+                and s.fate_serving_version=#{siteListQo.fateServingVersion}
+            </if>
+            <if test="siteListQo.institutions!=null">
+                and s.institutions=#{siteListQo.institutions}
+            </if>
+            <if test="siteListQo.status!=null">
+                and s.status=#{siteListQo.status}
+            </if>
+            <if test="siteListQo.role!=null">
+                and g.role=#{siteListQo.role}
+            </if>
+            <if test="siteListQo.orderRule==1">
+                order by s.id asc
+            </if>
+            <if test="siteListQo.orderRule==2">
+                order by s.id desc
+            </if>
+
+            limit #{startIndex}, #{siteListQo.pageSize}
+        </where>
+
+    </select>
+
+    <select id="findUsedSites" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">
+        SELECT id,party_id,site_name,institutions,create_time,status FROM t_federated_site_manager
+
+        <where>
+
+            <if test="usedSiteListQo.condition!=null">
+                and (party_id like #{usedSiteListQo.condition} or site_name like #{usedSiteListQo.condition})
+            </if>
+
+            <if test="usedSiteListQo.statusList!=null">
+                <foreach collection="usedSiteListQo.statusList" open=" and status  in (" close=")" item="status"
+                         separator=",">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="usedSiteListQo.institutions != null">
+                and institutions=#{usedSiteListQo.institutions}
+            </if>
+
+            <if test="usedSiteListQo.groupId!=null">
+                and group_id=#{usedSiteListQo.groupId}
+            </if>
+
+        </where>
+        order by ${usedSiteListQo.orderField} ${usedSiteListQo.orderRule}
+        limit #{startIndex}, #{usedSiteListQo.pageSize}
+    </select>
+
+    <!--    <select id="findUsedSites" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">-->
+    <!--        SELECT id,party_id,site_name,institutions,create_time,status FROM t_federated_site_manager-->
+    <!--        <where>-->
+    <!--            <if test="usedSiteListQo.condition!=null">-->
+    <!--                and (party_id like #{usedSiteListQo.condition} or site_name like #{usedSiteListQo.condition})-->
+    <!--            </if>-->
+
+    <!--            <if test="usedSiteListQo.status==null">-->
+    <!--                and status in (1,2,3)-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.status==1">-->
+    <!--                and status in (1,2)-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.status==2">-->
+    <!--                and status in (1,2)-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.status==3">-->
+    <!--                and status in (3)-->
+    <!--            </if>-->
+
+    <!--            <if test="usedSiteListQo.groupId!=null">-->
+    <!--                and group_id=#{usedSiteListQo.groupId}-->
+    <!--            </if>-->
+
+    <!--            <if test="usedSiteListQo.partyId!=null">-->
+    <!--                <if test="usedSiteListQo.partyId">-->
+    <!--                    order by party_id asc-->
+    <!--                </if>-->
+    <!--                <if test="!usedSiteListQo.partyId">-->
+    <!--                    order by party_id desc-->
+    <!--                </if>-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.siteName!=null">-->
+    <!--                <if test="usedSiteListQo.siteName">-->
+    <!--                    order by site_name asc-->
+    <!--                </if>-->
+    <!--                <if test="!usedSiteListQo.siteName">-->
+    <!--                    order by site_name desc-->
+    <!--                </if>-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.institutions!=null">-->
+    <!--                <if test="usedSiteListQo.institutions">-->
+    <!--                    order by institutions asc-->
+    <!--                </if>-->
+    <!--                <if test="!usedSiteListQo.institutions">-->
+    <!--                    order by institutions desc-->
+    <!--                </if>-->
+    <!--            </if>-->
+    <!--            <if test="usedSiteListQo.createTime!=null">-->
+    <!--                <if test="usedSiteListQo.createTime">-->
+    <!--                    order by create_time asc-->
+    <!--                </if>-->
+    <!--                <if test="!usedSiteListQo.createTime">-->
+    <!--                    order by create_time desc-->
+    <!--                </if>-->
+    <!--            </if>-->
+
+    <!--            limit #{startIndex}, #{usedSiteListQo.pageSize}-->
+    <!--        </where>-->
+    <!--    </select>-->
+
+    <select id="findInstitutionsCount" resultType="long">
+
+        select COUNT(1) FROM (SELECT COUNT(1), institutions FROM t_federated_site_manager GROUP BY institutions) AS tmp;
+
+    </select>
+
+    <select id="findInstitutions" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto">
+        select mu.institutions,IFNULL(sm.count,0) as number from (select institutions from t_fate_manager_user where
+        status = 2
+        order by institutions desc LIMIT #{startIndex}, #{institutionQo.pageSize}) as mu left join (select institutions,
+        count(1) count from t_federated_site_manager where status = 2 group by institutions) as sm on
+        mu.institutions=sm.institutions
+    </select>
+
+
+    <select id="findPagedSitesForFateManager" resultMap="siteMap">
+        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+
+            <if test="siteListForFateManagerQo.institutions!=null">
+                and s.institutions=#{siteListForFateManagerQo.institutions}
+            </if>
+            and s.status = 2
+
+            order by s.id desc limit #{startIndex}, #{siteListForFateManagerQo.pageSize}
+        </where>
+
+    </select>
+
+    <select id="findInstitutionsInGroup" parameterType="com.webank.ai.fatecloud.system.pojo.qo.InstitutionsInGroup"
+            resultType="string">
+        SELECT distinct institutions FROM t_federated_site_manager
+        <where>
+            group_id=#{groupId}
+
+            <if test="statusList!=null">
+                <foreach collection="statusList" open=" and status  in (" close=")" item="status" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+
+            order by institutions asc
+        </where>
+
+    </select>
+
+
+    <select id="findUsedSitesCount" parameterType="com.webank.ai.fatecloud.system.pojo.qo.UsedSiteListQo"
+            resultType="long">
+        SELECT count(1) FROM t_federated_site_manager
+        <where>
+
+            <if test="condition != null">
+                and (party_id like #{condition} or site_name like #{condition})
+            </if>
+
+            <if test="groupId != null">
+                and group_id=#{groupId}
+            </if>
+
+            <if test="institutions != null">
+                and institutions=#{institutions}
+            </if>
+
+            <if test="statusList!=null">
+                <foreach collection="statusList" open=" and status  in (" close=")" item="status" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+
+        </where>
+
+    </select>
+</mapper>
