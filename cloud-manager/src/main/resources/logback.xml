@@ -84,7 +84,7 @@
         <append>true</append>
         <prudent>false</prudent>
     </appender>
-    <appender name="stationservice" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--    <appender name="stationservice" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${ROOT}%d/stationservice.%d.log</fileNamePattern>
             <maxHistory>30</maxHistory>
@@ -98,15 +98,15 @@
     </appender>
 
 
-    <logger name="com.webank.ai.fatecloud.controller.StationController" level="INFO" additivity="true">
+    <logger name="com.webank.ai.fatecloud.system.controller.StationController" level="INFO" additivity="true">
         <appender-ref ref="INFO"/>
     </logger>
     <logger name="com.webank.ai.fatecloud.service.StationService" level="INFO" additivity="true">
         <appender-ref ref="stationservice"/>
     </logger>
-    <logger name="org.mybatis.spring" level="INFO" additivity="false"/>
+    <logger name="org.mybatis.spring" level="INFO" additivity="false"/>-->
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ERROR"/>
         <appender-ref ref="WARN"/>

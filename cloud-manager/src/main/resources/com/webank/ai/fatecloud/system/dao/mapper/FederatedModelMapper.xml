@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedModelMapper">
+
+    <resultMap id="siteMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">
+        <id property="id" column="id"></id>
+        <result property="siteName" column="site_name"></result>
+        <result property="partyId" column="party_id"></result>
+        <result property="secretInfo" column="secret_info"></result>
+        <result property="registrationLink" column="registration_link"></result>
+        <result property="networkAccessEntrances" column="network_access_entrances"></result>
+        <result property="networkAccessExits" column="network_access_exits"></result>
+        <result property="institutions" column="institutions"></result>
+        <result property="fateVersion" column="fate_version"></result>
+        <result property="fateServingVersion" column="fate_serving_version"></result>
+        <result property="status" column="status"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="activationTime" column="activation_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <result property="detectiveStatus" column="detective_status"></result>
+        <result property="lastDetectiveTime" column="last_detective_time"></result>
+        <result property="groupId" column="group_id"></result>
+        <association property="federatedGroupSetDo"
+                     javaType="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo">
+            <id property="groupId" column="g_group_id"></id>
+            <result property="groupName" column="group_name"></result>
+            <result property="role" column="role"></result>
+            <result property="rangeInfo" column="range_info"></result>
+            <result property="total" column="total"></result>
+            <result property="used" column="used"></result>
+            <result property="status" column="g_status"></result>
+            <result property="createTime" column="g_create_time"></result>
+            <result property="updateTime" column="g_update_time"></result>
+        </association>
+
+        <collection property="federatedSiteModelDos"
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteModelDo">
+            <id property="modelId" column="model_id"></id>
+            <result property="installItems" column="install_items"></result>
+            <result property="version" column="version"></result>
+            <result property="installTime" column="install_time"></result>
+            <result property="updateTime" column="m_update_time"></result>
+            <result property="status" column="m_status"></result>
+            <result property="updateStatus" column="update_status"></result>
+            <result property="type" column="type"></result>
+            <result property="id" column="m_id"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectCount" parameterType="com.webank.ai.fatecloud.system.pojo.qo.SiteListWithModelsQo"
+            resultType="int">
+        SELECT count(1) FROM t_federated_site_manager s inner join t_federated_group_set g
+        on s.group_id=g.group_id
+        <where>
+
+            <if test="condition != null">
+                and (s.party_id like concat('%',#{condition},'%') or s.site_name like concat('%',#{condition},'%'))
+            </if>
+            <if test="status != 0">
+                and s.status=#{status}
+            </if>
+            <if test="role != 0">
+                and g.role=#{role}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="findPage" resultMap="siteMap">
+        SELECT temp.*,m.model_id,m.install_items,m.version,m.install_time,m.update_time m_update_time,m.status m_status,
+        m.type,m.id m_id,m.update_status
+        FROM ( select s.*, g.role from t_federated_site_manager s inner join t_federated_group_set g
+        on s.group_id=g.group_id
+        <where>
+            <if test="siteListWithModelsQo.condition != null">
+                and (s.party_id like concat('%',#{siteListWithModelsQo.condition},'%') or s.site_name like
+                concat('%',#{siteListWithModelsQo.condition},'%') )
+            </if>
+            <if test="siteListWithModelsQo.status != 0">
+                and s.status=#{siteListWithModelsQo.status}
+            </if>
+            <if test="siteListWithModelsQo.role != 0">
+                and g.role=#{siteListWithModelsQo.role}
+            </if>
+
+        </where>
+        <if test="siteListWithModelsQo.orderRule == 1">
+            order by s.${siteListWithModelsQo.orderField} asc
+        </if>
+        <if test="siteListWithModelsQo.orderRule == 2">
+            order by s.${siteListWithModelsQo.orderField} desc
+        </if>
+        limit #{startIndex}, #{siteListWithModelsQo.pageSize}
+        ) temp
+        left join t_federated_site_model m
+        on temp.id = m.id and m.status = 1
+
+    </select>
+
+</mapper>
