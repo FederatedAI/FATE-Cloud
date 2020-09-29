@@ -456,6 +456,7 @@ public class FederatedSiteManagerService {
 
     public PageBean<InstitutionsDto> findInstitutions(InstitutionQo institutionQo) {
         //get parameters for page
+//        String[] institutionsArray = institutionQo.getInstitutionsArray();
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
         federatedFateManagerUserDoQueryWrapper.eq("status", 2);
         Integer institutionsCount = federatedFateManagerUserMapper.selectCount(federatedFateManagerUserDoQueryWrapper);

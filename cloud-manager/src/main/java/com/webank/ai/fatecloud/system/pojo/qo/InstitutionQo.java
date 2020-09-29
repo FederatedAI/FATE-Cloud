@@ -20,6 +20,12 @@ public class InstitutionQo implements Serializable {
     @ApiModelProperty("page size")
     private Integer pageSize = 10;
 
+    @ApiModelProperty(value = "party id,site name")
+    private String condition;
+
+    @ApiModelProperty(value = "institutions")
+    private String[] institutionsArray;
+
     public InstitutionQo(AuthorityInstitutionsQo authorityInstitutionsQo) {
         this.pageNum = authorityInstitutionsQo.getPageNum();
         this.pageSize = authorityInstitutionsQo.getPageSize();
