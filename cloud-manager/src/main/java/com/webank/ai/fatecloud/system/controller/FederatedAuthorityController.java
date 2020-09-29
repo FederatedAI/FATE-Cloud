@@ -105,9 +105,9 @@ public class FederatedAuthorityController {
 
     @PostMapping(value = "/history/fateManager")
     @ApiOperation(value = "find authority history of fateManager")
-    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
 
-        return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo, httpServletRequest);
+        return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
     }
 
 }

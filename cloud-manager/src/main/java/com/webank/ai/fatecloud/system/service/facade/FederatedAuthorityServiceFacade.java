@@ -140,14 +140,14 @@ public class FederatedAuthorityServiceFacade {
         return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
     }
 
-    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
         Preconditions.checkArgument(StringUtils.isNotBlank(authorityHistoryOfFateManagerQo.getInstitutions()));
 
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityHistoryOfFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
-
-        if (!result) {
-            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
-        }
+//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityHistoryOfFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+//
+//        if (!result) {
+//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+//        }
 
         PageBean<AuthorityHistoryDto> authorityHistory = federatedAuthorityService.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
 
