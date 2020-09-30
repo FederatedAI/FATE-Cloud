@@ -221,13 +221,13 @@
 <!--        mu.institutions=sm.institutions-->
 
         select mu.institutions,IFNULL(sm.count,0) as number from (
-        <if test="condition == null">
+        <if test="institutionQo.condition == null">
             select institutions from t_fate_manager_user
 
             <where>
                 and status = 2
-                <if test="institutionsArray != null and institutionsArray.length > 0">
-                    <foreach collection="institutionsArray" open=" and institutions  in (" close=")"
+                <if test="institutionQo.institutionsArray != null and institutionQo.institutionsArray.length > 0">
+                    <foreach collection="institutionQo.institutionsArray" open=" and institutions  in (" close=")"
                              item="institutionsItem"
                              separator=",">
                         #{institutionsItem}
@@ -236,13 +236,13 @@
             </where>
         </if>
 
-        <if test="condition != null">
+        <if test="institutionQo.condition != null">
             select institutions from t_federated_site_manager
             <where>
-                and (party_id like #{condition} or site_name like #{condition})
+                and (party_id like #{institutionQo.condition} or site_name like #{institutionQo.condition})
 
-                <if test="institutionsArray != null and institutionsArray.length > 0">
-                    <foreach collection="institutionsArray" open=" and institutions  in (" close=")"
+                <if test="institutionQo.institutionsArray != null and institutionQo.institutionsArray.length > 0">
+                    <foreach collection="institutionQo.institutionsArray" open=" and institutions  in (" close=")"
                              item="institutionsItem"
                              separator=",">
                         #{institutionsItem}
