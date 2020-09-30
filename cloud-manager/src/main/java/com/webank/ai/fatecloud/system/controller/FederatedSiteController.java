@@ -141,7 +141,7 @@ public class FederatedSiteController {
 
 
     @PostMapping(value = "/findOneSite/fateManager")
-    @ApiOperation(value = "find site info for fate manager for fate manager")
+    @ApiOperation(value = "find site info for fate manager ")
     public CommonResponse<SiteDetailDto> findOneSite(HttpServletRequest httpServletRequest) {
         log.info("RequestBody:{}", httpServletRequest);
         return federatedSiteManagerServiceFacade.findOneSite(httpServletRequest);

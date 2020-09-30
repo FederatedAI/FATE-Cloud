@@ -26,8 +26,4 @@ public class InstitutionQo implements Serializable {
     @ApiModelProperty(value = "institutions")
     private String[] institutionsArray;
 
-    public InstitutionQo(AuthorityInstitutionsQo authorityInstitutionsQo) {
-        this.pageNum = authorityInstitutionsQo.getPageNum();
-        this.pageSize = authorityInstitutionsQo.getPageSize();
-    }
 }

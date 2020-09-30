@@ -154,4 +154,21 @@ public class FederatedAuthorityServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityHistory);
 
     }
+
+    public CommonResponse<PageBean<String>> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+        //check authority
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityInstitutionsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+        if (!result) {
+            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+
+        if (authorityInstitutionsQo.getInstitutions() == null) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        PageBean<String> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
+    }
+
+
 }
