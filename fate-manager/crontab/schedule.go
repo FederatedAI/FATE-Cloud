@@ -16,14 +16,14 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	//go SiteStatusTask()
-	//go IpManagerTask()
-	//go HeartTask()
-	//go JobTask()
-	//go TestOnlyTask()
-	//go ComponentStatusTask()
+	go SiteStatusTask()
+	go IpManagerTask()
+	go HeartTask()
+	go JobTask()
+	go TestOnlyTask()
+	go ComponentStatusTask()
 	go ApplyResultTask(accountInfo)
-	//go AllowApplyTask(accountInfo)
+	go AllowApplyTask(accountInfo)
 }
 
 func SiteStatusTask() {

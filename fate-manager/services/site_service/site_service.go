@@ -142,7 +142,7 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 					siteInfo.SiteId = findOneSiteResp.Data.Id
 					models.UpdateSite(&siteInfo)
 
-					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0  {
+					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0 {
 						logging.Debug("Cloud Manger Fate version is empty!Start to update...")
 						go updateVersionToCloudManager(federatedSiteItem)
 					}
@@ -209,7 +209,7 @@ func UpdateSite(updateSiteReq *entity.UpdateSiteReq) (int, error) {
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var updateResp entity.CloudManagerResp
-	if len(result.Body) >0 {
+	if len(result.Body) > 0 {
 		err = json.Unmarshal([]byte(result.Body), &updateResp)
 		if err != nil {
 			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
@@ -289,7 +289,7 @@ func updateVersionToCloudManager(item *entity.FederatedSiteItem) {
 		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
 	}
 	var updateResp entity.CloudManagerResp
-	if len(result.Body) >0 {
+	if len(result.Body) > 0 {
 		err = json.Unmarshal([]byte(result.Body), &updateResp)
 		if err != nil {
 			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
@@ -869,7 +869,7 @@ func GetApplyLog() ([]entity.ApplyLog, error) {
 	var applyLogList []entity.ApplyLog
 	for i := 0; i < len(applySiteInfoList); i++ {
 		applyLog := entity.ApplyLog{
-			ApplyTime: applySiteInfoList[i].UpdateTime.UnixNano() / 1e6,
+			ApplyTime: applySiteInfoList[i].CreateTime.UnixNano() / 1e6,
 			Content:   applySiteInfoList[i].Institutions,
 		}
 		applyLogList = append(applyLogList, applyLog)
