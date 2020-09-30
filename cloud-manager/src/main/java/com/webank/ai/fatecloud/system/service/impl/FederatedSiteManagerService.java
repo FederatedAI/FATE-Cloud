@@ -456,11 +456,19 @@ public class FederatedSiteManagerService {
 
     public PageBean<InstitutionsDto> findInstitutions(InstitutionQo institutionQo) {
         //get parameters for page
-//        String[] institutionsArray = institutionQo.getInstitutionsArray();
-        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
-        federatedFateManagerUserDoQueryWrapper.eq("status", 2);
-        Integer institutionsCount = federatedFateManagerUserMapper.selectCount(federatedFateManagerUserDoQueryWrapper);
-        PageBean<InstitutionsDto> institutionsDtoPageBean = new PageBean<>(institutionQo.getPageNum(), institutionQo.getPageSize(), institutionsCount);
+//        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+//        federatedFateManagerUserDoQueryWrapper.eq("status", 2);
+//        Integer institutionsCount = federatedFateManagerUserMapper.selectCount(federatedFateManagerUserDoQueryWrapper);
+//        PageBean<InstitutionsDto> institutionsDtoPageBean = new PageBean<>(institutionQo.getPageNum(), institutionQo.getPageSize(), institutionsCount);
+//        long startIndex = institutionsDtoPageBean.getStartIndex();
+
+
+
+        if (StringUtils.isNotBlank(institutionQo.getCondition())){
+            institutionQo.setCondition("%" + institutionQo.getCondition() + "%");
+        }
+        long count = federatedSiteManagerMapper.countForInstitutions(institutionQo);
+        PageBean<InstitutionsDto> institutionsDtoPageBean = new PageBean<>(institutionQo.getPageNum(), institutionQo.getPageSize(), count);
         long startIndex = institutionsDtoPageBean.getStartIndex();
 
         //get paged institutions and their numbers
@@ -475,7 +483,7 @@ public class FederatedSiteManagerService {
 
     public PageBean<SiteDetailDto> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo) {
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteManagerDoQueryWrapper.eq("institutions", siteListForFateManagerQo.getInstitutions()).eq("status",2);
+        federatedSiteManagerDoQueryWrapper.eq("institutions", siteListForFateManagerQo.getInstitutions()).eq("status", 2);
         long sitesCount = federatedSiteManagerMapper.selectCount(federatedSiteManagerDoQueryWrapper);
 
         PageBean<SiteDetailDto> siteDetailDtoPageBean = new PageBean<>(siteListForFateManagerQo.getPageNum(), siteListForFateManagerQo.getPageSize(), sitesCount);

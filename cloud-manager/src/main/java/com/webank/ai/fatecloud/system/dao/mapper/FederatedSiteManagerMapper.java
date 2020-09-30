@@ -30,5 +30,7 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     long findUsedSitesCount(UsedSiteListQo usedSiteListQo);
 
+    long countForInstitutions(InstitutionQo institutionQo);
+
 }
 

@@ -37,6 +37,13 @@ public class FederatedAuthorityController {
         return federatedAuthorityServiceFacade.findInstitutionsForSite(authorityInstitutionsQo, httpServletRequest);
     }
 
+    @PostMapping(value = "/institutions/approved")
+    @ApiOperation(value = "find all the institutions for site")
+    public CommonResponse<PageBean<String>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+
+        return federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest);
+    }
+
     @PostMapping(value = "/apply")
     @ApiOperation(value = "apply access-authority of other institutions for site")
     public CommonResponse applyForAuthorityOfInstitutions(@RequestBody AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) {

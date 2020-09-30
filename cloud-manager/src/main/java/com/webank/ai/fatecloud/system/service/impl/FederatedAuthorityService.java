@@ -170,14 +170,15 @@ public class FederatedAuthorityService {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForReview = new QueryWrapper<>();
         federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", authorityApplyReviewQo.getInstitutions()).eq("status", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapperForReview);
+        Date date = new Date();
         for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
             if (authorityApplyReviewQo.getApprovedInstitutionsList().contains(federatedSiteAuthorityDo.getAuthorityInstitutions())) {
                 federatedSiteAuthorityDo.setStatus(2);
-                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
             } else {
                 federatedSiteAuthorityDo.setStatus(3);
-                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
             }
+            federatedSiteAuthorityDo.setUpdateTime(date);
+            federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
 
         }
 
@@ -272,6 +273,23 @@ public class FederatedAuthorityService {
 
         authorityHistoryDtoPageBean.setList(authorityHistoryDtos);
         return authorityHistoryDtoPageBean;
+
+    }
+
+    public PageBean<String> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
+        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).eq("status", "2").eq("generation",1);
+        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+        long institutionsCount = federatedSiteAuthorityDos.size();
+
+        PageBean<String> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
+
+        //get institutions list
+        List<String> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
+        institutionsForFateDtoPageBean.setList(approvedInstitutions);
+
+        return institutionsForFateDtoPageBean;
 
     }
 }
