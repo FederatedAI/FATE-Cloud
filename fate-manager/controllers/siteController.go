@@ -9,24 +9,10 @@ import (
 	"fate.manager/entity"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/site_service"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"net/http"
 )
-
-func VersionCommand() *cli.Command {
-	return &cli.Command{
-		Name:  "version",
-		Flags: []cli.Flag{},
-		Usage: "Show FateManager version",
-		Action: func(c *cli.Context) error {
-			fmt.Printf("* FATE-Manager version=v1.0.0\r\n")
-			return nil
-		},
-	}
-}
 
 // @Summary get home page list
 // @Tags SiteController
@@ -394,6 +380,7 @@ func GetFunction(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)
 }
+
 // @Summary Get Read Function
 // @Tags SiteController
 // @Accept  json
@@ -410,6 +397,7 @@ func FunctionRead(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)
 }
+
 // @Summary Get Other Fate-Manager Site List
 // @Tags SiteController
 // @Produce  json

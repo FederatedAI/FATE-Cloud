@@ -9,6 +9,7 @@ const (
 	PULL_STATUS_NO      PullStatusType = 0
 	PULL_STATUS_YES     PullStatusType = 1
 	PULL_STATUS_FAILED  PullStatusType = 2
+	PULL_STATUS_PULLING PullStatusType = 3
 )
 
 func GetPullStatusString(p PullStatusType) string {
@@ -18,7 +19,9 @@ func GetPullStatusString(p PullStatusType) string {
 	case PULL_STATUS_YES:
 		return "pulled"
 	case PULL_STATUS_FAILED:
-		return "pulle failed"
+		return "pull failed"
+	case PULL_STATUS_PULLING:
+		return "pulling"
 	default:
 		return "unknown"
 	}
@@ -26,7 +29,7 @@ func GetPullStatusString(p PullStatusType) string {
 
 func GetPullStatusList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		idPair := entity.IdPair{i, GetPullStatusString(PullStatusType(i))}
 		idPairList = append(idPairList, idPair)
 	}
