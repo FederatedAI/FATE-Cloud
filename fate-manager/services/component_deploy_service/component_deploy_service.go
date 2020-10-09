@@ -203,13 +203,13 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 
 func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 
-	if len(kubeReq.Url) == 0 || kubeReq.PartyId == 0  {
+	if len(kubeReq.Url) == 0 || kubeReq.PartyId == 0 {
 		return e.INVALID_PARAMS, nil
 	}
 	if kubeReq.FederatedId == 0 {
-		federatedInfoList,err := models.GetFederatedInfo()
-		if err != nil || len(federatedInfoList) ==0 {
-			return e.ERROR_CONNECT_KUBE_FATE_FAIL,nil
+		federatedInfoList, err := models.GetFederatedInfo()
+		if err != nil || len(federatedInfoList) == 0 {
+			return e.ERROR_CONNECT_KUBE_FATE_FAIL, nil
 		}
 		kubeReq.FederatedId = federatedInfoList[0].Id
 	}
@@ -219,6 +219,21 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	}
 	if item.Id == 0 {
 		return e.INVALID_PARAMS, err
+	}
+	if len(item.NodeList) == 0 {
+		cmd := "iplist=\"\";for i in `sudo kubectl get node -o wide | grep -v master|grep -v NAME |awk '{print $6}'`;do iplist=$i,$iplist; done;echo ${iplist%,*}"
+		result, _ := util.ExecCommand(cmd)
+		if len(result) > 0 {
+			iplist := result[0 : len(result)-1]
+			var data = make(map[string]interface{})
+			data["node_list"] = iplist
+			data["update_time"] = time.Now()
+			kubenetesConf := models.KubenetesConf{
+				Id:           item.Id,
+				KubenetesUrl: item.KubenetesUrl,
+			}
+			models.UpdateKubenetesConf(data, kubenetesConf)
+		}
 	}
 
 	deploySite := models.DeploySite{
@@ -248,7 +263,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			head := make(map[string]interface{})
 			head["Authorization"] = authorization
 			result, err := http.GET(http.Url(kubeReq.Url+"/v1/cluster/"+clusterId), nil, head)
-			if err != nil || result ==nil {
+			if err != nil || result == nil {
 				return e.ERROR_CONNECT_KUBE_FATE_FAIL, err
 			}
 			var clusterQueryResp entity.ClusterQueryResp
@@ -320,7 +335,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
-				}else if componentVersionList[i].ComponentName == "rollsite"{
+				} else if componentVersionList[i].ComponentName == "rollsite" {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
@@ -358,7 +373,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					UpdateTime:  time.Time{},
 				}
 				models.AddAutoTest(autoTest)
-				if i== len(componentVersionList) -1 {
+				if i == len(componentVersionList)-1 {
 					autoTest.TestItem = "Single Test"
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Toy Test"

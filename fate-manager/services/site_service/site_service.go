@@ -530,6 +530,12 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 				},
 				Institutions: resp.Data.List[i].Institutions,
 			}
+			if resp.Data.List[i].Status == int(enum.AuditStatus_REJECTED) {
+				item.Status.Code = int(enum.IS_VALID_YES)
+				item.Status.Desc = enum.GetIsValidString(enum.IS_VALID_YES)
+			} else if resp.Data.List[i].Status == int(enum.AuditStatus_AGREED) {
+				item.Status.Desc = enum.GetIsValidString(enum.IS_VALID_NO)
+			}
 			hitTag := false
 			if len(applist) > 0 {
 				for j := 0; j < len(applist); j++ {
@@ -553,6 +559,7 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 	if err != nil {
 		return e.ERROR_APPLY_SITES_FAIL, err
 	}
+
 	applySiteReq.Institutions = accountInfo.Institutions
 	applySiteReqJson, _ := json.Marshal(applySiteReq)
 	headInfo := util.UserHeaderInfo{

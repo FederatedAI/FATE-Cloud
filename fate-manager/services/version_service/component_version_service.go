@@ -4,10 +4,12 @@ import (
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/logging"
+	"fate.manager/comm/setting"
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -73,7 +75,13 @@ func Pull(pullReq entity.PullReq) {
 					logging.Debug(componentName, " is pulled")
 					continue
 				}
-				cmd := "docker pull " + componentVersionList[j].ImageName + ":" + componentVersionList[j].ImageTag
+				cmd := fmt.Sprintf("docker pull %s:%s", componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
+				if len(setting.KubenetesSetting.Registry) > 0 {
+					cmd = fmt.Sprintf("docker pull %s/%s:%s", setting.KubenetesSetting.Registry, componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
+				}
+				if setting.KubenetesSetting.SudoTag {
+					cmd = fmt.Sprintf("sudo %s", cmd)
+				}
 				logging.Debug(cmd)
 				go PullDockerImage(cmd, pullReq.FateVersion, pullReq.ProductType, componentVersionList[j])
 				break
@@ -82,18 +90,53 @@ func Pull(pullReq entity.PullReq) {
 	}
 }
 func PullDockerImage(cmd string, fateVersion string, productType int, info models.ComponentVersion) {
-	result, err := util.ExecCommand(cmd)
-	pullStatus := enum.PULL_STATUS_YES
-	if err != nil || result == "" {
-		pullStatus = enum.PULL_STATUS_FAILED
-		logging.Debug(cmd, " failed")
-	}
+	pullStatus := enum.PULL_STATUS_PULLING
 	componentVersion := models.ComponentVersion{
 		FateVersion:   fateVersion,
 		ProductType:   productType,
 		ComponentName: info.ComponentName,
 		PullStatus:    int(pullStatus),
 	}
+	err := models.UpdateComponentVersion(&componentVersion)
+	if err != nil {
+		logging.Debug("update docker pulling status failed")
+	}
+	result, err := util.ExecCommand(cmd)
+	pullStatus = enum.PULL_STATUS_YES
+	if err != nil || result == "" {
+		pullStatus = enum.PULL_STATUS_FAILED
+		logging.Debug(cmd, " failed")
+	}
+
+	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", info.ImageName, info.ImageTag)
+	if setting.KubenetesSetting.SudoTag {
+		command = fmt.Sprintf("sudo %s", command)
+	}
+	result, _ = util.ExecCommand(command)
+	if len(result) > 0 {
+		componentVersion.ImageTag = result[0 : len(result)-1]
+		componentVersion.ComponentVersion = result[0 : len(result)-1]
+		componentVersion.ImageDescription = result[0 : len(result)-1]
+	}
+
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'", info.ImageName, info.ImageTag)
+	if setting.KubenetesSetting.SudoTag {
+		command = fmt.Sprintf("sudo %s", command)
+	}
+	result, _ = util.ExecCommand(command)
+	if len(result) > 0 {
+		componentVersion.ImageId = result[0 : len(result)-1]
+	}
+
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", info.ImageName, info.ImageTag)
+	if setting.KubenetesSetting.SudoTag {
+		command = fmt.Sprintf("sudo %s", command)
+	}
+	result, _ = util.ExecCommand(command)
+	if len(result) > 0 {
+		componentVersion.ImageSize = result[0 : len(result)-1]
+	}
+	componentVersion.PullStatus = int(pullStatus)
 	err = models.UpdateComponentVersion(&componentVersion)
 	if err != nil {
 		logging.Debug("update docker pull status failed")
@@ -219,8 +262,8 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
 		deploySite.CreateTime = time.Now()
 		deploySite.UpdateTime = time.Now()
-		deploySite.PythonPort=pythonPort
-		deploySite.RollsitePort=proxyPort
+		deploySite.PythonPort = pythonPort
+		deploySite.RollsitePort = proxyPort
 		deploySite.ClickType = int(enum.ClickType_PULL)
 		err = models.AddDeploySite(&deploySite)
 		if err != nil {
@@ -234,7 +277,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["chart_version"] = fateVersionList[0].ChartVersion
 		data["version_index"] = fateVersionList[0].VersionIndex
 		data["python_port"] = pythonPort
-		data["rollsite_port"] =proxyPort
+		data["rollsite_port"] = proxyPort
 		data["create_time"] = time.Now()
 		data["update_time"] = time.Now()
 		data["click_type"] = int(enum.ClickType_PULL)
