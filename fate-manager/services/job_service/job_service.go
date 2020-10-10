@@ -363,16 +363,23 @@ func ApplyResultTask(info *models.AccountInfo) {
 		}
 		if applySiteResultResp.Code == e.SUCCESS {
 			updateTag := false
-			for k := 0; k < len(applySiteResultResp.Data); k++ {
-				item := applySiteResultResp.Data[k]
-				for l := 0; l < len(auditResult); l++ {
+			for l := 0; l < len(auditResult); l++ {
+				hittag := false
+				for k := 0; k < len(applySiteResultResp.Data); k++ {
+					item := applySiteResultResp.Data[k]
+
 					if auditResult[l].Desc == item.AuthorityInstitutions {
 						if item.Status != auditResult[l].Code {
 							updateTag = true
 						}
 						auditResult[l].Code = item.Status
 						break
+						hittag = true
 					}
+				}
+				if !hittag {
+					auditResult[l].Code = int(enum.AuditStatus_REJECTED)
+					updateTag = true
 				}
 			}
 			if updateTag {
