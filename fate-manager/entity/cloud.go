@@ -118,3 +118,17 @@ type ApplyResp struct {
 	CloudCommResp
 	Data ApplyData `json:"data"`
 }
+type ApproveData struct {
+	End         int      `json:"end"`
+	List        []string `json:"list"`
+	PageNum     int      `json:"pageNum"`
+	PageSize    int      `json:"pageSize"`
+	Start       int      `json:"start"`
+	StartIndex  int      `json:"startIndex"`
+	TotalPage   int      `json:"totalPage"`
+	TotalRecord int      `json:"totalRecord"`
+}
+type ApproveResp struct {
+	CloudCommResp
+	Data ApproveData `json:"data"`
+}
