@@ -502,6 +502,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_INSTALLING) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_TEST_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_IN_TESTING) ||
+		deployComponentList[0].DeployStatus == int(enum.DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_TEST_PASSED) {
 
 		ret := k8s_service.CheckNodeIp(updateReq.Address, updateReq.FederatedId, updateReq.PartyId)
@@ -518,6 +519,13 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 
 		data = make(map[string]interface{})
 		data["click_type"] = int(enum.ClickType_PULL)
+		if updateReq.ComponentName == "rollsite" {
+			addr := strings.Split(updateReq.Address, ":")
+			if len(addr) == 2 {
+				port, _ := strconv.Atoi(addr[1])
+				data["rollsite_port"] = port
+			}
+		}
 
 		deploySite := models.DeploySite{
 			FederatedId: updateReq.FederatedId,
@@ -555,7 +563,7 @@ func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestLi
 	for i := 0; i < len(autoTestList); i++ {
 		autoTestItem := entity.AutoTestItem{
 			TestItem: autoTestList[i].TestItem,
-			Duration: int(autoTestList[i].EndTime.UnixNano()/1e6-autoTestList[i].StartTime.UnixNano()/1e6),
+			Duration: int(autoTestList[i].EndTime.UnixNano()/1e6 - autoTestList[i].StartTime.UnixNano()/1e6),
 			Status:   entity.IdPair{autoTestList[i].Status, enum.GetTestStatusString(enum.TestStatusType(autoTestList[i].Status))},
 		}
 		if autoTestList[i].Status == int(enum.TEST_STATUS_TESTING) {
