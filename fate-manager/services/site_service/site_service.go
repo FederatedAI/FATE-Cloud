@@ -536,18 +536,18 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 			} else if resp.Data.List[i].Status == int(enum.AuditStatus_AGREED) {
 				item.Status.Desc = enum.GetIsValidString(enum.IS_VALID_NO)
 			}
-			hitTag := false
-			if len(applist) > 0 {
-				for j := 0; j < len(applist); j++ {
-					if applist[j].Desc == resp.Data.List[i].Institutions && applist[j].Code == int(enum.AuditStatus_AGREED) {
-						hitTag = true
-						break
-					}
-				}
-			}
-			if hitTag {
-				item.Status.Code = int(enum.AuditStatus_AGREED)
-			}
+			//hitTag := false
+			//if len(applist) > 0 {
+			//	for j := 0; j < len(applist); j++ {
+			//		if applist[j].Desc == resp.Data.List[i].Institutions && resp.Data.List[i].Status == int(enum.AuditStatus_AGREED) {
+			//			hitTag = true
+			//			break
+			//		}
+			//	}
+			//}
+			//if hitTag {
+			//	item.Status.Code = int(enum.AuditStatus_AGREED)
+			//}
 			data = append(data, item)
 		}
 	}
@@ -757,92 +757,186 @@ func FunctionRead() (int, error) {
 	models.UpdateAccountInfo(data, account)
 	return e.SUCCESS, nil
 }
+
 func GetOtherSiteList() ([]entity.FederatedItem, error) {
 	var federatedItemList []entity.FederatedItem
 	federatedInfo, err := models.GetFederatedInfo()
 	if err != nil || len(federatedInfo) == 0 {
 		return nil, err
 	}
-	applySiteInfo := models.ApplySiteInfo{Status: int(enum.IS_VALID_YES), ReadStatus: -1}
-	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
-	if err != nil {
-		return nil, err
-	}
 	accountInfo, err := user_service.GetAdminInfo()
-	if err != nil {
+	if err != nil || accountInfo == nil {
 		return nil, err
 	}
-	for i := 0; i < len(applySiteInfoList); i++ {
-		var auditResult []entity.IdPair
-		err = json.Unmarshal([]byte(applySiteInfoList[i].Institutions), &auditResult)
-		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			continue
-		}
-
-		for j := 0; j < len(auditResult); j++ {
-
-			if auditResult[j].Code == int(enum.AuditStatus_AGREED) {
-				querySiteReq := entity.QuerySiteReq{
-					Institutions: auditResult[j].Desc,
-					PageNum:      1,
-					PageSize:     10,
-				}
-				applySiteReqJson, _ := json.Marshal(querySiteReq)
-				headInfo := util.UserHeaderInfo{
-					UserAppKey:    accountInfo.AppKey,
-					UserAppSecret: accountInfo.AppSecret,
-					FateManagerId: accountInfo.CloudUserId,
-					Body:          string(applySiteReqJson),
-					Uri:           setting.OtherSiteUri,
-				}
-				headerInfoMap := util.GetUserHeadInfo(headInfo)
-				federationList, err := federated_service.GetFederationInfo()
-				if err != nil || len(federationList) == 0 {
-					return nil, err
-				}
-				result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
-				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
-					return nil, err
-				}
-				var resp entity.ApplyResp
-				err = json.Unmarshal([]byte(result.Body), &resp)
-				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return nil, err
-				}
-				if resp.Code == e.SUCCESS {
-					var siteItemList []entity.SiteItem
-					for k := 0; k < len(resp.Data.List); k++ {
-						item := resp.Data.List[k]
-						siteItem := entity.SiteItem{
-							Id:       item.Id,
-							PartyId:  item.PartyId,
-							SiteName: item.SiteName,
-							Role: entity.IdPair{
-								Code: item.Role,
-								Desc: enum.GetRoleString(enum.RoleType(item.Role)),
-							},
-							Status: entity.IdPair{
-								Code: item.Status,
-								Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
-							},
-							AcativationTime: item.ActivationTime,
-						}
-						siteItemList = append(siteItemList, siteItem)
+	approvedReq := entity.InstitutionsReq{
+		Institutions: accountInfo.Institutions,
+		PageNum:      1,
+		PageSize:     15,
+	}
+	approvedReqJson, _ := json.Marshal(approvedReq)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    accountInfo.AppKey,
+		UserAppSecret: accountInfo.AppSecret,
+		FateManagerId: accountInfo.CloudUserId,
+		Body:          string(approvedReqJson),
+		Uri:           setting.ApprovedUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return nil, err
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.ApprovedUri), approvedReq, headerInfoMap)
+	if err != nil {
+		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return nil, err
+	}
+	var approveResp entity.ApproveResp
+	err = json.Unmarshal([]byte(result.Body), &approveResp)
+	if err != nil {
+		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return nil, err
+	}
+	if approveResp.Code == e.SUCCESS {
+		for i := 0; i < len(approveResp.Data.List); i++ {
+			querySiteReq := entity.QuerySiteReq{
+				Institutions: approveResp.Data.List[i],
+				PageNum:      1,
+				PageSize:     10,
+			}
+			applySiteReqJson, _ := json.Marshal(querySiteReq)
+			headInfo := util.UserHeaderInfo{
+				UserAppKey:    accountInfo.AppKey,
+				UserAppSecret: accountInfo.AppSecret,
+				FateManagerId: accountInfo.CloudUserId,
+				Body:          string(applySiteReqJson),
+				Uri:           setting.OtherSiteUri,
+			}
+			headerInfoMap := util.GetUserHeadInfo(headInfo)
+			federationList, err := federated_service.GetFederationInfo()
+			if err != nil || len(federationList) == 0 {
+				return nil, err
+			}
+			result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
+			if err != nil {
+				logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+				return nil, err
+			}
+			var resp entity.ApplyResp
+			err = json.Unmarshal([]byte(result.Body), &resp)
+			if err != nil {
+				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return nil, err
+			}
+			if resp.Code == e.SUCCESS {
+				var siteItemList []entity.SiteItem
+				for k := 0; k < len(resp.Data.List); k++ {
+					item := resp.Data.List[k]
+					siteItem := entity.SiteItem{
+						Id:       item.Id,
+						PartyId:  item.PartyId,
+						SiteName: item.SiteName,
+						Role: entity.IdPair{
+							Code: item.Role,
+							Desc: enum.GetRoleString(enum.RoleType(item.Role)),
+						},
+						Status: entity.IdPair{
+							Code: item.Status,
+							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
+						},
+						AcativationTime: item.ActivationTime,
 					}
-					federatedItem := entity.FederatedItem{
-						FederatedId:             federatedInfo[0].Id,
-						FateManagerInstitutions: auditResult[j].Desc,
-						Size:                    len(siteItemList),
-						SiteItemList:            siteItemList,
-					}
-					federatedItemList = append(federatedItemList, federatedItem)
+					siteItemList = append(siteItemList, siteItem)
 				}
+				federatedItem := entity.FederatedItem{
+					FederatedId:             federatedInfo[0].Id,
+					FateManagerInstitutions: approveResp.Data.List[i],
+					Size:                    len(siteItemList),
+					SiteItemList:            siteItemList,
+				}
+				federatedItemList = append(federatedItemList, federatedItem)
 			}
 		}
 	}
+	//
+	//
+	//
+	//applySiteInfo := models.ApplySiteInfo{Status: int(enum.IS_VALID_YES), ReadStatus: -1}
+	//applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//for i := 0; i < len(applySiteInfoList); i++ {
+	//	var auditResult []entity.IdPair
+	//	err = json.Unmarshal([]byte(applySiteInfoList[i].Institutions), &auditResult)
+	//	if err != nil {
+	//		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+	//		continue
+	//	}
+	//
+	//	for j := 0; j < len(auditResult); j++ {
+	//
+	//		if auditResult[j].Code == int(enum.AuditStatus_AGREED) {
+	//			querySiteReq := entity.QuerySiteReq{
+	//				Institutions: auditResult[j].Desc,
+	//				PageNum:      1,
+	//				PageSize:     10,
+	//			}
+	//			applySiteReqJson, _ := json.Marshal(querySiteReq)
+	//			headInfo := util.UserHeaderInfo{
+	//				UserAppKey:    accountInfo.AppKey,
+	//				UserAppSecret: accountInfo.AppSecret,
+	//				FateManagerId: accountInfo.CloudUserId,
+	//				Body:          string(applySiteReqJson),
+	//				Uri:           setting.OtherSiteUri,
+	//			}
+	//			headerInfoMap := util.GetUserHeadInfo(headInfo)
+	//			federationList, err := federated_service.GetFederationInfo()
+	//			if err != nil || len(federationList) == 0 {
+	//				return nil, err
+	//			}
+	//			result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
+	//			if err != nil {
+	//				logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+	//				return nil, err
+	//			}
+	//			var resp entity.ApplyResp
+	//			err = json.Unmarshal([]byte(result.Body), &resp)
+	//			if err != nil {
+	//				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+	//				return nil, err
+	//			}
+	//			if resp.Code == e.SUCCESS {
+	//				var siteItemList []entity.SiteItem
+	//				for k := 0; k < len(resp.Data.List); k++ {
+	//					item := resp.Data.List[k]
+	//					siteItem := entity.SiteItem{
+	//						Id:       item.Id,
+	//						PartyId:  item.PartyId,
+	//						SiteName: item.SiteName,
+	//						Role: entity.IdPair{
+	//							Code: item.Role,
+	//							Desc: enum.GetRoleString(enum.RoleType(item.Role)),
+	//						},
+	//						Status: entity.IdPair{
+	//							Code: item.Status,
+	//							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
+	//						},
+	//						AcativationTime: item.ActivationTime,
+	//					}
+	//					siteItemList = append(siteItemList, siteItem)
+	//				}
+	//				federatedItem := entity.FederatedItem{
+	//					FederatedId:             federatedInfo[0].Id,
+	//					FateManagerInstitutions: auditResult[j].Desc,
+	//					Size:                    len(siteItemList),
+	//					SiteItemList:            siteItemList,
+	//				}
+	//				federatedItemList = append(federatedItemList, federatedItem)
+	//			}
+	//		}
+	//	}
+	//}
 	return federatedItemList, nil
 }
 

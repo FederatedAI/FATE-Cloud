@@ -24,6 +24,7 @@ var AuthorityApplied = "/cloud-manager/api/authority/applied"
 var AuthorityResults = "/cloud-manager/api/authority/results"
 var FunctionAllUri = "/cloud-manager/api/function/find/all/fateManager"
 var OtherSiteUri = "/cloud-manager/api/site/page/fateManager"
+var ApprovedUri = "/cloud-manager/api/authority/institutions/approved"
 
 type App struct {
 	PageSize        int
@@ -52,10 +53,10 @@ var ServerSetting = &Server{}
 
 type Database struct {
 	Type        string
-	UserName        string
+	UserName    string
 	Password    string
-	HostAddr        string
-	DataBase        string
+	HostAddr    string
+	DataBase    string
 	TablePrefix string
 	SqlMode     bool
 }
@@ -63,15 +64,15 @@ type Database struct {
 var DatabaseSetting = &Database{}
 
 type Kubenetes struct {
-	ExchangeIp   string
-	ExchangePort int
-	FlowPort  int
-	RollsitePort  int
-	SudoTag      bool
-	NodeManager  int
-	Registry     string
+	ExchangeIp               string
+	ExchangePort             int
+	FlowPort                 int
+	RollsitePort             int
+	SudoTag                  bool
+	NodeManager              int
+	Registry                 string
 	SessionProcessorsPerNode int
-	TestPartyId   int
+	TestPartyId              int
 }
 
 var KubenetesSetting = &Kubenetes{}
