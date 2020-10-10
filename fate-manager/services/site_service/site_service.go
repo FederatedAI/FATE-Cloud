@@ -595,17 +595,33 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 			}
 			auditResult = append(auditResult, audit)
 		}
+
+		applySiteInfo, _ := models.GetApplySiteOne()
+		if len(applySiteInfo.Institutions) > 0 {
+			var item []entity.IdPair
+			err = json.Unmarshal([]byte(applySiteInfo.Institutions), &item)
+			if err != nil {
+				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return e.ERROR_PARSE_JSON_ERROR, err
+			}
+			for j := 0; j < len(item); j++ {
+				if item[j].Code == int(enum.AuditStatus_AGREED) {
+					auditResult = append(auditResult, item[j])
+				}
+			}
+		}
 		auditResultJson, _ := json.Marshal(auditResult)
-		applySiteInfo := models.ApplySiteInfo{
-			UserId:       accountInfo.UserId,
-			UserName:     accountInfo.UserName,
+		applySiteInfo = &models.ApplySiteInfo{
+			UserId:       applySiteInfo.UserId,
+			UserName:     applySiteInfo.UserName,
 			Institutions: string(auditResultJson),
 			ReadStatus:   int(enum.APPLY_READ_STATUS_NOT_READ),
 			Status:       int(enum.IS_VALID_ING),
 			CreateTime:   time.Now(),
 			UpdateTime:   time.Now(),
 		}
-		models.AddApplySiteInfo(&applySiteInfo)
+
+		models.AddApplySiteInfo(applySiteInfo)
 		return e.SUCCESS, nil
 	}
 	return e.ERROR_APPLY_SITES_FAIL, nil
@@ -614,6 +630,7 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 func QueryApplySites() ([]entity.IdPair, error) {
 	applySiteInfo := models.ApplySiteInfo{
 		ReadStatus: int(enum.APPLY_READ_STATUS_NOT_READ),
+		Status:     int(enum.IS_VALID_YES),
 	}
 	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
 	if err != nil {
