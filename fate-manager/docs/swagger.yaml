@@ -2356,7 +2356,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Query Apply Sites
       tags:
-      - SiteController
+      - SiteController3
   /fate-manager/api/site/readapplysite:
     post:
       consumes:

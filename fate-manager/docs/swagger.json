@@ -1834,7 +1834,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "SiteController"
+                    "SiteController3"
                 ],
                 "summary": "Query Apply Sites",
                 "responses": {
