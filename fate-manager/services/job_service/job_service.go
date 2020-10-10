@@ -321,8 +321,8 @@ func ApplyResultTask(info *models.AccountInfo) {
 	}
 	if len(applySiteInfoList) == 0 {
 		applySiteInfo = models.ApplySiteInfo{
-			Status: int(enum.IS_VALID_YES),
-			ReadStatus:-1,
+			Status:     int(enum.IS_VALID_YES),
+			ReadStatus: -1,
 		}
 		applySiteInfoList, err = models.GetApplySiteInfo(applySiteInfo)
 		if err != nil || len(applySiteInfoList) == 0 {
@@ -387,14 +387,12 @@ func ApplyResultTask(info *models.AccountInfo) {
 				models.UpdateApplySiteInfo(data, info)
 
 				auditResultJson, _ := json.Marshal(auditResult)
-				data["institutions"] = string(auditResultJson)
-				data["update_time"] = time.Now()
+				applySiteInfo.Institutions = string(auditResultJson)
+				applySiteInfo.UpdateTime = time.Now()
+				applySiteInfo.ReadStatus = int(enum.APPLY_READ_STATUS_NOT_READ)
+				applySiteInfo.Status = int(enum.IS_VALID_YES)
 
-				data["read_status"] = int(enum.APPLY_READ_STATUS_NOT_READ)
-
-				data["status"] = int(enum.IS_VALID_YES)
-
-				models.UpdateApplySiteInfo(data, applySiteInfo)
+				models.AddApplySiteInfo(&applySiteInfo)
 			}
 		}
 	} else {

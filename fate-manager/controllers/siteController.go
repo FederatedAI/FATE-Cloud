@@ -331,7 +331,7 @@ func ApplySites(c *gin.Context) {
 }
 
 // @Summary Query Apply Sites
-// @Tags SiteController
+// @Tags SiteController3
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} app.QueryApplySitesResponse
