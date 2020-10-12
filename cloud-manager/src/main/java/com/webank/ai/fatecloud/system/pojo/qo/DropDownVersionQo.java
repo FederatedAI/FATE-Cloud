@@ -16,4 +16,8 @@ public class DropDownVersionQo implements Serializable {
 
     @ApiModelProperty("version name")
     private String versionName;
+
+    @ApiModelProperty("institutions name")
+    private String institutions;
+
 }
