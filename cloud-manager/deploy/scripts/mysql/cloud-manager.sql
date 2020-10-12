@@ -148,3 +148,12 @@ create table IF NOT EXISTS `t_fate_manager_user`(
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
+
+create table IF NOT EXISTS `t_job_statistics`(
+    `site_guest_id` bigint(20) not null COMMENT 'site id to launch the job',
+    `site_host_id` bigint(20) NOT NULL  COMMENT 'site id to cooperation',
+    `job_success_count` bigint(20) not null COMMENT 'count of successful jobs',
+    `job_failed_count` bigint(20) NOT NULL COMMENT 'count of failed jobs',
+    `job_finish_time` timestamp NOT NULL COMMENT 'type: day',
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
