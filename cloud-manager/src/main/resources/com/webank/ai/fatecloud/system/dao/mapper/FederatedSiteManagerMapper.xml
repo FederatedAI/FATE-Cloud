@@ -214,11 +214,6 @@
     </select>
 
     <select id="findInstitutions" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto">
-<!--        select mu.institutions,IFNULL(sm.count,0) as number from (select institutions from t_fate_manager_user where-->
-<!--        status = 2-->
-<!--        order by institutions desc LIMIT #{startIndex}, #{institutionQo.pageSize}) as mu left join (select institutions,-->
-<!--        count(1) count from t_federated_site_manager where status = 2 group by institutions) as sm on-->
-<!--        mu.institutions=sm.institutions-->
 
         select mu.institutions,IFNULL(sm.count,0) as number from (
         <if test="institutionQo.condition == null">
@@ -248,6 +243,7 @@
                         #{institutionsItem}
                     </foreach>
                 </if>
+                group by institutions
 
             </where>
         </if>
@@ -339,7 +335,7 @@
         </if>
 
         <if test="condition != null">
-            select count(1) from t_federated_site_manager
+           select count(1) from ( select institutions  from t_federated_site_manager
             <where>
                 and (party_id like #{condition} or site_name like #{condition})
 
@@ -350,9 +346,10 @@
                         #{institutionsItem}
                     </foreach>
                 </if>
-                and institutions in (select institutions from t_fate_manager_user where status =2)
+                 group by institutions
 
             </where>
+            ) as tmp
 
         </if>
 
