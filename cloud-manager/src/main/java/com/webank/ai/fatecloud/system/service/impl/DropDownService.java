@@ -17,7 +17,7 @@ public class DropDownService {
 
     public List<String> getDropDownVersionList(DropDownVersionQo dropDownVersionQo) {
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteManagerDoQueryWrapper.select(dropDownVersionQo.getVersionName()).groupBy(dropDownVersionQo.getVersionName());
+        federatedSiteManagerDoQueryWrapper.select(dropDownVersionQo.getVersionName()).eq("institutions",dropDownVersionQo.getInstitutions()).groupBy(dropDownVersionQo.getVersionName());
 
         List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(federatedSiteManagerDoQueryWrapper);
         ArrayList<String> versionList = new ArrayList<>();

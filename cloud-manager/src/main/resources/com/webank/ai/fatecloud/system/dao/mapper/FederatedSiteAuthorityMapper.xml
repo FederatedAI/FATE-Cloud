@@ -112,8 +112,8 @@
 
 
     <select id="findApprovedInstitutions" resultType="string">
-        SELECT institutions from t_federated_site_authority where institutions =#{authorityInstitutionsQo.institutions}
-        and generation =1 and status =2 order by institutions asc limit #{startIndex},
+        SELECT authority_institutions from t_federated_site_authority where institutions =#{authorityInstitutionsQo.institutions}
+        and generation =1 and status in (2,4) order by institutions asc limit #{startIndex},
         #{authorityInstitutionsQo.pageSize}
     </select>
 

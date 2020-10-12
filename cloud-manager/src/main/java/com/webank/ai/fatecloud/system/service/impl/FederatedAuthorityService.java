@@ -278,7 +278,7 @@ public class FederatedAuthorityService {
 
     public PageBean<String> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).eq("status", "2").eq("generation",1);
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status",2,4).eq("generation",1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         long institutionsCount = federatedSiteAuthorityDos.size();
 

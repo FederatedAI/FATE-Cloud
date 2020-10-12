@@ -45,7 +45,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/api/dropdown/**")
 
                 .addPathPatterns("/api/authority/**")
-                .excludePathPatterns("/api/authority/institutions", "/api/authority/apply", "/api/authority/applied", "/api/authority/results")
+                .excludePathPatterns("/api/authority/institutions", "/api/authority/institutions/approved","/api/authority/apply", "/api/authority/applied", "/api/authority/results")
 
                 .addPathPatterns("/api/cloud/user/**")
                 .excludePathPatterns("/api/cloud/user/login")
