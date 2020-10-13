@@ -5,6 +5,7 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo;
 import com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyStatusDto;
 import com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto;
+import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsForFateDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,5 +28,5 @@ public interface FederatedSiteAuthorityMapper extends BaseMapper<FederatedSiteAu
 
     List<AuthorityHistoryDto> findAuthorityHistoryOfFateManager(@Param("authorityHistoryOfFateManagerQo") AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo, @Param("startIndex") long startIndex);
 
-    List<String> findApprovedInstitutions(@Param("authorityInstitutionsQo") AuthorityInstitutionsQo authorityInstitutionsQo, @Param("startIndex") long startIndex);
+    List<InstitutionsForFateDto> findApprovedInstitutions(@Param("authorityInstitutionsQo") AuthorityInstitutionsQo authorityInstitutionsQo, @Param("startIndex") long startIndex);
 }
