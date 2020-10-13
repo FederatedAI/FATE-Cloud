@@ -512,11 +512,17 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 	}
 	var data []entity.ApplyResult
 	if resp.Code == e.SUCCESS {
-		applySiteInfo, err := models.GetApplySiteOne()
+		applySiteInfo := models.ApplySiteInfo{
+			Status: int(enum.IS_VALID_YES),
+		}
+		applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+		if err != nil {
+			return nil, err
+		}
 
 		var applist []entity.IdPair
-		if len(applySiteInfo.Institutions) > 0 {
-			err = json.Unmarshal([]byte(applySiteInfo.Institutions), &applist)
+		if len(applySiteInfoList) > 0 {
+			err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &applist)
 			if err != nil {
 				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return nil, err
@@ -536,18 +542,6 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 			} else if resp.Data.List[i].Status == int(enum.AuditStatus_AGREED) {
 				item.Status.Desc = enum.GetIsValidString(enum.IS_VALID_NO)
 			}
-			//hitTag := false
-			//if len(applist) > 0 {
-			//	for j := 0; j < len(applist); j++ {
-			//		if applist[j].Desc == resp.Data.List[i].Institutions && resp.Data.List[i].Status == int(enum.AuditStatus_AGREED) {
-			//			hitTag = true
-			//			break
-			//		}
-			//	}
-			//}
-			//if hitTag {
-			//	item.Status.Code = int(enum.AuditStatus_AGREED)
-			//}
 			data = append(data, item)
 		}
 	}
@@ -595,33 +589,73 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 			}
 			auditResult = append(auditResult, audit)
 		}
-
-		applySiteInfo, _ := models.GetApplySiteOne()
-		if len(applySiteInfo.Institutions) > 0 {
-			var item []entity.IdPair
-			err = json.Unmarshal([]byte(applySiteInfo.Institutions), &item)
-			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-				return e.ERROR_PARSE_JSON_ERROR, err
-			}
-			for j := 0; j < len(item); j++ {
-				if item[j].Code == int(enum.AuditStatus_AGREED) {
-					auditResult = append(auditResult, item[j])
-				}
-			}
-		}
 		auditResultJson, _ := json.Marshal(auditResult)
-		applySiteInfo = &models.ApplySiteInfo{
-			UserId:       applySiteInfo.UserId,
-			UserName:     applySiteInfo.UserName,
+		applySiteInfo := models.ApplySiteInfo{
 			Institutions: string(auditResultJson),
-			ReadStatus:   int(enum.APPLY_READ_STATUS_NOT_READ),
 			Status:       int(enum.IS_VALID_ING),
 			CreateTime:   time.Now(),
 			UpdateTime:   time.Now(),
 		}
+		models.AddApplySiteInfo(&applySiteInfo)
 
-		models.AddApplySiteInfo(applySiteInfo)
+		applySiteInfo.Status = int(enum.IS_VALID_YES)
+		applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+		if err != nil {
+			return e.ERROR_SELECT_DB_FAIL, err
+		}
+
+		var auditPair []entity.AuditPair
+		if len(applySiteInfoList) == 0 {
+			for j := 0; j < len(auditResult); j++ {
+				auditItem := entity.AuditPair{
+					Code:     auditResult[j].Code,
+					Desc:     auditResult[j].Desc,
+					ReadCode: int(enum.AuditStatus_AUDITING),
+				}
+				auditPair = append(auditPair, auditItem)
+			}
+		} else {
+			err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
+			if err != nil {
+				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return e.ERROR_PARSE_JSON_ERROR, err
+			}
+			for k := 0; k < len(auditResult); k++ {
+				hittag := false
+				for l := 0; l < len(auditPair); l++ {
+					if auditResult[k].Desc == auditPair[l].Desc {
+						auditPair[l].Code = int(enum.AuditStatus_AUDITING)
+						auditPair[l].ReadCode = int(enum.APPLY_READ_STATUS_NOT_READ)
+						hittag = true
+						break
+					}
+				}
+				if !hittag {
+					auditItem := entity.AuditPair{
+						Code:     auditResult[k].Code,
+						Desc:     auditResult[k].Desc,
+						ReadCode: int(enum.APPLY_READ_STATUS_NOT_READ),
+					}
+					auditPair = append(auditPair, auditItem)
+				}
+			}
+		}
+		auditPairJson, _ := json.Marshal(auditPair)
+		if len(applySiteInfoList) == 0 {
+			applySiteInfo := models.ApplySiteInfo{
+				Institutions: string(auditPairJson),
+				Status:       int(enum.IS_VALID_YES),
+				CreateTime:   time.Now(),
+				UpdateTime:   time.Now(),
+			}
+			models.AddApplySiteInfo(&applySiteInfo)
+		} else {
+			var data = make(map[string]interface{})
+			data["institutions"] = string(auditPairJson)
+			data["update_time"] = time.Now()
+			applySiteInfo.Status = int(enum.IS_VALID_YES)
+			models.UpdateApplySiteInfo(data, &applySiteInfo)
+		}
 		return e.SUCCESS, nil
 	}
 	return e.ERROR_APPLY_SITES_FAIL, nil
@@ -629,34 +663,59 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 
 func QueryApplySites() ([]entity.IdPair, error) {
 	applySiteInfo := models.ApplySiteInfo{
-		ReadStatus: int(enum.APPLY_READ_STATUS_NOT_READ),
-		Status:     int(enum.IS_VALID_YES),
+		Status: int(enum.IS_VALID_YES),
 	}
 	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
 	if err != nil {
 		return nil, err
 	}
 	if len(applySiteInfoList) > 0 {
-		if applySiteInfoList[0].ReadStatus != int(enum.APPLY_READ_STATUS_READ) {
-			var auditResult []entity.IdPair
-			err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditResult)
-			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-				return nil, err
-			}
-			return auditResult, nil
+		var auditPair []entity.AuditPair
+		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
+		if err != nil {
+			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return nil, err
 		}
+		var auditResult []entity.IdPair
+		for i := 0; i < len(auditPair); i++ {
+			if auditPair[i].ReadCode == int(enum.APPLY_READ_STATUS_READ) {
+				continue
+			}
+			idPair := entity.IdPair{
+				Code: auditPair[i].Code,
+				Desc: auditPair[i].Desc,
+			}
+			auditResult = append(auditResult, idPair)
+		}
+		return auditResult, nil
 	}
 	return nil, nil
 }
 
 func ReadApplySites() (int, error) {
 	applySiteInfo := models.ApplySiteInfo{
-		ReadStatus: int(enum.APPLY_READ_STATUS_NOT_READ),
+		Status: int(enum.IS_VALID_YES),
+	}
+	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+	if err != nil || len(applySiteInfoList) == 0 {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	var auditPair []entity.AuditPair
+	err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
+	if err != nil {
+		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return e.ERROR_PARSE_JSON_ERROR, err
+	}
+	for i := 0; i < len(auditPair); i++ {
+		if auditPair[i].Code == int(enum.AuditStatus_AUDITING) {
+			continue
+		}
+		auditPair[i].ReadCode = int(enum.APPLY_READ_STATUS_READ)
 	}
 	var data = make(map[string]interface{})
-	data["read_status"] = int(enum.APPLY_READ_STATUS_READ)
-	models.UpdateApplySiteInfo(data, applySiteInfo)
+	auditResultJson, _ := json.Marshal(auditPair)
+	data["institutions"] = string(auditResultJson)
+	models.UpdateApplySiteInfo(data, &applySiteInfo)
 	return e.SUCCESS, nil
 }
 
@@ -768,41 +827,27 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 	if err != nil || accountInfo == nil {
 		return nil, err
 	}
-	approvedReq := entity.InstitutionsReq{
-		Institutions: accountInfo.Institutions,
-		PageNum:      1,
-		PageSize:     15,
+
+	job_service.ApplyResultTask(accountInfo)
+	applySiteInfo := models.ApplySiteInfo{
+		Status: int(enum.IS_VALID_YES),
 	}
-	approvedReqJson, _ := json.Marshal(approvedReq)
-	headInfo := util.UserHeaderInfo{
-		UserAppKey:    accountInfo.AppKey,
-		UserAppSecret: accountInfo.AppSecret,
-		FateManagerId: accountInfo.CloudUserId,
-		Body:          string(approvedReqJson),
-		Uri:           setting.ApprovedUri,
-	}
-	headerInfoMap := util.GetUserHeadInfo(headInfo)
-	federationList, err := federated_service.GetFederationInfo()
-	if err != nil || len(federationList) == 0 {
-		return nil, err
-	}
-	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.ApprovedUri), approvedReq, headerInfoMap)
-	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return nil, err
-	}
-	var approveResp entity.ApproveResp
-	err = json.Unmarshal([]byte(result.Body), &approveResp)
-	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return nil, err
-	}
-	if approveResp.Code == e.SUCCESS {
-		for i := 0; i < len(approveResp.Data.List); i++ {
+	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+	if len(applySiteInfoList) > 0 {
+		var auditresultlist []entity.IdPair
+		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditresultlist)
+		if err != nil {
+			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return nil, err
+		}
+		for i := 0; i < len(auditresultlist); i++ {
+			if auditresultlist[i].Code != int(enum.AuditStatus_AGREED) {
+				continue
+			}
 			querySiteReq := entity.QuerySiteReq{
-				Institutions: approveResp.Data.List[i],
+				Institutions: auditresultlist[i].Desc,
 				PageNum:      1,
-				PageSize:     10,
+				PageSize:     100,
 			}
 			applySiteReqJson, _ := json.Marshal(querySiteReq)
 			headInfo := util.UserHeaderInfo{
@@ -850,7 +895,7 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 				}
 				federatedItem := entity.FederatedItem{
 					FederatedId:             federatedInfo[0].Id,
-					FateManagerInstitutions: approveResp.Data.List[i],
+					FateManagerInstitutions: auditresultlist[i].Desc,
 					Size:                    len(siteItemList),
 					SiteItemList:            siteItemList,
 				}
@@ -858,85 +903,6 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 			}
 		}
 	}
-	//
-	//
-	//
-	//applySiteInfo := models.ApplySiteInfo{Status: int(enum.IS_VALID_YES), ReadStatus: -1}
-	//applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//for i := 0; i < len(applySiteInfoList); i++ {
-	//	var auditResult []entity.IdPair
-	//	err = json.Unmarshal([]byte(applySiteInfoList[i].Institutions), &auditResult)
-	//	if err != nil {
-	//		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-	//		continue
-	//	}
-	//
-	//	for j := 0; j < len(auditResult); j++ {
-	//
-	//		if auditResult[j].Code == int(enum.AuditStatus_AGREED) {
-	//			querySiteReq := entity.QuerySiteReq{
-	//				Institutions: auditResult[j].Desc,
-	//				PageNum:      1,
-	//				PageSize:     10,
-	//			}
-	//			applySiteReqJson, _ := json.Marshal(querySiteReq)
-	//			headInfo := util.UserHeaderInfo{
-	//				UserAppKey:    accountInfo.AppKey,
-	//				UserAppSecret: accountInfo.AppSecret,
-	//				FateManagerId: accountInfo.CloudUserId,
-	//				Body:          string(applySiteReqJson),
-	//				Uri:           setting.OtherSiteUri,
-	//			}
-	//			headerInfoMap := util.GetUserHeadInfo(headInfo)
-	//			federationList, err := federated_service.GetFederationInfo()
-	//			if err != nil || len(federationList) == 0 {
-	//				return nil, err
-	//			}
-	//			result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
-	//			if err != nil {
-	//				logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
-	//				return nil, err
-	//			}
-	//			var resp entity.ApplyResp
-	//			err = json.Unmarshal([]byte(result.Body), &resp)
-	//			if err != nil {
-	//				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-	//				return nil, err
-	//			}
-	//			if resp.Code == e.SUCCESS {
-	//				var siteItemList []entity.SiteItem
-	//				for k := 0; k < len(resp.Data.List); k++ {
-	//					item := resp.Data.List[k]
-	//					siteItem := entity.SiteItem{
-	//						Id:       item.Id,
-	//						PartyId:  item.PartyId,
-	//						SiteName: item.SiteName,
-	//						Role: entity.IdPair{
-	//							Code: item.Role,
-	//							Desc: enum.GetRoleString(enum.RoleType(item.Role)),
-	//						},
-	//						Status: entity.IdPair{
-	//							Code: item.Status,
-	//							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
-	//						},
-	//						AcativationTime: item.ActivationTime,
-	//					}
-	//					siteItemList = append(siteItemList, siteItem)
-	//				}
-	//				federatedItem := entity.FederatedItem{
-	//					FederatedId:             federatedInfo[0].Id,
-	//					FateManagerInstitutions: auditResult[j].Desc,
-	//					Size:                    len(siteItemList),
-	//					SiteItemList:            siteItemList,
-	//				}
-	//				federatedItemList = append(federatedItemList, federatedItem)
-	//			}
-	//		}
-	//	}
-	//}
 	return federatedItemList, nil
 }
 
@@ -945,7 +911,6 @@ func GetFateManagerList() (*entity.ApplyFateManager, error) {
 	if err != nil || accountInfo == nil {
 		return nil, err
 	}
-	job_service.ApplyResultTask(accountInfo)
 	job_service.AllowApplyTask(accountInfo)
 	allowInstitutions := strings.Split(accountInfo.AllowInstituions, ",")
 	applyFateManager := entity.ApplyFateManager{
@@ -979,7 +944,7 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 }
 
 func GetApplyLog() ([]entity.ApplyLog, error) {
-	applySiteInfo := models.ApplySiteInfo{ReadStatus: -1}
+	applySiteInfo := models.ApplySiteInfo{Status: int(enum.IS_VALID_NO)}
 	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
 	if err != nil {
 		return nil, err

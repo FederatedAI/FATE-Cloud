@@ -8,6 +8,11 @@ type IdPair struct {
 	Code int    `json:"code"`
 	Desc string `json:"desc"`
 }
+type AuditPair struct {
+	Code     int    `json:"code"`
+	Desc     string `json:"desc"`
+	ReadCode int    `json:"readCode"`
+}
 type SitePair struct {
 	PartyId  int    `json:"partyId"`
 	SiteName string `json:"siteName"`
@@ -19,34 +24,34 @@ type FederatedSite struct {
 
 //db federation_info left join site_info
 type FederatedSiteItem struct {
-	SiteId                int64     `json:"siteId"`
-	FederatedId           int       `json:"federatedId"`
-	FederatedOrganization string    `json:"federatedOrganization"`
-	FederatedUrl          string    `json:"federatedUrl"`
-	Institutions          string    `json:"institutions"`
+	SiteId                  int64     `json:"siteId"`
+	FederatedId             int       `json:"federatedId"`
+	FederatedOrganization   string    `json:"federatedOrganization"`
+	FederatedUrl            string    `json:"federatedUrl"`
+	Institutions            string    `json:"institutions"`
 	FateManagerInstitutions string    `json:"fateManagerInstitutions"`
-	Size                  int       `json:"size"`
-	CreateTime            time.Time `json:"createTime"`
-	PartyId               int       `json:"partyId"`
-	SiteName              string    `json:"siteName"`
-	Role                  int       `json:"role"`
-	AppKey                string    `json:"appKey"`
-	AppSecret             string    `json:"appSecret"`
-	Status                int       `json:"status"`
-	FateVersion           string    `json:"fateVersion"`
-	FateServingVersion    string    `json:"fateServingVersion"`
-	ComponentVersion      string    `json:"componentVersion"`
-	AcativationTime       time.Time `json:"acativationTime"`
+	Size                    int       `json:"size"`
+	CreateTime              time.Time `json:"createTime"`
+	PartyId                 int       `json:"partyId"`
+	SiteName                string    `json:"siteName"`
+	Role                    int       `json:"role"`
+	AppKey                  string    `json:"appKey"`
+	AppSecret               string    `json:"appSecret"`
+	Status                  int       `json:"status"`
+	FateVersion             string    `json:"fateVersion"`
+	FateServingVersion      string    `json:"fateServingVersion"`
+	ComponentVersion        string    `json:"componentVersion"`
+	AcativationTime         time.Time `json:"acativationTime"`
 }
 
 type FederatedItem struct {
-	FederatedId           int        `json:"federatedId"`
-	FederatedOrganization string     `json:"federatedOrganization"`
-	Institutions          string     `json:"institutions"`
-	FateManagerInstitutions string   `json:"fateManagerInstitutions"`
-	Size                  int        `json:"size"`
-	SiteItemList          []SiteItem `json:"siteList"`
-	CreateTime            int64      `json:"createTime"`
+	FederatedId             int        `json:"federatedId"`
+	FederatedOrganization   string     `json:"federatedOrganization"`
+	Institutions            string     `json:"institutions"`
+	FateManagerInstitutions string     `json:"fateManagerInstitutions"`
+	Size                    int        `json:"size"`
+	SiteItemList            []SiteItem `json:"siteList"`
+	CreateTime              int64      `json:"createTime"`
 }
 
 type SiteItem struct {
@@ -352,15 +357,15 @@ type LogoutReq struct {
 
 type AccountActivateReq struct {
 	LoginReq
-	FederatedUrl          string `json:"federatedUrl"`
-	FederatedId           int    `json:"federatedId"`
-	FederatedOrganization string `json:"federatedOrganization"`
-	FateManagerInstitution          string `json:"institutions"`
-	Institution          string `json:"institution"`
-	AppKey                string `json:"appKey"`
-	AppSecret             string `json:"appSecret"`
-	ActivateUrl           string `json:"activateUrl"`
-	FateManagerId         string `json:"fateManagerId"`
+	FederatedUrl           string `json:"federatedUrl"`
+	FederatedId            int    `json:"federatedId"`
+	FederatedOrganization  string `json:"federatedOrganization"`
+	FateManagerInstitution string `json:"institutions"`
+	Institution            string `json:"institution"`
+	AppKey                 string `json:"appKey"`
+	AppSecret              string `json:"appSecret"`
+	ActivateUrl            string `json:"activateUrl"`
+	FateManagerId          string `json:"fateManagerId"`
 }
 type Role struct {
 	RoleId   int    `json:"roleId"`
@@ -451,7 +456,7 @@ type Function struct {
 }
 type FunctionResp struct {
 	Function
-	ReadStatus   int    `json:"readStatus"`
+	ReadStatus int `json:"readStatus"`
 }
 type InstitutionsReq struct {
 	Institutions string `json:"institutions"`
@@ -493,11 +498,11 @@ type ApplyFateManager struct {
 }
 type UpdateComponentVersionReq struct {
 	FederatedSite
-	ComponentVersion  string `json:"componentVersion"`
-	FateVersion      string `json:"fateVersion"`
+	ComponentVersion   string `json:"componentVersion"`
+	FateVersion        string `json:"fateVersion"`
 	FateServingVersion string `json:"fateServingVersion"`
 }
 type ApplyLog struct {
-	ApplyTime   int64   `json:"applyTime"`
-	Content     string  `json:"content"`
+	ApplyTime int64  `json:"applyTime"`
+	Content   string `json:"content"`
 }

@@ -326,7 +326,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	}
 	if deploySiteList[0].VersionIndex >= fateVersonList[0].VersionIndex {
 		logging.Debug(e.GetMsg(e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL))
-		//return e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL, err
+		return e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL, err
 	}
 	deploySiteTemp := deploySiteList[0]
 	deploySiteTemp.FateVersion = upgradeReq.FateVersion
