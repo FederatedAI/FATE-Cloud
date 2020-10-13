@@ -311,180 +311,140 @@ type ApplyResultReq struct {
 }
 
 func ApplyResultTask(info *models.AccountInfo) {
-	applySiteInfo := models.ApplySiteInfo{
-		ReadStatus: int(enum.APPLY_READ_STATUS_NOT_READ),
-		Status:     int(enum.IS_VALID_ING),
+	approvedReq := entity.InstitutionsReq{
+		Institutions: info.Institutions,
+		PageNum:      1,
+		PageSize:     100,
 	}
-	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
-	if err != nil {
+	approvedReqJson, _ := json.Marshal(approvedReq)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    info.AppKey,
+		UserAppSecret: info.AppSecret,
+		FateManagerId: info.CloudUserId,
+		Body:          string(approvedReqJson),
+		Uri:           setting.ApprovedUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
 		return
 	}
-	if len(applySiteInfoList) == 0 {
-		applySiteInfo = models.ApplySiteInfo{
-			Status:     int(enum.IS_VALID_YES),
-			ReadStatus: -1,
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.ApprovedUri), approvedReq, headerInfoMap)
+	if err != nil {
+		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return
+	}
+	var approveResp entity.ApproveResp
+	err = json.Unmarshal([]byte(result.Body), &approveResp)
+	if err != nil {
+		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return
+	}
+	if approveResp.Code == e.SUCCESS {
+		applySiteInfo := models.ApplySiteInfo{
+			Status: int(enum.IS_VALID_ING),
 		}
-		applySiteInfoList, err = models.GetApplySiteInfo(applySiteInfo)
-		if err != nil || len(applySiteInfoList) == 0 {
-			return
-		}
-		var applyResultReq ApplyResultReq
-		applyResultReq.Institutions = info.Institutions
-		applyResultReqJson, _ := json.Marshal(applyResultReq)
-		headInfo := util.UserHeaderInfo{
-			UserAppKey:    info.AppKey,
-			UserAppSecret: info.AppSecret,
-			FateManagerId: info.CloudUserId,
-			Body:          string(applyResultReqJson),
-			Uri:           setting.AuthorityResults,
-		}
-		headerInfoMap := util.GetUserHeadInfo(headInfo)
-		federationList, err := federated_service.GetFederationInfo()
-		if err != nil || len(federationList) == 0 {
-			return
-		}
-		result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.AuthorityResults), applyResultReq, headerInfoMap)
+		waitAuditList, err := models.GetApplySiteInfo(applySiteInfo)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
 			return
 		}
-		var applySiteResultResp entity.ApplySiteResultResp
-		err = json.Unmarshal([]byte(result.Body), &applySiteResultResp)
-		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return
-		}
-
-		var auditResult []entity.IdPair
-		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditResult)
-		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return
-		}
-		if applySiteResultResp.Code == e.SUCCESS {
-			updateTag := false
-			for l := 0; l < len(auditResult); l++ {
-				hittag := false
-				for k := 0; k < len(applySiteResultResp.Data); k++ {
-					item := applySiteResultResp.Data[k]
-
-					if auditResult[l].Desc == item.AuthorityInstitutions {
-						if item.Status != auditResult[l].Code {
-							updateTag = true
-						}
-						auditResult[l].Code = item.Status
-						break
-						hittag = true
-					}
-				}
-				if !hittag {
-					auditResult[l].Code = int(enum.AuditStatus_REJECTED)
-					updateTag = true
-				}
-			}
-			if updateTag {
-				info := models.ApplySiteInfo{
-					UserId:   applySiteInfoList[0].UserId,
-					UserName: applySiteInfoList[0].UserName,
-					Status:   int(enum.IS_VALID_YES),
-				}
-				var data = make(map[string]interface{})
-				data["status"] = int(enum.IS_VALID_NO)
-				data["update_time"] = time.Now()
-				models.UpdateApplySiteInfo(data, info)
-
-				auditResultJson, _ := json.Marshal(auditResult)
-				applySiteInfo.Institutions = string(auditResultJson)
-				applySiteInfo.UpdateTime = time.Now()
-				applySiteInfo.ReadStatus = int(enum.APPLY_READ_STATUS_NOT_READ)
-				applySiteInfo.Status = int(enum.IS_VALID_YES)
-
-				models.AddApplySiteInfo(&applySiteInfo)
-			}
-		}
-	} else {
-		for i := 0; i < len(applySiteInfoList); i++ {
-			var auditResult []entity.IdPair
-			err = json.Unmarshal([]byte(applySiteInfoList[i].Institutions), &auditResult)
+		var waitAudit []entity.IdPair
+		if len(waitAuditList) > 0 {
+			err = json.Unmarshal([]byte(waitAuditList[0].Institutions), &waitAudit)
 			if err != nil {
 				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-				continue
+				return
 			}
-			remoteTag := false
-			for j := 0; j < len(auditResult); j++ {
-				if auditResult[j].Code == int(enum.AuditStatus_AUDITING) {
-					remoteTag = true
+		}
+		var validAudit []entity.AuditPair
+		applySiteInfo.Status = int(enum.IS_VALID_YES)
+		validAuditList, err := models.GetApplySiteInfo(applySiteInfo)
+		if err != nil {
+			return
+		}
+		if len(validAuditList) > 0 {
+			err = json.Unmarshal([]byte(validAuditList[0].Institutions), &validAudit)
+			if err != nil {
+				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+		}
+
+		updateWait := false
+		var cancelAudit []entity.IdPair
+		for i := 0; i < len(approveResp.Data.List); i++ {
+			item := approveResp.Data.List[i]
+			if len(waitAudit) != 0 {
+				for j := 0; j < len(waitAudit); j++ {
+					if item.Institutions == waitAudit[j].Desc {
+						if item.Status != waitAudit[j].Code {
+							updateWait = true
+						}
+						waitAudit[j].Code = item.Status
+						break
+					}
+				}
+			}
+			hitvalid := false
+			for k := 0; k < len(validAudit); k++ {
+				if item.Institutions == validAudit[k].Desc {
+					if item.Status != validAudit[k].Code {
+						validAudit[k].Code = item.Status
+						validAudit[k].ReadCode = int(enum.APPLY_READ_STATUS_NOT_READ)
+						if item.Status == int(enum.AuditStatus_CANCEL) {
+							calcelItem := entity.IdPair{
+								Code: item.Status,
+								Desc: item.Institutions,
+							}
+							cancelAudit = append(cancelAudit, calcelItem)
+						}
+					}
+					hitvalid = true
 					break
 				}
 			}
-			if remoteTag {
-				var applyResultReq ApplyResultReq
-				applyResultReq.Institutions = info.Institutions
-				applyResultReqJson, _ := json.Marshal(applyResultReq)
-				headInfo := util.UserHeaderInfo{
-					UserAppKey:    info.AppKey,
-					UserAppSecret: info.AppSecret,
-					FateManagerId: info.CloudUserId,
-					Body:          string(applyResultReqJson),
-					Uri:           setting.AuthorityResults,
+			if !hitvalid {
+				validAuditItem := entity.AuditPair{
+					Code:     item.Status,
+					Desc:     item.Institutions,
+					ReadCode: int(enum.APPLY_READ_STATUS_NOT_READ),
 				}
-				headerInfoMap := util.GetUserHeadInfo(headInfo)
-				federationList, err := federated_service.GetFederationInfo()
-				if err != nil || len(federationList) == 0 {
-					continue
-				}
-				result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.AuthorityResults), applyResultReq, headerInfoMap)
-				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
-					continue
-				}
-				var applySiteResultResp entity.ApplySiteResultResp
-				err = json.Unmarshal([]byte(result.Body), &applySiteResultResp)
-				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					continue
-				}
-
-				if applySiteResultResp.Code == e.SUCCESS {
-					updateTag := false
-					for k := 0; k < len(applySiteResultResp.Data); k++ {
-						item := applySiteResultResp.Data[k]
-						for l := 0; l < len(auditResult); l++ {
-							if auditResult[l].Desc == item.AuthorityInstitutions {
-								auditResult[l].Code = item.Status
-								if item.Status != int(enum.AuditStatus_AUDITING) {
-									updateTag = true
-									//if item.Status == int(enum.AuditStatus_AGREED) {
-									//	auditTag = true
-									//}
-								}
-								break
-							}
-						}
-					}
-					if updateTag {
-						info := models.ApplySiteInfo{
-							UserId:   applySiteInfoList[i].UserId,
-							UserName: applySiteInfoList[i].UserName,
-							Status:   int(enum.IS_VALID_YES),
-						}
-						var data = make(map[string]interface{})
-						data["status"] = int(enum.IS_VALID_NO)
-						data["update_time"] = time.Now()
-						models.UpdateApplySiteInfo(data, info)
-
-						auditResultJson, _ := json.Marshal(auditResult)
-						data["institutions"] = string(auditResultJson)
-						data["update_time"] = time.Now()
-
-						data["read_status"] = int(enum.APPLY_READ_STATUS_NOT_READ)
-
-						data["status"] = int(enum.IS_VALID_YES)
-
-						models.UpdateApplySiteInfo(data, applySiteInfo)
-					}
-				}
+				validAudit = append(validAudit, validAuditItem)
 			}
+		}
+		var data = make(map[string]interface{})
+		if updateWait {
+			waitAuditJson, _ := json.Marshal(waitAudit)
+			data["status"] = int(enum.IS_VALID_NO)
+			data["institutions"] = string(waitAuditJson)
+			applySiteInfo.Status = int(enum.IS_VALID_ING)
+			models.UpdateApplySiteInfo(data, &applySiteInfo)
+		}
+		if len(cancelAudit) > 0 {
+			cancelAuditJson, _ := json.Marshal(cancelAudit)
+			applySiteInfo = models.ApplySiteInfo{
+				Institutions: string(cancelAuditJson),
+				Status:       int(enum.IS_VALID_NO),
+				CreateTime:   time.Now(),
+				UpdateTime:   time.Now(),
+			}
+			models.AddApplySiteInfo(&applySiteInfo)
+		}
+		data["status"] = int(enum.IS_VALID_YES)
+		validAuditJson, _ := json.Marshal(validAudit)
+		data["institutions"] = string(validAuditJson)
+		data["update_time"] = time.Now()
+		applySiteInfo.Status = int(enum.IS_VALID_YES)
+		if len(validAuditList) > 0 {
+			models.UpdateApplySiteInfo(data, &applySiteInfo)
+		} else {
+			applySiteInfo = models.ApplySiteInfo{
+				Institutions: string(validAuditJson),
+				Status:       int(enum.IS_VALID_YES),
+				CreateTime:   time.Now(),
+				UpdateTime:   time.Now(),
+			}
+			models.AddApplySiteInfo(&applySiteInfo)
 		}
 	}
 }
