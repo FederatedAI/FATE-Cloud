@@ -155,7 +155,7 @@ public class FederatedAuthorityServiceFacade {
 
     }
 
-    public CommonResponse<PageBean<String>> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
         //check authority
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityInstitutionsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
@@ -166,7 +166,7 @@ public class FederatedAuthorityServiceFacade {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        PageBean<String> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo);
+        PageBean<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
     }
 
