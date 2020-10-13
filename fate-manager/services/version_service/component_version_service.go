@@ -34,7 +34,9 @@ func GetPullComponentList(componentListReq entity.PullComponentListReq) ([]entit
 		if err != nil || len(deploySiteList) == 0 {
 			return nil, err
 		}
-		componentVersion.FateVersion = deploySiteList[0].FateVersion
+		if len(deploySiteList[0].FateVersion) != 0 {
+			componentVersion.FateVersion = deploySiteList[0].FateVersion
+		}
 	}
 
 	componentVersionList, err := models.GetComponetVersionList(componentVersion)
