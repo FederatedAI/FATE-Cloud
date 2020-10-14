@@ -929,9 +929,11 @@ func GetFateManagerList() (*entity.ApplyFateManager, error) {
 func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (int, error) {
 
 	siteInfo := models.SiteInfo{
-		FederatedId:      updateVersionReq.FederatedId,
-		PartyId:          updateVersionReq.PartyId,
-		ComponentVersion: updateVersionReq.ComponentVersion,
+		FederatedId:        updateVersionReq.FederatedId,
+		PartyId:            updateVersionReq.PartyId,
+		ComponentVersion:   updateVersionReq.ComponentVersion,
+		FateVersion:        updateVersionReq.FateVersion,
+		FateServingVersion: updateVersionReq.FateServingVersion,
 	}
 	if len(updateVersionReq.ComponentVersion) == 0 {
 		return e.INVALID_PARAMS, nil
