@@ -487,17 +487,19 @@ func AllowApplyTask(info *models.AccountInfo) {
 			item := applySiteResultResp.Data[i]
 			institutions = fmt.Sprintf("%s,%s", item, institutions)
 		}
+
+		var data = make(map[string]interface{})
+		data["allow_instituions"] = ""
 		if len(institutions) > 0 {
-			var data = make(map[string]interface{})
 			data["allow_instituions"] = institutions[0 : len(institutions)-1]
-			accountInfo := models.AccountInfo{
-				UserId:   info.UserId,
-				UserName: info.UserName,
-				Role:     int(enum.UserRole_ADMIN),
-				Status:   int(enum.IS_VALID_YES),
-			}
-			models.UpdateAccountInfo(data, accountInfo)
 		}
+		accountInfo := models.AccountInfo{
+			UserId:   info.UserId,
+			UserName: info.UserName,
+			Role:     int(enum.UserRole_ADMIN),
+			Status:   int(enum.IS_VALID_YES),
+		}
+		models.UpdateAccountInfo(data, accountInfo)
 	}
 }
 
