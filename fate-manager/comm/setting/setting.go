@@ -27,8 +27,6 @@ var OtherSiteUri = "/cloud-manager/api/site/page/fateManager"
 var ApprovedUri = "/cloud-manager/api/authority/institutions/approved"
 
 type App struct {
-	PageSize        int
-	PrefixUrl       string
 	RuntimeRootPath string
 	LogSavePath     string
 	LogSaveName     string

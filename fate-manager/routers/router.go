@@ -12,7 +12,7 @@ import (
 
 func InitRouter() *gin.Engine {
 	router := gin.Default()
-	router.GET(setting.AppSetting.PrefixUrl+"/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/fate-manager/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	login := router.Group("/fate-manager/api/login")
 	{
@@ -42,27 +42,27 @@ func InitRouter() *gin.Engine {
 		sites.GET("/queryapply", QueryApplySites)        //http://localhost:9090/fate-manager/api/site/queryapply
 		sites.POST("/readapplysite", ReadApplySites)     //http://localhost:9090/fate-manager/api/site/readapplysite
 		//sites.POST("/function", GetFunction)             //http://localhost:9090/fate-manager/api/site/function
-		sites.POST("/updateVersion",UpdateComponentVersion)//http://localhost:9090/fate-manager/api/site/updateVersion
-		sites.GET("applylog",GetApplyLog)                //http://localhost:9090/fate-manager/api/site/applylog
+		sites.POST("/updateVersion", UpdateComponentVersion) //http://localhost:9090/fate-manager/api/site/updateVersion
+		sites.GET("applylog", GetApplyLog)                   //http://localhost:9090/fate-manager/api/site/applylog
 	}
-	router.POST("/fate-manager/api/site/function",GetFunction) //http://localhost:9090/fate-manager/api/site/function
-	router.GET("/fate-manager/api/site/functionread",FunctionRead)//http://localhost:9090/fate-manager/api/site/functionread
+	router.POST("/fate-manager/api/site/function", GetFunction)     //http://localhost:9090/fate-manager/api/site/function
+	router.GET("/fate-manager/api/site/functionread", FunctionRead) //http://localhost:9090/fate-manager/api/site/functionread
 
 	//All DropDown List
 	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
-		dropDownList.GET("/federation", GetFederationDropDownList) //http://localhost:9090/fate-manager/api/dropdown/federation
-		dropDownList.GET("/site", GetSiteDropDownList)             //http://localhost:9090/fate-manager/api/dropdown/site
-		dropDownList.GET("/version", GetFateVersionDropDownList)   //http://localhost:9090/fate-manager/api/dropdown/version
-		dropDownList.GET("/enumname", GetEnumNameDropDownList)     //http://localhost:9090/fate-manager/api/dropdown/enumname
-		dropDownList.POST("/enuminfo", GetEnumNameInfo)            //http://localhost:9090/fate-manager/api/dropdown/enuminfo
-		dropDownList.GET("/mysql",GetMysqlVersionList)             //http://localhost:9090/fate-manager/api/dropdown/mysql
-		dropDownList.GET("/cluster",GetClusterManagerVersionList)  //http://localhost:9090/fate-manager/api/dropdown/cluster
-		dropDownList.GET("/node",GetNodeManagerVersionList)        //http://localhost:9090/fate-manager/api/dropdown/node
-		dropDownList.GET("/rollsite",GetRollSiteVersionList)       //http://localhost:9090/fate-manager/api/dropdown/rollsite
-		dropDownList.GET("/fateflow",GetFateFlowVersionList)       //http://localhost:9090/fate-manager/api/dropdown/fateflow
-		dropDownList.GET("/fateboard",GetFateBoardVersionList)     //http://localhost:9090/fate-manager/api/dropdown/fateboard
-		dropDownList.GET("/fateserving",GetFateServingVersionList) //http://localhost:9090/fate-manager/api/dropdown/fateserving
+		dropDownList.GET("/federation", GetFederationDropDownList)  //http://localhost:9090/fate-manager/api/dropdown/federation
+		dropDownList.GET("/site", GetSiteDropDownList)              //http://localhost:9090/fate-manager/api/dropdown/site
+		dropDownList.GET("/version", GetFateVersionDropDownList)    //http://localhost:9090/fate-manager/api/dropdown/version
+		dropDownList.GET("/enumname", GetEnumNameDropDownList)      //http://localhost:9090/fate-manager/api/dropdown/enumname
+		dropDownList.POST("/enuminfo", GetEnumNameInfo)             //http://localhost:9090/fate-manager/api/dropdown/enuminfo
+		dropDownList.GET("/mysql", GetMysqlVersionList)             //http://localhost:9090/fate-manager/api/dropdown/mysql
+		dropDownList.GET("/cluster", GetClusterManagerVersionList)  //http://localhost:9090/fate-manager/api/dropdown/cluster
+		dropDownList.GET("/node", GetNodeManagerVersionList)        //http://localhost:9090/fate-manager/api/dropdown/node
+		dropDownList.GET("/rollsite", GetRollSiteVersionList)       //http://localhost:9090/fate-manager/api/dropdown/rollsite
+		dropDownList.GET("/fateflow", GetFateFlowVersionList)       //http://localhost:9090/fate-manager/api/dropdown/fateflow
+		dropDownList.GET("/fateboard", GetFateBoardVersionList)     //http://localhost:9090/fate-manager/api/dropdown/fateboard
+		dropDownList.GET("/fateserving", GetFateServingVersionList) //http://localhost:9090/fate-manager/api/dropdown/fateserving
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service").Use(JWT())
@@ -93,8 +93,8 @@ func InitRouter() *gin.Engine {
 		deploys.POST("/click", Click)                         //http://localhost:9090/fate-manager/api/deploy/clcik
 		deploys.POST("/testresultread", ToyResultRead)        //http://localhost:9090/fate-manager/api/deploy/testresultread
 		deploys.POST("/testlog", GetTestLog)                  //http://localhost:9090/fate-manager/api/deploy/testlog
-		deploys.POST("/fateboard",GetFateBoardUrl)            //http://localhost:9090/fate-manager/api/deploy/fateboard
-		deploys.POST("/version",GetInstallVersion)            //http://localhost:9090/fate-manager/api/deploy/version
+		deploys.POST("/fateboard", GetFateBoardUrl)           //http://localhost:9090/fate-manager/api/deploy/fateboard
+		deploys.POST("/version", GetInstallVersion)           //http://localhost:9090/fate-manager/api/deploy/version
 	}
 
 	//User
