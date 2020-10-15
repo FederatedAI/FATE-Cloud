@@ -639,109 +639,38 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 
 	//test single
 	autoTest.TestItem = "Single Test"
-	dataTest["update_time"] = time.Now()
-	dataTest["start_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_TESTING)
-	siteTest["update_time"] = time.Now()
-	siteTest["single_test"] = int(enum.TEST_STATUS_TESTING)
-	models.UpdateAutoTest(dataTest, autoTest)
-	models.UpdateDeploySite(siteTest, deploySite)
-
-	cmd := fmt.Sprintf("sh ./shell/autoTest.sh Single %d > ./runtime/test/single/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	cmd = fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	dataTest["update_time"] = time.Now()
-	dataTest["end_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_YES)
-	siteTest["single_test"] = int(enum.TEST_STATUS_YES)
-
-	cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/single/fate-%d.log|wc -l", autoTestReq.PartyId)
-	result, _ := util.ExecCommand(cmd)
-	logging.Debug(result)
-	if result[0:1] != "1" {
-		dataTest["status"] = int(enum.TEST_STATUS_NO)
-		models.UpdateAutoTest(dataTest, autoTest)
-
+	autoTestList, _ := models.GetAutoTest(autoTest)
+	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
+		cmd := fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+	} else {
+		dataTest["update_time"] = time.Now()
+		dataTest["start_time"] = time.Now()
+		dataTest["status"] = int(enum.TEST_STATUS_TESTING)
 		siteTest["update_time"] = time.Now()
-		siteTest["single_test"] = int(enum.TEST_STATUS_NO)
-		siteTest["toy_test"] = int(enum.TEST_STATUS_NO)
-		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
-		siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
-		models.UpdateDeploySite(siteTest, deploySite)
-		return
-	}
-	models.UpdateAutoTest(dataTest, autoTest)
-	models.UpdateDeploySite(siteTest, deploySite)
-
-	dataTest = make(map[string]interface{})
-	siteTest = make(map[string]interface{})
-	//test toy
-	autoTest.TestItem = "Toy Test"
-	dataTest["update_time"] = time.Now()
-	dataTest["start_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_TESTING)
-	siteTest["update_time"] = time.Now()
-	siteTest["toy_test"] = int(enum.TEST_STATUS_TESTING)
-	models.UpdateAutoTest(dataTest, autoTest)
-	models.UpdateDeploySite(siteTest, deploySite)
-	cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./runtime/test/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	cmd = fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	dataTest["end_time"] = time.Now()
-	dataTest["update_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_YES)
-	siteTest["toy_test"] = int(enum.TEST_STATUS_YES)
-
-	cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
-	result, _ = util.ExecCommand(cmd)
-	logging.Debug(result)
-	if result[0:1] != "1" {
-		dataTest["status"] = int(enum.TEST_STATUS_NO)
+		siteTest["single_test"] = int(enum.TEST_STATUS_TESTING)
 		models.UpdateAutoTest(dataTest, autoTest)
-
-		siteTest["update_time"] = time.Now()
-		siteTest["toy_test"] = int(enum.TEST_STATUS_NO)
-		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
-		siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
 		models.UpdateDeploySite(siteTest, deploySite)
-		return
-	}
-	models.UpdateAutoTest(dataTest, autoTest)
-	models.UpdateDeploySite(siteTest, deploySite)
 
-	dataTest = make(map[string]interface{})
-	siteTest = make(map[string]interface{})
+		cmd := fmt.Sprintf("sh ./shell/autoTest.sh Single %d > ./runtime/test/single/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+		cmd = fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+		dataTest["update_time"] = time.Now()
+		dataTest["end_time"] = time.Now()
+		dataTest["status"] = int(enum.TEST_STATUS_YES)
+		siteTest["single_test"] = int(enum.TEST_STATUS_YES)
 
-	//test fast
-	autoTest.TestItem = "Mininmize Fast Test"
-	dataTest["update_time"] = time.Now()
-	dataTest["start_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_TESTING)
-	siteTest["update_time"] = time.Now()
-	siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
-	models.UpdateAutoTest(dataTest, autoTest)
-	models.UpdateDeploySite(siteTest, deploySite)
-	cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Fast %d > ./runtime/test/fast/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	cmd = fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
-	util.ExecCommand(cmd)
-	dataTest["end_time"] = time.Now()
-	dataTest["update_time"] = time.Now()
-	dataTest["status"] = int(enum.TEST_STATUS_YES)
-	siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_YES)
-
-	cmd = fmt.Sprintf("grep success ./runtime/test/fast/fate-%d.log|wc -l", autoTestReq.PartyId)
-	result, _ = util.ExecCommand(cmd)
-	logging.Debug(result)
-	if len(result) > 0 {
-		num, _ := strconv.Atoi(result[0:1])
-		if num < 0 {
+		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/single/fate-%d.log|wc -l", autoTestReq.PartyId)
+		result, _ := util.ExecCommand(cmd)
+		logging.Debug(result)
+		if result[0:1] != "1" {
 			dataTest["status"] = int(enum.TEST_STATUS_NO)
 			models.UpdateAutoTest(dataTest, autoTest)
 
 			siteTest["update_time"] = time.Now()
+			siteTest["single_test"] = int(enum.TEST_STATUS_NO)
+			siteTest["toy_test"] = int(enum.TEST_STATUS_NO)
 			siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
 			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
 			models.UpdateDeploySite(siteTest, deploySite)
@@ -749,57 +678,147 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		}
 		models.UpdateAutoTest(dataTest, autoTest)
 		models.UpdateDeploySite(siteTest, deploySite)
-
-		dataTest = make(map[string]interface{})
-		siteTest = make(map[string]interface{})
-
-		//test normal
-		autoTest.TestItem = "Minimize Normal Test"
+	}
+	dataTest = make(map[string]interface{})
+	siteTest = make(map[string]interface{})
+	//test toy
+	autoTest.TestItem = "Toy Test"
+	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
+		cmd := fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+	} else {
 		dataTest["update_time"] = time.Now()
 		dataTest["start_time"] = time.Now()
 		dataTest["status"] = int(enum.TEST_STATUS_TESTING)
 		siteTest["update_time"] = time.Now()
-		siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+		siteTest["toy_test"] = int(enum.TEST_STATUS_TESTING)
 		models.UpdateAutoTest(dataTest, autoTest)
 		models.UpdateDeploySite(siteTest, deploySite)
-		cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./runtime/test/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./runtime/test/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
-		cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd = fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 		dataTest["end_time"] = time.Now()
-		autoTest.TestItem = "Minimize Normal Test"
 		dataTest["update_time"] = time.Now()
 		dataTest["status"] = int(enum.TEST_STATUS_YES)
-		siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_YES)
+		siteTest["toy_test"] = int(enum.TEST_STATUS_YES)
 
-		cmd = fmt.Sprintf("grep success ./runtime/test/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
-		result, _ = util.ExecCommand(cmd)
+		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
+		result, _ := util.ExecCommand(cmd)
+		logging.Debug(result)
+		if result[0:1] != "1" {
+			dataTest["status"] = int(enum.TEST_STATUS_NO)
+			models.UpdateAutoTest(dataTest, autoTest)
+
+			siteTest["update_time"] = time.Now()
+			siteTest["toy_test"] = int(enum.TEST_STATUS_NO)
+			siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+			models.UpdateDeploySite(siteTest, deploySite)
+			return
+		}
+		models.UpdateAutoTest(dataTest, autoTest)
+		models.UpdateDeploySite(siteTest, deploySite)
+	}
+	dataTest = make(map[string]interface{})
+	siteTest = make(map[string]interface{})
+
+	//test fast
+	autoTest.TestItem = "Mininmize Fast Test"
+	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
+		cmd := fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+	} else {
+		dataTest["update_time"] = time.Now()
+		dataTest["start_time"] = time.Now()
+		dataTest["status"] = int(enum.TEST_STATUS_TESTING)
+		siteTest["update_time"] = time.Now()
+		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
+		models.UpdateAutoTest(dataTest, autoTest)
+		models.UpdateDeploySite(siteTest, deploySite)
+		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Fast %d > ./runtime/test/fast/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+		cmd = fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		util.ExecCommand(cmd)
+		dataTest["end_time"] = time.Now()
+		dataTest["update_time"] = time.Now()
+		dataTest["status"] = int(enum.TEST_STATUS_YES)
+		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_YES)
+
+		cmd = fmt.Sprintf("grep success ./runtime/test/fast/fate-%d.log|wc -l", autoTestReq.PartyId)
+		result, _ := util.ExecCommand(cmd)
 		logging.Debug(result)
 		if len(result) > 0 {
-			num, _ = strconv.Atoi(result[0:1])
+			num, _ := strconv.Atoi(result[0:1])
 			if num < 0 {
 				dataTest["status"] = int(enum.TEST_STATUS_NO)
 				models.UpdateAutoTest(dataTest, autoTest)
 
 				siteTest["update_time"] = time.Now()
+				siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
 				siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
 				models.UpdateDeploySite(siteTest, deploySite)
 				return
 			}
-			siteTest["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
-			siteTest["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 			models.UpdateAutoTest(dataTest, autoTest)
 			models.UpdateDeploySite(siteTest, deploySite)
 
-			var deployData = make(map[string]interface{})
-			deployData["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
-			deployComponent := models.DeployComponent{
-				FederatedId: autoTestReq.FederatedId,
-				PartyId:     autoTestReq.PartyId,
-				ProductType: autoTestReq.ProductType,
-				IsValid:     int(enum.IS_VALID_YES),
+			dataTest = make(map[string]interface{})
+			siteTest = make(map[string]interface{})
+
+			//test normal
+			autoTest.TestItem = "Minimize Normal Test"
+			if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
+				cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				util.ExecCommand(cmd)
+			} else {
+				dataTest["update_time"] = time.Now()
+				dataTest["start_time"] = time.Now()
+				dataTest["status"] = int(enum.TEST_STATUS_TESTING)
+				siteTest["update_time"] = time.Now()
+				siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+				models.UpdateAutoTest(dataTest, autoTest)
+				models.UpdateDeploySite(siteTest, deploySite)
+				cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./runtime/test/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				util.ExecCommand(cmd)
+				cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				util.ExecCommand(cmd)
+				dataTest["end_time"] = time.Now()
+				autoTest.TestItem = "Minimize Normal Test"
+				dataTest["update_time"] = time.Now()
+				dataTest["status"] = int(enum.TEST_STATUS_YES)
+				siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_YES)
+
+				cmd = fmt.Sprintf("grep success ./runtime/test/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
+				result, _ = util.ExecCommand(cmd)
+				logging.Debug(result)
+				if len(result) > 0 {
+					num, _ = strconv.Atoi(result[0:1])
+					if num < 0 {
+						dataTest["status"] = int(enum.TEST_STATUS_NO)
+						models.UpdateAutoTest(dataTest, autoTest)
+
+						siteTest["update_time"] = time.Now()
+						siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+						models.UpdateDeploySite(siteTest, deploySite)
+						return
+					}
+					siteTest["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+					siteTest["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+					models.UpdateAutoTest(dataTest, autoTest)
+					models.UpdateDeploySite(siteTest, deploySite)
+
+					var deployData = make(map[string]interface{})
+					deployData["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+					deployComponent := models.DeployComponent{
+						FederatedId: autoTestReq.FederatedId,
+						PartyId:     autoTestReq.PartyId,
+						ProductType: autoTestReq.ProductType,
+						IsValid:     int(enum.IS_VALID_YES),
+					}
+					models.UpdateDeployComponent(deployData, deployComponent)
+				}
 			}
-			models.UpdateDeployComponent(deployData, deployComponent)
 		}
 	}
 }
