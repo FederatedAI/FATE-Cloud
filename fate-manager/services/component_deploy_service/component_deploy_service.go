@@ -231,7 +231,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		}
 		models.AddKubenetesConf(&kubenetesConf)
 		item, _ = models.GetKubenetesConf()
-	} else {
+	} else if item.KubenetesUrl != kubeReq.Url {
 		var data = make(map[string]interface{})
 		data["kubenetes_url"] = kubeReq.Url
 		data["python_port"] = 30001
