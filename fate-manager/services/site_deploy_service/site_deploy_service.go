@@ -642,9 +642,9 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 			var siteTest = make(map[string]interface{})
 			dataTest["update_time"] = time.Now()
 			dataTest["start_time"] = time.Now()
-			dataTest["status"] = int(enum.TEST_STATUS_TESTING)
+			dataTest["status"] = int(enum.TEST_STATUS_WAITING)
 			siteTest["update_time"] = time.Now()
-			siteTest["single_test"] = int(enum.TEST_STATUS_TESTING)
+			siteTest["single_test"] = int(enum.TEST_STATUS_WAITING)
 
 			models.UpdateAutoTest(dataTest, item)
 			models.UpdateDeploySite(siteTest, deploySite)
