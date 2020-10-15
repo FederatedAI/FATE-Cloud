@@ -32,7 +32,7 @@ func SignIn(loginReq entity.LoginReq) (int, *entity.LoginResp, error) {
 		}
 		if len(result) > 0 {
 			if result[0].Role != int(enum.UserRole_ADMIN) && result[0].Role != int(enum.UserRole_DEVELOPER) {
-				return e.ERROR_SIGN_IN_FAIL,nil,nil
+				return e.ERROR_SIGN_IN_FAIL, nil, nil
 			}
 			userInfo := models.UserInfo{
 				UserName: loginReq.AccountName,
@@ -128,6 +128,12 @@ func CheckJwt(checkJwtReq entity.CheckJwtReq) (int, *entity.CheckJwtResp, error)
 	}
 	accountInfoList, err := models.GetAccountInfo(accountInfo)
 	checkJwtResp.Institutions = accountInfoList[0].Institutions
+
+	var data = make(map[string]interface{})
+	data["expire_time"] = time.Now().Add(30 * time.Minute)
+	data["update_time"] = time.Now()
+	models.UpdateTokenInfo(data, tokenInfo)
+
 	return e.SUCCESS, &checkJwtResp, nil
 }
 func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
