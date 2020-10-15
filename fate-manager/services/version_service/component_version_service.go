@@ -119,6 +119,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageTag = result[0 : len(result)-1]
 		componentVersion.ComponentVersion = result[0 : len(result)-1]
 		componentVersion.ImageDescription = result[0 : len(result)-1]
+		componentVersion.ImageVersion = result[0 : len(result)-1]
 	}
 
 	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'", info.ImageName, info.ImageTag)
