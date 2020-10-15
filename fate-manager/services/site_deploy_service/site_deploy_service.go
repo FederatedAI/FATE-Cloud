@@ -683,6 +683,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	siteTest = make(map[string]interface{})
 	//test toy
 	autoTest.TestItem = "Toy Test"
+	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
@@ -725,6 +726,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 
 	//test fast
 	autoTest.TestItem = "Mininmize Fast Test"
+	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
@@ -768,6 +770,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 
 			//test normal
 			autoTest.TestItem = "Minimize Normal Test"
+			autoTestList, _ = models.GetAutoTest(autoTest)
 			if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 				cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 				util.ExecCommand(cmd)
