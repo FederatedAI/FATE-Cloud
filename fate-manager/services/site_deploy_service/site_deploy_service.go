@@ -629,17 +629,33 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		PartyId:     autoTestReq.PartyId,
 		ProductType: autoTestReq.ProductType,
 	}
+	autoTestList, _ := models.GetAutoTest(autoTest)
 	deploySite := models.DeploySite{
 		PartyId:     autoTestReq.PartyId,
 		ProductType: autoTestReq.ProductType,
 		IsValid:     int(enum.IS_VALID_YES),
+	}
+	for i := 0; i < len(autoTestList); i++ {
+		item := autoTestList[i]
+		if item.Status == int(enum.TEST_STATUS_NO) {
+			var dataTest = make(map[string]interface{})
+			var siteTest = make(map[string]interface{})
+			dataTest["update_time"] = time.Now()
+			dataTest["start_time"] = time.Now()
+			dataTest["status"] = int(enum.TEST_STATUS_TESTING)
+			siteTest["update_time"] = time.Now()
+			siteTest["single_test"] = int(enum.TEST_STATUS_TESTING)
+
+			models.UpdateAutoTest(dataTest, item)
+			models.UpdateDeploySite(siteTest, deploySite)
+		}
 	}
 	var dataTest = make(map[string]interface{})
 	var siteTest = make(map[string]interface{})
 
 	//test single
 	autoTest.TestItem = "Single Test"
-	autoTestList, _ := models.GetAutoTest(autoTest)
+	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
@@ -730,6 +746,60 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
+		//test normal
+		autoTest.TestItem = "Minimize Normal Test"
+		autoTestList, _ = models.GetAutoTest(autoTest)
+		if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
+			cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			util.ExecCommand(cmd)
+		} else {
+			dataTest["update_time"] = time.Now()
+			dataTest["start_time"] = time.Now()
+			dataTest["status"] = int(enum.TEST_STATUS_TESTING)
+			siteTest["update_time"] = time.Now()
+			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+			models.UpdateAutoTest(dataTest, autoTest)
+			models.UpdateDeploySite(siteTest, deploySite)
+			cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./runtime/test/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			util.ExecCommand(cmd)
+			cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			util.ExecCommand(cmd)
+			dataTest["end_time"] = time.Now()
+			autoTest.TestItem = "Minimize Normal Test"
+			dataTest["update_time"] = time.Now()
+			dataTest["status"] = int(enum.TEST_STATUS_YES)
+			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_YES)
+
+			cmd = fmt.Sprintf("grep success ./runtime/test/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
+			result, _ := util.ExecCommand(cmd)
+			logging.Debug(result)
+			if len(result) > 0 {
+				num, _ := strconv.Atoi(result[0:1])
+				if num < 0 {
+					dataTest["status"] = int(enum.TEST_STATUS_NO)
+					models.UpdateAutoTest(dataTest, autoTest)
+
+					siteTest["update_time"] = time.Now()
+					siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					models.UpdateDeploySite(siteTest, deploySite)
+					return
+				}
+				siteTest["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+				siteTest["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+				models.UpdateAutoTest(dataTest, autoTest)
+				models.UpdateDeploySite(siteTest, deploySite)
+
+				var deployData = make(map[string]interface{})
+				deployData["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+				deployComponent := models.DeployComponent{
+					FederatedId: autoTestReq.FederatedId,
+					PartyId:     autoTestReq.PartyId,
+					ProductType: autoTestReq.ProductType,
+					IsValid:     int(enum.IS_VALID_YES),
+				}
+				models.UpdateDeployComponent(deployData, deployComponent)
+			}
+		}
 	} else {
 		dataTest["update_time"] = time.Now()
 		dataTest["start_time"] = time.Now()
