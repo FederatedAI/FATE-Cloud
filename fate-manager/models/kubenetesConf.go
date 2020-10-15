@@ -8,7 +8,7 @@ import (
 type KubenetesConf struct {
 	Id           int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
 	KubenetesUrl string
-	PythonPort  int
+	PythonPort   int
 	RollsitePort int
 	NodeList     string
 	CreateTime   time.Time
@@ -46,6 +46,9 @@ func GetKubenetesUrl(federatedId int, partyId int) (*KubenetesConf, error) {
 
 func UpdateKubenetesConf(info map[string]interface{}, condition KubenetesConf) error {
 	Db := db
+	if condition.Id > 0 {
+		Db = Db.Where("id = ?", condition.Id)
+	}
 	if len(condition.KubenetesUrl) > 0 {
 		Db = Db.Where("kubenetes_url = ?", condition.KubenetesUrl)
 	}

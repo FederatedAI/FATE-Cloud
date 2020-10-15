@@ -62,6 +62,7 @@ type Database struct {
 var DatabaseSetting = &Database{}
 
 type Kubenetes struct {
+	KubeFateUrl              string
 	ExchangeIp               string
 	ExchangePort             int
 	FlowPort                 int

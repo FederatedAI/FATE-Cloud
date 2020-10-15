@@ -206,6 +206,9 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	if len(kubeReq.Url) == 0 || kubeReq.PartyId == 0 {
 		return e.INVALID_PARAMS, nil
 	}
+	if kubeReq.Url != setting.KubenetesSetting.KubeFateUrl {
+		return e.INVALID_PARAMS, nil
+	}
 	if kubeReq.FederatedId == 0 {
 		federatedInfoList, err := models.GetFederatedInfo()
 		if err != nil || len(federatedInfoList) == 0 {
@@ -218,7 +221,27 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	if item.Id == 0 {
-		return e.INVALID_PARAMS, err
+		kubenetesConf := models.KubenetesConf{
+			KubenetesUrl: kubeReq.Url,
+			PythonPort:   30001,
+			RollsitePort: 31000,
+			NodeList:     "",
+			CreateTime:   time.Now(),
+			UpdateTime:   time.Now(),
+		}
+		models.AddKubenetesConf(&kubenetesConf)
+		item, _ = models.GetKubenetesConf()
+	} else {
+		var data = make(map[string]interface{})
+		data["kubenetes_url"] = kubeReq.Url
+		data["python_port"] = 30001
+		data["rollsite_port"] = 31000
+		data["update_time"] = time.Now()
+		kubenetesConf := models.KubenetesConf{
+			Id: item.Id,
+		}
+		models.UpdateKubenetesConf(data, kubenetesConf)
+		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "iplist=\"\";for i in `sudo kubectl get node -o wide | grep -v master|grep -v NAME |awk '{print $6}'`;do iplist=$i,$iplist; done;echo ${iplist%,*}"
