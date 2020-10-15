@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var AutoTestCheck = true
+
 func SetUp() {
 	accountInfo, err := user_service.GetAdminInfo()
 	if err != nil || accountInfo == nil {
@@ -24,6 +26,10 @@ func SetUp() {
 	go ComponentStatusTask()
 	go ApplyResultTask(accountInfo)
 	go AllowApplyTask(accountInfo)
+	if AutoTestCheck {
+		AutoTestTask()
+		AutoTestCheck = false
+	}
 }
 
 func SiteStatusTask() {
@@ -102,4 +108,9 @@ func ComponentStatusTask() {
 		logging.Debug("ComponentStatusTask end...")
 		<-ticker.C
 	}
+}
+func AutoTestTask() {
+	logging.Debug("AutoTestTask start...")
+	job_service.AutoTestTask()
+	logging.Debug("AutoTestTask end...")
 }

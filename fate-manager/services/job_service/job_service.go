@@ -541,3 +541,57 @@ func ComponentStatusTask() {
 		models.UpdateDeployComponent(data, deployComponent)
 	}
 }
+
+func AutoTestTask() {
+	deploySite := models.DeploySite{
+		DeployStatus: int(enum.DeployStatus_IN_TESTING),
+		IsValid:      int(enum.IS_VALID_YES),
+	}
+	deploySiteList, err := models.GetDeploySite(&deploySite)
+	if err != nil {
+		return
+	}
+	for i := 0; i < len(deploySiteList); i++ {
+		item := deploySiteList[i]
+		var autoTestData, deploySiteData = make(map[string]interface{}), make(map[string]interface{})
+		autoTestData["status"] = int(enum.TEST_STATUS_NO)
+		autoTest := models.AutoTest{
+			FederatedId: item.FederatedId,
+			PartyId:     item.PartyId,
+			ProductType: item.ProductType,
+		}
+		if item.SingleTest == int(enum.TEST_STATUS_TESTING) {
+			deploySiteData["single_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["toy_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+
+			models.UpdateAutoTest(autoTestData, autoTest)
+		} else if item.ToyTest == int(enum.TEST_STATUS_TESTING) {
+			deploySiteData["toy_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_TOY)
+			models.UpdateAutoTest(autoTestData, autoTest)
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_FAST)
+			models.UpdateAutoTest(autoTestData, autoTest)
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_NORMAL)
+			models.UpdateAutoTest(autoTestData, autoTest)
+		} else if item.MinimizeFastTest == int(enum.TEST_STATUS_TESTING) {
+			deploySiteData["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+			deploySiteData["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_FAST)
+			models.UpdateAutoTest(autoTestData, autoTest)
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_NORMAL)
+			models.UpdateAutoTest(autoTestData, autoTest)
+		} else if item.MinimizeNormalTest == int(enum.TEST_STATUS_TESTING) {
+			deploySiteData["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+
+			autoTest.TestItem = enum.GetTestItemString(enum.TEST_ITEM_NORMAL)
+			models.UpdateAutoTest(autoTestData, autoTest)
+		}
+		models.UpdateDeploySite(deploySiteData, deploySite)
+	}
+}
