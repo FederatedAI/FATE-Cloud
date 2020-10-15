@@ -180,6 +180,8 @@ func GetDefaultPort(componentName string) int {
 	} else if componentName == "rollsite" {
 		port = k8sinfo.RollsitePort + 1
 	}
+	str := fmt.Sprintf("PythonPort:%d,RollsitePort:%d,port:%d", k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
+	logging.Debug(str)
 	return port
 }
 func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) {
@@ -242,6 +244,8 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		} else if componentVersionList[i].ComponentName == "rollsite" {
 			proxyPort = port
 		}
+		str := fmt.Sprintf("PythonPort:%d,RollsitePort:%d,port:%d", pythonPort, proxyPort, port)
+		logging.Debug(str)
 	}
 	fateVersion := models.FateVersion{
 		FateVersion: commitImagePullReq.FateVersion,
