@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"fate.manager/comm/setting"
 	. "fate.manager/controllers"
 	_ "fate.manager/docs"
 	"github.com/gin-gonic/gin"
@@ -111,11 +110,9 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Web
-	if setting.AppSetting.WebBug {
-		router.LoadHTMLGlob("./fate-manager/static/*.html")
-		router.LoadHTMLFiles("./fate-manager/static/*/*")
-		router.StaticFS("./fate-manager/static", http.Dir("./fate-manager/static"))
-		router.StaticFile("/fate-manager/", "./fate-manager/static/index.html")
-	}
+	router.LoadHTMLGlob("./fate-manager/static/*.html")
+	router.LoadHTMLFiles("./fate-manager/static/*/*")
+	router.StaticFS("./fate-manager/static", http.Dir("./fate-manager/static"))
+	router.StaticFile("/fate-manager/", "./fate-manager/static/index.html")
 	return router
 }

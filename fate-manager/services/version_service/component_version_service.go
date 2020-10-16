@@ -101,13 +101,13 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 	err := models.UpdateComponentVersion(&componentVersion)
 	if err != nil {
-		logging.Debug("update docker pulling status failed")
+		logging.Error("update docker pulling status failed")
 	}
 	result, err := util.ExecCommand(cmd)
 	pullStatus = enum.PULL_STATUS_YES
 	if err != nil || result == "" {
 		pullStatus = enum.PULL_STATUS_FAILED
-		logging.Debug(cmd, " failed")
+		logging.Error(cmd, " failed")
 	}
 
 	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", info.ImageName, info.ImageTag)
@@ -142,7 +142,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	componentVersion.PullStatus = int(pullStatus)
 	err = models.UpdateComponentVersion(&componentVersion)
 	if err != nil {
-		logging.Debug("update docker pull status failed")
+		logging.Error("update docker pull status failed")
 	}
 	return
 }
@@ -180,7 +180,7 @@ func GetDefaultPort(componentName string) int {
 	} else if componentName == "rollsite" {
 		port = k8sinfo.RollsitePort + 1
 	}
-	str := fmt.Sprintf("PythonPort:%d,RollsitePort:%d,port:%d", k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
+	str := fmt.Sprintf("componentName:%smPythonPort:%d,RollsitePort:%d,port:%d", componentName, k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
 	logging.Debug(str)
 	return port
 }
@@ -237,14 +237,14 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		err = models.AddDeployComponent(&deployComponent)
 		if err != nil {
-			logging.Debug("Add Deploy Component Filed")
+			logging.Error("Add Deploy Component Filed")
 		}
 		if componentVersionList[i].ComponentName == "fateflow" {
 			pythonPort = port
 		} else if componentVersionList[i].ComponentName == "rollsite" {
 			proxyPort = port
 		}
-		str := fmt.Sprintf("PythonPort:%d,RollsitePort:%d,port:%d", pythonPort, proxyPort, port)
+		str := fmt.Sprintf("componentName:%s,PythonPort:%d,RollsitePort:%d,port:%d", componentVersionList[i].ComponentName, pythonPort, proxyPort, port)
 		logging.Debug(str)
 	}
 	fateVersion := models.FateVersion{
@@ -269,12 +269,16 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
 		deploySite.CreateTime = time.Now()
 		deploySite.UpdateTime = time.Now()
-		deploySite.PythonPort = pythonPort
-		deploySite.RollsitePort = proxyPort
+		if pythonPort != 0 {
+			deploySite.PythonPort = pythonPort
+		}
+		if proxyPort != 0 {
+			deploySite.RollsitePort = proxyPort
+		}
 		deploySite.ClickType = int(enum.ClickType_PULL)
 		err = models.AddDeploySite(&deploySite)
 		if err != nil {
-			logging.Debug("Add Deploy Site Filed")
+			logging.Error("Add Deploy Site Filed")
 			return e.ERROR_UPDATE_DB_FAIL, err
 		}
 	} else {

@@ -83,13 +83,13 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				result, err := http.GET(http.Url(federatedSiteItem.FederatedUrl+setting.FederationUri), nil, headerInfoMap)
 				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+					logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 					continue
 				}
 				var federationResp entity.FederationResp
 				err = json.Unmarshal([]byte(result.Body), &federationResp)
 				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 					continue
 				}
 				if federationResp.Code == int(e.SUCCESS) {
@@ -120,13 +120,13 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 				headerInfoMap := util.GetHeaderInfo(headInfo)
 				result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.SiteQueryUri), nil, headerInfoMap)
 				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+					logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 					return nil, err
 				}
 				var findOneSiteResp entity.FindOneSiteResp
 				err = json.Unmarshal([]byte(result.Body), &findOneSiteResp)
 				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 					return nil, err
 				}
 
@@ -182,7 +182,7 @@ func UpdateSite(updateSiteReq *entity.UpdateSiteReq) (int, error) {
 	}
 	federated, err := models.GetFederatedUrlById(updateSiteReq.FederatedId)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
 		return e.ERROR_GET_FEDERATED_FAIL, err
 	} else if federated.Id == 0 {
 		logging.Debug(e.GetMsg(e.ERROR_FEDERATED_NOT_EXIST))
@@ -205,26 +205,26 @@ func UpdateSite(updateSiteReq *entity.UpdateSiteReq) (int, error) {
 	headerInfoMap := util.GetHeaderInfo(headInfo)
 	result, err := http.POST(http.Url(federated.FederatedUrl+setting.IpAcceptUri), ipAcceptReq, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var updateResp entity.CloudManagerResp
 	if len(result.Body) > 0 {
 		err = json.Unmarshal([]byte(result.Body), &updateResp)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return e.ERROR_PARSE_JSON_ERROR, err
 		}
 		if updateResp.Code == e.SUCCESS {
 			caseId := updateResp.Data["caseId"]
 			err = changelog_service.AddChangeLog(updateSiteReq, caseId)
 			if err != nil {
-				logging.Debug("add change log failed")
+				logging.Error("add change log failed")
 			}
 			siteInfo.EditStatus = int(enum.EDIT_NO)
 			err = models.UpdateSite(siteInfo)
 			if err != nil {
-				logging.Debug("update site info failed")
+				logging.Error("update site info failed")
 			}
 		}
 	}
@@ -250,13 +250,13 @@ func HeartTask() {
 			headerInfoMap := util.GetHeaderInfo(headInfo)
 			result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.HeartUri), nil, headerInfoMap)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			}
 			var updateResp entity.CloudManagerResp
 			if result != nil {
 				err = json.Unmarshal([]byte(result.Body), &updateResp)
 				if err != nil {
-					logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 					return
 				}
 				if updateResp.Code == e.SUCCESS {
@@ -286,13 +286,13 @@ func updateVersionToCloudManager(item *entity.FederatedSiteItem) {
 	headerInfoMap := util.GetHeaderInfo(headInfo)
 	result, err := http.POST(http.Url(item.FederatedUrl+setting.UpdateVersionUri), updateVersionReq, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 	}
 	var updateResp entity.CloudManagerResp
 	if len(result.Body) > 0 {
 		err = json.Unmarshal([]byte(result.Body), &updateResp)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return
 		}
 		if updateResp.Code == e.SUCCESS {
@@ -361,13 +361,13 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 	headerInfoHostMap := util.GetHeaderInfo(headInfoHost)
 	result, err := http.POST(http.Url(federatedInfo[0].FederatedUrl+setting.CheckAuthorityUri), checkSiteBody, headerInfoHostMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var checkSiteResp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &checkSiteResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if checkSiteResp.Code == e.SUCCESS {
@@ -396,13 +396,13 @@ func TelnetIp(telnetIp entity.TelnetReq) (int, error) {
 	}
 	result, err := http.POST(http.Url(federatedInfo[0].FederatedUrl+setting.CheckWebUri), telnetIp, nil)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var checkWebResp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &checkWebResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if checkWebResp.Code == e.SUCCESS {
@@ -455,7 +455,7 @@ func ReadChangeMsg(readChangeReq entity.ReadChangeReq) (int, error) {
 	siteInfo.PartyId = readChangeReq.PartyId
 	err := models.UpdateSite(&siteInfo)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_READ_CHANGE_MSG_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_READ_CHANGE_MSG_FAIL))
 		return e.ERROR_READ_CHANGE_MSG_FAIL, err
 	}
 	return e.SUCCESS, nil
@@ -507,7 +507,7 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 	var resp entity.CloudInstitutionResp
 	err = json.Unmarshal([]byte(result.Body), &resp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return nil, err
 	}
 	var data []entity.ApplyResult
@@ -524,7 +524,7 @@ func GetApplyInstitutions() ([]entity.ApplyResult, error) {
 		if len(applySiteInfoList) > 0 {
 			err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &applist)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return nil, err
 			}
 		}
@@ -570,13 +570,13 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 	}
 	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.AuthorityApply), applySiteReq, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var resp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &resp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if resp.Code == e.SUCCESS {
@@ -617,7 +617,7 @@ func ApplySites(applySiteReq entity.ApplySiteReq) (int, error) {
 		} else {
 			err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return e.ERROR_PARSE_JSON_ERROR, err
 			}
 			for k := 0; k < len(auditResult); k++ {
@@ -673,7 +673,7 @@ func QueryApplySites() ([]entity.IdPair, error) {
 		var auditPair []entity.AuditPair
 		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return nil, err
 		}
 		var auditResult []entity.IdPair
@@ -703,7 +703,7 @@ func ReadApplySites() (int, error) {
 	var auditPair []entity.AuditPair
 	err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditPair)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	for i := 0; i < len(auditPair); i++ {
@@ -738,13 +738,13 @@ func GetFunction() ([]entity.FunctionResp, error) {
 	}
 	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.FunctionAllUri), nil, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return nil, err
 	}
 	var resp entity.CloudFunctionResp
 	err = json.Unmarshal([]byte(result.Body), &resp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return nil, err
 	}
 
@@ -752,7 +752,7 @@ func GetFunction() ([]entity.FunctionResp, error) {
 	if len(accountInfo.BlockMsg) > 0 {
 		err = json.Unmarshal([]byte(accountInfo.BlockMsg), &functionRespList)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return nil, err
 		}
 	}
@@ -795,7 +795,7 @@ func FunctionRead() (int, error) {
 	if len(accountInfo.BlockMsg) > 0 {
 		err = json.Unmarshal([]byte(accountInfo.BlockMsg), &functionRespList)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return e.ERROR_READ_CHANGE_MSG_FAIL, err
 		}
 	}
@@ -837,7 +837,7 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 		var auditresultlist []entity.IdPair
 		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditresultlist)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return nil, err
 		}
 		for i := 0; i < len(auditresultlist); i++ {
@@ -864,13 +864,13 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 			}
 			result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 				return nil, err
 			}
 			var resp entity.ApplyResp
 			err = json.Unmarshal([]byte(result.Body), &resp)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return nil, err
 			}
 			if resp.Code == e.SUCCESS {

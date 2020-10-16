@@ -55,14 +55,14 @@ func GetChangeLogTask() {
 		}
 		headerInfoMap := util.GetHeaderInfo(headInfo)
 		result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.IpQueryUri), ipQueryItem, headerInfoMap)
-		if err != nil || result == nil{
-			logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		if err != nil || result == nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			continue
 		}
 		var ipQueryResp entity.IpQueryResp
 		err = json.Unmarshal([]byte(result.Body), &ipQueryResp)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return
 		}
 
@@ -77,11 +77,11 @@ func GetChangeLogTask() {
 			}
 			err = models.UpdateChangeLog(value)
 			if err != nil {
-				logging.Debug("update change log failed")
+				logging.Error("update change log failed")
 			}
 			siteInfo, err := models.GetSiteInfo(changelog.PartyId, changelog.FederatedId)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARTY_ID_NOT_EXIST))
+				logging.Error(e.GetMsg(e.ERROR_PARTY_ID_NOT_EXIST))
 			}
 			siteInfo.EditStatus = int(enum.EDIT_YES)
 			siteInfo.UpdateTime = time.Now()
@@ -96,7 +96,7 @@ func GetChangeLogTask() {
 			}
 			err = models.UpdateSite(siteInfo)
 			if err != nil {
-				logging.Debug("update siteinfo failed")
+				logging.Error("update siteinfo failed")
 			}
 		}
 	}

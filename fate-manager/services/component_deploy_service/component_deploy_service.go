@@ -145,12 +145,12 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 	if len(result) == 0 {
 		return nil, err
 	}
-	cmd = fmt.Sprintf("kubectl logs -n kube-fate --tail 500  %s> ./runtime/kubefate.log", result[0:len(result)-1])
+	cmd = fmt.Sprintf("kubectl logs -n kube-fate --tail 500  %s> ./testLog/kubefate.log", result[0:len(result)-1])
 	if setting.KubenetesSetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ = util.ExecCommand(cmd)
-	file, err := os.Open("./runtime/kubefate.log")
+	file, err := os.Open("./testLog/kubefate.log")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -293,14 +293,14 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			index := bytes.IndexByte([]byte(result.Body), 0)
 			err = json.Unmarshal([]byte(result.Body)[:index], &clusterQueryResp)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return e.ERROR_CONNECT_KUBE_FATE_FAIL, err
 			}
 
 			var clusterConfig140 entity.ClusterConfig140
 			err = json.Unmarshal([]byte(clusterQueryResp.Data.Values), &clusterConfig140)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return e.ERROR_CONNECT_KUBE_FATE_FAIL, err
 			}
 			deploySite := models.DeploySite{
@@ -443,7 +443,4 @@ func GetInstallStatus(status entity.InstallStatus) (entity.IdPair, error) {
 		return entity.IdPair{int(enum.INIT_STATUS_SERVICE), enum.GetInitStatusString(enum.INIT_STATUS_SERVICE)}, nil
 	}
 	return entity.IdPair{int(enum.INIT_STATUS_START_DEPLOY), enum.GetInitStatusString(enum.INIT_STATUS_START_DEPLOY)}, nil
-}
-func UpdateComponent() (string, error) {
-	return "", nil
 }

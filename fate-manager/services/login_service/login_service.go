@@ -180,13 +180,13 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 	headerInfoMap := util.GetUserHeadInfo(headInfo)
 	result, err := http.POST(http.Url(accountActivateReq.FederatedUrl+setting.UserActivateUri), nil, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_ACCOUNT_ACTIVATE_FAIL, err
 	}
 	var activateResp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &activateResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if activateResp.Code == e.SUCCESS {
@@ -207,7 +207,7 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 		federated, err := models.GetFederatedUrlByFederationId(accountActivateReq.FederatedId, accountActivateReq.FederatedUrl)
 		federatedId := federated.Id
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
+			logging.Error(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
 			return e.ERROR_SELECT_DB_FAIL, err
 		} else if federated.Id == 0 {
 			federatedInfo := models.FederatedInfo{
@@ -221,7 +221,7 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 			}
 			federatedId, err = models.AddFederated(federatedInfo)
 			if err != nil || federatedId == e.UNKONWN {
-				logging.Debug("add federated failed")
+				logging.Error("add federated failed")
 			}
 		}
 		return e.SUCCESS, nil

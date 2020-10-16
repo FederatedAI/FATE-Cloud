@@ -62,7 +62,7 @@ func JobTask() {
 		index := bytes.IndexByte([]byte(result.Body), 0)
 		err = json.Unmarshal([]byte(result.Body)[:index], &jobQueryResp)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			continue
 		}
 
@@ -77,7 +77,7 @@ func JobTask() {
 			}
 			deployComponentList, err := models.GetDeployComponent(deployComponent)
 			if err != nil || len(deployComponentList) == 0 {
-				logging.Debug("no site info")
+				logging.Error("no site info")
 				continue
 			}
 			deploySite := models.DeploySite{
@@ -227,14 +227,14 @@ func JobTask() {
 					headerInfoMap := util.GetHeaderInfo(headInfo)
 					result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.SystemAddUri), cloudSystemAddList, headerInfoMap)
 					if err != nil {
-						logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+						logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 						continue
 					}
 					if len(result.Body) > 0 {
 						var updateResp entity.CloudCommResp
 						err = json.Unmarshal([]byte(result.Body), &updateResp)
 						if err != nil {
-							logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+							logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 							return
 						}
 						if updateResp.Code == e.SUCCESS {
@@ -267,7 +267,7 @@ func TestOnlyTask() {
 		return
 	}
 	for i := 0; i < len(deploySiteList); i++ {
-		logdir := fmt.Sprintf("./runtime/test/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
+		logdir := fmt.Sprintf("./testLog/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
 		if !util.FileExists(logdir) {
 			continue
 		}
@@ -331,13 +331,13 @@ func ApplyResultTask(info *models.AccountInfo) {
 	}
 	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.ApprovedUri), approvedReq, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return
 	}
 	var approveResp entity.ApproveResp
 	err = json.Unmarshal([]byte(result.Body), &approveResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return
 	}
 	if approveResp.Code == e.SUCCESS {
@@ -352,7 +352,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 		if len(waitAuditList) > 0 {
 			err = json.Unmarshal([]byte(waitAuditList[0].Institutions), &waitAudit)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return
 			}
 		}
@@ -365,7 +365,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 		if len(validAuditList) > 0 {
 			err = json.Unmarshal([]byte(validAuditList[0].Institutions), &validAudit)
 			if err != nil {
-				logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 				return
 			}
 		}
@@ -471,13 +471,13 @@ func AllowApplyTask(info *models.AccountInfo) {
 	}
 	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.AuthorityApplied), applyiedReq, headerInfoMap)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return
 	}
 	var applySiteResultResp entity.AppliedResultResp
 	err = json.Unmarshal([]byte(result.Body), &applySiteResultResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return
 	}
 

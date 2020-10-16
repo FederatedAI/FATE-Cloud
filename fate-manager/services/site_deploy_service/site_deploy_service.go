@@ -242,7 +242,7 @@ func Install(installReq entity.InstallReq) (int, error) {
 	index := bytes.IndexByte([]byte(result.Body), 0)
 	err = json.Unmarshal([]byte(result.Body)[:index], &clusterInstallResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if result.StatusCode == 200 {
@@ -278,7 +278,7 @@ func Install(installReq entity.InstallReq) (int, error) {
 		deployComponentInfo["job_id"] = clusterInstallResp.Data.JobId
 		err = models.UpdateDeployComponent(deployComponentInfo, deployComponent)
 		if err != nil {
-			logging.Debug("update deployComponent failed")
+			logging.Error("update deployComponent failed")
 		}
 
 		deployJob := models.DeployJob{
@@ -357,7 +357,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	}
 	componentVersionList, err := models.GetComponetVersionList(componentVersion)
 	if err != nil {
-		logging.Debug("get component version list Failed")
+		logging.Error("get component version list Failed")
 	}
 	siteInfo, err := models.GetSiteInfo(upgradeReq.PartyId, upgradeReq.FederatedId)
 	if err != nil {
@@ -400,7 +400,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 		}
 		err = models.AddDeployComponent(&deployComponent)
 		if err != nil {
-			logging.Debug("Add deploy componenet failed")
+			logging.Error("Add deploy componenet failed")
 		}
 	}
 	return e.SUCCESS, nil
@@ -439,7 +439,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		data["address"] = updateReq.Address
 		err = models.UpdateDeployComponent(data, deployComponent)
 		if err != nil {
-			logging.Debug("update component failed")
+			logging.Error("update component failed")
 			return e.ERROR_UPDATE_DB_FAIL, err
 		}
 
@@ -657,7 +657,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	autoTest.TestItem = "Single Test"
 	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
-		cmd := fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("cat ./testLog/single/fate-%d.log > ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 	} else {
 		dataTest["update_time"] = time.Now()
@@ -668,16 +668,16 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		models.UpdateAutoTest(dataTest, autoTest)
 		models.UpdateDeploySite(siteTest, deploySite)
 
-		cmd := fmt.Sprintf("sh ./shell/autoTest.sh Single %d > ./runtime/test/single/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("sh ./shell/autoTest.sh Single %d > ./testLog/single/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
-		cmd = fmt.Sprintf("cat ./runtime/test/single/fate-%d.log > ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd = fmt.Sprintf("cat ./testLog/single/fate-%d.log > ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 		dataTest["update_time"] = time.Now()
 		dataTest["end_time"] = time.Now()
 		dataTest["status"] = int(enum.TEST_STATUS_YES)
 		siteTest["single_test"] = int(enum.TEST_STATUS_YES)
 
-		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/single/fate-%d.log|wc -l", autoTestReq.PartyId)
+		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./testLogt/single/fate-%d.log|wc -l", autoTestReq.PartyId)
 		result, _ := util.ExecCommand(cmd)
 		logging.Debug(result)
 		if result[0:1] != "1" {
@@ -701,7 +701,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	autoTest.TestItem = "Toy Test"
 	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
-		cmd := fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("cat ./testLog/toy/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 	} else {
 		dataTest["update_time"] = time.Now()
@@ -711,16 +711,16 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		siteTest["toy_test"] = int(enum.TEST_STATUS_TESTING)
 		models.UpdateAutoTest(dataTest, autoTest)
 		models.UpdateDeploySite(siteTest, deploySite)
-		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./runtime/test/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./testLog/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
-		cmd = fmt.Sprintf("cat ./runtime/test/toy/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd = fmt.Sprintf("cat ./testLog/toy/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 		dataTest["end_time"] = time.Now()
 		dataTest["update_time"] = time.Now()
 		dataTest["status"] = int(enum.TEST_STATUS_YES)
 		siteTest["toy_test"] = int(enum.TEST_STATUS_YES)
 
-		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
+		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./testLog/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
 		result, _ := util.ExecCommand(cmd)
 		logging.Debug(result)
 		if result[0:1] != "1" {
@@ -744,13 +744,13 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	autoTest.TestItem = "Mininmize Fast Test"
 	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
-		cmd := fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("cat ./testLog/fast/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 		//test normal
 		autoTest.TestItem = "Minimize Normal Test"
 		autoTestList, _ = models.GetAutoTest(autoTest)
 		if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
-			cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			cmd = fmt.Sprintf("cat ./testLog/normal/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 			util.ExecCommand(cmd)
 		} else {
 			dataTest["update_time"] = time.Now()
@@ -760,9 +760,9 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
 			models.UpdateAutoTest(dataTest, autoTest)
 			models.UpdateDeploySite(siteTest, deploySite)
-			cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./runtime/test/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./testLog/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 			util.ExecCommand(cmd)
-			cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+			cmd = fmt.Sprintf("cat ./testLog/normal/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 			util.ExecCommand(cmd)
 			dataTest["end_time"] = time.Now()
 			autoTest.TestItem = "Minimize Normal Test"
@@ -770,7 +770,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 			dataTest["status"] = int(enum.TEST_STATUS_YES)
 			siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_YES)
 
-			cmd = fmt.Sprintf("grep success ./runtime/test/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
+			cmd = fmt.Sprintf("grep success ./testLog/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
 			result, _ := util.ExecCommand(cmd)
 			logging.Debug(result)
 			if len(result) > 0 {
@@ -808,16 +808,16 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
 		models.UpdateAutoTest(dataTest, autoTest)
 		models.UpdateDeploySite(siteTest, deploySite)
-		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Fast %d > ./runtime/test/fast/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Fast %d > ./testLog/fast/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
-		cmd = fmt.Sprintf("cat ./runtime/test/fast/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+		cmd = fmt.Sprintf("cat ./testLog/fast/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 		util.ExecCommand(cmd)
 		dataTest["end_time"] = time.Now()
 		dataTest["update_time"] = time.Now()
 		dataTest["status"] = int(enum.TEST_STATUS_YES)
 		siteTest["minimize_fast_test"] = int(enum.TEST_STATUS_YES)
 
-		cmd = fmt.Sprintf("grep success ./runtime/test/fast/fate-%d.log|wc -l", autoTestReq.PartyId)
+		cmd = fmt.Sprintf("grep success ./testLog/fast/fate-%d.log|wc -l", autoTestReq.PartyId)
 		result, _ := util.ExecCommand(cmd)
 		logging.Debug(result)
 		if len(result) > 0 {
@@ -842,7 +842,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 			autoTest.TestItem = "Minimize Normal Test"
 			autoTestList, _ = models.GetAutoTest(autoTest)
 			if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
-				cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				cmd = fmt.Sprintf("cat ./testLog/normal/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 				util.ExecCommand(cmd)
 			} else {
 				dataTest["update_time"] = time.Now()
@@ -852,9 +852,9 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 				siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
 				models.UpdateAutoTest(dataTest, autoTest)
 				models.UpdateDeploySite(siteTest, deploySite)
-				cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./runtime/test/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				cmd = fmt.Sprintf("sh  ./shell/autoTest.sh Normal %d > ./testLog/normal/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 				util.ExecCommand(cmd)
-				cmd = fmt.Sprintf("cat ./runtime/test/normal/fate-%d.log >> ./runtime/test/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+				cmd = fmt.Sprintf("cat ./testLog/normal/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 				util.ExecCommand(cmd)
 				dataTest["end_time"] = time.Now()
 				autoTest.TestItem = "Minimize Normal Test"
@@ -862,7 +862,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 				dataTest["status"] = int(enum.TEST_STATUS_YES)
 				siteTest["minimize_normal_test"] = int(enum.TEST_STATUS_YES)
 
-				cmd = fmt.Sprintf("grep success ./runtime/test/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
+				cmd = fmt.Sprintf("grep success ./testLog/normal/fate-%d.log|wc -l", autoTestReq.PartyId)
 				result, _ = util.ExecCommand(cmd)
 				logging.Debug(result)
 				if len(result) > 0 {
@@ -907,10 +907,10 @@ func ToyTestOnly(autoTestReq entity.AutoTestReq) {
 	var data = make(map[string]interface{})
 	data["toy_test_only"] = int(enum.ToyTestOnly_TESTING)
 	models.UpdateDeploySite(data, deploySite)
-	cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./runtime/test/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
+	cmd := fmt.Sprintf("sh  ./shell/autoTest.sh Toy %d > ./testLog/toy/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
 	util.ExecCommand(cmd)
 
-	cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./runtime/test/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
+	cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./testLog/toy/fate-%d.log|wc -l", autoTestReq.PartyId)
 	result, _ := util.ExecCommand(cmd)
 	data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
 	data["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
@@ -1201,7 +1201,7 @@ func GetTestLog(logReq entity.LogReq) (map[string][]string, error) {
 	if err != nil || len(deploySiteList) == 0 {
 		return nil, err
 	}
-	cmd := fmt.Sprintf("./runtime/test/all/fate-%d.log", logReq.PartyId)
+	cmd := fmt.Sprintf("./testLog/all/fate-%d.log", logReq.PartyId)
 	if !util.FileExists(cmd) {
 		return logs, nil
 	}
