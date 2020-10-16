@@ -677,7 +677,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 		dataTest["status"] = int(enum.TEST_STATUS_YES)
 		siteTest["single_test"] = int(enum.TEST_STATUS_YES)
 
-		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./testLogt/single/fate-%d.log|wc -l", autoTestReq.PartyId)
+		cmd = fmt.Sprintf("grep \"success to calculate secure_sum\" ./testLog/single/fate-%d.log|wc -l", autoTestReq.PartyId)
 		result, _ := util.ExecCommand(cmd)
 		logging.Debug(result)
 		if result[0:1] != "1" {

@@ -233,6 +233,11 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
+			if deployComponentList[0].ComponentName == "fateflow" {
+				pythonPort = port
+			} else if deployComponentList[0].ComponentName == "rollsite" {
+				proxyPort = port
+			}
 			continue
 		}
 		err = models.AddDeployComponent(&deployComponent)
@@ -269,12 +274,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
 		deploySite.CreateTime = time.Now()
 		deploySite.UpdateTime = time.Now()
-		if pythonPort != 0 {
-			deploySite.PythonPort = pythonPort
-		}
-		if proxyPort != 0 {
-			deploySite.RollsitePort = proxyPort
-		}
+
+		deploySite.PythonPort = pythonPort
+		deploySite.RollsitePort = proxyPort
 		deploySite.ClickType = int(enum.ClickType_PULL)
 		err = models.AddDeploySite(&deploySite)
 		if err != nil {
@@ -289,6 +291,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["version_index"] = fateVersionList[0].VersionIndex
 		data["python_port"] = pythonPort
 		data["rollsite_port"] = proxyPort
+
 		data["create_time"] = time.Now()
 		data["update_time"] = time.Now()
 		data["click_type"] = int(enum.ClickType_PULL)
@@ -299,8 +302,10 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		KubenetesUrl: kubefateConf.KubenetesUrl,
 	}
 	var kubeconf = make(map[string]interface{})
+
 	kubeconf["python_port"] = pythonPort
 	kubeconf["rollsite_port"] = proxyPort
+
 	models.UpdateKubenetesConf(kubeconf, kubenetesConf)
 	info := models.SiteInfo{
 		FederatedId: commitImagePullReq.FederatedId,
