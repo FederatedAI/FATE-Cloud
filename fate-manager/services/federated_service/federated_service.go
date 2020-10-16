@@ -59,21 +59,21 @@ func RegisterFederated(registerReq entity.RegisterReq) (*RegisterResp, error) {
 	}
 	headerInfoMap := util.GetHeaderInfo(headInfo)
 	result, err := http.POST(http.Url(registerReq.FederatedUrl+setting.ActivateUri), activateReq, headerInfoMap)
-	if err != nil || result == nil{
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return nil, err
 	}
 	var activateResp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &activateResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return nil, err
 	}
 	if activateResp.Code == e.SUCCESS {
 		federated, err := models.GetFederatedUrlByFederationId(registerReq.Id, registerReq.FederatedUrl)
 		federatedId := federated.Id
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
+			logging.Error(e.GetMsg(e.ERROR_GET_FEDERATED_FAIL))
 			return nil, err
 		} else if federated.Id == 0 {
 			federatedInfo := models.FederatedInfo{
@@ -87,7 +87,7 @@ func RegisterFederated(registerReq entity.RegisterReq) (*RegisterResp, error) {
 			}
 			federatedId, err = models.AddFederated(federatedInfo)
 			if err != nil || federatedId == e.UNKONWN {
-				logging.Debug("add federated failed")
+				logging.Error("add federated failed")
 			}
 		}
 
@@ -111,18 +111,18 @@ func RegisterFederated(registerReq entity.RegisterReq) (*RegisterResp, error) {
 		}
 		site, err := models.GetSiteInfo(registerReq.PartyId, federatedId)
 		if err != nil {
-			logging.Debug("get siteinfo failed", err)
+			logging.Error("get siteinfo failed", err)
 		}
 		if site.PartyId > 0 {
 			err = models.UpdateSite(&siteInfo)
 			if err != nil {
-				logging.Debug("update siteinfo failed", err)
+				logging.Error("update siteinfo failed", err)
 			}
 		} else {
 			siteInfo.CreateTime = time.Now()
 			err = models.AddSite(&siteInfo)
 			if err != nil {
-				logging.Debug("add siteinfo failed", err)
+				logging.Error("add siteinfo failed", err)
 			}
 		}
 		headInfo := util.HeaderInfo{
@@ -136,14 +136,14 @@ func RegisterFederated(registerReq entity.RegisterReq) (*RegisterResp, error) {
 
 		headerInfoMap := util.GetHeaderInfo(headInfo)
 		result, err = http.POST(http.Url(registerReq.FederatedUrl+setting.SiteQueryUri), nil, headerInfoMap)
-		if err != nil || result ==nil{
-			logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+		if err != nil || result == nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			return nil, err
 		}
 		var findOneSiteResp entity.FindOneSiteResp
 		err = json.Unmarshal([]byte(result.Body), &findOneSiteResp)
 		if err != nil {
-			logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return nil, err
 		}
 
@@ -171,14 +171,14 @@ func CheckRegisterUrl(registerReq entity.RegisterReq) (int, error) {
 	}
 	headerInfoMap := util.GetHeaderInfo(headInfo)
 	result, err := http.POST(http.Url(registerReq.FederatedUrl+setting.CheckUri), activateReq, headerInfoMap)
-	if err != nil || result ==nil{
-		logging.Debug(e.GetMsg(e.ERROR_HTTP_FAIL))
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
 	var checkUrlResp entity.CloudManagerResp
 	err = json.Unmarshal([]byte(result.Body), &checkUrlResp)
 	if err != nil {
-		logging.Debug(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if checkUrlResp.Code == e.SUCCESS {

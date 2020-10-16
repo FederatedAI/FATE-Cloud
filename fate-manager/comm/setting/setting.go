@@ -26,25 +26,15 @@ var FunctionAllUri = "/cloud-manager/api/function/find/all/fateManager"
 var OtherSiteUri = "/cloud-manager/api/site/page/fateManager"
 var ApprovedUri = "/cloud-manager/api/authority/institutions/approved"
 
-type App struct {
-	RuntimeRootPath string
-	LogSavePath     string
-	LogSaveName     string
-	LogFileExt      string
-	TimeFormat      string
-	Debug           bool
-	WebBug          bool
-	ProxyUrl        string
-	IfProxy         bool
-}
-
-var AppSetting = &App{}
-
 type Server struct {
 	RunMode      string
 	HttpPort     int
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+	LogSavePath  string
+	TimeFormat   string
+	ProxyUrl     string
+	IfProxy      bool
 }
 
 var ServerSetting = &Server{}
@@ -65,8 +55,6 @@ type Kubenetes struct {
 	KubeFateUrl              string
 	ExchangeIp               string
 	ExchangePort             int
-	FlowPort                 int
-	RollsitePort             int
 	SudoTag                  bool
 	NodeManager              int
 	Registry                 string
@@ -94,7 +82,6 @@ func Setup() {
 		log.Fatalf("setting.Setup, fail to parse 'conf/app.ini': %v", err)
 	}
 
-	mapTo("app", AppSetting)
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
 	mapTo("schedule", ScheduleSetting)

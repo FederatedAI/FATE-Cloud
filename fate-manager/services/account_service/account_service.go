@@ -3,6 +3,7 @@ package account_service
 import (
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
+	"fate.manager/comm/logging"
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/user_service"
@@ -12,17 +13,11 @@ import (
 	"time"
 )
 
-func GetInstitution(accountInfo models.AccountInfo) ([]*models.AccountInfo, error) {
-	accountInfoList, err := models.GetInstitution(accountInfo)
-	if err != nil {
-		return nil, err
-	}
-	return accountInfoList, nil
-}
 func GetUserList(searchReq entity.SearchReq) ([]entity.UserListItem, error) {
 	var data []entity.UserListItem
 	userList, err := user_service.GetUserList(searchReq.Context)
 	if err != nil {
+		logging.Error("Get User List Failed!")
 		return nil, err
 	}
 	for i := 0; i < len(userList); i++ {
@@ -44,6 +39,7 @@ func GetUserAccessList(userAccessListReq entity.UserAccessListReq) ([]entity.Use
 	}
 	userAccessList, err := models.GetAccountSiteInfo(accountSiteInfo)
 	if err != nil {
+		logging.Error("Get User Account Site Info Failed!")
 		return nil, err
 	}
 	var data []entity.UserAccessListItem
@@ -69,12 +65,12 @@ func GetUserAccessList(userAccessListReq entity.UserAccessListReq) ([]entity.Use
 				RoleId:   userAccessList[i].Role,
 				RoleName: enum.GetUserRoleString(enum.UserRole(userAccessList[i].Role)),
 			},
-			CloudUser:false,
+			CloudUser:      false,
 			PermissionList: permissionPairList,
 			Creator:        userAccessList[i].Creator,
 			CreateTime:     userAccessList[i].CreateTime.UnixNano() / 1e6,
 		}
-		if len(userAccessList[i].CloudUserId) >0 {
+		if len(userAccessList[i].CloudUserId) > 0 {
 			userAccessListItem.CloudUser = true
 		}
 		data = append(data, userAccessListItem)
@@ -84,6 +80,7 @@ func GetUserAccessList(userAccessListReq entity.UserAccessListReq) ([]entity.Use
 func AddUser(addUserReq entity.AddUserReq) (int, error) {
 
 	if addUserReq.RoleId == int(enum.UserRole_BUSINESS) && addUserReq.PartyId == 0 {
+		logging.Error(fmt.Sprintf("Add User Failed,roleId:%d,partyID:%d", addUserReq.RoleId, addUserReq.PartyId))
 		return e.ERROR_ADD_USER_FAIL, nil
 	}
 	accountInfo := models.AccountInfo{
@@ -92,9 +89,11 @@ func AddUser(addUserReq entity.AddUserReq) (int, error) {
 	}
 	accountInfoList, err := models.CheckUser(&accountInfo)
 	if err != nil {
+		logging.Error(fmt.Sprintf("CheckUser Failed,UserId:%s,UserName:%s", accountInfo.UserId, accountInfo.UserName))
 		return e.ERROR_ADD_USER_FAIL, err
 	}
 	if len(accountInfoList) > 0 {
+		logging.Error(fmt.Sprintf("CheckUser Empty,UserId:%s,UserName:%s", accountInfo.UserId, accountInfo.UserName))
 		return e.ERROR_ADD_USER_FAIL, err
 	}
 
@@ -102,6 +101,7 @@ func AddUser(addUserReq entity.AddUserReq) (int, error) {
 	if addUserReq.RoleId == int(enum.UserRole_BUSINESS) {
 		accountInfoList, _ := models.GetAccountInfo(accountInfo)
 		if len(accountInfoList) > 0 {
+			logging.Error(fmt.Sprintf("User Has Exist,Add Failed,UserId:%s,UserName:%s", accountInfo.UserId, accountInfo.UserName))
 			return e.ERROR_ADD_USER_FAIL, nil
 		}
 	}
@@ -131,6 +131,7 @@ func EditUser(editUserReq entity.EditUserReq) (int, error) {
 	}
 	accountInfoList, err := models.CheckUser(&accountInfo)
 	if err != nil {
+		logging.Error(fmt.Sprintf("CheckUser Failed,UserId:%s,UserName:%s", accountInfo.UserId, accountInfo.UserName))
 		return e.ERROR_SELECT_DB_FAIL, nil
 	}
 	admin := false
@@ -147,6 +148,7 @@ func EditUser(editUserReq entity.EditUserReq) (int, error) {
 	}
 
 	if admin {
+		logging.Error(fmt.Sprintf("Admin User Could Not Edite,UserId:%s,UserName:%s", accountInfo.UserId, accountInfo.UserName))
 		return e.ERROR_EDIT_USER_FAIL, nil
 	}
 	var permissionList string
@@ -170,12 +172,13 @@ func EditUser(editUserReq entity.EditUserReq) (int, error) {
 	models.UpdateAccountInfo(data, accountInfo)
 	return e.SUCCESS, nil
 }
-func DeleteUser(token string,deleteUserReq entity.DeleteUserReq) (int, error) {
+func DeleteUser(token string, deleteUserReq entity.DeleteUserReq) (int, error) {
 	tokenInfo := models.TokenInfo{
 		Token: token,
 	}
 	tokenInfoList, err := models.GetTokenInfo(tokenInfo)
 	if err != nil || len(tokenInfoList) == 0 {
+		logging.Error(fmt.Sprintf("Unvalid Token:%s", token))
 		return e.ERROR_AUTH_CHECK_TOKEN_TIMEOUT, err
 	}
 	accountInfo := models.AccountInfo{
@@ -190,24 +193,26 @@ func DeleteUser(token string,deleteUserReq entity.DeleteUserReq) (int, error) {
 		return e.ERROR_USER_NOT_EXISTS_FAIL, err
 	}
 	if accountInfoList[0].Role == int(enum.UserRole_ADMIN) && len(accountInfoList[0].CloudUserId) > 0 {
-		return e.ERROR_DELETE_USER_FAIL,err
+		logging.Error(fmt.Sprintf("Admin Could Not Be Delete,Username:%s", accountInfoList[0].UserName))
+		return e.ERROR_DELETE_USER_FAIL, err
 	}
 	if accountInfoList[0].UserName == tokenInfoList[0].UserName {
-		return e.ERROR_DELETE_USER_FAIL,err
+		logging.Error(fmt.Sprintf("Could Not Be Delete Self,Username:%s", accountInfoList[0].UserName))
+		return e.ERROR_DELETE_USER_FAIL, err
 	}
 	var data = make(map[string]interface{})
 	data["status"] = int(enum.IS_VALID_NO)
 	models.UpdateAccountInfo(data, accountInfo)
-	data=make(map[string]interface{})
-	data["expire_time"]=time.Now()
+	data = make(map[string]interface{})
+	data["expire_time"] = time.Now()
 	tokenInfo = models.TokenInfo{
-		UserId:     deleteUserReq.UserId,
-		UserName:   deleteUserReq.UserName,
+		UserId:   deleteUserReq.UserId,
+		UserName: deleteUserReq.UserName,
 	}
-	tokenInfoList,_ = models.GetNoExpireTokenInfo(time.Now(),tokenInfo)
-	for i := 0 ; i< len(tokenInfoList) ;i++{
+	tokenInfoList, _ = models.GetNoExpireTokenInfo(time.Now(), tokenInfo)
+	for i := 0; i < len(tokenInfoList); i++ {
 		tokenInfo.Id = tokenInfoList[i].Id
-		models.UpdateTokenInfo(data,tokenInfo)
+		models.UpdateTokenInfo(data, tokenInfo)
 	}
 	return e.SUCCESS, nil
 }
@@ -220,6 +225,7 @@ func UserSiteList() ([]entity.SitePair, error) {
 	}
 	siteInfoList, err := models.GetSiteDropDownList(infoList[0].Id)
 	if err != nil {
+		logging.Error(fmt.Sprintf("Get Site Drop Down List Failed!"))
 		return nil, err
 	}
 	for i := 0; i < len(siteInfoList); i++ {
@@ -242,6 +248,7 @@ func GetSiteInfoUserList(siteInfoUserListReq entity.SiteInfoUserListReq) ([]enti
 	}
 	accountInfoList, err := models.GetAccountInfo(accountInfo)
 	if err != nil {
+		logging.Error(fmt.Sprintf("GetAccountInfo Failed!"))
 		return nil, err
 	}
 	for i := 0; i < len(accountInfoList); i++ {
@@ -280,6 +287,7 @@ func GetUserInfo(token string) (*entity.UserInfoResp, error) {
 	}
 	accountInfoList, err := models.GetAccountInfo(accountInfo)
 	if err != nil || len(accountInfoList) == 0 {
+		logging.Error(fmt.Sprintf("GetAccountInfo Failed!"))
 		return nil, err
 	}
 	role := entity.Role{

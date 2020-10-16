@@ -45,9 +45,9 @@ func SiteStatusTask() {
 func IpManagerTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
 	for {
-		logging.Debug("IpManagerTask start...")
+		logging.Info("IpManagerTask start...")
 		changelog_service.GetChangeLogTask()
-		logging.Debug("IpManagerTask end...")
+		logging.Info("IpManagerTask end...")
 		<-ticker.C
 	}
 }

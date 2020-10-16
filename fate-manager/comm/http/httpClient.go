@@ -72,7 +72,7 @@ func (r req) DELETE() (ret *result, err error) {
 
 func GetProxy() *http.Client {
 	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse(setting.AppSetting.ProxyUrl)
+		return url.Parse(setting.ServerSetting.ProxyUrl)
 	}
 
 	transport := &http.Transport{Proxy: proxy}
@@ -91,7 +91,7 @@ func (r req) do(method string, url Url, param Param, header Header) (ret *result
 	r.setHeader(reqs, header)
 	defer reqs.Body.Close()
 	client := &http.Client{Timeout: 5 * time.Second}
-	if setting.AppSetting.IfProxy {
+	if setting.ServerSetting.IfProxy {
 		client = GetProxy()
 	}
 	res, err := client.Do(reqs)
@@ -157,25 +157,22 @@ func (r req) setHeader(h *http.Request, header Header) {
 
 // 打印请求参数及返回信息
 func (r req) debug(ret *result) {
-	DEBUG = setting.AppSetting.Debug
-	if DEBUG {
-		logging.Debug("debug log start ----------")
-		logging.Debug(ret.Method, ret.Proto)
-		logging.Debug("Host", ":", ret.Host)
-		logging.Debug("URL", ":", ret.URL)
-		logging.Debug("RawQuery", ":", ret.URL.RawQuery)
-		for key, val := range ret.Header {
-			logging.Debug(key, ":", val[0])
-		}
-		logging.Debug("----------------------------------------------------")
-		logging.Debug("Status", ":", ret.Status)
-		logging.Debug("StatusCode", ":", ret.StatusCode)
-		for key, val := range ret.Response.Header {
-			logging.Debug(key, ":", val[0])
-		}
-		logging.Debug("Body", ":", ret.Body)
-		logging.Debug("debug log end ----------")
+	logging.Info("debug log start ----------")
+	logging.Debug(ret.Method, ret.Proto)
+	logging.Debug("Host", ":", ret.Host)
+	logging.Debug("URL", ":", ret.URL)
+	logging.Debug("RawQuery", ":", ret.URL.RawQuery)
+	for key, val := range ret.Header {
+		logging.Debug(key, ":", val[0])
 	}
+	logging.Debug("----------------------------------------------------")
+	logging.Debug("Status", ":", ret.Status)
+	logging.Debug("StatusCode", ":", ret.StatusCode)
+	for key, val := range ret.Response.Header {
+		logging.Debug(key, ":", val[0])
+	}
+	logging.Debug("Body", ":", ret.Body)
+	logging.Debug("debug log end ----------")
 }
 
 // GET
