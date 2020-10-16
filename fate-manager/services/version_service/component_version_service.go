@@ -212,6 +212,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	}
 	var pythonPort int
 	var proxyPort int
+	updatePortTag := false
 	for i := 0; i < len(componentVersionList); i++ {
 		port := GetDefaultPort(componentVersionList[i].ComponentName)
 
@@ -233,11 +234,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
-			if deployComponentList[0].ComponentName == "fateflow" {
-				pythonPort = port
-			} else if deployComponentList[0].ComponentName == "rollsite" {
-				proxyPort = port
-			}
+			updatePortTag = true
 			continue
 		}
 		err = models.AddDeployComponent(&deployComponent)
@@ -275,8 +272,10 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		deploySite.CreateTime = time.Now()
 		deploySite.UpdateTime = time.Now()
 
-		deploySite.PythonPort = pythonPort
-		deploySite.RollsitePort = proxyPort
+		if !updatePortTag {
+			deploySite.PythonPort = pythonPort
+			deploySite.RollsitePort = proxyPort
+		}
 		deploySite.ClickType = int(enum.ClickType_PULL)
 		err = models.AddDeploySite(&deploySite)
 		if err != nil {
@@ -289,9 +288,10 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["deploy_status"] = int(enum.DeployStatus_PULLED)
 		data["chart_version"] = fateVersionList[0].ChartVersion
 		data["version_index"] = fateVersionList[0].VersionIndex
-		data["python_port"] = pythonPort
-		data["rollsite_port"] = proxyPort
-
+		if !updatePortTag {
+			data["python_port"] = pythonPort
+			data["rollsite_port"] = proxyPort
+		}
 		data["create_time"] = time.Now()
 		data["update_time"] = time.Now()
 		data["click_type"] = int(enum.ClickType_PULL)
@@ -301,12 +301,14 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	kubenetesConf := models.KubenetesConf{
 		KubenetesUrl: kubefateConf.KubenetesUrl,
 	}
-	var kubeconf = make(map[string]interface{})
+	if !updatePortTag {
+		var kubeconf = make(map[string]interface{})
 
-	kubeconf["python_port"] = pythonPort
-	kubeconf["rollsite_port"] = proxyPort
+		kubeconf["python_port"] = pythonPort
+		kubeconf["rollsite_port"] = proxyPort
 
-	models.UpdateKubenetesConf(kubeconf, kubenetesConf)
+		models.UpdateKubenetesConf(kubeconf, kubenetesConf)
+	}
 	info := models.SiteInfo{
 		FederatedId: commitImagePullReq.FederatedId,
 		PartyId:     commitImagePullReq.PartyId,
