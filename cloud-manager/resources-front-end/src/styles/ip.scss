@@ -1,0 +1,176 @@
+.ip-box {
+    .ip {
+        margin: 24px 36px;
+
+        .ip-header {
+            height: 34px;
+            margin-bottom: 24px;
+            text-align: right;
+            .input {
+
+                line-height: 34px;
+                width: 250px;
+
+                .search {
+                    cursor: pointer;
+                    margin-right: 0px
+                }
+            }
+
+            .sel-role {
+                line-height: 34px;
+                width: 85px;
+                margin-left: 16px;
+            }
+
+            .sel-institutions {
+                width: 115px;
+                margin-left: 16px;
+            }
+        }
+
+        .ip-body {
+            background-color: #fff;
+            position: absolute;
+            width: calc(100% - 72px);
+            height: calc(100% - 114px);
+
+            .table {
+                width: 100%;
+                height: calc(100% - 104px);
+                .el-table {
+                    width: calc(100% - 72px);
+                    height:100% !important;
+                    .has-gutter {
+                        color: #4E5766;
+                    }
+                    .el-button{
+                        padding:0;
+                        height: initial;
+                        line-height: initial;
+                    }
+                    .data,
+                    .badge {
+                        display: table-cell;
+                        vertical-align: top;
+                    }
+                    .iptext{
+                        width: 130px;
+                        display: inline-block;
+                    }
+                    .telnet{
+                        margin-left: 10px;
+                        color: #217AD9;
+                        cursor: pointer;
+                        vertical-align: top;
+                    }
+                    .badge {
+                        padding-left: 10px;
+                    }
+                    .el-table__row>.cell-td-td>.cell{
+                        position: absolute;
+                        top:12px;
+                        display: inline-block;
+                    }
+                    .cell-td{
+                        position: absolute;
+                        top:10px;
+                        display: inline-block;
+                    }
+                    .el-badge__content.is-fixed.is-dot {
+                        top: 3px;
+                    }
+                    .el-badge__content--warning {
+                        background-color: #FF9D00;
+                    }
+
+                    .el-input__inner {
+                        background-color: #fff;
+                        width: 150px;
+                    }
+
+                }
+            }
+        }
+    }
+
+    .ip-delete-dialog {
+
+        //弹框居中
+        .el-dialog {
+            // height: 284px; //弹框宽度
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+        }
+
+        .el-dialog__body {
+            padding: 64px 20px;
+        }
+
+        .el-dialog__header {
+            display: none;
+        }
+
+        text-align: center;
+
+        .line-text-one {
+            font-size: 24px;
+            color: #2D3642;
+            margin-bottom: 24px
+        }
+
+        .line-text-two {
+            font-size: 18px;
+            color: #848C99;
+            margin-top: 36px;
+            margin-bottom: 48px
+        }
+
+        .entrances {
+            padding: 10px 0;
+            max-height: 115px;
+            background-color: #F5F8FA;
+            overflow: auto;
+            font-size: 18px;
+            text-align: center;
+
+            .rigth-box {
+                display: inline-block;
+                .from {
+                    margin-right: 25px;
+                    display: inline-block;
+                    vertical-align: top;
+                    color: #2D3642;
+                }
+
+                .text {
+                    line-height: 30px;
+                    display: inline-block;
+                    color: #217AD9;
+                    vertical-align: top;
+                    span {
+                        display: block;
+                    }
+                }
+            }
+
+
+
+
+        }
+
+        .ok-btn {
+            width: 180px;
+            font-size: 18px;
+        }
+
+    }
+
+}

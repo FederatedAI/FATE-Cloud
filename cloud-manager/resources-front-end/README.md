@@ -1,10 +1,13 @@
+# fate cloud manager
+fate-cloud定制联邦服务管理端
+
 ## Build Setup
 
 # Install dependencies
 npm install
 
-# Serve with hot reload at localhost:8028
-npm run dev
+# Serve with hot reload at localhost:8080
+npm run serve
 
 # Build for production with minification
 npm run build
