@@ -259,3 +259,12 @@ export function authorityPermiss(data) {
         data
     })
 }
+
+// 获取版本下拉
+export function getversion(data) {
+    return request({
+        url: '/cloud-manager/api/dropdown/version',
+        method: 'post',
+        data
+    })
+}

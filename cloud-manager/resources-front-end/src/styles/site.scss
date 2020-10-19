@@ -20,25 +20,10 @@
                     cursor: pointer;
                 }
             }
-            @media screen and (max-width: 1480px) {
-                .input {
-                    max-width: 150px;
-                }
-               
-            }
-            @media screen and (max-width: 1330px) {
-                .input {
-                    max-width: 100px;
-                }
-                .add {
-                    max-width: 80px;
-                }
-            }
-            
             .sel-role {
-                width: 120px;
                 margin-left: 16px;
             }
+            
         }
         .el-collapse{
             // border-top: 2px solid #EBEEF5;
@@ -54,6 +39,9 @@
             height: calc(100% - 164px);
             width: calc(100% - 48px);
             overflow: auto;
+            .el-collapse-item__header:hover{
+                background-color: #f5f8fa;
+            }
             .el-collapse-item__header{
                 height: 42px;
                 font-size: 14px;
@@ -70,10 +58,15 @@
                 text-align: right;
                 .tickets{
                     position: absolute;
-
                     right: 70px;
                     margin-top: -10px;
-                    z-index: 0;
+                }
+                .disable{
+                    position: absolute;
+                    right: 70px;
+                    margin-top: -10px;
+                    cursor: not-allowed;
+        
                 }
                 .sitenum{
                     position: absolute;
@@ -98,16 +91,18 @@
             .site-body {
                 padding: 0 24px;
                 // height: calc(100% - 284px);
-                max-height: 301px;
+                // max-height: 301px;
                 .table {
                     width: 100%;
-                    height: calc(100% - 57px);
-                  
+                    // height: calc(100% - 57px);
+                    .el-table::before {
+                        background-color: #fff; 
+                    }
                     .el-table {
                         margin: 0px 0px ;
                         // width: calc(100% - 72px);
                         // background-color: pink;
-                        height:100% !important;
+                        // max-height:255px;
                         .el-button{
                             padding:0;
                             height: initial;
@@ -131,18 +126,9 @@
                             background-color: #fff;
                             width: 150px;
                         }
+                        //小箭头旋转
                         .el-icon-caret-bottom{
                             transition:.3s;
-                        }
-                        .el-icon-arrow-up:before {
-                            color: #848C99;
-                            content: "\E790";
-                            font-size: 18px;
-                        }
-                        .el-icon-arrow-down:before {
-                            color: #848C99;
-                            content: "\E790";
-                            font-size: 18px;
                         }
                         .icon-caret:hover{
                             .el-icon-caret-bottom{
@@ -222,7 +208,7 @@
         }
         .dialog-main{
             text-align: left;
-            padding: 12px;
+            padding: 12px 24px;
             margin: 24px;
             max-height: 248px;
             overflow:auto;
@@ -264,7 +250,7 @@
         }
 
         .dialog-main{
-            padding: 12px;
+            padding: 12px 24px;
             margin: 24px;
             max-height: 248px;
             overflow:auto;
