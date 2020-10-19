@@ -1,7 +1,5 @@
 #FATE-Manager部署指引文档
 
--------------------
-[TOC]
 
 ##部署架构
 <div style="text-align:center", align=center>
