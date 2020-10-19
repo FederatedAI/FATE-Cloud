@@ -146,66 +146,6 @@
         limit #{startIndex}, #{usedSiteListQo.pageSize}
     </select>
 
-    <!--    <select id="findUsedSites" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">-->
-    <!--        SELECT id,party_id,site_name,institutions,create_time,status FROM t_federated_site_manager-->
-    <!--        <where>-->
-    <!--            <if test="usedSiteListQo.condition!=null">-->
-    <!--                and (party_id like #{usedSiteListQo.condition} or site_name like #{usedSiteListQo.condition})-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.status==null">-->
-    <!--                and status in (1,2,3)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==1">-->
-    <!--                and status in (1,2)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==2">-->
-    <!--                and status in (1,2)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==3">-->
-    <!--                and status in (3)-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.groupId!=null">-->
-    <!--                and group_id=#{usedSiteListQo.groupId}-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.partyId!=null">-->
-    <!--                <if test="usedSiteListQo.partyId">-->
-    <!--                    order by party_id asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.partyId">-->
-    <!--                    order by party_id desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.siteName!=null">-->
-    <!--                <if test="usedSiteListQo.siteName">-->
-    <!--                    order by site_name asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.siteName">-->
-    <!--                    order by site_name desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.institutions!=null">-->
-    <!--                <if test="usedSiteListQo.institutions">-->
-    <!--                    order by institutions asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.institutions">-->
-    <!--                    order by institutions desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.createTime!=null">-->
-    <!--                <if test="usedSiteListQo.createTime">-->
-    <!--                    order by create_time asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.createTime">-->
-    <!--                    order by create_time desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-
-    <!--            limit #{startIndex}, #{usedSiteListQo.pageSize}-->
-    <!--        </where>-->
-    <!--    </select>-->
 
     <select id="findInstitutionsCount" resultType="long">
 

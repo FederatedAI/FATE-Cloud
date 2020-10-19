@@ -1,22 +1,20 @@
-package com.webank.ai.fatecloud.system.pojo.qo;
+package com.webank.ai.fatecloud.system.pojo.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "job information")
-public class JobInformationQo implements Serializable {
-
-    @ApiModelProperty(value = "guest id")
-    private String siteGuestId;
+@ApiModel(value = "job statistics")
+public class JobStatistics implements Serializable {
 
     @ApiModelProperty(value = "host id")
     private String siteHostId;
@@ -26,8 +24,4 @@ public class JobInformationQo implements Serializable {
 
     @ApiModelProperty(value = "failed count")
     private String jobFailedCount;
-
-    @ApiModelProperty(value = "finish date")
-    private String jobFinishDate;
-
 }
