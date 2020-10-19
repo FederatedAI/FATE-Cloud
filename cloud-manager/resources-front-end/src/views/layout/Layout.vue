@@ -1,71 +1,111 @@
 <template>
-  <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
-    <sidebar class="sidebar-container"/>
-    <div class="main-container">
-      <navbar/>
-      <app-main/>
-    </div>
+  <div class="home">
+    <el-container>
+      <el-header>
+        <div class="begin" @click="toHome">
+          <img src="@/assets/logo.png">
+          <span>FATE Cloud</span>
+        </div>
+        <div class="right-bar">
+            <el-popover placement="bottom" popper-class="bar-pop" :visible-arrow="false" trigger="click">
+                <div class="mane" @click="tologout">Sign out</div>
+                <div slot="reference" >
+                    <span  class="name-text" >
+                        <el-tooltip effect="light" v-if="tooltip" :content="loginName" placement="bottom-start">
+                            <span ref="name">
+                                {{loginName}}
+                            </span>
+                        </el-tooltip>
+                         <span v-else ref="name">
+                                {{loginName}}
+                        </span>
+                    </span>
+                    <i class="el-icon-caret-bottom" />
+                </div>
+            </el-popover>
+        </div>
+        <topbar ref="topbar" />
+      </el-header>
+      <el-main>
+        <sidebar />
+        <contentbox  />
+      </el-main>
+    </el-container>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
+import { logout } from '@/api/welcomepage'
+import topbar from './components/topbar'
+import sidebar from './components/sidebar'
+import contentbox from './components/contentbox'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'Layout',
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain
-  },
-  mixins: [ResizeMixin],
-  computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
+    name: 'Layout',
+    components: {
+        topbar,
+        sidebar,
+        contentbox
     },
-    device() {
-      return this.$store.state.app.device
+    data() {
+        return {
+            name: '',
+            tooltip: false
+        }
     },
-    classObj() {
-      return {
-        hideSidebar: !this.sidebar.opened,
-        openSidebar: this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
-      }
+    computed: {
+        ...mapGetters(['loginName'])
+    },
+    created() {
+        this.$store.dispatch('setloginname', localStorage.getItem('name')).then(r => {
+            localStorage.setItem('name', r)
+        })
+    },
+    mounted() {
+        let width = this.$refs.name.offsetWidth
+        if (width > 160) {
+            this.tooltip = true
+        } else {
+            this.tooltip = false
+        }
+    },
+    methods: {
+        toHome() {
+            // this.$router.push({ path: '/' })
+        },
+        // 点击退出
+        tologout(e) {
+            logout().then(res => {
+                this.$store.dispatch('setloginname', '').then(r => {
+                    localStorage.setItem('name', r)
+                    this.$router.push({
+                        path: '/home/welcome'
+                    })
+                })
+            })
+        }
     }
-  },
-  methods: {
-    handleClickOutside() {
-      this.$store.dispatch('CloseSideBar', { withoutAnimation: false })
-    }
-  }
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/styles/mixin.scss";
-
-  .app-wrapper {
-    @include clearfix;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    &.mobile.openSidebar {
-      position: fixed;
-      top: 0;
+<style rel="stylesheet/scss" lang="scss" >
+@import 'src/styles/home.scss';
+.bar-pop{
+    text-align: center;
+    height: 35px !important;
+    line-height: 35px;
+    margin-top:0 !important;
+    min-width: 95px !important;
+    left: calc(100% - 143px) !important;
+    padding: 5px;
+    .mane{
+        cursor: pointer;
+        font-size: 16px;
+        color: #217AD9;
     }
-  }
-
-  .drawer-bg {
-    background: #000;
-    opacity: 0.3;
-    width: 100%;
-    top: 0;
-    height: 100%;
-    position: absolute;
-    z-index: 999;
-  }
+    .mane:hover{
+        background-color: #ecf5ff;
+    }
+}
 </style>
