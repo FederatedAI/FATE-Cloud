@@ -37,32 +37,34 @@
             </el-table-column>
             <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" show-overflow-tooltip></el-table-column>
             <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td"></el-table-column>
-            <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td">
+            <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td" >
                 <template slot-scope="scope">
                     <span>{{scope.row.federatedGroupSetDo.role===1?'Guest':'Host'}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Installed items" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Installed items" min-width="110" class-name="cell-td-td">
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
                             <!-- <span v-if="item.updateStatus===1">{{item.installItems}}</span> -->
-                            <span >{{item.installItems}}</span>
+                            <tooltip :width="'106px'" :content="item.installItems" :placement="'top'"/>
+                            <!-- <span >{{item.installItems}}</span> -->
                         </div>
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Version"  width="90" class-name="cell-td-td" >
+            <el-table-column prop="federatedSiteModelDos" label="Version" min-width="90" class-name="cell-td-td" >
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
                             <!-- <span v-if="item.updateStatus===1">{{item.version}}</span> -->
-                            <span >{{item.version}}</span>
+                             <tooltip :width="'80px'" :content="item.version" :placement="'top'"/>
+                            <!-- <span >{{item.version}}</span> -->
                         </div>
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Installed time" width="160" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Installed time" min-width="160" class-name="cell-td-td">
                  <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -71,7 +73,7 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Upgrade time" width="160" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Upgrade time" min-width="160" class-name="cell-td-td">
                  <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -85,7 +87,7 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="" label="History"  align="center" >
+            <el-table-column prop="" label="History"  width="70" align="center" >
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(elm, ind) in scope.row.federatedSiteModelDos" :key="ind" >
@@ -149,11 +151,11 @@
 <script>
 import { getSystemManage, systemhistory } from '@/api/federated'
 import moment from 'moment'
-
+import tooltip from '@/components/Tooltip'
 export default {
     name: 'PartyId',
     components: {
-
+        tooltip
     },
     filters: {
         dateFormat(vaule) {
@@ -229,6 +231,7 @@ export default {
                     }
                 })
                 this.tableData = res.data.list
+                this.total = res.data.totalRecord
             })
         },
         getHistory(item) {
@@ -277,6 +280,7 @@ export default {
             color: #848C99
         }
         .title-history{
+            vertical-align: top;
             color: #4E5766;
             .version{
                 color: #217AD9;
