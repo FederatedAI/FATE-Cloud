@@ -1,10 +1,8 @@
 package com.webank.ai.fatecloud.system.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.webank.ai.fatecloud.system.pojo.qo.JobInformationQo;
+import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -51,7 +49,11 @@ public class FederatedJobStatisticsDo implements Serializable {
     @TableField(value = "update_time")
     private String updateTime;
 
-    public FederatedJobStatisticsDo(JobInformationQo jobInformationQo) {
-        this.
+    public FederatedJobStatisticsDo(JobStatisticsQo jobStatisticsQo) {
+        this.siteGuestId = jobStatisticsQo.getSiteGuestId();
+        this.siteHostId = jobStatisticsQo.getSiteHostId();
+        this.jobSuccessCount = jobStatisticsQo.getJobSuccessCount();
+        this.jobFailedCount = jobStatisticsQo.getJobFailedCount();
+        this.jobFinishDate = jobStatisticsQo.getJobFinishDate();
     }
 }

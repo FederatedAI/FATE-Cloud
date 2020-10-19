@@ -1,11 +1,10 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
-import com.alibaba.fastjson.JSON;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
-import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
-import com.webank.ai.fatecloud.system.pojo.qo.JobInformationQo;
+import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
+import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
 import com.webank.ai.fatecloud.system.service.impl.FederatedJobStatisticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +22,23 @@ public class FederatedJobStatisticsServiceFacade {
     @Autowired
     CheckSignature checkSignature;
 
-    public CommonResponse pushJobInformation(List<JobInformationQo> jobInformationQos) {
+    public CommonResponse pushJosStatistics(List<JobStatisticsQo> jobStatisticsQos) {
         //check authority
+        //todo
 //        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityInstitutionsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
 //        if (!result) {
 //            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
 //        }
-        if(!(jobInformationQos.size()>0)){
+        if (!(jobStatisticsQos.size() > 0)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
-        federatedJobStatisticsService.pushJobInformation(jobInformationQos);
+        federatedJobStatisticsService.pushJosStatistics(jobStatisticsQos);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 
+    }
+
+    public CommonResponse getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        List jobStatisticsOfSiteDimension = federatedJobStatisticsService.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimension);
     }
 }
