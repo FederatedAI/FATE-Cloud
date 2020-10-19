@@ -222,7 +222,9 @@ func Install(installReq entity.InstallReq) (int, error) {
 	authorization := fmt.Sprintf("Bearer %s", token)
 	head := make(map[string]interface{})
 	head["Authorization"] = authorization
+	upgrade := false
 	if len(deploySiteList[0].ClusterId) > 0 {
+		upgrade =true
 		_, err := http.DELETE(http.Url(kubefateUrl+"/v1/cluster/"+deploySiteList[0].ClusterId), nil, head)
 		if err != nil {
 			return e.ERROR_INSTALL_ALL_FAIL, err
@@ -307,6 +309,9 @@ func Install(installReq entity.InstallReq) (int, error) {
 			Status:      int(enum.JOB_STATUS_RUNNING),
 			CreateTime:  time.Now(),
 			UpdateTime:  time.Now(),
+		}
+		if upgrade {
+			deployJob.JobType = int(enum.JOB_TYPE_UPDATE)
 		}
 		err = models.AddDeployJob(&deployJob)
 		if err != nil {
