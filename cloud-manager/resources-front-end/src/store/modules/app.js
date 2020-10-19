@@ -1,44 +1,32 @@
-import Cookies from 'js-cookie'
 
 const app = {
-  state: {
-    sidebar: {
-      // opened: !+Cookies.get('sidebarStatus'),
-      opened: true, // 默认打开侧边栏
-      withoutAnimation: false
+    state: {
+        sidebar: [],
+        sitestatus: true, // 是否打开，默认打开
+        autostatus: true // 是否打开，默认打开
     },
-    device: 'desktop'
-  },
-  mutations: {
-    TOGGLE_SIDEBAR: state => {
-      if (state.sidebar.opened) {
-        Cookies.set('sidebarStatus', 1)
-      } else {
-        Cookies.set('sidebarStatus', 0)
-      }
-      state.sidebar.opened = !state.sidebar.opened
-      state.sidebar.withoutAnimation = false
+    mutations: {
+        TOGGLE_SIDEBAR: (state, sidebarArr) => {
+            state.sidebar = sidebarArr
+        },
+        SITE_STATUS: (state, data) => {
+            state.sitestatus = data
+        },
+        AUTO_STATUS: (state, data) => {
+            state.autostatus = data
+        }
     },
-    CLOSE_SIDEBAR: (state, withoutAnimation) => {
-      Cookies.set('sidebarStatus', 1)
-      state.sidebar.opened = false
-      state.sidebar.withoutAnimation = withoutAnimation
-    },
-    TOGGLE_DEVICE: (state, device) => {
-      state.device = device
+    actions: {
+        ToggleSideBar: ({ commit }, keyPath) => {
+            commit('TOGGLE_SIDEBAR', keyPath)
+        },
+        Getsitestatus: ({ commit }, data) => {
+            commit('SITE_STATUS', data)
+        },
+        Getautostatus: ({ commit }, data) => {
+            commit('AUTO_STATUS', data)
+        }
     }
-  },
-  actions: {
-    ToggleSideBar: ({ commit }) => {
-      commit('TOGGLE_SIDEBAR')
-    },
-    CloseSideBar({ commit }, { withoutAnimation }) {
-      commit('CLOSE_SIDEBAR', withoutAnimation)
-    },
-    ToggleDevice({ commit }, device) {
-      commit('TOGGLE_DEVICE', device)
-    }
-  }
 }
 
 export default app
