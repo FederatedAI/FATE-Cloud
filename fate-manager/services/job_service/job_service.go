@@ -522,7 +522,6 @@ func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
 		ProductType:  int(enum.PRODUCT_TYPE_FATE),
-		DeployStatus: int(enum.DeployStatus_SUCCESS),
 		IsValid:      int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
@@ -530,6 +529,9 @@ func ComponentStatusTask() {
 		return
 	}
 	for i := 0; i < len(deployComponentList); i++ {
+		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS){
+			continue
+		}
 		testname := deployComponentList[i].ComponentName
 		if deployComponentList[i].ComponentName == "meta-service" {
 			testname = "roll"
