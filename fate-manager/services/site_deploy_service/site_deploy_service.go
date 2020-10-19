@@ -567,7 +567,7 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 
 				autoTest.TestItem = v[i]
 				var temp = make(map[string]interface{})
-				temp["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+				temp["deploy_status"] = int(enum.DeployStatus_IN_TESTING)
 
 				data["status"] = int(enum.TEST_STATUS_YES)
 				cnt, _ := strconv.Atoi(result[0:1])
