@@ -1,14 +1,14 @@
-#FATE-Manager部署指引文档#
+#FATE-Manager部署指引文档
 
+##部署架构
 
-##部署架构##
 <div style="text-align:center", align=center>
-<img src="../../images/FATEManagerInstall.png" />
+<img src="./images/FATEManagerInstall.png" />
 </div>
 
 FATE-Manager是一个可视化的Fate部署管理端，通过调用kubefate的api实现部署，所以在开始部署fatemanger之前，先保证kubernetes集群及kubefate服务已经可用,如果已经部署好kubernetes集群和kubefate服务，可以跳过二、三步骤。
 
-##一、用户设置##
+##一、用户设置
 
 **1）创建app用户和apps组**
 注意 : 以下操作需root权限
@@ -26,7 +26,7 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-##二、Kubernetes部署##
+##二、Kubernetes部署
 为了方便快速的部署，我们使用miniKube来部署kubernetes环境，前置条件如下：
 1.2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
 2.Linux服务器需要预先安装好Docker环境，具体参考Install Docker in CentOS；
@@ -112,7 +112,7 @@ sudo minikube addons enable ingress
 ```
 到此，我们的Kubernetes也准备好了。
 
-##三、KubeFATE部署##
+##三、KubeFATE部署
 
 - **创建kube-fate的命名空间以及账号**
 
@@ -172,7 +172,7 @@ rtt min/avg/max/mdev = 0.710/0.719/0.729/0.028 ms
 
 到此，所有准备工作完毕，下面我们可以开始安装FATE了。需要注意的是，上面的工作只需要做一次，后面如果添加、删除、更新FATE集群，上面的不需要重新执行
 
-##四、使用KubeFATE部署ExChange##
+##四、使用KubeFATE部署ExChange
 exchange是中心端的一个路由模块，我们可以可以把它部署在任意一个机器上，保证逻辑上是分开的，物理上可以放在一起，方便后面管理的最小化测试等功能的验证。
 
 - **创建命名空间**
@@ -254,7 +254,7 @@ sudo kubectl edit configmap rollsite-config -n fate-exchange
 ```
 至此，exchange部署结束！
 
-##五、部署Mysql##
+##五、部署Mysql
 - **获取安装包**
 ```
 mkdir -p /data/projects/install
@@ -306,7 +306,7 @@ Enter Password:【输入root修改后密码:fate_dev】
 ```
 部署成功！
 
-##六、Fate-Manager部署##
+##六、Fate-Manager部署
 - **服务基本信息**
 |   服务名称    | 端口 | 描述                                              |
 | :-----------: | ---- | ------------------------------------------------- |
@@ -396,7 +396,7 @@ ps aux | grep fate_manager
 - **部署验证**
 访问页面：http://ip:9090/fate-manager,显示如下：
 <div style="text-align:center", align=center>
-<img src="../../images/FATEManagerHome.png" />
+<img src="./images/FATEManagerHome.png" />
 </div>
 
 FATE-Manager的使用请参考使用手册！
