@@ -1,0 +1,83 @@
+.site-detail-box{
+    margin: 24px 36px;
+    .site-detail{
+        position: absolute;
+        height: calc(100% - 56px);
+        width: calc(100% - 72px);
+        background:#fff;
+        overflow: auto;
+        .info-box{
+            margin-top: 48px;
+            margin-left: 160px;
+            margin-bottom: 48px;
+            .el-form-item{
+                margin-bottom: 10px;
+                height:42px;
+                min-width: 260px;
+                .label{
+                    font-size: 14px;
+                    .label-title{
+                        margin-left: 36px;
+                        display:inline-block;
+                        width: 120px;
+                    }
+                    .label-version{
+                        margin-left: 5px
+                    }
+                }
+            }
+            .info{
+                font-size: 32px;
+                font-weight: 650;
+                margin-bottom: 36px;
+                color: #217AD9
+            }
+            
+            .sed{
+                margin-top: 20px ;
+            }
+            .Network {
+                font-size: 24px;
+                color: #2D3642;
+                height: 40px;
+                line-height: 40px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .el-row{
+                width: 100%;
+            }
+            .el-col-12{
+                min-width: 285px;
+            }
+            .el-form-item__label{
+                font-size: 18px;
+                color: #848C99;
+            }
+            .info-text{
+                font-size: 18px;
+                color: #2D3642;
+                width: 100%;
+
+            }
+            .link-text{
+                font-size: 18px;
+                display: inline-block;
+                white-space: nowrap; //文本强制不换行；
+                text-overflow: ellipsis; // 文本溢出显示省略号；
+                overflow: hidden; //溢出的部分隐藏；
+                width: 95%;
+                height: 30px;
+            }
+            .icon-info{
+                margin-left: 10px;
+            }
+            .icon-info:hover{
+                color: #FF9D00
+            }
+         
+   
+        }
+
+    }
+}
