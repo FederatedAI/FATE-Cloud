@@ -24,7 +24,7 @@ public class SiteListWithModelsQo implements Serializable {
     private Integer role = 0;
 
     @ApiModelProperty(value = "site status,0 : all 1 : not joined,2 joined,3 : removed")
-    private Integer status = 0;
+    private Integer status = 2;
 
     @ApiModelProperty("order field")
     private String orderField = "create_time";
