@@ -30,98 +30,97 @@ func InitRouter() *gin.Engine {
 
 	login := router.Group("/fate-manager/api/login")
 	{
-		login.POST("/login", SignIn)      //http://localhost:9090/fate-manager/api/login/login
-		login.POST("/logout", SignOut)    //http://localhost:9090/fate-manager/api/login/logout
-		login.POST("/activate", Activate) //http://localhost:9090/fate-manager/api/login/activate
-		login.POST("/checkjwt", CheckJwt) //http://localhost:9090/fate-manager/api/login/checkjwt
+		login.POST("/login", SignIn)
+		login.POST("/logout", SignOut)
+		login.POST("/activate", Activate)
+		login.POST("/checkjwt", CheckJwt)
 	}
 
 	//Site Manager
 	sites := router.Group("/fate-manager/api/site").Use(JWT())
 	{
-		sites.GET("", GetHomeSiteList)                   //http://localhost:9090/fate-manager/api/site
-		sites.GET("/other", GetOtherSiteList)            //http://localhost:9090/fate-manager/api/site/other
-		sites.GET("/fatemanager", GetFateManagerList)    //http://localhost:9090/fate-manager/api/site/fatemanager
-		sites.POST("/register", Register)                //http://localhost:9090/fate-manager/api/site/register
-		sites.POST("/info", GetSiteDetail)               //http://localhost:9090/fate-manager/api/site/111
-		sites.POST("/update", UpdateSite)                //http://localhost:9090/fate-manager/api/site/update
-		sites.POST("/checkUrl", CheckRegisterUrl)        //http://localhost:9090/fate-manager/api/site/checkurl
-		sites.POST("/checksite", CheckSite)              //http://localhost:9090/fate-manager/api/site/checksite
-		sites.POST("/secretinfo", GetSecretInfo)         //http://localhost:9090/fate-manager/api/site/secretinfo
-		sites.POST("/telnet", TelnetSiteIp)              //http://localhost:9090/fate-manager/api/site/telnet
-		sites.POST("/readmsg", ReadChangeMsg)            //http://localhost:9090/fate-manager/api/site/readmsg
-		sites.POST("/getmsg", GetChangeMsg)              //http://localhost:9090/fate-manager/api/site/getmsg
-		sites.GET("/institutions", GetApplyInstitutions) //http://localhost:9090/fate-manager/api/site/institutions
-		sites.POST("/applysite", ApplySites)             //http://localhost:9090/fate-manager/api/site/applysite
-		sites.GET("/queryapply", QueryApplySites)        //http://localhost:9090/fate-manager/api/site/queryapply
-		sites.POST("/readapplysite", ReadApplySites)     //http://localhost:9090/fate-manager/api/site/readapplysite
-		//sites.POST("/function", GetFunction)             //http://localhost:9090/fate-manager/api/site/function
-		sites.POST("/updateVersion", UpdateComponentVersion) //http://localhost:9090/fate-manager/api/site/updateVersion
-		sites.GET("applylog", GetApplyLog)                   //http://localhost:9090/fate-manager/api/site/applylog
+		sites.GET("", GetHomeSiteList)
+		sites.GET("/other", GetOtherSiteList)
+		sites.GET("/fatemanager", GetFateManagerList)
+		sites.POST("/register", Register)
+		sites.POST("/info", GetSiteDetail)
+		sites.POST("/update", UpdateSite)
+		sites.POST("/checkUrl", CheckRegisterUrl)
+		sites.POST("/checksite", CheckSite)
+		sites.POST("/secretinfo", GetSecretInfo)
+		sites.POST("/telnet", TelnetSiteIp)
+		sites.POST("/readmsg", ReadChangeMsg)
+		sites.POST("/getmsg", GetChangeMsg)
+		sites.GET("/institutions", GetApplyInstitutions)
+		sites.POST("/applysite", ApplySites)
+		sites.GET("/queryapply", QueryApplySites)
+		sites.POST("/readapplysite", ReadApplySites)
+		sites.POST("/updateVersion", UpdateComponentVersion)
+		sites.GET("applylog", GetApplyLog)
 	}
-	router.POST("/fate-manager/api/site/function", GetFunction)     //http://localhost:9090/fate-manager/api/site/function
-	router.GET("/fate-manager/api/site/functionread", FunctionRead) //http://localhost:9090/fate-manager/api/site/functionread
+	router.POST("/fate-manager/api/site/function", GetFunction)
+	router.GET("/fate-manager/api/site/functionread", FunctionRead)
 
 	//All DropDown List
 	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
-		dropDownList.GET("/federation", GetFederationDropDownList)  //http://localhost:9090/fate-manager/api/dropdown/federation
-		dropDownList.GET("/site", GetSiteDropDownList)              //http://localhost:9090/fate-manager/api/dropdown/site
-		dropDownList.GET("/version", GetFateVersionDropDownList)    //http://localhost:9090/fate-manager/api/dropdown/version
-		dropDownList.GET("/enumname", GetEnumNameDropDownList)      //http://localhost:9090/fate-manager/api/dropdown/enumname
-		dropDownList.POST("/enuminfo", GetEnumNameInfo)             //http://localhost:9090/fate-manager/api/dropdown/enuminfo
-		dropDownList.GET("/mysql", GetMysqlVersionList)             //http://localhost:9090/fate-manager/api/dropdown/mysql
-		dropDownList.GET("/cluster", GetClusterManagerVersionList)  //http://localhost:9090/fate-manager/api/dropdown/cluster
-		dropDownList.GET("/node", GetNodeManagerVersionList)        //http://localhost:9090/fate-manager/api/dropdown/node
-		dropDownList.GET("/rollsite", GetRollSiteVersionList)       //http://localhost:9090/fate-manager/api/dropdown/rollsite
-		dropDownList.GET("/fateflow", GetFateFlowVersionList)       //http://localhost:9090/fate-manager/api/dropdown/fateflow
-		dropDownList.GET("/fateboard", GetFateBoardVersionList)     //http://localhost:9090/fate-manager/api/dropdown/fateboard
-		dropDownList.GET("/fateserving", GetFateServingVersionList) //http://localhost:9090/fate-manager/api/dropdown/fateserving
+		dropDownList.GET("/federation", GetFederationDropDownList)
+		dropDownList.GET("/site", GetSiteDropDownList)
+		dropDownList.GET("/version", GetFateVersionDropDownList)
+		dropDownList.GET("/enumname", GetEnumNameDropDownList)
+		dropDownList.POST("/enuminfo", GetEnumNameInfo)
+		dropDownList.GET("/mysql", GetMysqlVersionList)
+		dropDownList.GET("/cluster", GetClusterManagerVersionList)
+		dropDownList.GET("/node", GetNodeManagerVersionList)
+		dropDownList.GET("/rollsite", GetRollSiteVersionList)
+		dropDownList.GET("/fateflow", GetFateFlowVersionList)
+		dropDownList.GET("/fateboard", GetFateBoardVersionList)
+		dropDownList.GET("/fateserving", GetFateServingVersionList)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service").Use(JWT())
 	{
-		services.POST("/info", GetService)                 //http://localhost:9090/fate-manager/api/service/info
-		services.POST("/action", DoAcation)                //http://localhost:9090/fate-manager/api/service/action
-		services.POST("/log", GetLog)                      //http://localhost:9090/fate-manager/api/service/log
-		services.POST("/installstatus", InstallStatus)     //http://localhost:9090/fate-manager/api/service/installstatus
-		services.POST("/connectkubefate", ConnectKubeFate) //http://localhost:9090/fate-manager/api/service/connectkubefate
-		services.POST("/overview", GetServiceOverview)     //http://localhost:9090/fate-manager/api/service/overview
-		services.POST("/upgradelist", UpgradeFateList)     //http://localhost:9090/fate-manager/api/service/upgradelist
-		services.POST("/pagestatus", GetPageStatus)        //http://localhost:9090/fate-manager/api/service/pagestatus
+		services.POST("/info", GetService)
+		services.POST("/action", DoAcation)
+		services.POST("/log", GetLog)
+		services.POST("/installstatus", InstallStatus)
+		services.POST("/connectkubefate", ConnectKubeFate)
+		services.POST("/overview", GetServiceOverview)
+		services.POST("/upgradelist", UpgradeFateList)
+		services.POST("/pagestatus", GetPageStatus)
 	}
 	//FATE Deploy
 	deploys := router.Group("/fate-manager/api/deploy").Use(JWT())
 	{
-		deploys.GET("/prepare", GetPrepare)                   //http://localhost:9090/fate-manager/api/deploy/prepare
-		deploys.POST("/pulllist", GetPullComponentList)       //http://localhost:9090/fate-manager/api/deploy/pulllist
-		deploys.POST("/installlist", GetInstallComponentList) //http://localhost:9090/fate-manager/api/deploy/installlist
-		deploys.POST("/pull", Pull)                           //http://localhost:9090/fate-manager/api/deploy/pull
-		deploys.POST("/commit", CommitImagePull)              //http://localhost:9090/fate-manager/api/deploy/commit
-		deploys.POST("/install", Install)                     //http://localhost:9090/fate-manager/api/deploy/install
-		deploys.POST("/upgrade", Upgrade)                     //http://localhost:9090/fate-manager/api/deploy/upgrade
-		deploys.POST("/testlist", GetAutoTestList)            //http://localhost:9090/fate-manager/api/deploy/testlist
-		deploys.POST("/autotest", AutoTest)                   //http://localhost:9090/fate-manager/api/deploy/autotest
-		deploys.POST("/update", Update)                       //http://localhost:9090/fate-manager/api/deploy/update
-		deploys.POST("/testresult", TestResult)               //http://localhost:9090/fate-manager/api/deploy/testresult
-		deploys.POST("/click", Click)                         //http://localhost:9090/fate-manager/api/deploy/clcik
-		deploys.POST("/testresultread", ToyResultRead)        //http://localhost:9090/fate-manager/api/deploy/testresultread
-		deploys.POST("/testlog", GetTestLog)                  //http://localhost:9090/fate-manager/api/deploy/testlog
-		deploys.POST("/fateboard", GetFateBoardUrl)           //http://localhost:9090/fate-manager/api/deploy/fateboard
-		deploys.POST("/version", GetInstallVersion)           //http://localhost:9090/fate-manager/api/deploy/version
+		deploys.GET("/prepare", GetPrepare)
+		deploys.POST("/pulllist", GetPullComponentList)
+		deploys.POST("/installlist", GetInstallComponentList)
+		deploys.POST("/pull", Pull)
+		deploys.POST("/commit", CommitImagePull)
+		deploys.POST("/install", Install)
+		deploys.POST("/upgrade", Upgrade)
+		deploys.POST("/testlist", GetAutoTestList)
+		deploys.POST("/autotest", AutoTest)
+		deploys.POST("/update", Update)
+		deploys.POST("/testresult", TestResult)
+		deploys.POST("/click", Click)
+		deploys.POST("/testresultread", ToyResultRead)
+		deploys.POST("/testlog", GetTestLog)
+		deploys.POST("/fateboard", GetFateBoardUrl)
+		deploys.POST("/version", GetInstallVersion)
 	}
 
 	//User
 	user := router.Group("/fate-manager/api/user").Use(JWT())
 	{
-		user.GET("/info", GetUserInfo)                     //http://localhost:9090/fate-manager/api/user/info
-		user.POST("/list", GetUserList)                    //http://localhost:9090/fate-manager/api/user/list
-		user.POST("/accesslist", GetUserAccessList)        //http://localhost:9090/fate-manager/api/user/accesslist
-		user.POST("/add", AddUser)                         //http://localhost:9090/fate-manager/api/user/add
-		user.POST("/delete", DeleteUser)                   //http://localhost:9090/fate-manager/api/user/delete
-		user.POST("/edit", EditUser)                       //http://localhost:9090/fate-manager/api/user/edit
-		user.POST("/sitelist", UserSiteList)               //http://localhost:9090/fate-manager/api/user/sitelist
-		user.POST("siteinfouserlist", GetSiteInfoUserList) //http://localhost:9090/fate-manager/api/user/siteinfouserlist
+		user.GET("/info", GetUserInfo)
+		user.POST("/list", GetUserList)
+		user.POST("/accesslist", GetUserAccessList)
+		user.POST("/add", AddUser)
+		user.POST("/delete", DeleteUser)
+		user.POST("/edit", EditUser)
+		user.POST("/sitelist", UserSiteList)
+		user.POST("siteinfouserlist", GetSiteInfoUserList)
 	}
 
 	//Web
