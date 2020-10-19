@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedCloudManagerUserMapper">
+
+    <resultMap id="cloudManagerUserMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedCloudManagerUserDo">
+        <id property="cloudManagerId" column="cloud_manager_id"></id>
+        <result property="name" column="name"></result>
+        <result property="password" column="password"></result>
+        <result property="adminLevel" column="admin_level"></result>
+        <result property="status" column="status"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+    </resultMap>
+
+
+    <select id="findPagedCloudUser" resultMap="cloudManagerUserMap">
+        SELECT * FROM t_cloud_manager_user
+        <where>
+            <if test="cloudManagerUserPagedQo.name!=null">
+                and name like #{cloudManagerUserPagedQo.name}
+            </if>
+        </where>
+        order by create_time desc limit #{startIndex}, #{cloudManagerUserPagedQo.pageSize}
+    </select>
+
+
+</mapper>

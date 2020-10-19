@@ -1,42 +1,71 @@
-// import router from './router'
-// // import store from './store'
-// import NProgress from 'nprogress' // progress bar
-// import 'nprogress/nprogress.css' // progress bar style
-// // import { Message } from 'element-ui'
-// import { getToken, setToken } from '@/utils/auth' // getToken from cookie
+import router from './router'
+import store from '@/store'
+import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
+import { find } from '@/api/welcomepage'
+NProgress.configure({ showSpinner: false })// NProgress configuration
 
-// NProgress.configure({ showSpinner: false })// NProgress configuration
+// 不重定向白名单
+const whiteList =
+  [
+      '/home/login',
+      '/home/welcome',
+      '/home/register'
+  ]
+router.beforeEach((to, from, next) => {
+    NProgress.start()
+    if (localStorage.getItem('name')) {
+        if (!store.getters.siteStatus) {
+            getStatus(to, from, next)
+        } else {
+            routeHandler(to, from, next)
+        }
+    } else {
+        if (whiteList.indexOf(to.path) !== -1) {
+            next()
+        } else {
+            next({ path: '/home/welcome' })
+            NProgress.done()
+        }
+    }
+})
 
-// const whiteList = ['/login'] // white
-// router.beforeEach((to, from, next) => {
-//   NProgress.start()
-//   const indexJwt = window.location.href.indexOf('?jwt=')
-//   const indexUmid = window.location.href.indexOf('&umId=')
-//   const indexEnd = window.location.href.indexOf('#')
+const getStatus = (to, from, next) => {
+    find().then(res => {
+        if (res.data && res.data.name) {
+            store.dispatch('getInfo', res.data)
+            store.dispatch('setSiteStatus', 'registered')
+        } else {
+            store.dispatch('setSiteStatus', 'unregistered')
+        }
+        routeHandler(to, from, next)
+    }).catch(() => {
+        routeHandler(to, from, next)
+    })
+}
 
-//   if (indexJwt !== -1) {
-//     const jwt = window.location.href.substring(indexJwt + 5, indexUmid)
-//     const umId = window.location.href.substring(indexUmid + 6, indexEnd)
-//     setToken(jwt)
-//     localStorage.setItem('umId', umId)
-//     window.location.href = window.location.href.replace('?jwt=' + jwt, '').replace('&umId=' + umId, '')
-//   } else if (getToken()) {
-//     if (to.path === '/login') {
-//       next({ path: '/' })
-//       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
-//     } else {
-//       next()
-//     }
-//   } else {
-//     if (whiteList.indexOf(to.path) !== -1) {
-//       next()
-//     } else {
-//       const originService = window.location.href.split('#')[0]
-//       window.location.href = 'http://' + window.location.host + '/account/v1/um/login?originService=' + originService
-//     }
-//   }
-// })
+const routeHandler = (to, from, next) => {
+    if (store.getters.siteStatus === 'registered') {
+        if (to.path === '/home/welcome' || to.path === '/home/register' || to.path === '/home/login') {
+            next({ path: '/federated/site' })
+            NProgress.done()
+        } else {
+            next()
+        }
+    } else {
+        // 清除登录缓存
+        store.dispatch('setloginname', '').then(r => {
+            localStorage.setItem('name', r)
+        })
+        if (whiteList.indexOf(to.path) !== -1) {
+            next()
+        } else {
+            next({ path: '/home/welcome' })
+            NProgress.done()
+        }
+    }
+}
 
-// router.afterEach(() => {
-//   NProgress.done()
-// })
+router.afterEach(() => {
+    NProgress.done() // 结束Progress
+})
