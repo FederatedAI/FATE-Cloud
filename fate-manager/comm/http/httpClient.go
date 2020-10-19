@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package http
 
 import (
@@ -50,22 +65,18 @@ type result struct {
 	StatusCode int
 }
 
-// GET
 func (r req) GET() (ret *result, err error) {
 	return r.do("GET", r.Url, r.Param, r.Header)
 }
 
-// POST
 func (r req) POST() (ret *result, err error) {
 	return r.do("POST", r.Url, r.Param, r.Header)
 }
 
-// PUT
 func (r req) PUT() (ret *result, err error) {
 	return r.do("PUT", r.Url, r.Param, r.Header)
 }
 
-// DELETE
 func (r req) DELETE() (ret *result, err error) {
 	return r.do("DELETE", r.Url, r.Param, r.Header)
 }
@@ -155,7 +166,6 @@ func (r req) setHeader(h *http.Request, header Header) {
 	}
 }
 
-// 打印请求参数及返回信息
 func (r req) debug(ret *result) {
 	logging.Info("debug log start ----------")
 	logging.Debug(ret.Method, ret.Proto)
@@ -175,7 +185,6 @@ func (r req) debug(ret *result) {
 	logging.Debug("debug log end ----------")
 }
 
-// GET
 func GET(url Url, param Param, header Header) (ret *result, err error) {
 	return req.GET(req{
 		Url:    url,
@@ -184,7 +193,6 @@ func GET(url Url, param Param, header Header) (ret *result, err error) {
 	})
 }
 
-// POST
 func POST(url Url, param Param, header Header) (ret *result, err error) {
 	return req.POST(req{
 		Url:    url,
@@ -193,7 +201,6 @@ func POST(url Url, param Param, header Header) (ret *result, err error) {
 	})
 }
 
-// PUT
 func PUT(url Url, param Param, header Header) (ret *result, err error) {
 	return req.PUT(req{
 		Url:    url,
@@ -202,7 +209,6 @@ func PUT(url Url, param Param, header Header) (ret *result, err error) {
 	})
 }
 
-// DELETE
 func DELETE(url Url, param Param, header Header) (ret *result, err error) {
 	return req.DELETE(req{
 		Url:    url,

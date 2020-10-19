@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package e
 
 const (
@@ -83,15 +98,15 @@ const (
 	ERROR_UPDATE_APPLY_SITES_FAIL   = 10072
 	ERROR_GET_FUNCTION_FAIL         = 10073
 
-	ERROR_CHECK_JWT_FAIL             = 10074
-	ERROR_SIGN_OUT_FAIL              = 10075
-	ERROR_GET_USER_INFO_FAIL         = 10076
-	ERROR_GET_OTHER_SITE_FAIL        = 10077
-	ERROR_GET_FATE_MANAGER_LIST_FAIL = 10078
-	ERROR_USER_NOT_EXISTS_FAIL       = 10079
+	ERROR_CHECK_JWT_FAIL                 = 10074
+	ERROR_SIGN_OUT_FAIL                  = 10075
+	ERROR_GET_USER_INFO_FAIL             = 10076
+	ERROR_GET_OTHER_SITE_FAIL            = 10077
+	ERROR_GET_FATE_MANAGER_LIST_FAIL     = 10078
+	ERROR_USER_NOT_EXISTS_FAIL           = 10079
 	ERROR_REFRESH_FATE_MANAGER_LIST_FAIL = 10080
-	ERROR_ADMIN_USER_NOT_EXISTS      = 10081
-	ERROR_UPDATE_COMPONENT_VERSION_FAIL = 10082
-	ERROR_GET_APPLY_LOG_FAIL =10083
-	ERROR_UPDATE_INSTALL_LIST_FAIL = 10084
+	ERROR_ADMIN_USER_NOT_EXISTS          = 10081
+	ERROR_UPDATE_COMPONENT_VERSION_FAIL  = 10082
+	ERROR_GET_APPLY_LOG_FAIL             = 10083
+	ERROR_UPDATE_INSTALL_LIST_FAIL       = 10084
 )

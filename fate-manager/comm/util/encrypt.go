@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package util
 
 import (
@@ -48,7 +63,6 @@ func Base64EncodeWithString(signature Signature) string {
 	partyId := strconv.Itoa(signature.PartyId)
 	role := strconv.Itoa(signature.Role)
 	time := strconv.FormatInt(signature.Time, 10)
-	//str := signature.FateManagerId + "\n"+signature.UserAppKey + "\n" + partyId + "\n" + role + "\n" + signature.AppKey + "\n" + time + "\n" + signature.Nonce + "\n" + signature.Uri + "\n" + signature.Body
 	str := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", signature.FateManagerId, signature.UserAppKey, partyId, role, signature.AppKey, time, signature.Nonce, signature.Uri, signature.Body)
 	logstr := fmt.Sprintf("FateManagerId:%s,UserAppKey:%s,partyId:%s,role:%s,AppKey:%s,time:%s,Nonce:%s,Uri:%s,Body:%s",
 		signature.FateManagerId, signature.UserAppKey, partyId, role, signature.AppKey, time, signature.Nonce, signature.Uri, signature.Body)
@@ -61,7 +75,6 @@ func Base64EncodeWithString(signature Signature) string {
 
 func Base64EncodeWithStringForUser(signature UserSignature) string {
 	time := strconv.FormatInt(signature.Time, 10)
-	//str := signature.FateManagerId + "\n" + signature.UserAppKey + "\n" + time + "\n" + signature.Nonce + "\n" + signature.Uri + "\n" + signature.Body
 	str := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s", signature.FateManagerId, signature.UserAppKey, time, signature.Nonce, signature.Uri, signature.Body)
 	logstr := fmt.Sprintf("FateManagerId：%s,UserAppKey：%s,time:%s,Nonce:%s,Uri:%s,Body:%s",
 		signature.FateManagerId, signature.UserAppKey, time, signature.Nonce, signature.Uri, signature.Body)
@@ -70,15 +83,6 @@ func Base64EncodeWithStringForUser(signature UserSignature) string {
 	h := hmac.New(sha1.New, key_for_sign)
 	h.Write([]byte(str))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
-}
-
-func Base64DecodeWithString(input string) (string, error) {
-
-	data, err := base64.StdEncoding.DecodeString(input)
-	if err != nil {
-		return "", err
-	}
-	return string(data), err
 }
 
 func ExecCommand(strCommand string) (string, error) {
