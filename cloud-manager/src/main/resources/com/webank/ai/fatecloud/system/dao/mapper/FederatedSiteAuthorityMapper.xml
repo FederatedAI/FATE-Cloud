@@ -111,9 +111,9 @@
     </select>
 
 
-    <select id="findApprovedInstitutions" resultType="string">
-        SELECT authority_institutions from t_federated_site_authority where institutions =#{authorityInstitutionsQo.institutions}
-        and generation =1 and status in (2,4) order by institutions asc limit #{startIndex},
+    <select id="findApprovedInstitutions" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsForFateDto">
+        SELECT authority_institutions as institutions,status  from t_federated_site_authority where institutions =#{authorityInstitutionsQo.institutions}
+        and generation =1 and status != 1 order by institutions asc limit #{startIndex},
         #{authorityInstitutionsQo.pageSize}
     </select>
 

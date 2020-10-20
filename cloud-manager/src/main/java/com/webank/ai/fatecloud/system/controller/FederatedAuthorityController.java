@@ -39,7 +39,7 @@ public class FederatedAuthorityController {
 
     @PostMapping(value = "/institutions/approved")
     @ApiOperation(value = "find all the institutions for site")
-    public CommonResponse<PageBean<String>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
 
         return federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest);
     }
@@ -59,12 +59,12 @@ public class FederatedAuthorityController {
         return federatedAuthorityServiceFacade.findAuthorizedInstitutions(authorityApplyResultsQo, httpServletRequest);
     }
 
-    @PostMapping(value = "/results")
-    @ApiOperation(value = "find all apply result for site")
-    public CommonResponse<List<FederatedSiteAuthorityDo>> findResultsOfAuthorityApply(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
-
-        return federatedAuthorityServiceFacade.findResultsOfAuthorityApply(authorityApplyResultsQo, httpServletRequest);
-    }
+//    @PostMapping(value = "/results")
+//    @ApiOperation(value = "find all apply result for site")
+//    public CommonResponse<List<FederatedSiteAuthorityDo>> findResultsOfAuthorityApply(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
+//
+//        return federatedAuthorityServiceFacade.findResultsOfAuthorityApply(authorityApplyResultsQo, httpServletRequest);
+//    }
 
     @PostMapping(value = "/status")
     @ApiOperation(value = "find apply status from site")
