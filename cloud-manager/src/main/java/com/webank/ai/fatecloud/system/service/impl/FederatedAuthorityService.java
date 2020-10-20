@@ -276,17 +276,17 @@ public class FederatedAuthorityService {
 
     }
 
-    public PageBean<String> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
+    public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
         federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status",2,4).eq("generation",1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         long institutionsCount = federatedSiteAuthorityDos.size();
 
-        PageBean<String> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
         long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
-        List<String> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
+        List<InstitutionsForFateDto> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
         institutionsForFateDtoPageBean.setList(approvedInstitutions);
 
         return institutionsForFateDtoPageBean;
