@@ -153,6 +153,13 @@ definitions:
       msg:
         type: string
     type: object
+  app.LoginUserListResponse:
+    properties:
+      siteItemMap:
+        items:
+          $ref: '#/definitions/entity.LoginSiteItem'
+        type: array
+    type: object
   app.LogoutResponse:
     properties:
       code:
@@ -161,6 +168,13 @@ definitions:
         type: boolean
       msg:
         type: string
+    type: object
+  app.OtherFateManagerResponse:
+    properties:
+      siteItemMap:
+        items:
+          $ref: '#/definitions/entity.FederatedItem'
+        type: array
     type: object
   app.OverViewResponse:
     properties:
@@ -725,6 +739,13 @@ definitions:
       token:
         type: string
     type: object
+  entity.LoginSiteItem:
+    properties:
+      partyId:
+        type: integer
+      siteName:
+        type: string
+    type: object
   entity.LogoutReq:
     properties:
       userId:
@@ -792,6 +813,11 @@ definitions:
         type: integer
       permissionName:
         type: string
+    type: object
+  entity.PermissionAuthorityReq:
+    properties:
+      PartyId:
+        type: integer
     type: object
   entity.PrepareItem:
     properties:
@@ -2571,6 +2597,31 @@ paths:
       summary: Add User
       tags:
       - UserController
+  /fate-manager/api/user/allowpartylist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserListItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.OtherFateManagerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get All Allow PartyId list
+      tags:
+      - UserController
   /fate-manager/api/user/delete:
     post:
       parameters:
@@ -2656,6 +2707,31 @@ paths:
       summary: Get Account List
       tags:
       - UserController
+  /fate-manager/api/user/permmsionauth:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.PermissionAuthorityReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: STUDIO AUTHORITY
+      tags:
+      - UserController
   /fate-manager/api/user/siteinfouserlist:
     post:
       parameters:
@@ -2693,6 +2769,31 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Edit User Site List
+      tags:
+      - UserController
+  /fate-manager/api/user/userpartylist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserListItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LoginUserListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Login User Manager PartyId List
       tags:
       - UserController
 swagger: "2.0"
