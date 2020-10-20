@@ -521,3 +521,6 @@ type ApplyLog struct {
 	ApplyTime int64  `json:"applyTime"`
 	Content   string `json:"content"`
 }
+type PermissionAuthorityReq struct {
+	PartyId int `json:"PartyId"`
+}
