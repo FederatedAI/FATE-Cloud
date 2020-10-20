@@ -374,3 +374,77 @@ func GetSiteInfoUserList(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }
+
+// @Summary Get Login User Manager PartyId List
+// @Tags UserController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.UserListItem true "request param"
+// @Success 200 {object} app.LoginUserListResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/user/userpartylist [post]
+func GetLoginUserManagerList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var userListItem entity.UserListItem
+	if jsonError := json.Unmarshal(body, &userListItem); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	result, err := account_service.GetLoginUserManagerList(userListItem)
+	if err != nil  {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_SITE_INFO_USER_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary Get All Allow PartyId list
+// @Tags UserController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.UserListItem true "request param"
+// @Success 200 {object} app.OtherFateManagerResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/user/allowpartylist [post]
+func GetAllAllowPartyList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	result, err := account_service.GetAllAllowPartyList()
+	if err != nil  {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_OTHER_SITE_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary STUDIO AUTHORITY
+// @Tags UserController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.PermissionAuthorityReq true "request param"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/user/permmsionauth [post]
+func PermissionAuthority(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var permissionAuthorityReq entity.PermissionAuthorityReq
+	if jsonError := json.Unmarshal(body, &permissionAuthorityReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	result, err := account_service.PermissionAuthority(permissionAuthorityReq)
+	if err != nil  {
+		appG.Response(http.StatusInternalServerError, e.ERROR_PERMISSION_AUTH_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, result)
+}

@@ -121,6 +121,9 @@ func InitRouter() *gin.Engine {
 		user.POST("/edit", EditUser)
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
+		user.POST("/userpartylist",GetLoginUserManagerList)
+		user.POST("/allowpartylist",GetAllAllowPartyList)
+		user.POST("/permmsionauth", PermissionAuthority)
 	}
 
 	//Web

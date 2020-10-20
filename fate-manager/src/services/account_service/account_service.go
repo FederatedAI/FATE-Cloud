@@ -21,6 +21,7 @@ import (
 	"fate.manager/comm/logging"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/site_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"strconv"
@@ -326,4 +327,32 @@ func GetUserInfo(token string) (*entity.UserInfoResp, error) {
 	userInfoResp.UserId = accountInfoList[0].UserId
 
 	return &userInfoResp, nil
+}
+
+func PermissionAuthority(reportIpReq entity.PermissionAuthorityReq) (bool, error) {
+	return true, nil
+}
+
+func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSiteItem,error){
+	accountInfo := models.AccountInfo{
+		UserId:           userListItem.UserId,
+		UserName:         userListItem.UserName,
+		Status:           int(enum.IS_VALID_YES),
+	}
+	accountInfoList,err := models.GetAccountInfo(accountInfo)
+	if err != nil {
+		return nil,err
+	}
+	var list []entity.LoginSiteItem
+	for i :=0;i< len(accountInfoList) ;i++  {
+		loginSiteItem := entity.LoginSiteItem{
+			PartyId:  accountInfoList[i].PartyId,
+			SiteName: accountInfoList[i].SiteName,
+		}
+		list = append(list,loginSiteItem)
+	}
+	return list,nil
+}
+func GetAllAllowPartyList()([]entity.FederatedItem,error){
+	return site_service.GetOtherSiteList()
 }
