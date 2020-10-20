@@ -2187,6 +2187,45 @@
                 }
             }
         },
+        "/fate-manager/api/user/allowpartylist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "Get All Allow PartyId list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UserListItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.OtherFateManagerResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/delete": {
             "post": {
                 "produces": [
@@ -2320,6 +2359,45 @@
                 }
             }
         },
+        "/fate-manager/api/user/permmsionauth": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "STUDIO AUTHORITY",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.PermissionAuthorityReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/siteinfouserlist": {
             "post": {
                 "produces": [
@@ -2370,6 +2448,45 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.UserSiteListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/user/userpartylist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "Get Login User Manager PartyId List",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UserListItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LoginUserListResponse"
                         }
                     },
                     "500": {
@@ -2618,6 +2735,17 @@
                 }
             }
         },
+        "app.LoginUserListResponse": {
+            "type": "object",
+            "properties": {
+                "siteItemMap": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.LoginSiteItem"
+                    }
+                }
+            }
+        },
         "app.LogoutResponse": {
             "type": "object",
             "properties": {
@@ -2629,6 +2757,17 @@
                 },
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "app.OtherFateManagerResponse": {
+            "type": "object",
+            "properties": {
+                "siteItemMap": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FederatedItem"
+                    }
                 }
             }
         },
@@ -3496,6 +3635,17 @@
                 }
             }
         },
+        "entity.LoginSiteItem": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "siteName": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.LogoutReq": {
             "type": "object",
             "properties": {
@@ -3597,6 +3747,14 @@
                 },
                 "permissionName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.PermissionAuthorityReq": {
+            "type": "object",
+            "properties": {
+                "PartyId": {
+                    "type": "integer"
                 }
             }
         },
