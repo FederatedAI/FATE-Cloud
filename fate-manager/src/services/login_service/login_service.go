@@ -46,7 +46,7 @@ func SignIn(loginReq entity.LoginReq) (int, *entity.LoginResp, error) {
 			return e.ERROR_SELECT_DB_FAIL, nil, err
 		}
 		if len(result) > 0 {
-			if result[0].Role != int(enum.UserRole_ADMIN) && result[0].Role != int(enum.UserRole_DEVELOPER) {
+			if result[0].Role != int(enum.UserRole_ADMIN) && result[0].Role != int(enum.UserRole_DEVELOPER) && !loginReq.SubTag{
 				return e.ERROR_SIGN_IN_FAIL, nil, nil
 			}
 			userInfo := models.UserInfo{

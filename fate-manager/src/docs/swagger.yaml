@@ -155,7 +155,7 @@ definitions:
     type: object
   app.LoginUserListResponse:
     properties:
-      siteItemMap:
+      Data:
         items:
           $ref: '#/definitions/entity.LoginSiteItem'
         type: array
@@ -291,6 +291,12 @@ definitions:
       msg:
         type: string
     type: object
+  app.SubLoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/entity.SubLoginResp'
+        type: object
+    type: object
   app.UpgradeFateResponse:
     properties:
       code:
@@ -367,6 +373,8 @@ definitions:
         type: string
       passWord:
         type: string
+      subTag:
+        type: boolean
       userName:
         type: string
     type: object
@@ -731,6 +739,8 @@ definitions:
     properties:
       passWord:
         type: string
+      subTag:
+        type: boolean
       userName:
         type: string
     type: object
@@ -1033,6 +1043,28 @@ definitions:
       appSecret:
         type: string
       role:
+        type: string
+    type: object
+  entity.SubLoginReq:
+    properties:
+      PartyId:
+        type: integer
+      passWord:
+        type: string
+      subTag:
+        type: boolean
+      userName:
+        type: string
+    type: object
+  entity.SubLoginResp:
+    properties:
+      partyId:
+        type: integer
+      roleId:
+        type: integer
+      roleName:
+        type: string
+      siteName:
         type: string
     type: object
   entity.TelnetReq:
@@ -2769,6 +2801,29 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Edit User Site List
+      tags:
+      - UserController
+  /fate-manager/api/user/sublogin:
+    post:
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.SubLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SubLoginResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: sign in
       tags:
       - UserController
   /fate-manager/api/user/userpartylist:

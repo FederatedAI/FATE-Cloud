@@ -124,6 +124,7 @@ func InitRouter() *gin.Engine {
 		user.POST("/userpartylist",GetLoginUserManagerList)
 		user.POST("/allowpartylist",GetAllAllowPartyList)
 		user.POST("/permmsionauth", PermissionAuthority)
+		user.POST("/sublogin",SubLogin)
 	}
 
 	//Web

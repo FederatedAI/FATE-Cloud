@@ -2459,6 +2459,42 @@
                 }
             }
         },
+        "/fate-manager/api/user/sublogin": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "sign in",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.SubLoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.SubLoginResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/userpartylist": {
             "post": {
                 "consumes": [
@@ -2738,7 +2774,7 @@
         "app.LoginUserListResponse": {
             "type": "object",
             "properties": {
-                "siteItemMap": {
+                "Data": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.LoginSiteItem"
@@ -2947,6 +2983,15 @@
                 }
             }
         },
+        "app.SubLoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.SubLoginResp"
+                }
+            }
+        },
         "app.UpgradeFateResponse": {
             "type": "object",
             "properties": {
@@ -3062,6 +3107,9 @@
                 },
                 "passWord": {
                     "type": "string"
+                },
+                "subTag": {
+                    "type": "boolean"
                 },
                 "userName": {
                     "type": "string"
@@ -3622,6 +3670,9 @@
                 "passWord": {
                     "type": "string"
                 },
+                "subTag": {
+                    "type": "boolean"
+                },
                 "userName": {
                     "type": "string"
                 }
@@ -4083,6 +4134,40 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SubLoginReq": {
+            "type": "object",
+            "properties": {
+                "PartyId": {
+                    "type": "integer"
+                },
+                "passWord": {
+                    "type": "string"
+                },
+                "subTag": {
+                    "type": "boolean"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SubLoginResp": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "roleName": {
+                    "type": "string"
+                },
+                "siteName": {
                     "type": "string"
                 }
             }
