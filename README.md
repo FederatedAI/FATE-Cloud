@@ -1,3 +1,5 @@
+**DOC|[中文](./README-CN.md)**
+
 ## Overview ##
 As an infrastructure for building and managing Federated Data Collaboration Network, FATE Cloud is the first industrial-grade Federated Learning Cloud Service. 
 
