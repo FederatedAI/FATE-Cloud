@@ -178,7 +178,9 @@ func JobTask() {
 
 			data = make(map[string]interface{})
 			data["deploy_status"] = int(deployStatus)
-			data["cluster_id"] = jobQueryResp.Data.ClusterId
+			if jobQueryResp.Data.Status == "Success" {
+				data["cluster_id"] = jobQueryResp.Data.ClusterId
+			}
 			starttime := jobQueryResp.Data.StartTime.UnixNano() / 1e6
 			endtime := jobQueryResp.Data.EndTime.UnixNano() / 1e6
 

@@ -230,7 +230,10 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	updatePortTag := false
 	for i := 0; i < len(componentVersionList); i++ {
 		port := GetDefaultPort(componentVersionList[i].ComponentName)
-
+		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
+		if len(nodelist)==0{
+			continue
+		}
 		deployComponent := models.DeployComponent{
 			FederatedId:      commitImagePullReq.FederatedId,
 			PartyId:          commitImagePullReq.PartyId,
@@ -241,7 +244,8 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			ComponentName:    componentVersionList[i].ComponentName,
 			VersionIndex:     componentVersionList[i].VersionIndex,
 			StartTime:        time.Now(),
-			Address:          k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId) + ":" + strconv.Itoa(port),
+			Address:          nodelist[1] + ":" + strconv.Itoa(port),
+			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
