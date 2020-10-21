@@ -364,6 +364,7 @@ type ToyResultReadReq struct {
 type LoginReq struct {
 	AccountName string `json:"userName"`
 	Password    string `json:"passWord"`
+	SubTag      bool    `json:"subTag"`
 }
 type LogoutReq struct {
 	AccountName string `json:"userName"`
@@ -523,4 +524,17 @@ type ApplyLog struct {
 }
 type PermissionAuthorityReq struct {
 	PartyId int `json:"PartyId"`
+}
+type SubLoginReq struct {
+	LoginReq
+	PartyId int `json:"PartyId"`
+}
+type SubLoginResp struct {
+	PartyId                 int       `json:"partyId"`
+	SiteName                string    `json:"siteName"`
+	Role
+}
+type AllowReq struct {
+	PartyId                 int       `json:"partyId"`
+	RoleName                string `json:"roleName"`
 }
