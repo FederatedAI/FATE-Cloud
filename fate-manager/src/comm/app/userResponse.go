@@ -55,5 +55,9 @@ type UserInfoResponse struct {
 	Data entity.UserInfoResp `json:"data"`
 }
 type LoginUserListResponse struct {
-	Data []entity.LoginSiteItem `json:"siteItemMap"`
+	Data []entity.LoginSiteItem `json:"Data"`
+}
+
+type SubLoginResponse struct {
+	Data entity.SubLoginResp `json:"data"`
 }

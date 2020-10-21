@@ -413,7 +413,17 @@ func GetLoginUserManagerList(c *gin.Context) {
 // @Router /fate-manager/api/user/allowpartylist [post]
 func GetAllAllowPartyList(c *gin.Context) {
 	appG := app.Gin{C: c}
-	result, err := account_service.GetAllAllowPartyList()
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var allowReq entity.AllowReq
+	if jsonError := json.Unmarshal(body, &allowReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	result, err := account_service.GetAllAllowPartyList(allowReq)
 	if err != nil  {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_OTHER_SITE_FAIL, nil)
 		return
@@ -447,4 +457,31 @@ func PermissionAuthority(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary sign in
+// @Tags UserController
+// @Produce  json
+// @Param request body entity.SubLoginReq true "request param"
+// @Success 200 {object} app.SubLoginResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/user/sublogin [post]
+func SubLogin(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var loginReq entity.SubLoginReq
+	if jsonError := json.Unmarshal(body, &loginReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, result, err := account_service.SubLogin(loginReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_SIGN_IN_FAIL, ret)
+		return
+	}
+	appG.Response(http.StatusOK, ret, result)
 }
