@@ -259,7 +259,16 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
-		cmd := "iplist=\"\";for i in `sudo kubectl get node -o wide | grep -v master|grep -v NAME |awk '{print $6}'`;do iplist=$i,$iplist; done;echo ${iplist%,*}"
+		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+		if setting.KubenetesSetting.SudoTag {
+			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+		}
+		util.ExecCommand(cmd)
+
+		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		if setting.KubenetesSetting.SudoTag {
+			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		}
 		result, _ := util.ExecCommand(cmd)
 		if len(result) > 0 {
 			iplist := result[0 : len(result)-1]
@@ -377,6 +386,10 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
+				nodelist :=k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
+				if len(nodelist)==0{
+					continue
+				}
 				deployComponent := models.DeployComponent{
 					FederatedId:      kubeReq.FederatedId,
 					PartyId:          kubeReq.PartyId,
@@ -385,7 +398,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					FateVersion:      fateVersionList[0].FateVersion,
 					ComponentVersion: componentVersionList[i].ComponentVersion,
 					ComponentName:    componentVersionList[i].ComponentName,
-					Address:          k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId) + ":" + strconv.Itoa(port),
+					Address:          nodelist[1] + ":" + strconv.Itoa(port),
+					Label:            nodelist[0],
 					StartTime:        time.Now(),
 					EndTime:          time.Now(),
 					Duration:         0,

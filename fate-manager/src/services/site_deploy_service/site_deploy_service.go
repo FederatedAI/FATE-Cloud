@@ -224,7 +224,9 @@ func Install(installReq entity.InstallReq) (int, error) {
 	head["Authorization"] = authorization
 	upgrade := false
 	if len(deploySiteList[0].ClusterId) > 0 {
-		upgrade =true
+		if deploySiteList[0].DeployStatus < int(enum.DeployStatus_INSTALLED){
+			upgrade =true
+		}
 		_, err := http.DELETE(http.Url(kubefateUrl+"/v1/cluster/"+deploySiteList[0].ClusterId), nil, head)
 		if err != nil {
 			return e.ERROR_INSTALL_ALL_FAIL, err
@@ -365,7 +367,6 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 		IsValid:      int(enum.IS_VALID_YES),
 		ClickType:    int(enum.ClickType_PAGE),
 		ClusterId:    deploySiteList[0].ClusterId,
-		FinishTime:   time.Time{},
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
 	}
@@ -396,6 +397,10 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	}
 	models.UpdateDeployComponent(data, deployComponent)
 	for i := 0; i < len(componentVersionList); i++ {
+		nodelist := k8s_service.GetNodeIp(upgradeReq.FederatedId, upgradeReq.PartyId)
+		if len(nodelist)==0{
+			continue
+		}
 		deployComponent = models.DeployComponent{
 			FederatedId:      upgradeReq.FederatedId,
 			PartyId:          upgradeReq.PartyId,
@@ -406,7 +411,8 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 			ComponentName:    componentVersionList[i].ComponentName,
 			StartTime:        time.Now(),
 			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          k8s_service.GetNodeIp(upgradeReq.FederatedId, upgradeReq.PartyId) + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName)),
+			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName)),
+			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
@@ -415,6 +421,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 		for j := 0; j < len(deployComponentList); j++ {
 			if componentVersionList[i].ComponentName == deployComponentList[j].ComponentName {
 				deployComponent.Address = deployComponentList[j].Address
+				deployComponent.Label = deployComponentList[j].Label
 				break
 			}
 		}
@@ -457,6 +464,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		}
 		var data = make(map[string]interface{})
 		data["address"] = updateReq.Address
+		data["label"]=k8s_service.GetLabel(updateReq.Address)
 		err = models.UpdateDeployComponent(data, deployComponent)
 		if err != nil {
 			logging.Error("update component failed")
