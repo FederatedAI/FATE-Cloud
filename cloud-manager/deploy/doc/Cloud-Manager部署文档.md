@@ -97,39 +97,40 @@ Defaults !env_reset
 ```
 
 **3）配置ssh免密连接**
-以192.168.0.1免密登入192.168.0.2为例:
 
-**a. 192.168.0.2上的app 用户执行：**
+例：192.168.0.1免密登入192.168.0.2
 
-```
-su app
-
-chmod 700 -R .ssh
-
-chmod 600 ~/.ssh/authorized_keys
-```
-
-
-
-**b. 192.168.0.1上的app 用户执行**
+1.192.168.0.1和192.168.0.2分别生成密钥
 
 ```
 su app
 
 ssh-keygen -t rsa
 
-scp ~/.ssh/id_rsa.pub app\@192.168.0.2:/home/app/.ssh/authorized_keys
 ```
 
+2.拷贝192.168.0.1的公钥信息（在id_rsa.pub文件中）到192.168.0.1的authorized_keys文件中
 
 
-**c. 测试**
+3.测试
 
 ```
 ssh app\@192.168.0.2
 ```
 
+注意：
 
+a. ssh目录的权限必须是700
+
+```
+chmod 700 .ssh
+```
+
+b. 授权列表authorized_keys的权限必须是600
+
+```
+chmod 600 authorized_keys
+```
 
 5.部署 
 ==========
