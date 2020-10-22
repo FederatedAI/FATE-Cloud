@@ -21,6 +21,7 @@ import (
 	"fate.manager/comm/logging"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/site_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"strconv"
@@ -326,4 +327,91 @@ func GetUserInfo(token string) (*entity.UserInfoResp, error) {
 	userInfoResp.UserId = accountInfoList[0].UserId
 
 	return &userInfoResp, nil
+}
+
+func PermissionAuthority(reportIpReq entity.PermissionAuthorityReq) (bool, error) {
+	return true, nil
+}
+
+func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSiteItem,error){
+	accountInfo := models.AccountInfo{
+		UserId:           userListItem.UserId,
+		UserName:         userListItem.UserName,
+		Status:           int(enum.IS_VALID_YES),
+	}
+	accountInfoList,err := models.GetAccountInfo(accountInfo)
+	if err != nil {
+		return nil,err
+	}
+	var list []entity.LoginSiteItem
+	for i :=0;i< len(accountInfoList) ;i++  {
+		loginSiteItem := entity.LoginSiteItem{
+			PartyId:  accountInfoList[i].PartyId,
+			SiteName: accountInfoList[i].SiteName,
+		}
+		list = append(list,loginSiteItem)
+	}
+	return list,nil
+}
+
+func GetAllAllowPartyList(allowReq entity.AllowReq)([]entity.FederatedItem,error){
+	var list []entity.FederatedItem
+	FederatedItemList,err := site_service.GetOtherSiteList()
+	if err != nil{
+		return nil,err
+	}
+	if len(allowReq.RoleName) == 0{
+		return FederatedItemList,nil
+	}
+	for i := 0 ; i< len(FederatedItemList) ;i++  {
+		federatedItem := FederatedItemList[i]
+		tag := true
+		for j :=0;j< len(federatedItem.SiteItemList) ;j++  {
+			siteItem := federatedItem.SiteItemList[j]
+			if allowReq.RoleName == siteItem.Role.Desc {
+				tag = false
+				break
+			}
+		}
+		if tag {
+			list = append(list,federatedItem)
+		}
+	}
+	return list,nil
+}
+
+func SubLogin(subLogin entity.SubLoginReq)(int,*entity.SubLoginResp,error) {
+	userInfo := models.UserInfo{
+		UserName: subLogin.AccountName,
+		Password: subLogin.Password,
+	}
+	userInfoList, err := user_service.GetUserInfo(userInfo)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, nil, err
+	}
+	if len(userInfoList) == 0 {
+		return e.ERROR_USER_NOT_EXISTS_FAIL, nil, nil
+	}
+	accountInfo := models.AccountInfo{
+		UserId:   userInfoList[0].UserId,
+		UserName: subLogin.AccountName,
+		PartyId:  subLogin.PartyId,
+		Status:   int(enum.IS_VALID_YES),
+	}
+	accountInfoList, err := models.GetAccountInfo(accountInfo)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, nil, err
+	}
+	if len(accountInfoList) == 0 {
+		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
+	}
+	subLoginResp := entity.SubLoginResp{
+		PartyId:  accountInfoList[0].PartyId,
+		SiteName: accountInfoList[0].SiteName,
+		Role:     entity.Role{
+			RoleId:accountInfoList[0].Role,
+			RoleName:enum.GetRoleString(enum.RoleType(accountInfoList[0].Role)),
+		},
+	}
+	return e.SUCCESS,&subLoginResp,nil
 }

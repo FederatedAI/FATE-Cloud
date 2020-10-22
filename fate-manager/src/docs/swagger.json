@@ -655,6 +655,42 @@
                 }
             }
         },
+        "/fate-manager/api/dropdown/componentversion": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DropDownController"
+                ],
+                "summary": "Get Serving Version List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "int valid",
+                        "name": "fateVersion",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ComponentResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/dropdown/enuminfo": {
             "post": {
                 "consumes": [
@@ -2187,6 +2223,45 @@
                 }
             }
         },
+        "/fate-manager/api/user/allowpartylist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "Get All Allow PartyId list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UserListItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.OtherFateManagerResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/delete": {
             "post": {
                 "produces": [
@@ -2320,6 +2395,45 @@
                 }
             }
         },
+        "/fate-manager/api/user/permmsionauth": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "STUDIO AUTHORITY",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.PermissionAuthorityReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/siteinfouserlist": {
             "post": {
                 "produces": [
@@ -2370,6 +2484,81 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.UserSiteListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/user/sublogin": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "sign in",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.SubLoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.SubLoginResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/user/userpartylist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "Get Login User Manager PartyId List",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UserListItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LoginUserListResponse"
                         }
                     },
                     "500": {
@@ -2447,6 +2636,20 @@
             "properties": {
                 "code": {
                     "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.ComponentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
                 },
                 "msg": {
                     "type": "string"
@@ -2618,6 +2821,17 @@
                 }
             }
         },
+        "app.LoginUserListResponse": {
+            "type": "object",
+            "properties": {
+                "Data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.LoginSiteItem"
+                    }
+                }
+            }
+        },
         "app.LogoutResponse": {
             "type": "object",
             "properties": {
@@ -2629,6 +2843,17 @@
                 },
                 "msg": {
                     "type": "string"
+                }
+            }
+        },
+        "app.OtherFateManagerResponse": {
+            "type": "object",
+            "properties": {
+                "siteItemMap": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FederatedItem"
+                    }
                 }
             }
         },
@@ -2808,6 +3033,15 @@
                 }
             }
         },
+        "app.SubLoginResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.SubLoginResp"
+                }
+            }
+        },
         "app.UpgradeFateResponse": {
             "type": "object",
             "properties": {
@@ -2923,6 +3157,9 @@
                 },
                 "passWord": {
                     "type": "string"
+                },
+                "subTag": {
+                    "type": "boolean"
                 },
                 "userName": {
                     "type": "string"
@@ -3483,6 +3720,9 @@
                 "passWord": {
                     "type": "string"
                 },
+                "subTag": {
+                    "type": "boolean"
+                },
                 "userName": {
                     "type": "string"
                 }
@@ -3492,6 +3732,17 @@
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.LoginSiteItem": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "siteName": {
                     "type": "string"
                 }
             }
@@ -3597,6 +3848,14 @@
                 },
                 "permissionName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.PermissionAuthorityReq": {
+            "type": "object",
+            "properties": {
+                "PartyId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3925,6 +4184,40 @@
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SubLoginReq": {
+            "type": "object",
+            "properties": {
+                "PartyId": {
+                    "type": "integer"
+                },
+                "passWord": {
+                    "type": "string"
+                },
+                "subTag": {
+                    "type": "boolean"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SubLoginResp": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "roleName": {
+                    "type": "string"
+                },
+                "siteName": {
                     "type": "string"
                 }
             }

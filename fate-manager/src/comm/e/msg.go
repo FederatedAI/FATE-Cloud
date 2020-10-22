@@ -104,6 +104,9 @@ var MsgFlags = map[int]string{
 	ERROR_UPDATE_COMPONENT_VERSION_FAIL:      "Update Component Version Fail",
 	ERROR_GET_APPLY_LOG_FAIL:                 "Get Apply Log Fail",
 	ERROR_UPDATE_INSTALL_LIST_FAIL:           "Update Install List Fail",
+	ERROR_PERMISSION_AUTH_FAIL:               "Permission Auth Fail",
+	ERROR_NO_PARTY_PRIVILEGE_FAIL:            "No Party Privilege Fail",
+	ERROR_GET_ALLOW_PARTY_LIST_FAIL:          "Get Allow Party List Fail",
 }
 
 func GetMsg(code int) string {
