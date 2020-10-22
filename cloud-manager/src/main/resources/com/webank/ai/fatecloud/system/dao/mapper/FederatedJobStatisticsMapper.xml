@@ -23,7 +23,7 @@
 
     <select id="getJobStatisticsOfSiteDimension"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo" resultMap="jobStatisticsMap">
-        SELECT * FROM t_job_statistics j
+        SELECT * FROM t_job_statistics j where site_guest_id in (select id from t_federated_site_manager where institutions =#{institutions} and status = 2) and job_finish_date between #{dateToday,jdbcType=DATE} and #{dateToday,jdbcType=DATE}
         <where>
             a.sequence in (select * from
             (select distinct sequence from t_federated_site_authority where status !=1 order by sequence desc limit
