@@ -1,56 +1,66 @@
-# Overview #
-FATE Cloud is an Infrastructure for Building and Managing Federated Data Collaboration Network.
- 
-FATE Cloud enables FATE to be managed in multi-cloud, forming a secure federated data network, designed to provide secure and compliant data cooperation solutions across or within organizations, and build an industrial-grade federated learning cloud service.
+**DOC|[中文](./README-CN.md)**
 
-<div style="text-align:center", align=center>
-<img src="./images/FATECloud.png" />
-</div>
- 
-FATE Cloud provides standard federated infrastructure implementation capabilities, technical support capabilities, a unified technical framework for building federated data networks, and addresses distributed data processing and data authentication issues. FATE-Cloud includes two types of roles: a neutral Federated Cloud and local Federated Sites.
+## Overview ##
+As an infrastructure for building and managing Federated Data Collaboration Network, FATE Cloud is the first industrial-grade Federated Learning Cloud Service. 
+
+FATE Cloud enables FATE to be managed in multi-cloud, forming a secure federated data network, designed to provide a secure and compliant data cooperation solutions across or within organizations, and provide an enterprise-level federated learning productivity application solution.
+
+FATE-Cloud provides standard federated infrastructure implementation capabilities, technical support capabilities, a unified federated site management mode and the whole process service, and addresses the problems of management collaboration, data processing and authentication, low cooperation efficiency, and poor interaction among different organizations.
+
+************这里有个图
+
+## Major features ##
+FATE Cloud is composed of Cloud Manager, which is responsible for federated site management, and FATE Manager, a site client management terminal. It provides registration and management of federated sites, automated cluster deployment and upgrades, cluster monitoring, and permission control and other core functions. 
 
 **Federated Cloud（Cloud Manager）**
 
-The Federated Cloud is the management center of the federated network, building the entire federated network and performs site-wide operation and management, and providing site registration, site authentication, site cooperation management, etc.
+Cloud Manager is the management center of the federated network, which is responsible for the unified operation and management of FATE Manager and each site, monitors the services of the site and Federated cooperation modeling, performs the federated permission control, and ensures the normal operation of federated data cooperation network.
 
 **Federated Site（FATE Manager）**
 
-A Federated Site is an enterprise, institution, or organization that participates in data cooperation with other members of the federated network. The Federated Site includes FATE and FATE manager. FATE serves as the infrastructure of federated learning and provides federated modeling capabilities for the sites; FATE Manager provides the site with services such as joining federated organizations, site configuration, site management and monitoring.
+FATE Manager is responsible for the management and maintenance of their respective federated sites, providing services such as a site joining the Federation Organization, automatic deployment and upgrade of a site, monitor of the federated cooperation modeling and cluster services of a site, and management of user roles and application permissions of a site, etc.
 
-# Deploy #
-Currently，Cloud Manager can be deployed as a separate service and does not depend on FATE. It is only required that the machine where it is located supports the jdk and MySQL environments.
+## Deploy ##
+Cloud Manager is deployed as a separate service. As long as the deployed server has jdk8 environment and MySQL connection configuration is correct, the service can run normally. 
 
-If you start deploying FATE Manager, it is important to ensure that the FATE system has been deployed. The FATE Manager service is integrated into the FATE Board service of the FATE cluster as a plugin. If you have already deployed the FATE Board, you need to  update the FATE Board to the new version with FATE Manager. For more detailed deployment information, please refer to *[FATE Cloud Deployment](https://github.com/FederatedAI/FATE-Cloud/blob/master/cluster-deploy/doc/FATE-Cloud_deployment_guide%20.md)*.
- 
-# Usage #
-## Adding a new site  ##
-1. Cloud Manager adds a new site for the organization applying to join the federated network, and assigns site identity information(PartyID, role) and key information (SecretKey).
-2. FATE Manager starts the service and configures the local site network, and submit the application.
-3. Cloud Manager verified the information submitted by the site. After the verification passes, the site successfully joins the federated organization.
-4. After that, federated modeling can be started between sites, you can launch FATE Board to view the model training process.
+FATE Manager is a separate application and does not rely on any FATE service. FATE Manager in v1.0 supports the rapid deployment of FATE through KubeFATE. Therefore，before deploying FATE with FATE Manager，please ensure that MySQL and [Kubernetes](http://kubernetes) cluster have been deployed. 
 
+For more detailed deployment information，please refer to [FATE Cloud Deployment](http://deployment).
 
-FATE Cloud can be used in Google Chrome, Firefox and Microsoft Edge, but IE browser is not currently supported. Some browsers might work, but there may be bugs or performance issues.
+## Usage ##
+After deployment，please prefer to "[FATE Cloud product manual](http://manual)" for detailed usage of FATE Cloud.
 
-# FAQ #
+## FAQ ##
+**Cloud Manager failed to deploy.**
 
-**My FATE Manager can not register, and it shows "Authorization Failure!" .**
-
-- There are some key information to fill in FATE Manager interface, such as Party ID and SecretKey. You should get them from Cloud Manager and make sure they are correct.
-- The Party ID assigned to each site from Cloud Manager must be the same as the party ID assigned to the site when FATE was deployed. If they are not match, you can update the Party ID in MySQL connected to the Cloud Manager.
-
-**FATEBoard shows ''System Error!" in the web pages.**
-
-- FATEBoard which integrated FATE Manager is still one part of FATE. So it need the related configurations to properly start and run. Please input its file: application.properties.
-- FATEBoard gets data from MySQL and FATE-Flow, so keep them work well.
+- Confirm that the server used for deployment has a maven environment. It's used to build the jar package of Cloud Manager.
+- Confirm that SSH password-free login is configured between the deployment server and the target server.
 
 **Cloud Manager failed to start.**
 
-- Cloud Manager is a separate service. It depends upon the MySQL and Java environment. If you have a suit of FATE system, you could choose one machine to deploy the Cloud Manager to your current environment. And, you can also deploy it in a new machine using MySQL and java.
-- Provide sufficient memory space for the FATEBoard service.
+- Cloud Manager is a java service. Please confirm that the target machine has a jdk8 environment.
+- Cloud Manager depends upon MySQL. Please confirm that the configurations of MySQL is correct.
+- Provide enough memory for the service.
+- Confirm that the port number is not occupied.
 
-**FATEBoard failed to start.**
+**Cloud Manager access failed.**
 
-- FATEBoard services exists in each FATE of site. When you update FATEBoard to the new version with FATE Manager, you should kill the old one or you can change the port to avoid conflict.
-- Check the script (service.sh) to start the service to make sure you have the right Java path.
-- Provide sufficient memory space for the FATEBoard service.
+- Confirm that the port can be accessed. The port needs to be opened by the firewall.
+
+**FATE Manager failed to start.**
+
+- Check whether kubectl has the permission of sudo. If so, modify the configuration file sudotag=true.
+- Check whether the link configuration of MySQL if normal.
+
+**Failed to connect deployment.**
+
+- Check whether the url of KubeFATE carries port number.
+- Check whether KubeFATE’s service is normal.
+
+**FATE deployment failed.**
+
+- Check the log for analysis to ensure that the mode machine has access to dockerhub, or the docker image has been loaded in advance.
+
+**Autotest failed in deployment.**
+
+- Check whether the routing table of the rollsite is configured correctly.

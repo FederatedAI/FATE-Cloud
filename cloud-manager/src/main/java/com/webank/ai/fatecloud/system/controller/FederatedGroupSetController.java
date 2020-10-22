@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/group")
 @Api(tags = "FederatedGroupSetController", description = "About Group Set")
-@CrossOrigin
 public class FederatedGroupSetController {
 
     @Autowired
