@@ -23,6 +23,10 @@ type IdPair struct {
 	Code int    `json:"code"`
 	Desc string `json:"desc"`
 }
+type ComponentVersionPair struct {
+	ComponentName string    `json:"componentName""`
+	ComponentVersion string `json:"componentVersion"`
+}
 type AuditPair struct {
 	Code     int    `json:"code"`
 	Desc     string `json:"desc"`
@@ -364,6 +368,7 @@ type ToyResultReadReq struct {
 type LoginReq struct {
 	AccountName string `json:"userName"`
 	Password    string `json:"passWord"`
+	SubTag      bool    `json:"subTag"`
 }
 type LogoutReq struct {
 	AccountName string `json:"userName"`
@@ -520,4 +525,20 @@ type UpdateComponentVersionReq struct {
 type ApplyLog struct {
 	ApplyTime int64  `json:"applyTime"`
 	Content   string `json:"content"`
+}
+type PermissionAuthorityReq struct {
+	PartyId int `json:"PartyId"`
+}
+type SubLoginReq struct {
+	LoginReq
+	PartyId int `json:"PartyId"`
+}
+type SubLoginResp struct {
+	PartyId                 int       `json:"partyId"`
+	SiteName                string    `json:"siteName"`
+	Role
+}
+type AllowReq struct {
+	PartyId                 int       `json:"partyId"`
+	RoleName                string `json:"roleName"`
 }

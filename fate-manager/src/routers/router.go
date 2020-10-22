@@ -62,7 +62,7 @@ func InitRouter() *gin.Engine {
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
@@ -76,6 +76,7 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/fateflow", GetFateFlowVersionList)
 		dropDownList.GET("/fateboard", GetFateBoardVersionList)
 		dropDownList.GET("/fateserving", GetFateServingVersionList)
+		dropDownList.POST("/componentversion",GetComponentVersionList)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service").Use(JWT())
@@ -121,7 +122,11 @@ func InitRouter() *gin.Engine {
 		user.POST("/edit", EditUser)
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
+		user.POST("/userpartylist",GetLoginUserManagerList)
+		user.POST("/allowpartylist",GetAllAllowPartyList)
+		user.POST("/sublogin",SubLogin)
 	}
+	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
 
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
