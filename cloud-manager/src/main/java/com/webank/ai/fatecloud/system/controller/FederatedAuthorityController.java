@@ -24,7 +24,6 @@ import java.util.List;
 @Data
 @RequestMapping("/api/authority")
 @Api(tags = "FederatedAuthorityController", description = "Authority information for site")
-@CrossOrigin
 public class FederatedAuthorityController {
 
     @Autowired

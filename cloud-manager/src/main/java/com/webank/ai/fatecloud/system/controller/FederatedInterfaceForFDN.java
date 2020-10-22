@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(value = "/api")
-@CrossOrigin
 @Slf4j
 @Api(tags = "FederatedInterfaceForFDN", description = "interface for FDN")
 public class FederatedInterfaceForFDN {
