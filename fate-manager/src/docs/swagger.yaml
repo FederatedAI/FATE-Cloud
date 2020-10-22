@@ -45,6 +45,15 @@ definitions:
       msg:
         type: string
     type: object
+  app.ComponentResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      msg:
+        type: string
+    type: object
   app.FateVersionResponse:
     properties:
       code:
@@ -1645,6 +1654,24 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get Cluster Manager Version List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/componentversion:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ComponentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Serving Version List
       tags:
       - DropDownController
   /fate-manager/api/dropdown/enuminfo:

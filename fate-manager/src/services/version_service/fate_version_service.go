@@ -16,6 +16,7 @@
 package version_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/enum"
 	"fate.manager/models"
 )
@@ -49,4 +50,20 @@ func GetComponetVersionList(name string) ([]*string, error) {
 		list = append(list, &componentVersionList[i].FateVersion)
 	}
 	return list, nil
+}
+func GetComponetVersionListByFateVersion(name string) (string, error) {
+	componentVersion := models.ComponentVersion{
+		FateVersion: name,
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+	}
+	componentVersionList, err := models.GetComponetVersionList(componentVersion)
+	if err != nil {
+		return "", err
+	}
+	var componentVersonMap = make(map[string]interface{})
+	for i := 0; i < len(componentVersionList); i++ {
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
+	}
+	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
+	return string(componentVersonMapjson), nil
 }

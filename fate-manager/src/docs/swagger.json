@@ -655,6 +655,34 @@
                 }
             }
         },
+        "/fate-manager/api/dropdown/componentversion": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DropDownController"
+                ],
+                "summary": "Get Serving Version List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ComponentResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/dropdown/enuminfo": {
             "post": {
                 "consumes": [
@@ -2600,6 +2628,20 @@
             "properties": {
                 "code": {
                     "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.ComponentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
                 },
                 "msg": {
                     "type": "string"
