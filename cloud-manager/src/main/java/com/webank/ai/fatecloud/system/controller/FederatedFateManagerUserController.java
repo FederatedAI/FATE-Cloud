@@ -19,7 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/fate/user")
 @Slf4j
-@CrossOrigin
 @Api(tags = "FederatedFateManagerUserController", description = "federated fate manager user controller api")
 public class FederatedFateManagerUserController {
 
