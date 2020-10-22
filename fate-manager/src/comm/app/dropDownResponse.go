@@ -31,3 +31,8 @@ type FateVersionResponse struct {
 	CommResp
 	Data []string `json:"data"`
 }
+type ComponentResponse struct {
+	CommResp
+	Data string `json:"data"`
+}
+

@@ -64,6 +64,20 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		AcativationTime:        siteInfo.AcativationTime.UnixNano() / 1e6,
 	}
 
+	depolySite := models.DeploySite{
+		FederatedId:        siteDetailReq.FederatedId,
+		PartyId:            siteDetailReq.PartyId,
+		ProductType:        int(enum.PRODUCT_TYPE_FATE),
+		IsValid:            int(enum.IS_VALID_YES),
+	}
+	deploySiteList,err := models.GetDeploySite(&depolySite)
+	if err != nil {
+		return nil,err
+	}
+	if len(deploySiteList) >0 {
+		siteDetail.EditStatus.Code=int(enum.EDIT_NO)
+		siteDetail.EditStatus.Desc=enum.GetEditString(enum.EDIT_NO)
+	}
 	return &siteDetail, nil
 }
 
@@ -77,6 +91,17 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 		var federatedItem entity.FederatedItem
 		federatedItem.FederatedOrganization = federatedSiteList[0].FederatedOrganization
 		federatedItem.Institutions = federatedSiteList[0].Institutions
+		accountInfo := models.AccountInfo{
+			Role:   int(enum.UserRole_ADMIN),
+			Status: int(enum.IS_VALID_YES),
+		}
+		accountInfoList, err := models.GetInstitution(accountInfo)
+		if err != nil || len(accountInfoList) == 0 {
+			logging.Error("admin user not exists!")
+			return nil, err
+		}
+
+		federatedItem.FateManagerInstitutions = accountInfoList[0].Institutions
 		fedetatedMap[federatedSiteList[0].FederatedId] = &federatedItem
 	} else {
 		for i := 0; i < len(federatedSiteList); i++ {

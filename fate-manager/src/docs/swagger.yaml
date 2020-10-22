@@ -45,6 +45,15 @@ definitions:
       msg:
         type: string
     type: object
+  app.ComponentResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      msg:
+        type: string
+    type: object
   app.FateVersionResponse:
     properties:
       code:
@@ -153,6 +162,13 @@ definitions:
       msg:
         type: string
     type: object
+  app.LoginUserListResponse:
+    properties:
+      Data:
+        items:
+          $ref: '#/definitions/entity.LoginSiteItem'
+        type: array
+    type: object
   app.LogoutResponse:
     properties:
       code:
@@ -161,6 +177,13 @@ definitions:
         type: boolean
       msg:
         type: string
+    type: object
+  app.OtherFateManagerResponse:
+    properties:
+      siteItemMap:
+        items:
+          $ref: '#/definitions/entity.FederatedItem'
+        type: array
     type: object
   app.OverViewResponse:
     properties:
@@ -277,6 +300,12 @@ definitions:
       msg:
         type: string
     type: object
+  app.SubLoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/entity.SubLoginResp'
+        type: object
+    type: object
   app.UpgradeFateResponse:
     properties:
       code:
@@ -353,6 +382,8 @@ definitions:
         type: string
       passWord:
         type: string
+      subTag:
+        type: boolean
       userName:
         type: string
     type: object
@@ -717,12 +748,21 @@ definitions:
     properties:
       passWord:
         type: string
+      subTag:
+        type: boolean
       userName:
         type: string
     type: object
   entity.LoginResp:
     properties:
       token:
+        type: string
+    type: object
+  entity.LoginSiteItem:
+    properties:
+      partyId:
+        type: integer
+      siteName:
         type: string
     type: object
   entity.LogoutReq:
@@ -792,6 +832,11 @@ definitions:
         type: integer
       permissionName:
         type: string
+    type: object
+  entity.PermissionAuthorityReq:
+    properties:
+      PartyId:
+        type: integer
     type: object
   entity.PrepareItem:
     properties:
@@ -1007,6 +1052,28 @@ definitions:
       appSecret:
         type: string
       role:
+        type: string
+    type: object
+  entity.SubLoginReq:
+    properties:
+      PartyId:
+        type: integer
+      passWord:
+        type: string
+      subTag:
+        type: boolean
+      userName:
+        type: string
+    type: object
+  entity.SubLoginResp:
+    properties:
+      partyId:
+        type: integer
+      roleId:
+        type: integer
+      roleName:
+        type: string
+      siteName:
         type: string
     type: object
   entity.TelnetReq:
@@ -1587,6 +1654,29 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get Cluster Manager Version List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/componentversion:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: int valid
+        in: query
+        name: fateVersion
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ComponentResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Serving Version List
       tags:
       - DropDownController
   /fate-manager/api/dropdown/enuminfo:
@@ -2571,6 +2661,31 @@ paths:
       summary: Add User
       tags:
       - UserController
+  /fate-manager/api/user/allowpartylist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserListItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.OtherFateManagerResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get All Allow PartyId list
+      tags:
+      - UserController
   /fate-manager/api/user/delete:
     post:
       parameters:
@@ -2656,6 +2771,31 @@ paths:
       summary: Get Account List
       tags:
       - UserController
+  /fate-manager/api/user/permmsionauth:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.PermissionAuthorityReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: STUDIO AUTHORITY
+      tags:
+      - UserController
   /fate-manager/api/user/siteinfouserlist:
     post:
       parameters:
@@ -2693,6 +2833,54 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Edit User Site List
+      tags:
+      - UserController
+  /fate-manager/api/user/sublogin:
+    post:
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.SubLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SubLoginResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: sign in
+      tags:
+      - UserController
+  /fate-manager/api/user/userpartylist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserListItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LoginUserListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Login User Manager PartyId List
       tags:
       - UserController
 swagger: "2.0"

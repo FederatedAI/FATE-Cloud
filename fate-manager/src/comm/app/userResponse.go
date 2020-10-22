@@ -54,3 +54,10 @@ type UserInfoResponse struct {
 	CommResp
 	Data entity.UserInfoResp `json:"data"`
 }
+type LoginUserListResponse struct {
+	Data []entity.LoginSiteItem `json:"Data"`
+}
+
+type SubLoginResponse struct {
+	Data entity.SubLoginResp `json:"data"`
+}

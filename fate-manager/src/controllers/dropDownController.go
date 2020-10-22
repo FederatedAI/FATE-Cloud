@@ -228,3 +228,22 @@ func GetFateServingVersionList(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, fateVersionResponse)
 }
+
+// @Summary Get Serving Version List
+// @Tags DropDownController
+// @Accept  json
+// @Produce  json
+// @Param fateVersion query string false "int valid"
+// @Success 200 {object} app.ComponentResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/dropdown/componentversion [post]
+func GetComponentVersionList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	fateVersion := c.Request.FormValue("fateVersion")
+	siteResponse, err := version_service.GetComponetVersionListByFateVersion(fateVersion)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_VERSION_DROP_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, siteResponse)
+}
