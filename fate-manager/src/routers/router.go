@@ -124,7 +124,6 @@ func InitRouter() *gin.Engine {
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
 		user.POST("/userpartylist",GetLoginUserManagerList)
 		user.POST("/allowpartylist",GetAllAllowPartyList)
-
 		user.POST("/sublogin",SubLogin)
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
