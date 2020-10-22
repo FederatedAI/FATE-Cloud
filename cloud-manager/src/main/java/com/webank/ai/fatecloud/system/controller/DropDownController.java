@@ -18,7 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/dropdown")
 @Api(tags = "DropDownController", description = "About Enum Drop Down List")
-@CrossOrigin
 public class DropDownController {
 
     @Autowired
