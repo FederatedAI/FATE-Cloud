@@ -116,4 +116,12 @@ public class FederatedAuthorityController {
         return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
     }
 
+
+    @PostMapping(value = "/check/partyId")
+    @ApiOperation(value = "check institutions of the partyId has the authority of the institutions")
+    public CommonResponse<Boolean> checkPartyIdAuthority(@RequestBody PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) {
+
+        return federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo,httpServletRequest);
+    }
+
 }

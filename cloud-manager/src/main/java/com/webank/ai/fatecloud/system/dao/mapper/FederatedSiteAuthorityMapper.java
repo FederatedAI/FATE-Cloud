@@ -29,4 +29,6 @@ public interface FederatedSiteAuthorityMapper extends BaseMapper<FederatedSiteAu
     List<AuthorityHistoryDto> findAuthorityHistoryOfFateManager(@Param("authorityHistoryOfFateManagerQo") AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo, @Param("startIndex") long startIndex);
 
     List<InstitutionsForFateDto> findApprovedInstitutions(@Param("authorityInstitutionsQo") AuthorityInstitutionsQo authorityInstitutionsQo, @Param("startIndex") long startIndex);
+
+    FederatedSiteAuthorityDo checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo);
 }
