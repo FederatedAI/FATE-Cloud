@@ -101,7 +101,7 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 			return nil, err
 		}
 
-		federatedItem.FateManagerInstitutions = accountInfo.Institutions
+		federatedItem.FateManagerInstitutions = accountInfoList[0].Institutions
 		fedetatedMap[federatedSiteList[0].FederatedId] = &federatedItem
 	} else {
 		for i := 0; i < len(federatedSiteList); i++ {
