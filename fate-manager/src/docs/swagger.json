@@ -667,6 +667,14 @@
                     "DropDownController"
                 ],
                 "summary": "Get Serving Version List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "int valid",
+                        "name": "fateVersion",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
