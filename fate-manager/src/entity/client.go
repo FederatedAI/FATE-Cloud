@@ -23,6 +23,10 @@ type IdPair struct {
 	Code int    `json:"code"`
 	Desc string `json:"desc"`
 }
+type ComponentVersionPair struct {
+	ComponentName string    `json:"componentName""`
+	ComponentVersion string `json:"componentVersion"`
+}
 type AuditPair struct {
 	Code     int    `json:"code"`
 	Desc     string `json:"desc"`
