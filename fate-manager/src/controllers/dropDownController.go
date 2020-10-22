@@ -233,6 +233,7 @@ func GetFateServingVersionList(c *gin.Context) {
 // @Tags DropDownController
 // @Accept  json
 // @Produce  json
+// @Param fateVersion query string false "int valid"
 // @Success 200 {object} app.ComponentResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/dropdown/componentversion [post]

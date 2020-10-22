@@ -1660,6 +1660,11 @@ paths:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: int valid
+        in: query
+        name: fateVersion
+        type: string
       produces:
       - application/json
       responses:
