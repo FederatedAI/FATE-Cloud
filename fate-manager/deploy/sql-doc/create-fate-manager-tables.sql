@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS `t_fate_deploy_component` (
   `component_name` varchar(32) DEFAULT NULL COMMENT 'component name',
   `component_version` varchar(32) DEFAULT NULL COMMENT 'component version',
   `address` varchar(128) DEFAULT NULL COMMENT 'service ip and port',
+  `label` varchar(128) DEFAULT NULL COMMENT 'node label',
   `start_time` timestamp NULL DEFAULT NULL COMMENT 'Start Time',
   `end_time` timestamp NULL DEFAULT NULL COMMENT 'End Time',
   `duration` int(10) DEFAULT NULL COMMENT 'Duration',
