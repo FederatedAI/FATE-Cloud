@@ -17,6 +17,7 @@ package k8s_service
 
 import (
 	"fate.manager/models"
+	"math/rand"
 	"strings"
 )
 
@@ -28,15 +29,43 @@ func GetKubenetesUrl(federatedId int, partyId int) string {
 	return kubenetsConf.KubenetesUrl
 }
 
-func GetNodeIp(federatedId int, partyId int) string {
+func GetNodeIp(federatedId int, partyId int) []string {
 	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
-		return ""
+		return nil
 	}
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	return nodeList[0]
+	var node string
+	if len(nodeList) >0 {
+		node = nodeList[rand.Intn(len(nodeList))]
+	}
+	list := strings.Split(node,":")
+	return list
 }
 
+func GetLabel(address string)string{
+	label := ""
+	if len(address) ==0{
+		return label
+	}
+	kubenetsConf, err := models.GetKubenetesConf()
+	if err != nil {
+		return label
+	}
+	addressList := strings.Split(address,":")
+	nodelist := strings.Split(kubenetsConf.NodeList,",")
+
+	for i :=0;i<len(nodelist) ;i++  {
+		node := strings.Split(nodelist[i],":")
+		if len(node) ==2 {
+			if node[1] == addressList[0] {
+				label = node[0]
+				break
+			}
+		}
+	}
+	return label
+}
 func CheckNodeIp(address string, federatedId int, partyId int) bool {
 	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {

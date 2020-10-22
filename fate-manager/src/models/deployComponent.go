@@ -31,6 +31,7 @@ type DeployComponent struct {
 	ComponentVersion string
 	ComponentName    string
 	Address          string
+	Label            string
 	StartTime        time.Time
 	EndTime          time.Time
 	Duration         int
