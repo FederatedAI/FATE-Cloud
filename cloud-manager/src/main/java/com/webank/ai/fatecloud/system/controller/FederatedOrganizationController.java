@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/federation")
 @Api(tags = "WelcomePageController", description = "Welcome Page")
-@CrossOrigin
 public class FederatedOrganizationController {
     @Autowired
     FederatedOrganizationServiceFacade federatedOrganizationServiceFacade;
