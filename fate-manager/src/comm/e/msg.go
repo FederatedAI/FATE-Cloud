@@ -83,7 +83,7 @@ var MsgFlags = map[int]string{
 	ERROR_ADD_USER_FAIL:                      "Add User Fail",
 	ERROR_GET_SITE_INFO_USER_LIST_FAIL:       "Get Site Info User List Fail",
 	ERROR_SITE_MANAGER_NOT_ACTIVE_FAIL:       "Site Account Not Activate",
-	ERROR_CONCACT_SITE_MANAGER_FAIL:          "Concat Site Manager To Add Auth In",
+	ERROR_CONCACT_SITE_MANAGER_FAIL:          "Please contact the administrator to add permissions for you.",
 	ERROR_AUTH_CHECK_TOKEN_FAIL:              "Token Auth Fail",
 	ERROR_AUTH_CHECK_TOKEN_TIMEOUT:           "Token Expired",
 	ERROR_AUTH_TOKEN:                         "Token Init Fail",
