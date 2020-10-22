@@ -1,11 +1,13 @@
 package com.webank.ai.fatecloud.config;
 
 import com.webank.ai.fatecloud.Interceptor.AutoDeployInterceptor;
+import com.webank.ai.fatecloud.Interceptor.ReferrerInterceptor;
 import com.webank.ai.fatecloud.Interceptor.SiteAuthorizationInterceptor;
 import com.webank.ai.fatecloud.Interceptor.UserInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -29,6 +31,12 @@ public class WebConfiguration implements WebMvcConfigurer {
     public UserInterceptor getUserInterceptor() {
         return new UserInterceptor();
     }
+
+    @Bean
+    public ReferrerInterceptor getReferrerInterceptor(){
+        return new ReferrerInterceptor();
+    }
+
 
 
 
@@ -71,5 +79,13 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/system/add")
         ;
 
+        registry.addInterceptor(getReferrerInterceptor());
+
     }
+
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowCredentials(true);
+//    }
+
 }

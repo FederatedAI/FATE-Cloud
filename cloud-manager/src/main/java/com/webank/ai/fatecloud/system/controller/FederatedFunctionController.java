@@ -20,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/function")
-@CrossOrigin
 @Slf4j
 @Api(tags = "FederatedFunctionController", description = "function api")
 public class FederatedFunctionController implements InitializingBean {
