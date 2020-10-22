@@ -1,12 +1,12 @@
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -25,14 +25,14 @@ public class JobStatisticsQo implements Serializable {
 
     @NotNull(message = "success count can't be null!")
     @ApiModelProperty(value = "success count")
-    private String jobSuccessCount;
+    private Integer jobSuccessCount;
 
     @NotNull(message = "failed count can't be null!")
     @ApiModelProperty(value = "failed count")
-    private String jobFailedCount;
+    private Integer jobFailedCount;
 
     @NotNull(message = "finish date can't be null!")
     @ApiModelProperty(value = "finish date")
-    private String jobFinishDate;
+    private Date jobFinishDate;
 
 }

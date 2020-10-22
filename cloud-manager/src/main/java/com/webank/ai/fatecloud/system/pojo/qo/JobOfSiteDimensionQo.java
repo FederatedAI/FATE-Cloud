@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +18,8 @@ public class JobOfSiteDimensionQo implements Serializable {
     @NotNull(message = "institutions can't be null!")
     @ApiModelProperty("institutions name")
     private String institutions;
+
+    @NotNull(message = "date can't be null!")
+    @ApiModelProperty("date today")
+    private Date dateToday;
 }
