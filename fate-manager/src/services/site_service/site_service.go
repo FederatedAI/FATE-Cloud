@@ -64,6 +64,20 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		AcativationTime:        siteInfo.AcativationTime.UnixNano() / 1e6,
 	}
 
+	depolySite := models.DeploySite{
+		FederatedId:        siteDetailReq.FederatedId,
+		PartyId:            siteDetailReq.PartyId,
+		ProductType:        int(enum.PRODUCT_TYPE_FATE),
+		IsValid:            int(enum.IS_VALID_YES),
+	}
+	deploySiteList,err := models.GetDeploySite(&depolySite)
+	if err != nil {
+		return nil,err
+	}
+	if len(deploySiteList) >0 {
+		siteDetail.EditStatus.Code=int(enum.EDIT_NO)
+		siteDetail.EditStatus.Desc=enum.GetEditString(enum.EDIT_NO)
+	}
 	return &siteDetail, nil
 }
 
