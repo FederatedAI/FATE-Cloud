@@ -91,6 +91,17 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 		var federatedItem entity.FederatedItem
 		federatedItem.FederatedOrganization = federatedSiteList[0].FederatedOrganization
 		federatedItem.Institutions = federatedSiteList[0].Institutions
+		accountInfo := models.AccountInfo{
+			Role:   int(enum.UserRole_ADMIN),
+			Status: int(enum.IS_VALID_YES),
+		}
+		accountInfoList, err := models.GetInstitution(accountInfo)
+		if err != nil || len(accountInfoList) == 0 {
+			logging.Error("admin user not exists!")
+			return nil, err
+		}
+
+		federatedItem.FateManagerInstitutions = accountInfo.Institutions
 		fedetatedMap[federatedSiteList[0].FederatedId] = &federatedItem
 	} else {
 		for i := 0; i < len(federatedSiteList); i++ {
