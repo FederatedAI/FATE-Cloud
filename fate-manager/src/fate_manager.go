@@ -35,7 +35,7 @@ func init() {
 }
 
 // @title Fate-Manager
-// @APIVersion 0.3.0
+// @APIVersion 1.0.0
 // @description fate manager api documents
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support
