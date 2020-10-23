@@ -425,4 +425,4 @@ FATE-Manager地址：http://ip:9090/fate-manager
 <img src="../../images/FATEManagerHome.png" />
 </div>
 
-[FATE-Manager的使用请参考使用手册！]()
+[《FATE Cloud产品使用手册》](../../docs/FATECloud产品帮助文档V1.0.pdf)。
