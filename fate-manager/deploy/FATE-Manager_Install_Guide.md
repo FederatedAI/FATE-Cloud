@@ -1,8 +1,8 @@
-#FATE-Manager部署指引文档
+# FATE-Manager部署指引文档 #
 
 
 
-##用户设置
+##用户设置##
 
 **1）创建app用户和apps组**
 注意 : 以下操作需root权限
