@@ -257,7 +257,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
-			//models.UpdateDeployComponent(deployComponent)
+			deployComponent = models.DeployComponent{
+				FederatedId:      commitImagePullReq.FederatedId,
+				PartyId:          commitImagePullReq.PartyId,
+				ProductType:      commitImagePullReq.ProductType,
+				ComponentName:    componentVersionList[i].ComponentName,
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			var data =make(map[string]interface{})
+			data["fate_version"] = commitImagePullReq.FateVersion
+			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["version_index"] = componentVersionList[i].VersionIndex
+			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
 		}
