@@ -74,6 +74,8 @@ service.interceptors.response.use(
             store.dispatch('LogOut').then(() => {
                 location.reload() // 为了重新实例化vue-router对象 避免bug
             })
+        } else if (msgCode(res.code)) {
+            return Promise.reject(res)
         } else {
             Message({
                 message: `${res.msg ? res.msg : 'http reqest failed!'}`,
@@ -81,6 +83,11 @@ service.interceptors.response.use(
                 duration: 5 * 1000
             })
             return Promise.reject(res)
+        }
+        function msgCode(code) {
+            // code 解析
+            let arr = [400, 10056, 10064]
+            return arr.includes(code)
         }
     },
     error => {

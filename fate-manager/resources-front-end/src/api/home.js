@@ -269,3 +269,12 @@ export function applyHistory(params) {
         params
     })
 }
+
+// 获取子版本
+export function getcomponentversion(data) {
+    return request({
+        url: `/${urlType}/api/dropdown/componentversion`,
+        method: 'post',
+        data
+    })
+}

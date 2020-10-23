@@ -125,7 +125,11 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		logging.Error(cmd, " failed")
 	}
 
-	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", info.ImageName, info.ImageTag)
+	imageName := fmt.Sprintf("docker.io/%s",info.ImageName)
+	if len(setting.KubenetesSetting.Registry) >0 {
+		imageName =fmt.Sprintf("%s/%s",setting.KubenetesSetting.Registry,info.ImageName)
+	}
+	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -137,7 +141,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageVersion = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'",imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -146,7 +150,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageId = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
