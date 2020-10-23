@@ -2,6 +2,7 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
 import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
 import com.webank.ai.fatecloud.system.service.facade.FederatedJobStatisticsServiceFacade;
@@ -41,11 +42,11 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/site")
     @ApiOperation(value = "find job statistics of Site dimension")
-    public CommonResponse getJobStatisticsOfSiteDimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
+    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionQo);
         if (bindingResult.hasErrors()) {
-            FieldError errors = bindingResult.getFieldError();
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR, errors.getDefaultMessage());
+//            FieldError errors = bindingResult.getFieldError();
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
         return federatedJobStatisticsServiceFacade.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
     }
