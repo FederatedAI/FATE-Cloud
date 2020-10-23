@@ -2,7 +2,7 @@
 
 
 
-##一、用户设置
+##用户设置
 
 **1）创建app用户和apps组**
 注意 : 以下操作需root权限
@@ -21,13 +21,17 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-##二、Kubernetes部署
+##Kubernetes部署
 
-为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下：
-1.2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
-2.Linux服务器需要预先安装好`Docker`环境，具体参考[Install Docker in CentOS](https://github.com/docker/docker-install)；
-3.要保证安装机器可以正常访问`Docker Hub`，以及`Google存储`；
-4.预先创建一个目录，以便整个过程使用该目录作为工作目录，命令如下
+为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下:
+
+- 2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
+
+- Linux服务器需要预先安装好`Docker`环境，具体参考[Install Docker in CentOS](https://github.com/docker/docker-install)；
+
+- 要保证安装机器可以正常访问`Docker Hub`，以及`Google存储`；
+
+- 预先创建一个目录，以便整个过程使用该目录作为工作目录，命令如下
 ```
 cd ~ && mkdir -p /data/kubefate && cd /data/kubefate
 ```
