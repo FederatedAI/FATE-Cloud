@@ -989,6 +989,7 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 	if len(federatedInfo) >0 {
 		tempItem :=federatedInfo[0]
 		tempItem.ComponentVersion = updateVersionReq.ComponentVersion
+		tempItem.FateServingVersion ="1.3.0"
 		go updateVersionToCloudManager(tempItem)
 	}
 	return e.SUCCESS, nil
