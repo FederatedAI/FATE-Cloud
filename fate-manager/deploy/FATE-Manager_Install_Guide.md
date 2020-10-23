@@ -21,7 +21,7 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-## Kubernetes部署 ##
+## MiniKube部署 ##
 
 为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下:
 
