@@ -2,10 +2,7 @@ package com.webank.ai.fatecloud.system.pojo.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Data
 @ApiModel(value = "jobs statistics for sites bean")
 public class JobStatisticsOfSiteDimensionDto implements Serializable {
 

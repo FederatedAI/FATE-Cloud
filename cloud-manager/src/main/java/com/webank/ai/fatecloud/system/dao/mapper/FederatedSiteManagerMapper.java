@@ -3,6 +3,7 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto;
+import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import org.apache.ibatis.annotations.*;
 
@@ -32,5 +33,6 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     long countForInstitutions(InstitutionQo institutionQo);
 
+    List<InstitutionsWithSites> findInstitutionsWithSites(String institutions);
 }
 
