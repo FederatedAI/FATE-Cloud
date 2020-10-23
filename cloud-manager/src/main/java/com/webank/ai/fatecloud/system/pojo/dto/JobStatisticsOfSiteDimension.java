@@ -8,20 +8,19 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "job statistics")
-public class JobStatistics implements Serializable {
+@ApiModel(value = "jobs statistics for sites")
+public class JobStatisticsOfSiteDimension implements Serializable {
 
-    @ApiModelProperty(value = "host name")
-    private String siteHostName;
+    @ApiModelProperty(value = "guest name")
+    private String siteGuestName;
 
-    @ApiModelProperty(value = "success count")
-    private String jobSuccessCount;
+    @ApiModelProperty(value = "institutions with host site information")
+    private List<InstitutionsWithHostSite> institutionsWithHostSites;
 
-    @ApiModelProperty(value = "failed count")
-    private String jobFailedCount;
 }
