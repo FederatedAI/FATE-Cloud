@@ -1,6 +1,10 @@
 # FATE-Manager部署指引文档 #
 
 
+<div style="text-align:center", align=center>
+<img src="./images/FATEManagerInstall.png" />
+</div>
+
 
 ## 用户设置 ##
 
