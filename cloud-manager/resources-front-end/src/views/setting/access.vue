@@ -37,7 +37,7 @@
         </div>
         <div v-else class="table">
             <el-table :data="managertableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
-            <el-table-column prop="institutions" label="Institution"></el-table-column>
+            <el-table-column prop="institutions" label="Institution" show-overflow-tooltip></el-table-column>
             <el-table-column prop="fateManagerId" label="Admin ID" show-overflow-tooltip></el-table-column>
             <el-table-column prop="creator" label="Creator"></el-table-column>
             <el-table-column prop="createTime" label="Create Time" >
@@ -60,17 +60,21 @@
         </div>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="adddialog" class="auto-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="adddialog" class="auto-dialog" width="690px" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
         <div class="dialog-title">
           Add admin
         </div>
+        <div class="dialog-line" v-if='radio === "FATE Manager"'>
+            To add administrtor right to FATE Manager,please fill in the institution name to
+            which the administrator belongs. Once filled in,it cannot be modified.
+        </div>
         <div class="add-input">
             <span class="input-title">
                 <span  v-if='radio === "Cloud Manager"'>admin</span>
-                <span  v-if='radio === "FATE Manager"'>institution</span>
+                <span  v-if='radio === "FATE Manager"'>Institution</span>
             </span>
-            <el-input v-model.trim="institutionName" @focus="warn=false" :class="{'input-warn':warn}" placeholder="Please enter a name"></el-input>
+            <el-input v-model="institutionName" @focus="warn=false" :class="{'input-warn':warn}" placeholder="Please enter a name"></el-input>
             <div v-if="warn" class="text-warn" >The address is invalid. Please enter again.</div>
         </div>
         <div class="add-input" v-if='radio === "Cloud Manager"'>
@@ -78,7 +82,7 @@
             <el-checkbox v-model="levelChecked" disabled>senior admin</el-checkbox>
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toOK">Ok</el-button>
+          <el-button type="primary" @click="toOK">OK</el-button>
           <el-button type="info" @click="adddialog=false">Cancel</el-button>
         </div>
       </div>
@@ -101,7 +105,7 @@
             <i class="el-icon-success"></i>
         </div>
         <div  class="line-text-one" >Add successfully !</div>
-        <div class="line-text-two">the registration link has been generated as follows:</div>
+        <div class="line-text-two">the administrator invitation link has been generated as follows:</div>
         <div class="line-text-three">
             <el-popover
                 placement="top"
@@ -217,7 +221,7 @@ export default {
                 let data = {
                     creator: this.loginName, // 当前登录用户
                     adminLevel: 1, // 暂定
-                    name: this.institutionName
+                    name: this.institutionName.trim()
                 }
                 addCloud(data).then(res => {
                     this.adddialog = false
@@ -226,7 +230,7 @@ export default {
             } else {
                 let data = {
                     creator: this.loginName, // 当前登录用户
-                    institutions: this.institutionName
+                    institutions: this.institutionName.trim()
                 }
                 addManager(data).then(res => {
                     this.addSuccessText = res.data
