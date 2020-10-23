@@ -298,7 +298,7 @@ cp my.cnf /data/projects/fate-cloud/common/mysql/mysql-8.0.13/conf
 - **初始化**
 
 ```
-cd /data/projects/fate/common/mysql/mysql-8.0.13/
+cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 ./bin/mysqld --initialize --user=app --basedir=/data/projects/fate-cloud/common/mysql/mysql-8.0.13 --datadir=/data/projects/fate-cloud/data/mysql > logs/init.log 2>&1
 cat logs/init.log |grep root@localhost
 ```
@@ -306,7 +306,7 @@ cat logs/init.log |grep root@localhost
 
 - **修改my.cnf**
 ```
-vim /data/projects/fate/common/mysql/mysql-8.0.13/conf/my.cnf
+vim /data/projects/fate-cloud/common/mysql/mysql-8.0.13/conf/my.cnf
 sql_mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 ```
 - **启动服务**
@@ -338,7 +338,7 @@ Enter Password:【输入root修改后密码:***REMOVED***】
 |fate_manager|9090|fate-manger,站点端用于注册和加入联邦组织，快速部署fate的管理端工具｜
 
 - **下载fate-manager**
-fate-manager:的开源地址https://github.com/FederatedAI/FATE-Cloud
+FATE-Manager的开源地址https://github.com/FederatedAI/FATE-Cloud
 打开链接https://github.com/FederatedAI/FATE-Cloud/releases
 fate-manager是容器化部署fate的最佳实践，项目更新较快，建议使用最新的releases
 ```
