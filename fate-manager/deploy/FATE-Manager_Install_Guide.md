@@ -1,14 +1,13 @@
-#FATE-Manager部署指引文档
+# FATE-Manager部署指引文档 #
 
-##部署架构
+
 
 <div style="text-align:center", align=center>
-<img src="./images/FATEManagerInstall.png" />
+<img src="../../images/FATEManagerInstall.png" />
 </div>
 
-FATE-Manager是一个可视化的Fate部署管理端，通过调用kubefate的api实现部署，所以在开始部署fatemanger之前，先保证kubernetes集群及kubefate服务已经可用,如果已经部署好kubernetes集群和kubefate服务，可以跳过二、三步骤。
 
-##一、用户设置
+## 一、用户设置 ##
 
 **1）创建app用户和apps组**
 注意 : 以下操作需root权限
@@ -17,6 +16,7 @@ groupadd -g 6000 apps
 useradd -s /bin/bash -g apps -d /home/app app
 passwd app
 ```
+
 **2）配置sudo**
 注意 : 以下操作需root权限
 ```
@@ -26,16 +26,22 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-##二、Kubernetes部署
-为了方便快速的部署，我们使用miniKube来部署kubernetes环境，前置条件如下：
-1.2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
-2.Linux服务器需要预先安装好Docker环境，具体参考Install Docker in CentOS；
-3.要保证安装机器可以正常访问Docker Hub，以及Google存储；
-4.预先创建一个目录，以便整个过程使用该目录作为工作目录，命令如下
+## 二、MiniKube部署 ##
+
+为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下:
+
+- 2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
+
+- Linux服务器需要预先安装好`Docker`环境，具体参考[Install Docker in CentOS](https://github.com/docker/docker-install)；
+
+- 要保证安装机器可以正常访问`Docker Hub`，以及`Google存储`；
+
+- 预先创建一个目录，以便整个过程使用该目录作为工作目录，命令如下
 ```
 cd ~ && mkdir -p /data/kubefate && cd /data/kubefate
 ```
-**注意：下文介绍的MiniKube机器IP地址是172.16.153.131。请修改为你准备的实验机器IP地址！！！**
+
+**注意：下文介绍的MiniKube机器IP地址是`172.16.153.131`。请修改为你准备的实验机器IP地址！！！**
 
 - **安装需要的工具**
 为了使用KubeFATE部署FATE，我们需要以下工具：
@@ -57,6 +63,7 @@ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.3/bin/l
 Client Version: version.Info{Major:"1", Minor:"17", GitVersion:"v1.17.3", GitCommit:"06ad960bfd03b39c8310aaf92d1e7c12ce618213", GitTreeState:"clean", BuildDate:"2020-02-11T18:14:22Z", GoVersion:"go1.13.6", Compiler:"gc", Platform:"linux/amd64"}
 The connection to the server localhost:8080 was refused - did you specify the right host or port?ction to the server localhost:8080 was refused - did you specify the right host or port?
 ```
+
 - **安装MiniKube**
 ```
 curl -LO https://github.com/kubernetes/minikube/releases/download/v1.7.3/minikube-linux-amd64 && mv minikube-linux-amd64 minikube && chmod +x minikube && sudo mv ./minikube /usr/bin
@@ -69,14 +76,15 @@ commit: 436667c819c324e35d7e839f8116b968a2d0a3ff
 ```
 
 - **下载KubeFATE的发布包并安装KubeFATE的命令行**
+
 我们从Github上 KubeFATE Release页面找到Kuberetes部署的下载包，并下载:
 ```
-curl -LO https://github.com/FederatedAI/KubeFATE/releases/download/v1.4.4/kubefate-k8s-1.4.4.tar.gz && tar -xzf ./kubefate-k8s-v1.4.4.tar.gz
+curl -LO https://github.com/FederatedAI/KubeFATE/releases/download/v1.4.4/kubefate-k8s-1.4.4.tar.gz && tar -xzf ./kubefate-k8s-1.4.4.tar.gz
 ```
 解压：
 ```
 [app@kube-m1 kubefate]$ ls
-cluster.yaml  config.yaml  kubefate  kubefate-k8s-v1.4.4.tar.gz  kubefate.yaml  rbac-config.yaml
+cluster.yaml  config.yaml  kubefate  kubefate-k8s-1.4.4.tar.gz  kubefate.yaml  rbac-config.yaml
 ```
 由于KubeFATE命令行是可执行二进制文件，可以直接移动到path目录方便使用，
 ```
@@ -94,9 +102,9 @@ chmod +x ./kubefate && sudo mv ./kubefate /usr/bin
 至此，我们需要的工具已经安装完成。
 
 - **使用MiniKube安装Kubernetes**
-MiniKube支持使用不同的虚拟机来部署Kubernetes，但是在Linux环境下，我们建议直接使用Docker方式。这个方式非常简单，只需要设置--vm-driver=none即可。更多的说明参考：Install MiniKube - Install a Hypervisor。
+MiniKube支持使用不同的虚拟机来部署Kubernetes，但是在Linux环境下，我们建议直接使用Docker方式。这个方式非常简单，只需要设置--vm-driver=none即可。更多的说明参考：[Install MiniKube - Install a Hypervisor](https://minikube.sigs.k8s.io/docs/start/)
 ```
-sudo minikube start --vm-driver=none
+sudo minikube start --vm-driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers
 ```
 根据屏幕指引，稍等一小会。待到命令没有错误返回，我们可以验证下，
 ```
@@ -110,9 +118,12 @@ kubeconfig: Configured
 ```
 sudo minikube addons enable ingress
 ```
-到此，我们的Kubernetes也准备好了。
 
-##三、KubeFATE部署
+kubernetes部署完成！
+
+
+## 三、KubeFATE部署 ##
+
 
 - **创建kube-fate的命名空间以及账号**
 
@@ -121,11 +132,12 @@ sudo minikube addons enable ingress
 kubectl apply -f ./rbac-config.yaml
 ```
 - **在kube-fate命名空间里部署KubeFATE服务**
+- 
 相关的yaml文件也已经准备在工作目录，直接使用kubectl apply，
 ```
 kubectl apply -f ./kubefate.yaml
 ```
-稍等一会，大概10几秒后用下面命令看下KubeFATE服务是否部署好kubectl get all,ingress -n kube-fate。如果返回类似下面的信息（特别是pod的STATUS显示的是Running状态），则KubeFATE的服务就已经部署好并正常运行：
+稍等一会，大概10几秒后用下面命令看下KubeFATE服务是否部署好`kubectl get all,ingress -n kube-fate`。如果返回类似下面的信息（特别是pod的STATUS显示的是Running状态），则KubeFATE的服务就已经部署好并正常运行：
 ```
 [app@kube-m1 kubefate]$ sudo kubectl get all,ingress -n kube-fate
 NAME                            READY   STATUS    RESTARTS   AGE
@@ -148,7 +160,9 @@ NAME                          CLASS    HOSTS            ADDRESS          PORTS  
 ingress.extensions/kubefate   <none>   kubefate88.net   172.16.153.131   80      19d
 ```
 - **添加kubefate.net到hosts文件**
-因为我们要用 kubefate.net 域名来访问KubeFATE服务（该域名在ingress中定义，有需要可自行修改），需要在运行kubefate命令行所在的机器配置hosts文件（注意不一定是Kubernetes所在的机器）。如果网络环境有域名解析服务，可配置kubefate.net域名指向MiniKube机器的IP地址，这样就不用配置hosts文件。注意：下面地址172.16.153.131 要替换为你的MiniKube机器地址。
+
+因为我们要用 kubefate.net 域名来访问KubeFATE服务（该域名在ingress中定义，有需要可自行修改），需要在运行kubefate命令行所在的机器配置hosts文件（注意不一定是Kubernetes所在的机器）。如果网络环境有域名解析服务，可配置kubefate.net域名指向MiniKube机器的IP地址，这样就不用配置hosts文件。
+注意：下面地址172.16.153.131 要替换为你的MiniKube机器地址。
 ```
 sudo -- sh -c "echo \"172.16.153.131 kubefate.net\"  >> /etc/hosts"
 ```
@@ -172,19 +186,16 @@ rtt min/avg/max/mdev = 0.710/0.719/0.729/0.028 ms
 
 到此，所有准备工作完毕，下面我们可以开始安装FATE了。需要注意的是，上面的工作只需要做一次，后面如果添加、删除、更新FATE集群，上面的不需要重新执行
 
-##四、使用KubeFATE部署ExChange
-exchange是中心端的一个路由模块，我们可以可以把它部署在任意一个机器上，保证逻辑上是分开的，物理上可以放在一起，方便后面管理的最小化测试等功能的验证。
+## 四、ExChange部署 ##
+
+`ExChange`是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，通过kubefate部署方式将它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
 
 - **创建命名空间**
 ```
 sudo kubectl create namespace fate-exchange
 ```
 - **准备配置文件**
-KubeFATE安装包包含了集群配置的简要配置参考文件cluster.yaml，我们可以复制一份来修改配置。如果前面的步骤正确，这个文件已经在工作目录里。运行下面命令复制文件：
-```
-cp ./cluster.yaml fate-exchange.yaml
-```
-按下面的配置修改fate-exchange.yaml，
+按当前目录下的配置文件cluster.yaml,,生成西的配置文件：fate-exchange.yaml，
 ```
 [app@kube-m1 kubefate]$ cat fate-exchange.yaml 
 name: fate-exchange
@@ -216,6 +227,7 @@ rollsite:
 registry:镜像下载地址，默认从dockerhub下载，如果有私有镜像可以配置在这里
 更改rollsite模块的配置，设置监听的端口为30001；
 更改partyList部分，这里的每个节点都带不一个路由节点，partyIp和partyPort代表每个站点的rollsite ip和端口
+
 - **修改完毕，执行部署**
 ```
 [app@kube-m1 kubefate]$ kubefate cluster install -f ./fate-exchange.yaml 
@@ -252,9 +264,10 @@ rollsite-config   1      6m25s
 ```
 sudo kubectl edit configmap rollsite-config -n fate-exchange
 ```
-至此，exchange部署结束！
+至此，ExChange部署结束！
 
-##五、部署Mysql
+## 五、Mysql部署 ##
+
 - **获取安装包**
 ```
 mkdir -p /data/projects/install
@@ -262,11 +275,13 @@ cd /data/projects/install
 wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/mysql-1.4.5-release.tar.gz
 ```
 - **建立mysql根目录**
+
 ```
 mkdir -p /data/projects/fate-cloud/common/mysql
 mkdir -p /data/projects/fate-cloud/data/mysql
 ```
 - **解压缩软件包**
+
 ```
 cd /data/projects/install
 tar xzvf mysql-*.tar.gz
@@ -274,18 +289,20 @@ cd mysql
 tar xf mysql-8.0.13.tar.gz -C /data/projects/fate-cloud/common/mysql
 ```
 - **配置设置**
+
 ```
 mkdir -p /data/projects/fate-cloud/common/mysql/mysql-8.0.13/{conf,run,logs}
 cp service.sh /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 cp my.cnf /data/projects/fate-cloud/common/mysql/mysql-8.0.13/conf
 ```
 - **初始化**
+
 ```
 cd /data/projects/fate/common/mysql/mysql-8.0.13/
 ./bin/mysqld --initialize --user=app --basedir=/data/projects/fate-cloud/common/mysql/mysql-8.0.13 --datadir=/data/projects/fate-cloud/data/mysql > logs/init.log 2>&1
 cat logs/init.log |grep root@localhost
 ```
-- **注意输出信息中root@localhost:后的是mysql用户root的初始密码，需要记录，后面修改密码需要用到
+ **注意输出信息中root@localhost:后的是mysql用户root的初始密码，需要记录，后面修改密码需要用到**
 
 - **启动服务**
 ```
@@ -293,12 +310,14 @@ cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 nohup ./bin/mysqld_safe --defaults-file=./conf/my.cnf --user=app >>logs/mysqld.log 2>&1 &
 ```
 - **修改mysql root用户密码**
+
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 ./bin/mysqladmin -h 127.0.0.1 -P 3306 -S ./run/mysql.sock -u root -p password "fate_dev"
 Enter Password:【输入root初始密码】
 ```
 - **验证登陆**
+
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 ./bin/mysql -u root -p -S ./run/mysql.sock
@@ -306,23 +325,24 @@ Enter Password:【输入root修改后密码:fate_dev】
 ```
 部署成功！
 
-##六、Fate-Manager部署
+## 六、Fate-Manager部署 ##
+
 - **服务基本信息**
 |   服务名称    | 端口 | 描述                                              |
 | :-----------: | ---- | ------------------------------------------------- |
 |fate_manager|9090|fate-manger,站点端用于注册和加入联邦组织，快速部署fate的管理端工具｜
 
-**下载fate-manager**
+- **下载fate-manager**
 fate-manager:的开源地址https://github.com/FederatedAI/FATE-Cloud
 打开链接https://github.com/FederatedAI/FATE-Cloud/releases
 fate-manager是容器化部署fate的最佳实践，项目更新较快，建议使用最新的releases
 ```
 [app@kube-m1 kubefate]$ mkdir -p /data/projects/fate-cloud/fate-manager && cd /data/projects/fate-cloud/fate-manager
-[app@kube-m1 kubefate]$ curl -LO https://github.com/FederatedAI/FATE-Cloud/releases/download/v1.0.0/fate-manager-v1.0.0.tar.gz && tar -xzf ./fate-manager-v1.0.0.tar.gz
+[app@kube-m1 fate-manager]$ curl -LO https://github.com/FederatedAI/FATE-Cloud/releases/download/v1.0.0/fate-manager-v1.0.0.tar.gz && tar -xzf ./fate-manager-v1.0.0.tar.gz
 ```
 解压后内容：
 ```
-[app@kube-m1 kubefate]$ ls
+[app@kube-m1 fate-manager]$ ls
 conf  fate_manager fate-manager.zip  shell doc-sql
 ```
 conf：是服务的配置目录
@@ -361,8 +381,8 @@ LogDir = /data/logs/fate-cloud/fate-manager/   #日志目录地址
 Type = mysql                                   #数据库类型，默认mysql
 UserName =                                     #mysql用户名
 Password =                                     #mysql密码
-HostAddr =                                     #mysql地址，ip：port
-DataBase =                                     #数据库
+HostAddr =  192.168.0.1:3306                   #mysql地址，ip：port
+DataBase =  fate-manager                       #数据库
 TablePrefix = t_fate_                          #公共表头
 SqlMode = false                                #sql打印日志
 
@@ -394,9 +414,10 @@ ps aux | grep fate_manager
 ```
 
 - **部署验证**
-访问页面：http://ip:9090/fate-manager,显示如下：
+FATE-Manager地址：http://ip:9090/fate-manager
+访问正常页面如下：
 <div style="text-align:center", align=center>
-<img src="./images/FATEManagerHome.png" />
+<img src="../../images/FATEManagerHome.png" />
 </div>
 
-FATE-Manager的使用请参考使用手册！
+[FATE-Manager的使用请参考使用手册！]()

@@ -91,7 +91,12 @@ func UpdateDeployComponent(info map[string]interface{}, condition DeployComponen
 	}
 	return nil
 }
-
+func UpdateComponent(info *DeployComponent) error {
+	if err := db.Model(&DeployComponent{}).Where("product_type = ? and component_name =? and is_valid=?", info.ProductType, info.ComponentName,info.IsValid).Updates(info).Error; err != nil {
+		return err
+	}
+	return nil
+}
 func AddDeployComponent(deployComponent *DeployComponent) error {
 	if err := db.Create(&deployComponent).Error; err != nil {
 		return err
