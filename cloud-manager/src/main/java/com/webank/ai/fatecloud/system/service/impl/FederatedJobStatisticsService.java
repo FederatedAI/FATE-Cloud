@@ -3,7 +3,7 @@ package com.webank.ai.fatecloud.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
+import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimension;
 import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
 import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +37,12 @@ public class FederatedJobStatisticsService {
         }
     }
 
-    public List<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+    public List<JobStatisticsOfSiteDimension> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
 
-        List<JobStatisticsOfSiteDimensionDto> jobStatisticsOfSiteDimensionDtoList = federatedJobStatisticsMapper.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
+        //todo
+        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
 
-        return jobStatisticsOfSiteDimensionDtoList;
+
+        return jobStatisticsOfSiteDimensionList;
     }
 }
