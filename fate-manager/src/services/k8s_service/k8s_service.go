@@ -78,9 +78,12 @@ func CheckNodeIp(address string, federatedId int, partyId int) bool {
 	var tag = false
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
 	for i := 0; i < len(nodeList); i++ {
-		if nodeList[i] == ipList[0] {
-			tag = true
-			break
+		lablist := strings.Split(nodeList[i],":")
+		if len(lablist) ==2{
+			if lablist[1] == ipList[0] {
+				tag = true
+				break
+			}
 		}
 	}
 	return tag

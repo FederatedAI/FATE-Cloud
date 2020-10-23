@@ -304,6 +304,11 @@ cat logs/init.log |grep root@localhost
 ```
  **注意输出信息中root@localhost:后的是mysql用户root的初始密码，需要记录，后面修改密码需要用到**
 
+- **修改my.cnf**
+```
+vim /data/projects/fate/common/mysql/mysql-8.0.13/conf/my.cnf
+sql_mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+```
 - **启动服务**
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
