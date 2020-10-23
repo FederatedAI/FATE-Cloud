@@ -670,7 +670,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "int valid",
+                        "description": "string valid",
                         "name": "fateVersion",
                         "in": "query"
                     }
