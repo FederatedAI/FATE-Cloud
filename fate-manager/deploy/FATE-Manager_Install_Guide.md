@@ -414,7 +414,8 @@ ps aux | grep fate_manager
 ```
 
 - **部署验证**
-访问页面：http://ip:9090/fate-manager,，访问正常！
+FATE-Manager地址：http://ip:9090/fate-manager
+访问正常页面如下：
 <div style="text-align:center", align=center>
 <img src="../../images/FATEManagerHome.png" />
 </div>
