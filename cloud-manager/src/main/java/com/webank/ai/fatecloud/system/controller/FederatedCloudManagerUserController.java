@@ -15,7 +15,6 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping(value = "/api/cloud/user")
-@CrossOrigin
 @Slf4j
 @Api(tags = "FederatedCloudManagerUserController", description = "cloud manager user api")
 

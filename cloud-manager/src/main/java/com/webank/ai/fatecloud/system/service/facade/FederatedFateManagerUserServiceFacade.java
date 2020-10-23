@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.*;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.CheckInstitutionsUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import com.webank.ai.fatecloud.system.pojo.qo.FateManagerUserAddQo;
@@ -31,6 +32,7 @@ public class FederatedFateManagerUserServiceFacade {
 
     public CommonResponse<String> addFateManagerUser(FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
         Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserAddQo.getInstitutions(), fateManagerUserAddQo.getCreator()));
+        Preconditions.checkArgument(CheckInstitutionsUtil.checkPath(fateManagerUserAddQo.getInstitutions(),fateManagerUserAddQo.getCreator()));
 
         CommonResponse<Boolean> booleanCommonResponse = checkInstitution(new InstitutionCheckQo(fateManagerUserAddQo.getInstitutions()));
         if (booleanCommonResponse.getData()) {
