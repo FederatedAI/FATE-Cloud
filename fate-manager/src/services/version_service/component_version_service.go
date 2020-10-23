@@ -285,7 +285,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if len(deploySiteList) == 0 {
-		deploySite.FateVersion = commitImagePullReq.FateVersion
+		//deploySite.FateVersion = commitImagePullReq.FateVersion
 		deploySite.DeployStatus = int(enum.DeployStatus_PULLED)
 		deploySite.ChartVersion = fateVersionList[0].ChartVersion
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
@@ -304,7 +304,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 	} else {
 		var data = make(map[string]interface{})
-		data["fate_version"] = commitImagePullReq.FateVersion
+		//data["fate_version"] = commitImagePullReq.FateVersion
 		data["deploy_status"] = int(enum.DeployStatus_PULLED)
 		data["chart_version"] = fateVersionList[0].ChartVersion
 		data["version_index"] = fateVersionList[0].VersionIndex
