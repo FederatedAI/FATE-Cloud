@@ -14,13 +14,15 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "jobs statistics for sites")
+@ApiModel(value = "jobs statistics for sites bean")
 public class JobStatisticsOfSiteDimensionDto implements Serializable {
 
-    @ApiModelProperty(value = "guest id")
-    private String siteGuestId;
+    @ApiModelProperty(value = "statistics for job")
+    private List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensions;
 
-    @ApiModelProperty(value = "institutions with host site information")
-    private List<InstitutionsWithHostSite> institutionsWithHostSites;
+    @ApiModelProperty(value = "site list of the institutions")
+    private List<String> sites;
 
+    @ApiModelProperty(value = "site list of the institutions")
+    private List<InstitutionsWithSites> institutionsWithSites;
 }

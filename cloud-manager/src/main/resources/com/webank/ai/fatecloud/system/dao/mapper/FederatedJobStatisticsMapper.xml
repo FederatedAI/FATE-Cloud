@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper">
 
-    <resultMap id="jobStatisticsMap" type="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto">
+    <resultMap id="jobStatisticsMap" type="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimension">
 
-        <result property="siteGuestId" column="site_guest_id"></result>
+        <result property="siteGuestName" column="site_guest_id"></result>
 
         <collection property="institutionsWithHostSites"
                     ofType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithHostSite">
@@ -12,7 +12,7 @@
             <result property="institutions" column="institutions"></result>
 
             <collection property="jobStatisticsList" ofType="com.webank.ai.fatecloud.system.pojo.dto.JobStatistics">
-                <result property="siteHostId" column="site_host_id"></result>
+                <result property="siteHostName" column="site_host_id"></result>
                 <result property="jobSuccessCount" column="job_success_count"></result>
                 <result property="jobFailedCount" column="job_failed_count"></result>
             </collection>
@@ -23,14 +23,13 @@
 
     <select id="getJobStatisticsOfSiteDimension"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo" resultMap="jobStatisticsMap">
-        SELECT * FROM t_job_statistics j where site_guest_id in (select id from t_federated_site_manager where institutions =#{institutions} and status = 2) and job_finish_date between #{dateToday,jdbcType=DATE} and #{dateToday,jdbcType=DATE}
-        <where>
-            a.sequence in (select * from
-            (select distinct sequence from t_federated_site_authority where status !=1 order by sequence desc limit
-            #{startIndex}, #{authorityHistoryQo.pageSize}) tmp )
-            order by a.sequence desc
-
-        </where>
+        SELECT sm.site_name siteHostName,sm2.site_name siteGuestName,js.job_success_count,js.job_failed_count,sm.institutions
+        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
+        where js.site_guest_id in (select id from t_federated_site_manager where institutions =#{institutions} and
+        status = 2)
+        and js.job_finish_date between #{dateToday,jdbcType=DATE} and #{dateToday,jdbcType=DATE}
+        and sm.id=js.site_host_id
+        and sm2.id=js.site_guest_id
 
     </select>
 

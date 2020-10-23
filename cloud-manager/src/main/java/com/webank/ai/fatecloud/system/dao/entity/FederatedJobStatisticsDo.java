@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 @NoArgsConstructor
@@ -31,23 +32,23 @@ public class FederatedJobStatisticsDo implements Serializable {
 
     @ApiModelProperty(value = "success count")
     @TableField(value = "job_success_count")
-    private String jobSuccessCount;
+    private Integer jobSuccessCount;
 
     @ApiModelProperty(value = "failed count")
     @TableField(value = "job_failed_count")
-    private String jobFailedCount;
+    private Integer jobFailedCount;
 
     @ApiModelProperty(value = "finish date")
     @TableField(value = "job_finish_date")
-    private String jobFinishDate;
+    private Date jobFinishDate;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
-    private String createTime;
+    private Date createTime;
 
     @ApiModelProperty(value = "update time")
     @TableField(value = "update_time")
-    private String updateTime;
+    private Date updateTime;
 
     public FederatedJobStatisticsDo(JobStatisticsQo jobStatisticsQo) {
         this.siteGuestId = jobStatisticsQo.getSiteGuestId();
