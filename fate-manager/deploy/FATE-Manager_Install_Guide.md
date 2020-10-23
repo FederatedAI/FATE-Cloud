@@ -1,14 +1,9 @@
 #FATE-Manager部署指引文档
 
+-------------------
+[TOC]
 
-##部署架构
 
-
-FATE-Manager是一个可视化的Fate部署管理端，通过调用kubefate的api实现部署，所以在开始部署fatemanger之前确保已经完成部署：
-- kubernetesbu部署
-- kubefate部署
-- Mysql部署
-- Docker部署
 
 ##一、用户设置
 
@@ -31,27 +26,27 @@ Defaults !env_reset
 
 ##二、Kubernetes部署
 
-为了方便快速的部署，我们使用miniKube来部署kubernetes环境，前置条件如下：
+为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下：
 1.2台Linux的服务器，由于需要跑多方计算，服务器的推荐配置为：8核，16G内存以上；
-2.Linux服务器需要预先安装好Docker环境，具体参考Install Docker in CentOS；
-3.要保证安装机器可以正常访问Docker Hub，以及Google存储；
+2.Linux服务器需要预先安装好`Docker`环境，具体参考[Install Docker in CentOS](https://github.com/docker/docker-install)；
+3.要保证安装机器可以正常访问`Docker Hub`，以及`Google存储`；
 4.预先创建一个目录，以便整个过程使用该目录作为工作目录，命令如下
 ```
 cd ~ && mkdir -p /data/kubefate && cd /data/kubefate
 ```
 
-**注意：下文介绍的MiniKube机器IP地址是172.16.153.131。请修改为你准备的实验机器IP地址！！！**
+**注意：下文介绍的MiniKube机器IP地址是`172.16.153.131`。请修改为你准备的实验机器IP地址！！！**
 
 - **安装需要的工具**
 为了使用KubeFATE部署FATE，我们需要以下工具：
 MiniKube v1.7.3，如果我们已经有Kubernetes环境，可以直接跳转到部署KubeFATE服务;
 kubectl v1.17.3：Kubernetes的命令行，需要与具体Kubernetes版本对应，这里的版本是对应MiniKube v1.7.3；
 
-  KubeFATE:
-         - Release: v1.4.4
-         - 服务版本：v1.1.0
-         - 命令行版本：v1.1.0
-         
+	KubeFATE:
+	       - Release: v1.4.4
+	       - 服务版本：v1.1.0
+	       - 命令行版本：v1.1.0
+	       
 - **安装kubectl**
 ```
 curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.3/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/bin
@@ -101,7 +96,7 @@ chmod +x ./kubefate && sudo mv ./kubefate /usr/bin
 至此，我们需要的工具已经安装完成。
 
 - **使用MiniKube安装Kubernetes**
-MiniKube支持使用不同的虚拟机来部署Kubernetes，但是在Linux环境下，我们建议直接使用Docker方式。这个方式非常简单，只需要设置--vm-driver=none即可。更多的说明参考：Install MiniKube - Install a Hypervisor。
+MiniKube支持使用不同的虚拟机来部署Kubernetes，但是在Linux环境下，我们建议直接使用Docker方式。这个方式非常简单，只需要设置--vm-driver=none即可。更多的说明参考：[Install MiniKube - Install a Hypervisor](https://minikube.sigs.k8s.io/docs/start/)
 ```
 sudo minikube start --vm-driver=none --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers
 ```
@@ -136,7 +131,7 @@ kubectl apply -f ./rbac-config.yaml
 ```
 kubectl apply -f ./kubefate.yaml
 ```
-稍等一会，大概10几秒后用下面命令看下KubeFATE服务是否部署好kubectl get all,ingress -n kube-fate。如果返回类似下面的信息（特别是pod的STATUS显示的是Running状态），则KubeFATE的服务就已经部署好并正常运行：
+稍等一会，大概10几秒后用下面命令看下KubeFATE服务是否部署好`kubectl get all,ingress -n kube-fate`。如果返回类似下面的信息（特别是pod的STATUS显示的是Running状态），则KubeFATE的服务就已经部署好并正常运行：
 ```
 [app@kube-m1 kubefate]$ sudo kubectl get all,ingress -n kube-fate
 NAME                            READY   STATUS    RESTARTS   AGE
@@ -160,7 +155,8 @@ ingress.extensions/kubefate   <none>   kubefate88.net   172.16.153.131   80     
 ```
 - **添加kubefate.net到hosts文件**
 
-因为我们要用 kubefate.net 域名来访问KubeFATE服务（该域名在ingress中定义，有需要可自行修改），需要在运行kubefate命令行所在的机器配置hosts文件（注意不一定是Kubernetes所在的机器）。如果网络环境有域名解析服务，可配置kubefate.net域名指向MiniKube机器的IP地址，这样就不用配置hosts文件。注意：下面地址172.16.153.131 要替换为你的MiniKube机器地址。
+因为我们要用 kubefate.net 域名来访问KubeFATE服务（该域名在ingress中定义，有需要可自行修改），需要在运行kubefate命令行所在的机器配置hosts文件（注意不一定是Kubernetes所在的机器）。如果网络环境有域名解析服务，可配置kubefate.net域名指向MiniKube机器的IP地址，这样就不用配置hosts文件。
+注意：下面地址172.16.153.131 要替换为你的MiniKube机器地址。
 ```
 sudo -- sh -c "echo \"172.16.153.131 kubefate.net\"  >> /etc/hosts"
 ```
@@ -186,7 +182,7 @@ rtt min/avg/max/mdev = 0.710/0.719/0.729/0.028 ms
 
 ##四、使用KubeFATE部署ExChange
 
-ExChange是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，我们可以先把它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
+`ExChange`是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，我们可以先把它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
 
 - **创建命名空间**
 ```
@@ -262,7 +258,7 @@ rollsite-config   1      6m25s
 ```
 sudo kubectl edit configmap rollsite-config -n fate-exchange
 ```
-至此，exchange部署结束！
+至此，ExChange部署结束！
 
 ##五、部署Mysql
 
@@ -379,8 +375,8 @@ LogDir = /data/logs/fate-cloud/fate-manager/   #日志目录地址
 Type = mysql                                   #数据库类型，默认mysql
 UserName =                                     #mysql用户名
 Password =                                     #mysql密码
-HostAddr =                                     #mysql地址，ip：port
-DataBase =                                     #数据库
+HostAddr =  192.168.0.1:3306                   #mysql地址，ip：port
+DataBase =  fate-manager                       #数据库
 TablePrefix = t_fate_                          #公共表头
 SqlMode = false                                #sql打印日志
 
@@ -413,4 +409,4 @@ ps aux | grep fate_manager
 
 - **部署验证**
 访问页面：http://ip:9090/fate-manager,，访问正常！
-FATE-Manager的使用请参考使用手册！
+[FATE-Manager的使用请参考使用手册！]()
