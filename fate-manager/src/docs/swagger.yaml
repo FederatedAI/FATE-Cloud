@@ -1661,7 +1661,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: int valid
+      - description: string valid
         in: query
         name: fateVersion
         type: string

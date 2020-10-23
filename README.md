@@ -7,7 +7,10 @@ FATE Cloud enables FATE to be managed in multi-cloud, forming a secure federated
 
 FATE-Cloud provides standard federated infrastructure implementation capabilities, technical support capabilities, a unified federated site management mode and the whole process service, and addresses the problems of management collaboration, data processing and authentication, low cooperation efficiency, and poor interaction among different organizations.
 
-************这里有个图
+<div style="text-align:center", align=center>
+<img src="./images/FATECloud.png" />
+</div>
+
 
 ## Major features ##
 FATE Cloud is composed of Cloud Manager, which is responsible for federated site management, and FATE Manager, a site client management terminal. It provides registration and management of federated sites, automated cluster deployment and upgrades, cluster monitoring, and permission control and other core functions. 
