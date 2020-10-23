@@ -21,7 +21,7 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-##Kubernetes部署
+## Kubernetes部署 ##
 
 为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下:
 
@@ -117,7 +117,7 @@ sudo minikube addons enable ingress
 kubernetes部署完成！
 
 
-##三、KubeFATE部署
+## KubeFATE部署 ##
 
 
 - **创建kube-fate的命名空间以及账号**
@@ -181,9 +181,9 @@ rtt min/avg/max/mdev = 0.710/0.719/0.729/0.028 ms
 
 到此，所有准备工作完毕，下面我们可以开始安装FATE了。需要注意的是，上面的工作只需要做一次，后面如果添加、删除、更新FATE集群，上面的不需要重新执行
 
-##四、使用KubeFATE部署ExChange
+## ExChange部署 ##
 
-`ExChange`是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，我们可以先把它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
+`ExChange`是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，通过kubefate部署方式将它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
 
 - **创建命名空间**
 ```
@@ -261,7 +261,7 @@ sudo kubectl edit configmap rollsite-config -n fate-exchange
 ```
 至此，ExChange部署结束！
 
-##五、部署Mysql
+## Mysql部署 ##
 
 - **获取安装包**
 ```
@@ -320,7 +320,7 @@ Enter Password:【输入root修改后密码:fate_dev】
 ```
 部署成功！
 
-##六、Fate-Manager部署
+## Fate-Manager部署 ##
 
 - **服务基本信息**
 |   服务名称    | 端口 | 描述                                              |
