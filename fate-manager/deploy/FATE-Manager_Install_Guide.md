@@ -70,7 +70,7 @@ curl -LO https://github.com/kubernetes/minikube/releases/download/v1.7.3/minikub
 ```
 验证安装结果:
 ```
-[app@VM_0_17_centos kubeFate]$ minikube version
+[app@kube-m1 kubefate]$ minikube version
 minikube version: v1.7.3
 commit: 436667c819c324e35d7e839f8116b968a2d0a3ff
 ```
