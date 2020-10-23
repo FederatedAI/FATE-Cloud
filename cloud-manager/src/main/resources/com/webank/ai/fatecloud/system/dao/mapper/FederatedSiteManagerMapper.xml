@@ -294,4 +294,16 @@
         </if>
 
     </select>
+
+    <select id="findInstitutionsWithSites" parameterType="string"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
+        SELECT institutions,site_name FROM t_federated_site_manager
+        <where>
+            and institutions !=#{institutions}
+            and status=2
+            order by institutions asc
+        </where>
+
+    </select>
+
 </mapper>
