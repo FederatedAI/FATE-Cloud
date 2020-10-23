@@ -30,7 +30,7 @@ FATE Manager是一个单独的应用，不依赖任何FATE服务。v1.0的FATE M
 有关更多详细的部署信息，请参考FATE Cloud部署文档([Cloud-Manager](./cloud-manager/deploy/doc/Cloud-Manager部署文档.md) and [FATE-Manager](./fate-manager/deploy/FATE-Manager_Install_Guide.md))。
 
 ## 使用 ##
-部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](http://manual)。
+部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATECloud产品帮助文档V1.0.pdf)。
 
 ## FAQ ##
 **Cloud-Manager 部署失败**

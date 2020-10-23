@@ -31,7 +31,7 @@ FATE Manager is a separate application and does not rely on any FATE service. FA
 For more detailed deployment information，please refer to FATE Cloud Deployment([Cloud-Manager](./cloud-manager/deploy/doc/Cloud-Manager部署文档.md) and [FATE-Manager](./fate-manager/deploy/FATE-Manager_Install_Guide.md)).
 
 ## Usage ##
-After deployment，please prefer to "[FATE Cloud product manual](http://manual)" for detailed usage of FATE Cloud.
+After deployment，please prefer to "[FATE Cloud product manual](./docs/FATECloud产品帮助文档V1.0.pdf)" for detailed usage of FATE Cloud.
 
 ## FAQ ##
 **Cloud Manager failed to deploy.**
