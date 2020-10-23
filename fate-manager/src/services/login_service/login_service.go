@@ -213,7 +213,7 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 		accountInfo.CloudUserId = accountActivateReq.FateManagerId
 		accountInfo.Institutions = accountActivateReq.FateManagerInstitution
 		accountInfo.AccountActiveUrl = accountActivateReq.ActivateUrl
-		accountInfo.PermissionList = fmt.Sprintf("%d,%d,%d,%d,%d", enum.PermissionType_BASIC, enum.PermissionType_DEPLOY, enum.PermissionType_FATEBOARD, enum.PermissionType_FATESTUDIO, enum.PermissionType_FDN)
+		accountInfo.PermissionList = fmt.Sprintf("%d,%d,%d,%d", enum.PermissionType_BASIC, enum.PermissionType_DEPLOY, enum.PermissionType_FATEBOARD, enum.PermissionType_FATESTUDIO)
 		accountInfo.CreateTime = time.Now()
 		accountInfo.UpdateTime = time.Now()
 
