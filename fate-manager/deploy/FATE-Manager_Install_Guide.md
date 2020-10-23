@@ -1,8 +1,9 @@
 # FATE-Manager部署指引文档 #
 
 
+
 <div style="text-align:center", align=center>
-<img src="./images/FATEManagerInstall.png" />
+<img src="../../images/FATEManagerInstall.png" />
 </div>
 
 
@@ -414,4 +415,8 @@ ps aux | grep fate_manager
 
 - **部署验证**
 访问页面：http://ip:9090/fate-manager,，访问正常！
+<div style="text-align:center", align=center>
+<img src="../../images/FATEManagerHome.png" />
+</div>
+
 [FATE-Manager的使用请参考使用手册！]()
