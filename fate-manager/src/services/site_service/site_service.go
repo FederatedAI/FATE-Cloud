@@ -310,7 +310,7 @@ func HeartTask() {
 
 func updateVersionToCloudManager(item *entity.FederatedSiteItem) {
 	updateVersionReq := entity.UpdateVersionReq{
-		FateServingVersion: item.FateServingVersion,
+		FateServingVersion: "1.2.1",
 		FateVersion:        item.FateVersion,
 		ComponentVersion:   item.ComponentVersion,
 	}
@@ -987,7 +987,9 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 		return e.ERROR_SELECT_DB_FAIL,err
 	}
 	if len(federatedInfo) >0 {
-		go updateVersionToCloudManager(federatedInfo[0])
+		tempItem :=federatedInfo[0]
+		tempItem.ComponentVersion = updateVersionReq.ComponentVersion
+		go updateVersionToCloudManager(tempItem)
 	}
 	return e.SUCCESS, nil
 }
