@@ -5,7 +5,9 @@ FATE Cloud使fate实现了多云管理，形成了一种安全的联邦数据网
 
 FATE-Cloud为搭建联邦数据网络提供了标准的联邦基础实施能力、技术支撑能力，统一的联邦站点管理模式和全流程服务，解决了不同机构或机构内部在联邦数据合作上的管理协同、数据处理与鉴权、合作效率低下、多方交互不流畅等问题。
 
-************这里有个图
+<div style="text-align:center", align=center>
+<img src="./images/FATECloud-CN.png" />
+</div>
 
 ## 功能 ##
 FATE Cloud由负责联邦站点管理的云管理端Cloud Manager和站点客户端管理端FATE Manager组成，提供了联邦站点的注册与管理、集群自动化部署与升级、集群监控、集群权限控制等核心功能。
