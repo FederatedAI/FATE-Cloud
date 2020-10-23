@@ -79,6 +79,7 @@ type SiteItem struct {
 	SiteName        string `json:"siteName"`
 	Role            IdPair `json:"role"`
 	Status          IdPair `json:"status"`
+	ServiceStatus   IdPair `json:"serviceStatus"`
 	AcativationTime int64  `json:"acativationTime"`
 }
 
