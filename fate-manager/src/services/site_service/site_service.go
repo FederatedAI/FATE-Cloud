@@ -60,6 +60,7 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		ComponentVersion:       siteInfo.ComponentVersion,
 		Status:                 entity.IdPair{siteInfo.Status, enum.GetSiteString(enum.SiteStatusType(siteInfo.Status))},
 		EditStatus:             entity.IdPair{siteInfo.EditStatus, enum.GetEditString(enum.EditType(siteInfo.EditStatus))},
+		VersionEditStatus:      entity.IdPair{int(enum.EDIT_YES), enum.GetEditString(enum.EDIT_YES)},
 		CreateTime:             siteInfo.CreateTime.UnixNano() / 1e6,
 		AcativationTime:        siteInfo.AcativationTime.UnixNano() / 1e6,
 	}
@@ -75,8 +76,7 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		return nil,err
 	}
 	if len(deploySiteList) >0 {
-		siteDetail.EditStatus.Code=int(enum.EDIT_NO)
-		siteDetail.EditStatus.Desc=enum.GetEditString(enum.EDIT_NO)
+		siteDetail.VersionEditStatus = entity.IdPair{int(enum.EDIT_NO), enum.GetEditString(enum.EDIT_NO)}
 	}
 	return &siteDetail, nil
 }
