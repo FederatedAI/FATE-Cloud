@@ -253,6 +253,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
+			models.UpdateComponent(&deployComponent)
 			updatePortTag = true
 			continue
 		}

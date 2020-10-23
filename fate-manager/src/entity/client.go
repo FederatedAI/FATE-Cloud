@@ -542,3 +542,6 @@ type AllowReq struct {
 	PartyId                 int       `json:"partyId"`
 	RoleName                string `json:"roleName"`
 }
+type ComponentversionReq struct {
+	FateVersion string `json:"fateVersion"`
+}
