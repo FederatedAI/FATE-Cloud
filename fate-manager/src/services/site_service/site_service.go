@@ -982,6 +982,13 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 	if err != nil {
 		return e.ERROR_UPDATE_COMPONENT_VERSION_FAIL, err
 	}
+	federatedInfo, err := federated_service.GetPartyIdInfo(updateVersionReq.PartyId, updateVersionReq.FederatedId)
+	if err !=nil{
+		return e.ERROR_SELECT_DB_FAIL,err
+	}
+	if len(federatedInfo) >0 {
+		go updateVersionToCloudManager(federatedInfo[0])
+	}
 	return e.SUCCESS, nil
 }
 

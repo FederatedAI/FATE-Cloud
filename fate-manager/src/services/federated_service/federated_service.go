@@ -120,7 +120,7 @@ func RegisterFederated(registerReq entity.RegisterReq) (*RegisterResp, error) {
 			NetworkAccessExits:     registerReq.NetworkAccessExits,
 			Status:                 int(enum.SITE_STATUS_JOINED),
 			EditStatus:             int(enum.EDIT_YES),
-			FateServingVersion:     "1.2.1",
+			//FateServingVersion:     "1.2.1",
 			AcativationTime:        time.Now(),
 			UpdateTime:             time.Now(),
 		}
