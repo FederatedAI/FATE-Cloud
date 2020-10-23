@@ -11,4 +11,5 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
 
     List<JobStatisticsOfSiteDimension> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo);
 
+//    List<String> getSitesList(String institutions);
 }
