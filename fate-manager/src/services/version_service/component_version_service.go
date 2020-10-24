@@ -125,7 +125,11 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		logging.Error(cmd, " failed")
 	}
 
-	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", info.ImageName, info.ImageTag)
+	imageName := fmt.Sprintf("docker.io/%s",info.ImageName)
+	if len(setting.KubenetesSetting.Registry) >0 {
+		imageName =fmt.Sprintf("%s/%s",setting.KubenetesSetting.Registry,info.ImageName)
+	}
+	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -137,7 +141,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageVersion = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'",imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -146,7 +150,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageId = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -253,7 +257,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
-			models.UpdateComponent(&deployComponent)
+			deployComponent = models.DeployComponent{
+				FederatedId:      commitImagePullReq.FederatedId,
+				PartyId:          commitImagePullReq.PartyId,
+				ProductType:      commitImagePullReq.ProductType,
+				ComponentName:    componentVersionList[i].ComponentName,
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			var data =make(map[string]interface{})
+			data["fate_version"] = commitImagePullReq.FateVersion
+			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["version_index"] = componentVersionList[i].VersionIndex
+			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
 		}
@@ -285,7 +300,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if len(deploySiteList) == 0 {
-		deploySite.FateVersion = commitImagePullReq.FateVersion
+		//deploySite.FateVersion = commitImagePullReq.FateVersion
 		deploySite.DeployStatus = int(enum.DeployStatus_PULLED)
 		deploySite.ChartVersion = fateVersionList[0].ChartVersion
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
@@ -304,7 +319,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 	} else {
 		var data = make(map[string]interface{})
-		data["fate_version"] = commitImagePullReq.FateVersion
+		//data["fate_version"] = commitImagePullReq.FateVersion
 		data["deploy_status"] = int(enum.DeployStatus_PULLED)
 		data["chart_version"] = fateVersionList[0].ChartVersion
 		data["version_index"] = fateVersionList[0].VersionIndex

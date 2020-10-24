@@ -211,8 +211,8 @@ export default {
                 { item: 'FATE Cloud: Basic management', show: true },
                 { item: 'FATE Cloud: Auto-deploy', show: true },
                 { item: 'FATE Studio', show: true },
-                { item: 'FATEBoard', show: true },
-                { item: 'FDN', show: true }
+                { item: 'FATEBoard', show: true }
+                // { item: 'FDN', show: true }
             ],
             typeSelect: [
                 {
@@ -221,7 +221,7 @@ export default {
                 },
                 {
                     value: 1,
-                    label: 'admin'
+                    label: 'Admin'
                 },
                 {
                     value: 2,

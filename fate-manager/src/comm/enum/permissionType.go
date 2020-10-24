@@ -25,7 +25,6 @@ const (
 	PermissionType_DEPLOY     PermissionType = 2
 	PermissionType_FATEBOARD  PermissionType = 3
 	PermissionType_FATESTUDIO PermissionType = 4
-	PermissionType_FDN        PermissionType = 5
 )
 
 func GetPermissionTypeString(p PermissionType) string {
@@ -38,8 +37,6 @@ func GetPermissionTypeString(p PermissionType) string {
 		return "FATE-Board"
 	case PermissionType_FATESTUDIO:
 		return "FATE-Studio"
-	case PermissionType_FDN:
-		return "FDN"
 	default:
 		return "unknown"
 	}
@@ -47,7 +44,7 @@ func GetPermissionTypeString(p PermissionType) string {
 
 func GetPermissionTypeList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 4; i++ {
 		idPair := entity.IdPair{i, GetPermissionTypeString(PermissionType(i))}
 		idPairList = append(idPairList, idPair)
 	}
