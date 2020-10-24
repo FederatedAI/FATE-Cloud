@@ -454,7 +454,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 		applySiteInfo.Status = int(enum.IS_VALID_YES)
 		if len(validAuditList) > 0 {
 			models.UpdateApplySiteInfo(data, &applySiteInfo)
-		} else {
+		} else if len(validAudit) >0{
 			applySiteInfo = models.ApplySiteInfo{
 				Institutions: string(validAuditJson),
 				Status:       int(enum.IS_VALID_YES),

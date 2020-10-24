@@ -70,7 +70,7 @@ curl -LO https://github.com/kubernetes/minikube/releases/download/v1.7.3/minikub
 ```
 验证安装结果:
 ```
-[app@VM_0_17_centos kubeFate]$ minikube version
+[app@kube-m1 kubefate]$ minikube version
 minikube version: v1.7.3
 commit: 436667c819c324e35d7e839f8116b968a2d0a3ff
 ```
@@ -298,12 +298,17 @@ cp my.cnf /data/projects/fate-cloud/common/mysql/mysql-8.0.13/conf
 - **初始化**
 
 ```
-cd /data/projects/fate/common/mysql/mysql-8.0.13/
+cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 ./bin/mysqld --initialize --user=app --basedir=/data/projects/fate-cloud/common/mysql/mysql-8.0.13 --datadir=/data/projects/fate-cloud/data/mysql > logs/init.log 2>&1
 cat logs/init.log |grep root@localhost
 ```
  **注意输出信息中root@localhost:后的是mysql用户root的初始密码，需要记录，后面修改密码需要用到**
 
+- **修改my.cnf**
+```
+vim /data/projects/fate-cloud/common/mysql/mysql-8.0.13/conf/my.cnf
+sql_mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+```
 - **启动服务**
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
@@ -333,7 +338,7 @@ Enter Password:【输入root修改后密码:***REMOVED***】
 |fate_manager|9090|fate-manger,站点端用于注册和加入联邦组织，快速部署fate的管理端工具｜
 
 - **下载fate-manager**
-fate-manager:的开源地址https://github.com/FederatedAI/FATE-Cloud
+FATE-Manager的开源地址https://github.com/FederatedAI/FATE-Cloud
 打开链接https://github.com/FederatedAI/FATE-Cloud/releases
 fate-manager是容器化部署fate的最佳实践，项目更新较快，建议使用最新的releases
 ```
@@ -420,4 +425,4 @@ FATE-Manager地址：http://ip:9090/fate-manager
 <img src="../../images/FATEManagerHome.png" />
 </div>
 
-[FATE-Manager的使用请参考使用手册！]()
+[《FATE Cloud产品使用手册》](../../docs/FATE-Cloud产品使用手册v1.0.pdf)。

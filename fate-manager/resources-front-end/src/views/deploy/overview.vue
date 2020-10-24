@@ -7,7 +7,7 @@
         <div class="serve-content">
             <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane label="FATE" name="FATE"></el-tab-pane>
-                <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane>
+                <!-- <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane> -->
             </el-tabs>
             <div class="empty"></div>
         </div>
@@ -86,7 +86,7 @@
                             <div v-for="(item, index) in scope.row.installInfo" :key="index">{{item.upgradeTime | dateFormat}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Operation"  align="center" width="100" class-name="cell-td-td" >
+                    <el-table-column prop="" label="Action"  align="center" width="100" class-name="cell-td-td" >
                         <template slot-scope="scope">
                             <span v-if="scope.row.installInfo">
                                 <div v-for="(item, index) in scope.row.installInfo" :key="index" style="height:23px" >

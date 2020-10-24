@@ -60,6 +60,7 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		ComponentVersion:       siteInfo.ComponentVersion,
 		Status:                 entity.IdPair{siteInfo.Status, enum.GetSiteString(enum.SiteStatusType(siteInfo.Status))},
 		EditStatus:             entity.IdPair{siteInfo.EditStatus, enum.GetEditString(enum.EditType(siteInfo.EditStatus))},
+		VersionEditStatus:      entity.IdPair{int(enum.EDIT_YES), enum.GetEditString(enum.EDIT_YES)},
 		CreateTime:             siteInfo.CreateTime.UnixNano() / 1e6,
 		AcativationTime:        siteInfo.AcativationTime.UnixNano() / 1e6,
 	}
@@ -75,8 +76,7 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 		return nil,err
 	}
 	if len(deploySiteList) >0 {
-		siteDetail.EditStatus.Code=int(enum.EDIT_NO)
-		siteDetail.EditStatus.Desc=enum.GetEditString(enum.EDIT_NO)
+		siteDetail.VersionEditStatus = entity.IdPair{int(enum.EDIT_NO), enum.GetEditString(enum.EDIT_NO)}
 	}
 	return &siteDetail, nil
 }
@@ -310,7 +310,7 @@ func HeartTask() {
 
 func updateVersionToCloudManager(item *entity.FederatedSiteItem) {
 	updateVersionReq := entity.UpdateVersionReq{
-		FateServingVersion: item.FateServingVersion,
+		FateServingVersion: "1.2.1",
 		FateVersion:        item.FateVersion,
 		ComponentVersion:   item.ComponentVersion,
 	}
@@ -987,7 +987,10 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 		return e.ERROR_SELECT_DB_FAIL,err
 	}
 	if len(federatedInfo) >0 {
-		go updateVersionToCloudManager(federatedInfo[0])
+		tempItem :=federatedInfo[0]
+		tempItem.ComponentVersion = updateVersionReq.ComponentVersion
+		tempItem.FateServingVersion ="1.3.0"
+		go updateVersionToCloudManager(tempItem)
 	}
 	return e.SUCCESS, nil
 }
