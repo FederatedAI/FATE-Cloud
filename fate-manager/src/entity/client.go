@@ -105,7 +105,7 @@ type SiteDetailResp struct {
 	ComponentVersion       string `json:"componentVersion"`
 	Status                 IdPair `json:"status"`
 	EditStatus             IdPair `json:"editStatus"`
-	//ReadStatus             IdPair     `json:"readStatus"`
+	VersionEditStatus      IdPair `json:"versionEditStatus"`
 	CreateTime      int64 `json:"createTime"`
 	AcativationTime int64 `json:"acativationTime"`
 }

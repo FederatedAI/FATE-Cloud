@@ -38,7 +38,7 @@
                     <el-table-column prop="imageId" label="Image ID" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="iamgeTag" label="Tag"></el-table-column>
                     <el-table-column prop="iamgeDescription" label="Description"></el-table-column>
-                    <el-table-column prop="imageVersion" label="version" ></el-table-column>
+                    <el-table-column prop="imageVersion" label="Version" ></el-table-column>
                     <el-table-column prop="iamgeSize" label="Size"></el-table-column>
                     <el-table-column prop="imageCreateTime" label="Created" show-overflow-tooltip>
                         <template slot-scope="scope">
@@ -88,6 +88,7 @@ import { getPullList, pull, tofistnext } from '@/api/fatedeploy'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
 import { setTimeout } from 'timers'
+import event from '@/utils/event'
 
 export default {
     name: 'pulltable',
@@ -114,7 +115,7 @@ export default {
         return {
             tableData: [],
             pullComponentList: [], // 拉取镜像名称列表
-            distopull: false,
+            distopull: true,
             disVersion: false,
             btntype: 'info'
         }
@@ -123,11 +124,14 @@ export default {
         ...mapGetters(['version'])
     },
     mounted() {
-        if (this.formInline.fateVersion) {
-            this.disVersion = true
-        } else {
-            this.disVersion = false
-        }
+        event.$on('myFun', (msg) => {
+            this.disVersion = msg
+        })
+        // if (this.formInline.fateVersion) {
+        //     this.disVersion = true
+        // } else {
+        //     this.disVersion = false
+        // }
     },
     methods: {
         async initiPullList() {
@@ -157,7 +161,8 @@ export default {
         // 拉版本号
         toVersion() {
             this.currentSteps.pullPrepare = true
-            // this.prepare = true
+            this.currentSteps.instllPrepare = false
+            this.btntype = 'info'
             this.lessTime()
             this.distopull = false
         },
@@ -171,7 +176,7 @@ export default {
             pull(data).then(res => {
                 this.lessTime()
                 this.distopull = true
-                this.disVersion = true
+                // this.disVersion = true
             })
         },
         toNext() {
@@ -205,7 +210,7 @@ export default {
                     this.distopull = false
                 } else if (res.length > 0 && res.every(item => item.pullStatus.code === 1 || item.pullStatus.code === 2)) { // 成功或失败
                     this.distopull = false
-                    this.disVersion = false
+                    // this.disVersion = false
                     this.btntype = 'info'
                 } else if (res.length === 0) {
                     this.btntype = 'info'

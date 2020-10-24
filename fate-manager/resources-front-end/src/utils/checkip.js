@@ -7,7 +7,7 @@ const checkip = function (value) {
     let domainReg = new RegExp(/[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/)
     if (
         (domainReg.test(value) && portReg.test(value.split(':')[2])) ||
-        (ipReg.test(value.split(':')[0]) && portReg.test(value.split(':')[1]))
+        (ipReg.test(value.split(':')[0]) || portReg.test(value.split(':')[1]))
     ) {
         return true
     } else {

@@ -34,7 +34,7 @@
       <div class="serve-content">
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="FATE" name="FATE"></el-tab-pane>
-          <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane>
+          <!-- <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane> -->
         </el-tabs>
         <div class="empty"></div>
         <div v-if="showcontinue" class="continue" @click="toDeployment">FATE in deployment, continue >></div>
@@ -74,7 +74,16 @@
             <el-table-column type="index" label="Index" width="70"></el-table-column>
             <el-table-column prop="componentName" label="FATE component" show-overflow-tooltip width="130">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >{{scope.row.componentName}}</span>
+                    <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >
+                        {{scope.row.componentName}}
+                        <el-tooltip effect="dark" placement="bottom">
+                            <div style="font-size:14px" slot="content">
+                                <div>Before accessing FATEBoard, please configure the host that corresponding to </div>
+                                <div>FATEBoard deployment machine IP, for example: 172.16.0.1 10000.fateboard.kubefate.net</div>
+                            </div>
+                            <i class="el-icon-info icon-info"></i>
+                        </el-tooltip>
+                    </span>
                     <span v-else> {{scope.row.componentName}}</span>
                 </template>
             </el-table-column>
@@ -110,7 +119,7 @@
                     <span v-else>{{scope.row.status.desc}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop=""  align="center"  label="Operation">
+            <el-table-column prop=""  align="center"  label="Action">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status.code===0">- -</span>
                     <el-button @click="toAction(scope.row,'restart')" v-if="scope.row.status.code===1" type="text">

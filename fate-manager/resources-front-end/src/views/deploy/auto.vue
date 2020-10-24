@@ -35,19 +35,26 @@
       <div class="serve-content">
         <el-tabs v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="FATE" name="FATE"></el-tab-pane>
-          <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane>
+          <!-- <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane> -->
         </el-tabs>
         <div class="empty"></div>
-        <div class="table-title">
-          <div>Index</div>
-          <div>FATE component</div>
-          <div>Version</div>
-          <div>Node</div>
-          <div>Install time</div>
-          <div>Upgrade time</div>
-          <div>Status</div>
-          <div>Action</div>
-          <div>Log</div>
+        <div class="table">
+          <el-table
+            :data="tableData"
+            header-row-class-name="tableHead"
+            header-cell-class-name="tableHeadCell"
+            cell-class-name="tableCell"
+            height="100%"
+            tooltip-effect="light" >
+            <el-table-column type="index" label="Index" width="90"></el-table-column>
+            <el-table-column prop="componentName" label="FATE component"></el-table-column>
+            <el-table-column prop="componentVersion" label="Version" ></el-table-column>
+            <el-table-column prop="address" label="Node"  ></el-table-column>
+            <el-table-column prop="finishTime" label="Deployment time"  ></el-table-column>
+            <el-table-column prop="deployStatus.desc" label="Deploy status" ></el-table-column>
+            <el-table-column prop="status.desc" label="Status" ></el-table-column>
+            <el-table-column prop=""   label="Action"></el-table-column>
+          </el-table>
         </div>
         <div class="content">
           <div  class="text">I haven’t deployed any FATE components yet,
@@ -65,8 +72,8 @@
           {{textTitle}}
         </div>
         <div :class="{input:true,'input-warn':warn}">
-          <el-input v-model="address" @focus="warn=false" placeholder="Type the address like: 192.168.0.1:8080"></el-input>
-          <div v-if="warn" class="text-warn" >The address is invalid. Please enter again.</div>
+          <el-input v-model="address" @focus="warn=false" placeholder="Type the address like: 192.168.0.1 or 192.168.0.1:8080"></el-input>
+          <div v-if="warn" class="text-warn" >Please enter the address.</div>
         </div>
         <div class="dialog-foot">
           <el-button type="primary" @click="toService">{{textbtn}}</el-button>
@@ -91,12 +98,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import { toconnect, pagesStep, deployversion } from '@/api/deploy'
-import checkip from '@/utils/checkip'
+// import checkip from '@/utils/checkip'
 
 export default {
     name: 'auto',
     data() {
         return {
+            tableData: [],
             connecdialog: false,
             showwarn: false,
             warn: false,
@@ -168,13 +176,14 @@ export default {
             }
         },
         toService() {
+            this.connecdialog = false
             let data = {
                 federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1,
                 kubenetesUrl: this.address
             }
-            if (checkip(this.address)) {
+            if (this.address) {
                 toconnect(data).then(rest => {
                     // 获取步骤
                     this.topagesStep()
