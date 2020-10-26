@@ -16,6 +16,7 @@
 package version_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/logging"
@@ -232,7 +233,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	var pythonPort int
 	var proxyPort int
 	updatePortTag := false
+	var componentVersonMap = make(map[string]interface{})
 	for i := 0; i < len(componentVersionList); i++ {
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
 		port := GetDefaultPort(componentVersionList[i].ComponentName)
 		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
 		if len(nodelist)==0{
@@ -300,7 +303,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if len(deploySiteList) == 0 {
-		//deploySite.FateVersion = commitImagePullReq.FateVersion
+		deploySite.FateVersion = commitImagePullReq.FateVersion
 		deploySite.DeployStatus = int(enum.DeployStatus_PULLED)
 		deploySite.ChartVersion = fateVersionList[0].ChartVersion
 		deploySite.VersionIndex = fateVersionList[0].VersionIndex
@@ -319,7 +322,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 	} else {
 		var data = make(map[string]interface{})
-		//data["fate_version"] = commitImagePullReq.FateVersion
+		data["fate_version"] = commitImagePullReq.FateVersion
 		data["deploy_status"] = int(enum.DeployStatus_PULLED)
 		data["chart_version"] = fateVersionList[0].ChartVersion
 		data["version_index"] = fateVersionList[0].VersionIndex
@@ -350,7 +353,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		Status:      int(enum.SITE_STATUS_JOINED),
 	}
 	var data = make(map[string]interface{})
+	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 	data["fate_version"] = commitImagePullReq.FateVersion
+	data["component_version"] = string(componentVersonMapjson)
 	models.UpdateSiteByCondition(data, info)
 	return e.SUCCESS, nil
 }
