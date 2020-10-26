@@ -6,6 +6,7 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites;
+import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimension;
 import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
@@ -67,5 +68,10 @@ public class FederatedJobStatisticsService {
         jobStatisticsOfSiteDimensionDto.setSites(sites);
         jobStatisticsOfSiteDimensionDto.setInstitutionsWithSites(institutionsWithSites);
         return jobStatisticsOfSiteDimensionDto;
+    }
+
+    public List<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getJobStatisticsODimension(jobOfSiteDimensionQo);
+        return jobStatisticOfInstitutionsDimensionDtos;
     }
 }
