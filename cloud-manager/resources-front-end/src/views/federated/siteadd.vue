@@ -18,7 +18,7 @@
           <el-input
             v-if="type==='siteadd' || type==='siteUpdate'"
             :class="{ 'edit-text': true, 'stienamewarn': siteNamewarnshow }"
-            v-model.trim="form.siteName"
+            v-model="form.siteName"
             @blur="toCheckSiteName"
             @focus="cancelValid('siteName')"
             placeholder="Maximum of 20 chatacters"
@@ -30,21 +30,13 @@
                 v-if="type==='siteadd' || type==='siteUpdate'"
                 :class="{ 'edit-text': true, 'institutionwarn': institutionswarnshow }"
                 :popper-append-to-body="false"
-                v-model.trim="form.institutions"
+                v-model="form.institutions"
                 @focus="cancelValid('institutions')"
                 placeholder="Choose Institutions"
             >
                 <el-option v-for="item in institutionsdownList" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
             <span  v-if="type==='siteadd' || type==='siteUpdate'" @click="toAddInstitutions" class="add-institutions">add</span>
-
-          <!-- <el-input
-            v-if="type==='siteadd' || type==='siteUpdate'"
-            :class="{ 'edit-text': true, 'institutionwarn': institutionswarnshow }"
-            v-model.trim="form.institutions"
-            @focus="cancelValid('institutions')"
-            placeholder
-          ></el-input> -->
         </el-form-item>
         <el-form-item label="Role" prop="role">
           <span v-if="type==='siteinfo'" class="info-text">{{form.role===1?"Guest":"Host"}}</span>
@@ -255,7 +247,8 @@ export default {
                     {
                         required: true,
                         trigger: 'change',
-                        validator: (rule, value, callback) => {
+                        validator: (rule, val, callback) => {
+                            let value = val.trim()
                             if (!value) {
                                 this.siteNamewarnshow = true
                                 callback(new Error('The Site Name field is required.'))
@@ -413,7 +406,7 @@ export default {
             // SiteName不为空的是校验
             if (this.form.siteName) {
                 let data = {
-                    siteName: this.form.siteName,
+                    siteName: this.form.siteName.trim(),
                     id: this.$route.query.id
                 }
                 checkSiteName(data).then(res => {
@@ -454,6 +447,8 @@ export default {
         },
         // 提交
         submitAction() {
+            // 去除前后空格
+            this.form.siteName = this.form.siteName.trim()
             if (this.type === 'siteadd') {
                 this.$refs['infoform'].validate((valid) => {
                     if (valid) {
