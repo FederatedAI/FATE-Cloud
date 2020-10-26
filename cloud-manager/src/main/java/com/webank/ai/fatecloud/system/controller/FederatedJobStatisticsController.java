@@ -2,6 +2,7 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
 import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
@@ -30,7 +31,7 @@ public class FederatedJobStatisticsController {
     FederatedJobStatisticsServiceFacade federatedJobStatisticsServiceFacade;
 
     @PostMapping(value = "/push")
-    @ApiOperation(value = "push job statistics of Site")
+    @ApiOperation(value = "push job statistics of site")
     public CommonResponse pushJosStatistics(@Valid @RequestBody List<JobStatisticsQo> jobStatisticsQos, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobStatisticsQos);
         if (bindingResult.hasErrors()) {
@@ -41,7 +42,7 @@ public class FederatedJobStatisticsController {
     }
 
     @PostMapping(value = "/site")
-    @ApiOperation(value = "find job statistics of Site dimension")
+    @ApiOperation(value = "find job statistics of site dimension")
     public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionQo);
         if (bindingResult.hasErrors()) {
@@ -49,5 +50,15 @@ public class FederatedJobStatisticsController {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
         return federatedJobStatisticsServiceFacade.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
+    }
+
+    @PostMapping(value = "/institutions")
+    @ApiOperation(value = "find job statistics of institutions dimension")
+    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobOfSiteDimensionQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsODimension(jobOfSiteDimensionQo);
     }
 }

@@ -3,6 +3,7 @@ package com.webank.ai.fatecloud.system.service.facade;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
 import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
 import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
@@ -41,5 +42,12 @@ public class FederatedJobStatisticsServiceFacade {
     public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
         JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
+    }
+
+    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
+
     }
 }
