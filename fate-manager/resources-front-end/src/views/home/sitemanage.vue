@@ -302,6 +302,7 @@ export default {
     created() {
         this.$nextTick(() => {
             this.getList()
+            this.getapplyList()
         })
     },
 

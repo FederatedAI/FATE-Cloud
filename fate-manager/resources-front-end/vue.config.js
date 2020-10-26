@@ -112,7 +112,17 @@ module.exports = {
         // eslint-disable-next-line no-dupe-keys
         open: true,
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
-        proxy: {},
+        proxy: {
+            '/fate-manager': {
+                target: 'http://172.16.153.88:9090',
+                // target: 'http://***REMOVED***:9090/',
+
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/fate-manager': '/fate-manager'
+                }
+            }
+        },
         before: app => { }
     },
     // eslint-disable-next-line no-dupe-keys
