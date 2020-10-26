@@ -38,9 +38,10 @@
                         <span style="margin-left: 10px">Please wait for the approval of Cloud Manager…</span>
                     </div>
                     <div class="apply"  v-if='applyStatus === 3' >
-                        <span  class="apply-click"  @click="showApply">
+                        <span  class="apply-click" v-if='showapplyBtn' @click="showApply">
                             Apply to view other FATE Manager sites.
                         </span>
+                        <span v-else class="apply-click"  style="color: #848C99;cursor:not-allowed">Apply to view other FATE Manager sites.</span>
                         <el-popover
                             placement="bottom"
                             :visible-arrow="false"
@@ -142,7 +143,7 @@
                     <span @click="toSietInfo(scope.row)" style="color:#217AD9;cursor:pointer;">{{scope.row.siteName}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="status.desc" label="status">
+            <el-table-column prop="status.desc" label="Status">
             </el-table-column>
             <el-table-column prop="role.desc" label="Role"></el-table-column>
             <el-table-column prop="partyId" label="Party ID"></el-table-column>
@@ -173,7 +174,7 @@
                     cell-class-name="tableCell"
                     tooltip-effect="light">
                     <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="status.desc" label="status"></el-table-column>
+                    <el-table-column prop="status.desc" label="Status"></el-table-column>
                     <el-table-column prop="role.desc" label="Role"></el-table-column>
                     <el-table-column prop="partyId" label="Party ID"></el-table-column>
                     <el-table-column prop="acativationTime" label="Activation Time">
@@ -278,6 +279,7 @@ export default {
         return {
             checkList: [],
             checkboxList: [],
+            showapplyBtn: false,
             applydialog: false, // 添加弹框
             applynotpass: false, // 审核不通过弹框
             applynotList: [], // 审核不通过弹框列表
@@ -300,6 +302,7 @@ export default {
     created() {
         this.$nextTick(() => {
             this.getList()
+            this.getapplyList()
         })
     },
 
@@ -367,6 +370,12 @@ export default {
                 query: { federatedId: row.federatedId, partyId: row.partyId }
             })
         },
+        // 获取申请弹框列表
+        getapplyList() {
+            getInstitutions().then(res => {
+                this.showapplyBtn = res.data.length > 0
+            })
+        },
         // 显示申请弹框
         showApply() {
             this.checkList = []
@@ -387,6 +396,7 @@ export default {
                 this.applydialog = true
             })
         },
+
         // 确认添加
         toApply() {
             let authorityInstitutions = this.checkList.filter((v) => { return this.applyed.indexOf(v) === -1 })

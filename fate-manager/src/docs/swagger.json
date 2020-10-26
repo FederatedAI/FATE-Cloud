@@ -670,7 +670,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "int valid",
+                        "description": "string valid",
                         "name": "fateVersion",
                         "in": "query"
                     }
@@ -2262,6 +2262,42 @@
                 }
             }
         },
+        "/fate-manager/api/user/changelogin": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserController"
+                ],
+                "summary": "change sign in",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ChangeLoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.SubLoginResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/user/delete": {
             "post": {
                 "produces": [
@@ -2503,7 +2539,7 @@
                 "tags": [
                     "UserController"
                 ],
-                "summary": "sign in",
+                "summary": "sub sign in",
                 "parameters": [
                     {
                         "description": "request param",
@@ -3335,6 +3371,20 @@
                 }
             }
         },
+        "entity.ChangeLoginReq": {
+            "type": "object",
+            "properties": {
+                "PartyId": {
+                    "type": "integer"
+                },
+                "subTag": {
+                    "type": "boolean"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.CheckJwtReq": {
             "type": "object",
             "properties": {
@@ -3742,6 +3792,10 @@
                 "partyId": {
                     "type": "integer"
                 },
+                "role": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
                 "siteName": {
                     "type": "string"
                 }
@@ -4052,7 +4106,6 @@
                     "type": "string"
                 },
                 "createTime": {
-                    "description": "ReadStatus             IdPair     `json:\"readStatus\"`",
                     "type": "integer"
                 },
                 "editStatus": {
@@ -4097,6 +4150,10 @@
                     "type": "string"
                 },
                 "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
+                "versionEditStatus": {
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
                 }

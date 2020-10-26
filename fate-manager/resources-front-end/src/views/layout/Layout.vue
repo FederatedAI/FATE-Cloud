@@ -30,13 +30,15 @@
             “{{title}}”has been turned off,
         </div>
         <div class="line-text-two">
-            and all related functions of automatic deployment
+            and all related functions of
+            <span v-if="title==='Site-Authorization'">Site-Authorization</span>
+            <span v-else>automatic deployment and upgrade</span>
         </div>
         <div class="line-text-two">
-            and upgarade are no longer available
+            are no longer available
         </div>
         <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="toSiteAuth">Srue</el-button>
+            <el-button class="ok-btn" type="primary" @click="toSiteAuth">Sure</el-button>
         </div>
     </el-dialog>
   </div>

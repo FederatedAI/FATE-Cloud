@@ -106,7 +106,7 @@ type SiteDetailResp struct {
 	ComponentVersion       string `json:"componentVersion"`
 	Status                 IdPair `json:"status"`
 	EditStatus             IdPair `json:"editStatus"`
-	//ReadStatus             IdPair     `json:"readStatus"`
+	VersionEditStatus      IdPair `json:"versionEditStatus"`
 	CreateTime      int64 `json:"createTime"`
 	AcativationTime int64 `json:"acativationTime"`
 }
@@ -187,6 +187,7 @@ type SiteListItem struct {
 type LoginSiteItem struct {
 	PartyId  int    `json:"partyId"`
 	SiteName string `json:"siteName"`
+	Role     IdPair `json:"role"`
 }
 type ServiceInfoReq struct {
 	FederatedSite
@@ -542,4 +543,12 @@ type SubLoginResp struct {
 type AllowReq struct {
 	PartyId                 int       `json:"partyId"`
 	RoleName                string `json:"roleName"`
+}
+type ComponentversionReq struct {
+	FateVersion string `json:"fateVersion"`
+}
+type ChangeLoginReq struct {
+	AccountName string `json:"userName"`
+	SubTag      bool    `json:"subTag"`
+	PartyId int `json:"PartyId"`
 }

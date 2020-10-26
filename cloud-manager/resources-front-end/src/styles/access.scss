@@ -100,9 +100,12 @@
                 color: #217AD9;
                 font-weight: bold;
             }
-
+            .dialog-line{
+                margin: 12px 0;
+                font-size: 18px;
+            }
             .add-input {
-                margin-top: 36px;
+                margin-top: 24px;
                 position: relative;
                 .input-title{
                     display:inline-block;

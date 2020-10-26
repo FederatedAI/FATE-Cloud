@@ -3,8 +3,8 @@
     <div class="system">
       <div class="system-header">
         <el-radio-group class="radio" v-model="radio">
-            <el-radio-button label="FATE"></el-radio-button>
-            <el-radio-button disabled label="FATE Serving"></el-radio-button>
+            <!-- <el-radio-button label="FATE"></el-radio-button> -->
+            <!-- <el-radio-button disabled label="FATE Serving"></el-radio-button> -->
         </el-radio-group>
         <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID"> </el-input>
         <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
@@ -29,40 +29,42 @@
             tooltip-effect="light"
           >
             <el-table-column type="index" label="Index" class-name="cell-td-td" width="70"></el-table-column>
-            <el-table-column prop="siteName" label="Site Name" class-name="cell-td-td">
+            <el-table-column prop="siteName" label="Site Name" min-width="90" class-name="cell-td-td">
                 <template slot-scope="scope">
                     <!-- <el-button type="text">{{scope.row.siteName}}</el-button> -->
                     <span>{{scope.row.siteName}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
             <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td"></el-table-column>
-            <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td">
+            <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td" >
                 <template slot-scope="scope">
                     <span>{{scope.row.federatedGroupSetDo.role===1?'Guest':'Host'}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Installed items" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Installed items" min-width="110" class-name="cell-td-td">
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
                             <!-- <span v-if="item.updateStatus===1">{{item.installItems}}</span> -->
-                            <span >{{item.installItems}}</span>
+                            <tooltip :width="'106px'" :content="item.installItems" :placement="'top'"/>
+                            <!-- <span >{{item.installItems}}</span> -->
                         </div>
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Version"  width="90" class-name="cell-td-td" >
+            <el-table-column prop="federatedSiteModelDos" label="Version" min-width="90" class-name="cell-td-td" >
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
                             <!-- <span v-if="item.updateStatus===1">{{item.version}}</span> -->
-                            <span >{{item.version}}</span>
+                             <tooltip :width="'80px'" :content="item.version" :placement="'top'"/>
+                            <!-- <span >{{item.version}}</span> -->
                         </div>
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Installed time" width="160" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Installed time" min-width="160" class-name="cell-td-td">
                  <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -71,7 +73,7 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" label="Upgrade time" width="160" class-name="cell-td-td">
+            <el-table-column prop="federatedSiteModelDos" label="Upgrade time" min-width="160" class-name="cell-td-td">
                  <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -85,7 +87,7 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column prop="" label="History"  align="center" >
+            <el-table-column prop="" label="History"  width="70" align="center" >
                 <template slot-scope="scope">
                     <span v-if="scope.row.federatedSiteModelDos.length>0">
                         <div v-for="(elm, ind) in scope.row.federatedSiteModelDos" :key="ind" >
@@ -95,7 +97,7 @@
                                 v-model="elm.visible"
                                 popper-class="system-history"
                                 :offset="-300"
-                                width="420"
+                                width="450"
                                 trigger="click">
                                 <div class="content">
                                     <div class="title">
@@ -105,13 +107,27 @@
                                     <div class="content-box">
                                         <div v-for="(item, index) in elm.historylist" :key="index">
                                             <div class="title-time">{{item.updateTime | dateFormat}}</div>
-                                            <div class="title-history">
-                                                <span v-if="index===0"> Installed to </span>
-                                                <span v-else> upgraded to </span>
+                                            <div v-if="index===0 " class="title-history">
+                                                <span >Installed </span>
                                                 <span class="version">{{item.version}}</span>
                                                 <span v-if="item.updateStatus===1"> successfully</span>
                                                 <span v-if="item.updateStatus===2"> failed</span>
                                             </div>
+                                            <div v-if="index > 0 " class="title-history">
+                                                <span v-if="elm.historylist[index-1].updateStatus===1">
+                                                    upgraded to
+                                                    <span class="version">{{item.version}}</span>
+                                                    <span v-if="item.updateStatus===1"> successfully</span>
+                                                    <span v-if="item.updateStatus===2"> failed</span>
+                                                </span>
+                                                <span v-if="elm.historylist[index-1].updateStatus===2">
+                                                    Installed
+                                                    <span class="version">{{item.version}}</span>
+                                                    <span v-if="item.updateStatus===1"> successfully</span>
+                                                    <span v-if="item.updateStatus===2"> failed</span>
+                                                </span>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -149,11 +165,11 @@
 <script>
 import { getSystemManage, systemhistory } from '@/api/federated'
 import moment from 'moment'
-
+import tooltip from '@/components/Tooltip'
 export default {
     name: 'PartyId',
     components: {
-
+        tooltip
     },
     filters: {
         dateFormat(vaule) {
@@ -229,6 +245,7 @@ export default {
                     }
                 })
                 this.tableData = res.data.list
+                this.total = res.data.totalRecord
             })
         },
         getHistory(item) {
@@ -277,6 +294,7 @@ export default {
             color: #848C99
         }
         .title-history{
+            vertical-align: top;
             color: #4E5766;
             .version{
                 color: #217AD9;
