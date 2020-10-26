@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/system")
-@CrossOrigin
 @Api(tags = "FederatedSystemController",description = "Federation System Interface")
 @Data
 @Slf4j

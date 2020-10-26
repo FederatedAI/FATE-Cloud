@@ -82,18 +82,18 @@ CREATE TABLE IF NOT EXISTS `t_fate_component_version` (
 ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COMMENT='Federated component version';
 
 INSERT INTO `t_fate_component_version` (`fate_version`, `product_type`, `component_name`, `image_id`, `image_name`, `image_version`, `image_tag`, `image_description`, `image_size`, `image_create_time`, `component_version`, `version_index`, `pull_status`, `create_time`, `update_time`) VALUES
-	('1.4.3', 1, 'clustermanager', '146f656d2f63', 'eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:15', '1.4.3-release', 143, 0, '2020-07-23 14:41:51', '2020-10-19 10:56:39'),
+	('1.4.3', 1, 'clustermanager', '146f656d2f63', 'federatedai/eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:15', '1.4.3-release', 143, 0, '2020-07-23 14:41:51', '2020-10-19 10:56:39'),
 	('1.4.3', 1, 'mysql', '0d64f46acfd1', 'mysql', '8', '8', '8', '544MB', '2020-07-23 14:47:16', '8', 8, 0, '2020-07-23 14:41:57', '2020-10-19 10:56:39'),
-	('1.4.3', 1, 'nodemanager', '146f656d2f63', 'eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:16', '1.4.3-release', 143, 0, '2020-07-23 14:42:02', '2020-10-19 10:56:40'),
-	('1.4.3', 1, 'fateflow', 'e5d0bd448e63', 'python', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.5GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-07-23 14:42:08', '2020-10-19 10:56:41'),
-	('1.4.3', 1, 'rollsite', '146f656d2f63', 'eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-07-23 14:42:15', '2020-10-19 10:56:42'),
-	('1.4.3', 1, 'fateboard', 'e5d0bd448e63', 'python', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.5GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-09-10 10:29:58', '2020-10-19 10:56:42'),
-	('1.4.4', 1, 'clustermanager', 'd2ec04673a5f', 'eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:15', '1.4.4-release', 144, 0, '2020-07-23 14:41:51', '2020-10-19 10:56:38'),
+	('1.4.3', 1, 'nodemanager', '146f656d2f63', 'federatedai/eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:16', '1.4.3-release', 143, 0, '2020-07-23 14:42:02', '2020-10-19 10:56:40'),
+	('1.4.3', 1, 'fateflow', 'e5d0bd448e63', 'federatedai/python', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.5GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-07-23 14:42:08', '2020-10-19 10:56:41'),
+	('1.4.3', 1, 'rollsite', '146f656d2f63', 'federatedai/eggroll', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.77GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-07-23 14:42:15', '2020-10-19 10:56:42'),
+	('1.4.3', 1, 'fateboard', 'e5d0bd448e63', 'federatedai/python', '1.4.3-release', '1.4.3-release', '1.4.3-release', '4.5GB', '2020-07-23 14:47:17', '1.4.3-release', 143, 0, '2020-09-10 10:29:58', '2020-10-19 10:56:42'),
+	('1.4.4', 1, 'clustermanager', 'd2ec04673a5f', 'federatedai/eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:15', '1.4.4-release', 144, 0, '2020-07-23 14:41:51', '2020-10-19 10:56:38'),
 	('1.4.4', 1, 'mysql', '0d64f46acfd1', 'mysql', '8', '8', '8', '544MB', '2020-07-23 14:47:16', '8', 8, 0, '2020-07-23 14:41:57', '2020-10-19 10:56:37'),
-	('1.4.4', 1, 'nodemanager', 'd2ec04673a5f', 'eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:16', '1.4.4-release', 144, 0, '2020-07-23 14:42:02', '2020-10-19 10:56:37'),
-	('1.4.4', 1, 'fateflow', 'd6c72382bdae', 'python', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.5GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-07-23 14:42:08', '2020-10-19 10:56:36'),
-	('1.4.4', 1, 'rollsite', 'd2ec04673a5f', 'eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-07-23 14:42:15', '2020-10-19 10:56:35'),
-	('1.4.4', 1, 'fateboard', 'd6c72382bdae', 'python', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.5GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-09-10 10:29:58', '2020-10-19 10:56:34');
+	('1.4.4', 1, 'nodemanager', 'd2ec04673a5f', 'federatedai/eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:16', '1.4.4-release', 144, 0, '2020-07-23 14:42:02', '2020-10-19 10:56:37'),
+	('1.4.4', 1, 'fateflow', 'd6c72382bdae', 'federatedai/python', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.5GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-07-23 14:42:08', '2020-10-19 10:56:36'),
+	('1.4.4', 1, 'rollsite', 'd2ec04673a5f', 'federatedai/eggroll', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.77GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-07-23 14:42:15', '2020-10-19 10:56:35'),
+	('1.4.4', 1, 'fateboard', 'd6c72382bdae', 'federatedai/python', '1.4.4-release', '1.4.4-release', '1.4.4-release', '4.5GB', '2020-07-23 14:47:17', '1.4.4-release', 144, 0, '2020-09-10 10:29:58', '2020-10-19 10:56:34');
 
 CREATE TABLE IF NOT EXISTS `t_fate_deploy_component` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',

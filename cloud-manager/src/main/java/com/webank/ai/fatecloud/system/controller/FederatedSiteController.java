@@ -26,7 +26,6 @@ import java.util.List;
 @Data
 @RequestMapping("/api/site")
 @Api(tags = "FederatedSiteController", description = "Federation Site Page")
-@CrossOrigin
 public class FederatedSiteController {
 
     @Autowired

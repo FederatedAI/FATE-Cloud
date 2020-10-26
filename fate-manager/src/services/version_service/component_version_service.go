@@ -16,6 +16,7 @@
 package version_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/logging"
@@ -125,7 +126,11 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		logging.Error(cmd, " failed")
 	}
 
-	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", info.ImageName, info.ImageTag)
+	imageName := fmt.Sprintf("docker.io/%s",info.ImageName)
+	if len(setting.KubenetesSetting.Registry) >0 {
+		imageName =fmt.Sprintf("%s/%s",setting.KubenetesSetting.Registry,info.ImageName)
+	}
+	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -137,7 +142,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageVersion = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'",imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -146,7 +151,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 		componentVersion.ImageId = result[0 : len(result)-1]
 	}
 
-	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", info.ImageName, info.ImageTag)
+	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", imageName, info.ImageTag)
 	if setting.KubenetesSetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
@@ -228,7 +233,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	var pythonPort int
 	var proxyPort int
 	updatePortTag := false
+	var componentVersonMap = make(map[string]interface{})
 	for i := 0; i < len(componentVersionList); i++ {
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
 		port := GetDefaultPort(componentVersionList[i].ComponentName)
 		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
 		if len(nodelist)==0{
@@ -253,6 +260,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if len(deployComponentList) > 0 {
+			deployComponent = models.DeployComponent{
+				FederatedId:      commitImagePullReq.FederatedId,
+				PartyId:          commitImagePullReq.PartyId,
+				ProductType:      commitImagePullReq.ProductType,
+				ComponentName:    componentVersionList[i].ComponentName,
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			var data =make(map[string]interface{})
+			data["fate_version"] = commitImagePullReq.FateVersion
+			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["version_index"] = componentVersionList[i].VersionIndex
+			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
 		}
@@ -334,7 +353,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		Status:      int(enum.SITE_STATUS_JOINED),
 	}
 	var data = make(map[string]interface{})
+	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 	data["fate_version"] = commitImagePullReq.FateVersion
+	data["component_version"] = string(componentVersonMapjson)
 	models.UpdateSiteByCondition(data, info)
 	return e.SUCCESS, nil
 }
