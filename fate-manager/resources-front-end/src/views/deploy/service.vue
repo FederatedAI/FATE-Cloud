@@ -356,7 +356,7 @@ export default {
                 }
             })
         },
-        // 下拉更新
+        // 下拉升级版本
         handleCommand(command) {
             this.upgradeData.FateVersion = command.FateVersion
             this.upgradedialog = true

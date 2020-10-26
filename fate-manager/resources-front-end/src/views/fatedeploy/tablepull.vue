@@ -127,16 +127,10 @@ export default {
         event.$on('myFun', (msg) => {
             this.disVersion = msg
         })
-        // if (this.formInline.fateVersion) {
-        //     this.disVersion = true
-        // } else {
-        //     this.disVersion = false
-        // }
     },
     methods: {
         async initiPullList() {
             this.tableData = []
-            // console.log('this.pullComponentList==>>', this.tableData)
             let data = {
                 fateVersion: this.formInline.fateVersion,
                 productType: 1
@@ -176,7 +170,6 @@ export default {
             pull(data).then(res => {
                 this.lessTime()
                 this.distopull = true
-                // this.disVersion = true
             })
         },
         toNext() {
@@ -198,6 +191,7 @@ export default {
         lessTime() {
             this.initiPullList().then(res => {
                 if (res.length > 0 && res.every(item => item.pullStatus.code === 0)) { // 等待
+                    this.distopull = false
                     this.btntype = 'info'
                 } else if (res.length > 0 && res.every(item => item.pullStatus.code === 1)) { // 成功
                     this.currentSteps.pullPrepare = true
@@ -210,7 +204,6 @@ export default {
                     this.distopull = false
                 } else if (res.length > 0 && res.every(item => item.pullStatus.code === 1 || item.pullStatus.code === 2)) { // 成功或失败
                     this.distopull = false
-                    // this.disVersion = false
                     this.btntype = 'info'
                 } else if (res.length === 0) {
                     this.btntype = 'info'
