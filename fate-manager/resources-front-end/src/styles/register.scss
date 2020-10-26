@@ -1,0 +1,76 @@
+
+        .register {
+            text-align: center;
+            font-family: 'Product Sans';
+            .title {
+                font-size: 4.5em;
+                color: #217ad9;
+                font-weight: 800;
+                margin: 0px 0 4.5vw 0;
+            }
+
+            .organization {
+                // margin-bottom: 48px;
+                margin-bottom: 2.5vw;
+               
+                .name-tip {
+                    color: #848C99;
+                    font-size: 1.125em;
+                }
+
+                .name {
+                    margin: 0 auto;
+                    width: 27vmax;
+                    margin-top: 0.75vw;
+                    border-bottom: 2px solid #E6EBF0;
+                    position: relative;
+                    text-align: center;
+                    .el-input__inner {
+                        text-align: center;
+                        border: 0px;
+                        outline: none;
+                        font-size: 1.5em;
+                        background-color: #fff;
+                    }
+
+                    .active {
+                       
+                        input{
+                            color: #2D3642;
+                            font-weight: 400;
+                            font-size: 1.5em
+                        }
+                    }
+                }
+                .name-warn{
+                    border-bottom: 2px solid #FF9D00;
+                }
+                .el-form-item__error{
+                    color: #FF9D00;
+                    left: calc(50% - 164.5px);
+                    font-size: 1em;
+                }
+                .warn-text{
+                    position: absolute;
+                    top:37px;
+                    width: 100%;
+                    color: #FF9D00;
+                    text-align: center;
+                    font-size: 1em;
+                }
+            }
+            .btn{
+                .OK-btn {
+                    margin-top: 2.5vw;
+                    width: 12vw;
+                    font-size: 1.5em
+                }
+    
+                .Cancel-btn {
+                    margin-left: 1.75vw;
+                    width: 12vw;
+                    font-size: 1.5em;
+                }
+            }
+        
+        }

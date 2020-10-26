@@ -1,13 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+/* Layout */
+import Layout from '../views/layout/Layout'
+// import marketingRouter from './modules/marketing-manage'
+
 // in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
 // detail: https://panjiachen.github.io/vue-element-admin-site/#/lazy-loading
 
 Vue.use(Router)
-
-/* Layout */
-import Layout from '../views/layout/Layout'
 
 /**
  * hidden: true                   if `hidden:true` will not show in the sidebar(default is false)
@@ -24,33 +25,103 @@ import Layout from '../views/layout/Layout'
  **/
 
 export const constantRouterMap = [
-  { path: '/', redirect: '/fate/system/cfg', hidden: true },
-  { path: '/404', component: () => import('@/views/404'), hidden: true },
-  { path: '/fate',
-    component: Layout,
-    name: 'fate',
-    hidden: true,
-    children: [
-      {
-        name: 'system',
-        path: 'system',
-        component: () => import('@/views/system/index'),
+    { path: '/', redirect: '/welcome/login', hidden: true },
+    // { path: '/login', component: () => import('@/views/login/index'), hidden: true },
+    // { path: '/regist', component: () => import('@/views/regist/index'), hidden: true },
+    // { path: '*', redirect: '/home/homepage', hidden: true },
+    // { path: '/home', component: () => import('@/views/home/home') },
+    { path: '/404', component: () => import('@/views/404'), hidden: true },
+    {
+        path: '/welcome',
+        component: () => import('@/views/welcome/index'),
+        name: 'welcome',
+        hidden: true,
         children: [
-          {
-            name: 'cfg',
-            path: 'cfg',
-            component: () => import('@/views/system/systemConfig')
-          }
+            {
+                path: 'login',
+                name: 'login', //
+                hidden: true,
+                component: () => import('@/views/welcome/login')
+            },
+            {
+                path: 'register',
+                name: 'register', //
+                hidden: true,
+                component: () => import('@/views/welcome/register')
+            }, {
+                name: 'activate', //
+                path: 'activate',
+                component: () => import('@/views/welcome/activate')
+            }
         ]
-      }
-    ]
-  }
+    },
+    {
+        path: '/home',
+        component: Layout,
+        name: 'home',
+        hidden: true,
+        children: [
+            {
+                path: 'sitemanage',
+                name: 'sitemanage', //
+                component: () => import('@/views/home/sitemanage')
+            },
+            {
+                path: 'index',
+                name: 'homeview', //
+                component: () => import('@/views/home/homeview')
+            },
+            {
+                path: 'siteinfo',
+                name: 'siteinfo',
+                component: () => import('@/views/home/sitedetail')
+            },
+            {
+                path: 'access',
+                name: 'access',
+                component: () => import('@/views/home/access')
+            }
+        ]
+    },
+    {
+        path: '/deploy',
+        component: Layout,
+        name: 'deploy',
+        hidden: true,
+        children: [
+            {
+                path: 'auto',
+                name: 'auto', //
+                component: () => import('@/views/deploy/auto')
+            },
+            {
+                path: 'overview',
+                name: 'overview', //
+                component: () => import('@/views/deploy/overview')
+            },
+            {
+                path: 'service',
+                name: 'service', //
+                component: () => import('@/views/deploy/service')
+            },
+            {
+                path: 'prepare',
+                name: 'prepare', //
+                component: () => import('@/views/fatedeploy/prepare')
+            }, {
+                path: 'deploying',
+                name: 'deploying', //
+                component: () => import('@/views/fatedeploy/deploying')
+            }
+        ]
+    }
+
 ]
 
 const router = new Router({
-  // mode: 'history',
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRouterMap
+    // mode: 'history', // 后端支持可开
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRouterMap
 })
 
 export default router

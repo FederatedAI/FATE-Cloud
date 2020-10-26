@@ -1,117 +1,149 @@
 <template>
-  <div class="app-wrapper">
-    <el-container style="height:100%">
+  <div class="home">
+    <el-container>
       <el-header>
-        <div class="logo" @click="toHome">
-          <!-- <img src="@/assets/fate_logo.png" style="height:30px;"> -->
-          <span>FATECloud</span>
-          <!-- <span></span> -->
+        <div class="logo">
+            <img src="@/assets/logo.png">
+            <span>FATE Cloud</span>
+
         </div>
-        <navbar v-if="name"/>
+        <div class="right-bar">
+            <el-popover v-if="userName" placement="bottom" popper-class="usrname-pop" :visible-arrow="false" trigger="click">
+                <div class="mane" @click="tologout">Sign out</div>
+                <div slot="reference" >
+                    <span>{{userName}}</span>
+                    <i class="el-icon-caret-bottom" />
+                </div>
+            </el-popover>
+            <span v-else @click="tologin">Sign in</span>
+        </div>
+        <topbar ref="topbar" />
       </el-header>
       <el-main>
-        <router-view/>
+        <!-- <sidebar /> -->
+        <contentbox  />
       </el-main>
     </el-container>
+    <!-- Site-Authorization开关状态-->
+    <el-dialog :visible.sync="siteAuth" class="siteAuth-dialog" width="600px" :close-on-click-modal="false" :close-on-press-escape="false">
+        <div class="line-text-two">
+            “{{title}}”has been turned off,
+        </div>
+        <div class="line-text-two">
+            and all related functions of
+            <span v-if="title==='Site-Authorization'">Site-Authorization</span>
+            <span v-else>automatic deployment and upgrade</span>
+        </div>
+        <div class="line-text-two">
+            are no longer available
+        </div>
+        <div class="dialog-footer">
+            <el-button class="ok-btn" type="primary" @click="toSiteAuth">Sure</el-button>
+        </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import Navbar from './components/Navbar'
-import Breadcrumb from '@/components/Breadcrumb'
+import topbar from './components/topbar'
+// import sidebar from './components/sidebar'
+import contentbox from './components/contentbox'
 import { mapGetters } from 'vuex'
+import { readAuthorState } from '@/api/home'
 
 export default {
-  name: 'Layout',
-  components: {
-    Navbar,
-    Breadcrumb
-  },
-  data() {
-    return {
-      // imgCode: '@/assets/service.png'
+    name: 'Layout',
+    components: {
+        topbar,
+        // sidebar,
+        contentbox
+    },
+    data() {
+        return {
+            siteAuth: false,
+            autositetimeless: null,
+            title: 'Site-Authorization'
+        }
+    },
+    computed: {
+        ...mapGetters(['userId', 'userName'])
+    },
+    created() {
+        this.$store.dispatch('TogetAuthorSite')
+        this.togetAuthorSite()// 开启定时器
+    },
+    beforeDestroy() {
+        window.clearTimeout(this.autositetimeless)
+    },
+    mounted() {
+
+    },
+    methods: {
+        tologout() {
+            let data = {
+                userId: this.userId,
+                userName: this.userName
+            }
+            this.$store.dispatch('LogOut', data).then(res => {
+                location.reload()
+            })
+        },
+        tologin() {
+            this.$router.push({
+                path: '/welcome/login'
+            })
+        },
+        togetAuthorSite() {
+            this.$store.dispatch('TogetAuthorSite').then(res => {
+                for (const iter of res.data) {
+                    if (iter.functionName === 'Site-Authorization') {
+                        if (iter.status === 2 && iter.readStatus === 0) {
+                            this.siteAuth = true
+                            this.title = 'Site-Authorization'
+                            return
+                        }
+                    } else if (iter.functionName === 'Auto-Deploy') {
+                        if (iter.status === 2 && iter.readStatus === 0) {
+                            this.siteAuth = true
+                            this.title = 'Auto-deploy'
+                            return
+                        }
+                    }
+                }
+                this.autositetimeless = setTimeout(() => {
+                    this.togetAuthorSite()
+                }, 2000)
+            })
+        },
+        toSiteAuth() {
+            readAuthorState().then(res => {
+                this.$router.push({ path: '/home/sitemanage' })
+                this.siteAuth = false
+                this.togetAuthorSite()
+            })
+        }
+
     }
-  },
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
-  },
-  methods: {
-    toHome() {
-      this.$router.push({ path: '/' })
-    }
-  }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" >
-  // @import "src/styles/mixin.scss";
-  .app-wrapper {
-    // @include clearfix;
-    position: relative;
-    height: 100%;
-    // width: 100%;
-    // min-width: 1440px;
-    &.mobile.openSidebar {
-      position: fixed;
-      top: 0;
-    }
-    .fix{
-      position: fixed;
-      background-color: #2C2C34;
-      right: 0px;
-      top:calc(50% - 70px );
-      color: #fff;
-      text-align: center;
-      line-height: 70px;
-      .wechat{
-        border-bottom: 1px solid #fff;
-      }
-      .wechat,.phone{
+.usrname-pop{
+    text-align: center;
+    height: 35px !important;
+    line-height: 35px;
+    margin-top:0 !important;
+    min-width: 95px !important;
+    left: calc(100% - 143px) !important;
+    padding: 5px;
+    .mane{
         cursor: pointer;
-        width: 70px;
-        height: 70px;
-      }
-
+        font-size: 16px;
+        color: #217AD9;
     }
-  }
-   .wechat-code-box{
-      text-align: center;
-      .wechat-code{
-        width: 200px;
-        height: 200px;
-        margin-top: 10px;
-        line-height: 200px;
-        color: #393939;
-        // border: 1px solid #666;
-      }
+    .mane:hover{
+        background-color: #ecf5ff;
     }
-  .phone-box{
-    text-align: center;
-    line-height: 45px;
-    height: 45px;
-    font-size: 18px;
-    color: #393939
-  }
-  .el-header {
-    padding: 0;
-    background-color: #2C2C34;
-    color: #fff;
-    text-align: center;
-    height: 75px !important;
-    line-height: 75px;
-    border-bottom:1px  solid #2C2C34;
-    .logo {
-      cursor: pointer;
-      position: absolute;
-      left: 40px;
-      font-size: 20px;
-    }
-  }
-  .el-main{
-    height: 100%;
-    padding: 0px;
-    background-color: #EEF0F2;
-  }
+}
+@import 'src/styles/home.scss';
 </style>

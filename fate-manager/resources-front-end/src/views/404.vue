@@ -20,12 +20,12 @@
 <script>
 
 export default {
-  name: 'Page404',
-  computed: {
-    message() {
-      return '找不到该页面......'
+    name: 'Page404',
+    computed: {
+        message() {
+            return '找不到该页面......'
+        }
     }
-  }
 }
 </script>
 

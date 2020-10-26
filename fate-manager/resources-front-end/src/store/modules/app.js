@@ -1,44 +1,89 @@
-import Cookies from 'js-cookie'
+import { getOrganizationEnum, getPartyIDEnum, getVersionEnum } from '@/api/deploy'
+import { getAuthorState } from '@/api/home'
 
 const app = {
-  state: {
-    sidebar: {
-      // opened: !+Cookies.get('sidebarStatus'),
-      opened: true,
-      withoutAnimation: false
+    state: {
+        sidebar: [],
+        organization: [],
+        partyId: [],
+        version: [],
+        autoState: false,
+        siteState: false // site
     },
-    device: 'desktop'
-  },
-  mutations: {
-    TOGGLE_SIDEBAR: state => {
-      if (state.sidebar.opened) {
-        Cookies.set('sidebarStatus', 1)
-      } else {
-        Cookies.set('sidebarStatus', 0)
-      }
-      state.sidebar.opened = !state.sidebar.opened
-      state.sidebar.withoutAnimation = false
+    mutations: {
+        TOGGLE_SIDEBAR: (state, sidebarArr) => {
+            state.sidebar = sidebarArr
+        },
+        ORGANIZATION: (state, data) => {
+            state.organization = []
+            data && data.length > 0 && data.forEach(item => {
+                let obj = {}
+                obj.federatedId = obj.value = item.federatedId
+                obj.label = item.federatedOrganization
+                state.organization.push(obj)
+            })
+        },
+        PARTYID: (state, data) => {
+            state.partyId = []
+            data && data.length > 0 && data.forEach(item => {
+                let obj = {}
+                obj.text = item.siteName
+                obj.deployStatus = item.DeployStatus
+                obj.value = item.partyId
+                obj.label = item.partyId
+                state.partyId.push(obj)
+            })
+        },
+        VERSION: (state, data) => {
+            state.version = []
+            data && data.length > 0 && data.forEach(item => {
+                let obj = {}
+                obj.value = item
+                obj.label = item
+                state.version.push(obj)
+            })
+        },
+        AUTO_STATE: (state, data) => {
+            state.autoState = data
+        },
+        SITE_STATE: (state, data) => {
+            state.siteState = data
+        }
     },
-    CLOSE_SIDEBAR: (state, withoutAnimation) => {
-      Cookies.set('sidebarStatus', 1)
-      state.sidebar.opened = false
-      state.sidebar.withoutAnimation = withoutAnimation
-    },
-    TOGGLE_DEVICE: (state, device) => {
-      state.device = device
+    actions: {
+        ToggleSideBar: ({ commit }, keyPath) => {
+            commit('TOGGLE_SIDEBAR', keyPath)
+        },
+        selectEnum: async ({ commit }, federatedId) => {
+            let organizationRes = await getOrganizationEnum()
+            commit('ORGANIZATION', organizationRes.data)
+            let partyIdRes = await getPartyIDEnum({ federatedId })
+            commit('PARTYID', partyIdRes.data)
+            let versionRes = await getVersionEnum({ productType: 1 })
+            commit('VERSION', versionRes.data)
+            return organizationRes
+        },
+        TogetAuthorSite: async ({ commit }) => {
+            // Site-Authorization开关状态
+            let res = await getAuthorState()
+            for (const iter of res.data) {
+                if (iter.functionName === 'Site-Authorization') {
+                    if (iter.status === 1) {
+                        commit('SITE_STATE', true)
+                    } else {
+                        commit('SITE_STATE', false)
+                    }
+                } else if (iter.functionName === 'Auto-Deploy') {
+                    if (iter.status === 1) {
+                        commit('AUTO_STATE', true)
+                    } else {
+                        commit('AUTO_STATE', false)
+                    }
+                }
+            }
+            return res
+        }
     }
-  },
-  actions: {
-    ToggleSideBar: ({ commit }) => {
-      commit('TOGGLE_SIDEBAR')
-    },
-    CloseSideBar({ commit }, { withoutAnimation }) {
-      commit('CLOSE_SIDEBAR', withoutAnimation)
-    },
-    ToggleDevice({ commit }, device) {
-      commit('TOGGLE_DEVICE', device)
-    }
-  }
 }
 
 export default app
