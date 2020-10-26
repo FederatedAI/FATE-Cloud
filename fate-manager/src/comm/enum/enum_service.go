@@ -42,6 +42,7 @@ const (
 	E_ToyTestOnlyTypeRead = "toyTestOnlyTypeRead"
 	E_UserRole            = "userRole"
 	E_PermissionType      = "permissionType"
+	E_ServiceStatus       = "serviceStatus"
 )
 
 func GetEnumNameDropDownList() []string {
@@ -70,6 +71,7 @@ func GetEnumNameDropDownList() []string {
 	enumNameList = append(enumNameList, E_ToyTestOnlyTypeRead)
 	enumNameList = append(enumNameList, E_UserRole)
 	enumNameList = append(enumNameList, E_PermissionType)
+	enumNameList = append(enumNameList, E_ServiceStatus)
 
 	return enumNameList
 }
@@ -124,6 +126,8 @@ func GetEnumNameInfo(enumName string) []entity.IdPair {
 		idPair = GetUserRoleList()
 	} else if enumName == E_PermissionType {
 		idPair = GetPermissionTypeList()
+	} else if enumName == E_ServiceStatus {
+		idPair = GetServiceStatusList()
 	} else {
 		return nil
 	}
