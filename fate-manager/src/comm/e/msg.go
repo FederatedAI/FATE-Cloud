@@ -107,6 +107,9 @@ var MsgFlags = map[int]string{
 	ERROR_PERMISSION_AUTH_FAIL:               "Permission Auth Fail",
 	ERROR_NO_PARTY_PRIVILEGE_FAIL:            "No Party Privilege Fail",
 	ERROR_GET_ALLOW_PARTY_LIST_FAIL:          "Get Allow Party List Fail",
+	ERROR_GET_MONITOR_TOTAL_FAIL:            "Get Monitor Total Faild",
+	ERROR_GET_INSTITUTION_BASE_STATITCS_FAIL:"Get Institution Based Statistics Fail",
+	ERROR_GET_SITE_BASE_STTITCS_FAIL:        "Get Site Base Statistics Fail",
 }
 
 func GetMsg(code int) string {
