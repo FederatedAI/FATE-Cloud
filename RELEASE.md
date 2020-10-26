@@ -55,7 +55,7 @@
 - Product UI interface revision.
 
 
-FATE Cloud(alpha) - Release Note
+# **Release alpha** #
 
 **Major Features**
  
