@@ -497,6 +497,15 @@ definitions:
           type: array
         type: object
     type: object
+  entity.ChangeLoginReq:
+    properties:
+      PartyId:
+        type: integer
+      subTag:
+        type: boolean
+      userName:
+        type: string
+    type: object
   entity.CheckJwtReq:
     properties:
       token:
@@ -762,6 +771,9 @@ definitions:
     properties:
       partyId:
         type: integer
+      role:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       siteName:
         type: string
     type: object
@@ -2688,6 +2700,29 @@ paths:
       summary: Get All Allow PartyId list
       tags:
       - UserController
+  /fate-manager/api/user/changelogin:
+    post:
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ChangeLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SubLoginResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: change sign in
+      tags:
+      - UserController
   /fate-manager/api/user/delete:
     post:
       parameters:
@@ -2857,7 +2892,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/app.Response'
-      summary: sign in
+      summary: sub sign in
       tags:
       - UserController
   /fate-manager/api/user/userpartylist:

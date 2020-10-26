@@ -345,9 +345,21 @@ func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSit
 	}
 	var list []entity.LoginSiteItem
 	for i :=0;i< len(accountInfoList) ;i++  {
+		siteInfo :=models.SiteInfo{
+			PartyId:                accountInfoList[i].PartyId,
+			Status:                 int(enum.SITE_STATUS_JOINED),
+		}
+		siteInfoList,_ := models.GetSiteList(&siteInfo)
+
 		loginSiteItem := entity.LoginSiteItem{
 			PartyId:  accountInfoList[i].PartyId,
 			SiteName: accountInfoList[i].SiteName,
+		}
+		if len(siteInfoList) >0{
+			loginSiteItem.Role = entity.IdPair{
+				Code: siteInfoList[0].Role,
+				Desc: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+			}
 		}
 		list = append(list,loginSiteItem)
 	}
@@ -394,6 +406,30 @@ func SubLogin(subLogin entity.SubLoginReq)(int,*entity.SubLoginResp,error) {
 	}
 	accountInfo := models.AccountInfo{
 		UserId:   userInfoList[0].UserId,
+		UserName: subLogin.AccountName,
+		PartyId:  subLogin.PartyId,
+		Status:   int(enum.IS_VALID_YES),
+	}
+	accountInfoList, err := models.GetAccountInfo(accountInfo)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, nil, err
+	}
+	if len(accountInfoList) == 0 {
+		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
+	}
+	subLoginResp := entity.SubLoginResp{
+		PartyId:  accountInfoList[0].PartyId,
+		SiteName: accountInfoList[0].SiteName,
+		Role:     entity.Role{
+			RoleId:accountInfoList[0].Role,
+			RoleName:enum.GetRoleString(enum.RoleType(accountInfoList[0].Role)),
+		},
+	}
+	return e.SUCCESS,&subLoginResp,nil
+}
+
+func ChangeLogin(subLogin entity.ChangeLoginReq)(int,*entity.SubLoginResp,error) {
+	accountInfo := models.AccountInfo{
 		UserName: subLogin.AccountName,
 		PartyId:  subLogin.PartyId,
 		Status:   int(enum.IS_VALID_YES),

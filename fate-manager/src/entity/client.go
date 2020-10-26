@@ -186,6 +186,7 @@ type SiteListItem struct {
 type LoginSiteItem struct {
 	PartyId  int    `json:"partyId"`
 	SiteName string `json:"siteName"`
+	Role     IdPair `json:"role"`
 }
 type ServiceInfoReq struct {
 	FederatedSite
@@ -544,4 +545,9 @@ type AllowReq struct {
 }
 type ComponentversionReq struct {
 	FateVersion string `json:"fateVersion"`
+}
+type ChangeLoginReq struct {
+	AccountName string `json:"userName"`
+	SubTag      bool    `json:"subTag"`
+	PartyId int `json:"PartyId"`
 }
