@@ -417,13 +417,21 @@ func SubLogin(subLogin entity.SubLoginReq)(int,*entity.SubLoginResp,error) {
 	if len(accountInfoList) == 0 {
 		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
 	}
+	siteInfo :=models.SiteInfo{
+		PartyId:                accountInfoList[0].PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	siteInfoList,_ := models.GetSiteList(&siteInfo)
+
 	subLoginResp := entity.SubLoginResp{
 		PartyId:  accountInfoList[0].PartyId,
 		SiteName: accountInfoList[0].SiteName,
-		Role:     entity.Role{
-			RoleId:accountInfoList[0].Role,
-			RoleName:enum.GetRoleString(enum.RoleType(accountInfoList[0].Role)),
-		},
+	}
+	if len(siteInfoList) >0 {
+		subLoginResp.Role = entity.Role{
+			RoleId:   siteInfoList[0].Role,
+			RoleName: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+		}
 	}
 	return e.SUCCESS,&subLoginResp,nil
 }
@@ -441,13 +449,21 @@ func ChangeLogin(subLogin entity.ChangeLoginReq)(int,*entity.SubLoginResp,error)
 	if len(accountInfoList) == 0 {
 		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
 	}
+	siteInfo :=models.SiteInfo{
+		PartyId:                accountInfoList[0].PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	siteInfoList,_ := models.GetSiteList(&siteInfo)
+
 	subLoginResp := entity.SubLoginResp{
 		PartyId:  accountInfoList[0].PartyId,
 		SiteName: accountInfoList[0].SiteName,
-		Role:     entity.Role{
-			RoleId:accountInfoList[0].Role,
-			RoleName:enum.GetRoleString(enum.RoleType(accountInfoList[0].Role)),
-		},
+	}
+	if len(siteInfoList) >0 {
+		subLoginResp.Role = entity.Role{
+			RoleId:   siteInfoList[0].Role,
+			RoleName: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+		}
 	}
 	return e.SUCCESS,&subLoginResp,nil
 }
