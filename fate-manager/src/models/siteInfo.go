@@ -37,6 +37,7 @@ type SiteInfo struct {
 	FateVersion            string
 	FateServingVersion     string
 	ComponentVersion       string
+	ServiceStatus          int
 	Status                 int
 	EditStatus             int
 	ReadStatus             int
