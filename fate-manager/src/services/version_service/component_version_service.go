@@ -233,14 +233,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	var pythonPort int
 	var proxyPort int
 	updatePortTag := false
-	var componentVersonMap = make(map[string]interface{})
+	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 	for i := 0; i < len(componentVersionList); i++ {
-		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
 		port := GetDefaultPort(componentVersionList[i].ComponentName)
 		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
 		if len(nodelist)==0{
 			continue
 		}
+		componentVersionDetail := entity.ComponentVersionDetail{
+			Version: componentVersionList[i].ComponentVersion,
+			Address: nodelist[1] + ":" + strconv.Itoa(port),
+		}
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
 			FederatedId:      commitImagePullReq.FederatedId,
 			PartyId:          commitImagePullReq.PartyId,

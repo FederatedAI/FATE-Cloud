@@ -86,6 +86,7 @@ type FindOneSiteData struct {
 	ComponentVersion       string     `json:"componentVersion"`
 	CreateTime             int64      `json:"createTime"`
 	Status                 int        `json:"status"`
+	ServiceStatus          int        `json:"serviceStatus"`
 	ActivationTime         int64      `json:"activationTime"`
 	UpdateTime             int64      `json:"updateTime"`
 	GroupId                int        `json:"groupId"`

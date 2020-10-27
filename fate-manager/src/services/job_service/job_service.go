@@ -119,9 +119,13 @@ func JobTask() {
 					continue
 				}
 				deployJob.Status = int(enum.JOB_STATUS_SUCCESS)
-				var componentVersonMap = make(map[string]interface{})
+				var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 				for j := 0; j < len(deployComponentList); j++ {
-					componentVersonMap[deployComponentList[j].ComponentName] = deployComponentList[j].ComponentVersion
+					componentVersionDetail := entity.ComponentVersionDetail{
+						Version: deployComponentList[j].ComponentVersion,
+						Address: deployComponentList[j].Address,
+					}
+					componentVersonMap[deployComponentList[j].ComponentName] = componentVersionDetail
 					autoTest := models.AutoTest{
 						FederatedId: deployJobList[i].FederatedId,
 						PartyId:     deployJobList[i].PartyId,

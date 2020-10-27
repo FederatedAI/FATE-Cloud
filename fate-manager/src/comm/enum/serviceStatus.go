@@ -21,8 +21,8 @@ type ServiceStatusType int32
 
 const (
 	SERVICE_STATUS_UNKNOWN   ServiceStatusType = -1
-	SERVICE_STATUS_AVAILABLE   ServiceStatusType = 0
-	SERVICE_STATUS_UNAVAILABLE ServiceStatusType = 1
+	SERVICE_STATUS_UNAVAILABLE   ServiceStatusType = 0
+	SERVICE_STATUS_AVAILABLE ServiceStatusType = 1
 )
 
 func GetServiceStatusString(p ServiceStatusType) string {

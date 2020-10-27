@@ -174,12 +174,13 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
 
 					var siteInfo models.SiteInfo
-					siteInfo.Status = siteItem.Status.Code
-					siteInfo.PartyId = federatedSiteItem.PartyId
-					siteInfo.FederatedId = federatedSiteItem.FederatedId
-					siteInfo.CreateTime = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
+					siteInfo.Status          = siteItem.Status.Code
+					siteInfo.PartyId         = federatedSiteItem.PartyId
+					siteInfo.FederatedId     = federatedSiteItem.FederatedId
+					siteInfo.CreateTime      = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
 					siteInfo.AcativationTime = time.Unix(findOneSiteResp.Data.ActivationTime/1000, 0)
-					siteInfo.SiteId = findOneSiteResp.Data.Id
+					siteInfo.SiteId          = findOneSiteResp.Data.Id
+					siteInfo.ServiceStatus   = findOneSiteResp.Data.ServiceStatus
 					models.UpdateSite(&siteInfo)
 
 					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0 {

@@ -16,6 +16,8 @@
 package models
 
 import (
+	"fate.manager/entity"
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -24,11 +26,31 @@ type MonitorDetail struct {
 	Ds               int
 	DsUnix           int64
 	GuestPartyId     int
+	GuestSiteName    string
+	GuestRole        int
 	GuestInstitution string
 	HostPartyId      int
+	HostSiteName     string
+	HostRole         int
 	HostInstitution  string
 	JobId            string
 	Status           int
 	CreateTime       time.Time
 	UpdateTime       time.Time
+}
+
+type MonitorBySite struct {
+	PartyId     int  `json:"partyId"`
+	SiteName    string `json:"siteName"`
+	Total       int  `json:"total"`
+	Complete    int  `json:"complete"`
+	Failed      int  `json:"failed"`
+}
+func GetMonitorBySite(monitorReq entity.MonitorReq)([]*MonitorBySite,error){
+	var monitorBySiteList []*MonitorBySite
+	err := db.Select("SELECT party_id,site_name,SUM(job_id) total,SUM(if(job_status=1,1,0)) complete,SUM(if(job_status=0,1,0)) failed  from t_fate_monitor_detail where create_time >= ? and create_time < ? group by party_id",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorBySiteList).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return monitorBySiteList, nil
 }
