@@ -552,3 +552,11 @@ type ChangeLoginReq struct {
 	SubTag      bool    `json:"subTag"`
 	PartyId int `json:"PartyId"`
 }
+type ComponentVersionDetail struct {
+	Version   string   `json:"version"`
+	Address   string   `json:"address"`
+}
+type MonitorReq struct {
+	StartDate string   `json:"startDate"`
+	EndDate   string   `json:"endDate"`
+}
