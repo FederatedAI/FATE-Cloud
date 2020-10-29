@@ -2,10 +2,8 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
-import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
-import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
+import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedJobStatisticsServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,7 +39,7 @@ public class FederatedJobStatisticsController {
         return federatedJobStatisticsServiceFacade.pushJosStatistics(jobStatisticsQos);
     }
 
-    @PostMapping(value = "/site")
+    @PostMapping(value = "/site/today")
     @ApiOperation(value = "find job statistics of site dimension")
     public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionQo);
@@ -52,7 +50,7 @@ public class FederatedJobStatisticsController {
         return federatedJobStatisticsServiceFacade.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
     }
 
-    @PostMapping(value = "/institutions")
+    @PostMapping(value = "/institutions/today")
     @ApiOperation(value = "find job statistics of institutions dimension")
     public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionQo);
@@ -60,5 +58,108 @@ public class FederatedJobStatisticsController {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
         return federatedJobStatisticsServiceFacade.getJobStatisticsODimension(jobOfSiteDimensionQo);
+    }
+
+    @PostMapping(value = "/summary/institutions/all/today")
+    @ApiOperation(value = "find job summary statistics for all institutions today ")
+    public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryTodayInstitutionsAll(@Valid @RequestBody JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryTodayQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryTodayInstitutionsAll(jobStatisticsSummaryTodayQo);
+    }
+
+    @PostMapping(value = "/summary/institutions/each/today")
+    @ApiOperation(value = "find job summary statistics for each institutions today ")
+    public CommonResponse<List<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryTodayInstitutionsEach(@Valid @RequestBody JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryTodayQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
+    }
+
+    @PostMapping(value = "/summary/site/all/today")
+    @ApiOperation(value = "find job summary statistics for all sites today ")
+    public CommonResponse<JobStatisticsSummaryTodaySiteAllDto> getJobStatisticsSummaryTodaySiteAll(@Valid @RequestBody JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryTodaySiteAllQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
+    }
+
+    @PostMapping(value = "/summary/site/each/today")
+    @ApiOperation(value = "find job summary statistics for each site today ")
+    public CommonResponse<List<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummaryTodaySiteEach(@Valid @RequestBody JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryTodaySiteAllQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryTodaySiteEach(jobStatisticsSummaryTodaySiteAllQo);
+    }
+
+
+    @PostMapping(value = "/site/period")
+    @ApiOperation(value = "find job statistics of site dimension for a period")
+    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobOfSiteDimensionPeriodQo);
+        if (bindingResult.hasErrors()) {
+//            FieldError errors = bindingResult.getFieldError();
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsOfSiteDimensionForPeriod(jobOfSiteDimensionPeriodQo);
+    }
+
+    @PostMapping(value = "/institutions/period")
+    @ApiOperation(value = "find job statistics of institutions dimension for a period")
+    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobOfSiteDimensionPeriodQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsODimensionForPeriod(jobOfSiteDimensionPeriodQo);
+    }
+
+
+    @PostMapping(value = "/summary/institutions/all/period")
+    @ApiOperation(value = "find job summary statistics for all institutions for a period ")
+    public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryInstitutionsAllForPeriod(@Valid @RequestBody JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryForPeriodQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
+    }
+
+    @PostMapping(value = "/summary/institutions/each/period")
+    @ApiOperation(value = "find job summary statistics for each institutions for a period ")
+    public CommonResponse<List<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryInstitutionsEachForPeriod(@Valid @RequestBody JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummaryForPeriodQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummaryInstitutionsEachForPeriod(jobStatisticsSummaryForPeriodQo);
+    }
+
+    @PostMapping(value = "/summary/site/all/period")
+    @ApiOperation(value = "find job summary statistics for all sites for a period ")
+    public CommonResponse<JobStatisticsSummaryTodaySiteAllDto> getJobStatisticsSummarySiteAllForPeriod(@Valid @RequestBody JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummarySiteAllForPeriodQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummarySiteAllForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
+    }
+
+    @PostMapping(value = "/summary/site/each/period")
+    @ApiOperation(value = "find job summary statistics for each site for a period ")
+    public CommonResponse<List<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummarySiteEachForPeriod(@Valid @RequestBody JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo, BindingResult bindingResult) {
+        log.info("RequestBody:{}", jobStatisticsSummarySiteAllForPeriodQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedJobStatisticsServiceFacade.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
     }
 }

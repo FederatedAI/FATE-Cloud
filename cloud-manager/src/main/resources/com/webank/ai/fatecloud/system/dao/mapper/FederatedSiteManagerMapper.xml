@@ -295,8 +295,17 @@
 
     </select>
 
+
+    <resultMap id="institutionsWithSitesMap" type="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
+        <result property="institutions" column="institutions"></result>
+        <collection property="sites" ofType="string" javaType="list">
+            <result column="site_name"></result>
+        </collection>
+
+    </resultMap>
+
     <select id="findInstitutionsWithSites" parameterType="string"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
+            resultMap="institutionsWithSitesMap">
         SELECT institutions,site_name FROM t_federated_site_manager
         <where>
             and institutions !=#{institutions}
