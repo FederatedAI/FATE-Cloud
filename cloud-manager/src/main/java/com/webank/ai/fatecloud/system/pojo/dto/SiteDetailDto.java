@@ -34,6 +34,7 @@ public class SiteDetailDto implements Serializable {
         this.fateServingVersion = federatedSiteManagerDo.getFateServingVersion();
         this.componentVersion = federatedSiteManagerDo.getComponentVersion();
         this.status = federatedSiteManagerDo.getStatus();
+        this.detectiveStatus=federatedSiteManagerDo.getDetectiveStatus();
         if (federatedSiteManagerDo.getCreateTime() != null) {
             this.createTime = federatedSiteManagerDo.getCreateTime().getTime();
         }
@@ -50,6 +51,7 @@ public class SiteDetailDto implements Serializable {
         if (federatedSiteManagerDo.getFederatedGroupSetDo() != null) {
             this.groupName = federatedSiteManagerDo.getFederatedGroupSetDo().getGroupName();
         }
+
     }
 
     @ApiModelProperty(value = "primary key")
@@ -105,4 +107,7 @@ public class SiteDetailDto implements Serializable {
 
     @ApiModelProperty(value = "group name")
     private String groupName;
+
+    @ApiModelProperty(value = "site detective status")
+    private Integer detectiveStatus;
 }

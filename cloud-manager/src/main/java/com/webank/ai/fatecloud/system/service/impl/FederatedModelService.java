@@ -1,6 +1,7 @@
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sun.corba.se.spi.orbutil.fsm.FSMImpl;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,6 +28,9 @@ public class FederatedModelService {
 
     @Autowired
     FederatedModelMapper federatedModelMapper;
+
+    @Autowired
+    FederatedSiteManagerMapper federatedSiteManagerMapper;
 
     @Transactional
     public void addModel(ModelAddQo modelAddQo) {
@@ -70,7 +75,7 @@ public class FederatedModelService {
             }
         }
 
-
+        int detectiveStatus = 2;
         for (ModelAddQo modelAddQo : modelAddQos) {
             FederatedSiteModelDo modelDo = new FederatedSiteModelDo(modelAddQo);
 
@@ -89,7 +94,21 @@ public class FederatedModelService {
             }
             modelDo.setUpdateTime(modelAddQo.getUpdateTime());
             federatedModelMapper.insert(modelDo);
+            if (modelAddQo.getUpdateStatus() == 2) {
+                detectiveStatus = 1;
+            }
         }
+
+        //update site detective status
+        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
+        federatedSiteManagerDo.setId(modelAddQos.get(0).getId());
+        federatedSiteManagerDo.setLastDetectiveTime(new Date());
+        if (detectiveStatus == 2) {
+            federatedSiteManagerDo.setDetectiveStatus(2);
+        } else {
+            federatedSiteManagerDo.setDetectiveStatus(1);
+        }
+        federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
 
     }
 

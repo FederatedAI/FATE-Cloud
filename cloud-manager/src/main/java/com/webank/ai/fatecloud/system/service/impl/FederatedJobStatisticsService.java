@@ -5,12 +5,8 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
-import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimension;
-import com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsOfSiteDimensionDto;
-import com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo;
-import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
+import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,5 +69,76 @@ public class FederatedJobStatisticsService {
     public List<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
         List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getJobStatisticsODimension(jobOfSiteDimensionQo);
         return jobStatisticOfInstitutionsDimensionDtos;
+    }
+
+    public JobStatisticsSummaryTodayInstitutionsAllDto getJobStatisticsSummaryTodayInstitutionsAll(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
+        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummaryTodayInstitutionsAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsAll(jobStatisticsSummaryTodayQo);
+        return jobStatisticsSummaryTodayInstitutionsAllDto;
+    }
+
+    public List<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryTodayInstitutionsEach(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
+        return jobStatisticsSummaryTodayInstitutionsEachDtos;
+    }
+
+    public JobStatisticsSummaryTodaySiteAllDto getJobStatisticsSummaryTodaySiteAll(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
+
+        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto =federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
+
+        return jobStatisticsSummaryTodaySiteAllDto;
+    }
+
+    public List<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummaryTodaySiteEach(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(jobStatisticsSummaryTodaySiteAllQo);
+        return jobStatisticsSummaryTodaySiteEachDtos;
+    }
+
+    public JobStatisticsOfSiteDimensionDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+        //get job statistics
+        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getJobStatisticsOfSiteDimensionForPeriod(jobOfSiteDimensionPeriodQo);
+
+        //get table site columns
+        QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>();
+        federatedSiteManagerDoQueryWrapper.eq("institutions", jobOfSiteDimensionPeriodQo.getInstitutions()).eq("status", 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(federatedSiteManagerDoQueryWrapper);
+        ArrayList<String> sites = new ArrayList<>();
+        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
+            sites.add(federatedSiteManagerDo.getSiteName());
+        }
+
+        //get table site rows
+        List<InstitutionsWithSites> institutionsWithSites = federatedSiteManagerMapper.findInstitutionsWithSites(jobOfSiteDimensionPeriodQo.getInstitutions());
+
+        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = new JobStatisticsOfSiteDimensionDto();
+        jobStatisticsOfSiteDimensionDto.setJobStatisticsOfSiteDimensions(jobStatisticsOfSiteDimensionList);
+        jobStatisticsOfSiteDimensionDto.setSites(sites);
+        jobStatisticsOfSiteDimensionDto.setInstitutionsWithSites(institutionsWithSites);
+        return jobStatisticsOfSiteDimensionDto;
+    }
+
+    public List<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getJobStatisticsODimensionForPeriod(jobOfSiteDimensionPeriodQo);
+        return jobStatisticOfInstitutionsDimensionDtos;
+    }
+
+    public JobStatisticsSummaryTodayInstitutionsAllDto getJobStatisticsSummaryInstitutionsAllForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
+        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummaryTodayInstitutionsAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
+        return jobStatisticsSummaryTodayInstitutionsAllDto;
+    }
+
+    public List<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryInstitutionsEachForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriod(jobStatisticsSummaryForPeriodQo);
+        return jobStatisticsSummaryTodayInstitutionsEachDtos;
+    }
+
+    public JobStatisticsSummaryTodaySiteAllDto getJobStatisticsSummarySiteAllForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
+        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto =federatedJobStatisticsMapper.getJobStatisticsSummarySiteAllForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
+
+        return jobStatisticsSummaryTodaySiteAllDto;
+    }
+
+    public List<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummarySiteEachForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
+        return jobStatisticsSummaryTodaySiteEachDtos;
     }
 }

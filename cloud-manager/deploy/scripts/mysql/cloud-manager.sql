@@ -160,3 +160,14 @@ create table IF NOT EXISTS `t_job_statistics`(
     PRIMARY KEY(site_guest_id,site_host_id,job_finish_date)
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='jobs statistics for sites';
+
+
+CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
+  `exchange_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `exchagne_name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
+  `network_access_entrances` varchar(512) DEFAULT NULL COMMENT 'network access entrances',
+  `network_access_exits` varchar(512) DEFAULT NULL COMMENT 'network access exits',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  PRIMARY KEY (`exchange_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
