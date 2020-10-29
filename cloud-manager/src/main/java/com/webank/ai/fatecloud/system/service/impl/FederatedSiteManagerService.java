@@ -224,8 +224,9 @@ public class FederatedSiteManagerService {
         Date date = new Date();
         federatedSiteManagerDo.setStatus(2);
         federatedSiteManagerDo.setActivationTime(date);
-        federatedSiteManagerDo.setDetectiveStatus(2);
-        federatedSiteManagerDo.setLastDetectiveTime(date);
+        //cancel the set of site survive status
+//        federatedSiteManagerDo.setDetectiveStatus(2);
+//        federatedSiteManagerDo.setLastDetectiveTime(date);
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
     }
 
@@ -390,6 +391,10 @@ public class FederatedSiteManagerService {
         return new CommonResponse(ReturnCodeEnum.SUCCESS);
     }
 
+
+    /*
+    * update the survive status of site
+    * */
     @Scheduled(cron = "0 0/1 * * * ? ")
     public void updateSiteStatus() {
         log.info("start detective");
