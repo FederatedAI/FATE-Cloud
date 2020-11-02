@@ -238,6 +238,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	if item.Id == 0 {
 		kubenetesConf := models.KubenetesConf{
 			KubenetesUrl: kubeReq.Url,
+			DeployType:   int(enum.DeployType_K8S),
 			PythonPort:   30001,
 			RollsitePort: 31000,
 			NodeList:     "",
@@ -364,6 +365,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
 				ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
 				ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
+				DeployType:         int(enum.DeployType_K8S),
 				IsValid:            int(enum.IS_VALID_YES),
 				CreateTime:         time.Now(),
 				UpdateTime:         time.Now(),
@@ -455,6 +457,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			deploySite.ClickType = int(enum.ClickType_CONNECT)
 			deploySite.ToyTestOnlyRead = int(enum.ToyTestOnlyTypeRead_YES)
 			deploySite.ToyTestOnly = int(enum.ToyTestOnly_NO_TEST)
+			deploySite.DeployType = int(enum.DeployType_K8S)
 			deploySite.CreateTime = time.Now()
 			deploySite.UpdateTime = time.Now()
 			models.AddDeploySite(&deploySite)

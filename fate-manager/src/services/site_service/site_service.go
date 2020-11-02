@@ -172,7 +172,7 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				if findOneSiteResp.Code == int(e.SUCCESS) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
-
+					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus,enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
 					var siteInfo models.SiteInfo
 					siteInfo.Status          = siteItem.Status.Code
 					siteInfo.PartyId         = federatedSiteItem.PartyId

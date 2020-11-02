@@ -258,6 +258,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			Address:          nodelist[1] + ":" + strconv.Itoa(port),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
+			DeployType:       int(enum.DeployType_K8S),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
 			UpdateTime:       time.Now(),
