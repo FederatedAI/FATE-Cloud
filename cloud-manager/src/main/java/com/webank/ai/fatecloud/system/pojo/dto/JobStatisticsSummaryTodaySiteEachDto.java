@@ -17,6 +17,9 @@ public class JobStatisticsSummaryTodaySiteEachDto implements Serializable {
     @ApiModelProperty(value = "site name")
     private String site;
 
+    @ApiModelProperty(value = "party id")
+    private String partyId;
+
     @ApiModelProperty(value = "total failed job count")
     private Integer failedJobCount;
 
