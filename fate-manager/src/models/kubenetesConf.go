@@ -26,6 +26,7 @@ type KubenetesConf struct {
 	PythonPort   int
 	RollsitePort int
 	NodeList     string
+	DeployType   int
 	CreateTime   time.Time
 	UpdateTime   time.Time
 }

@@ -62,20 +62,10 @@ func GetMonitorTotal(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.InstitutionBaseStaticsResponse
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/monitor/statistics/institution [post]
+// @Router /fate-manager/api/monitor/statistics/institution [get]
 func GetInstitutionBaseStatics(c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var monitorReq entity.MonitorReq
-	if jsonError := json.Unmarshal(body, &monitorReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	result, err := monitor_service.GetInstitutionBaseStatics(monitorReq)
+	result, err := monitor_service.GetInstitutionBaseStatics()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_MONITOR_TOTAL_FAIL, nil)
 		return
@@ -89,20 +79,10 @@ func GetInstitutionBaseStatics(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.SiteBaseStatisticsResponse
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/monitor/statistics/site [post]
+// @Router /fate-manager/api/monitor/statistics/site [get]
 func GetSiteBaseStatistics(c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var monitorReq entity.MonitorReq
-	if jsonError := json.Unmarshal(body, &monitorReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	result, err := monitor_service.GetSiteBaseStatistics(monitorReq)
+	result, err := monitor_service.GetSiteBaseStatistics()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_MONITOR_TOTAL_FAIL, nil)
 		return

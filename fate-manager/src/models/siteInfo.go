@@ -41,6 +41,7 @@ type SiteInfo struct {
 	Status                 int
 	EditStatus             int
 	ReadStatus             int
+	DeployType             int
 	CreateTime             time.Time
 	AcativationTime        time.Time
 	UpdateTime             time.Time

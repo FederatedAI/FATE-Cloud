@@ -38,6 +38,8 @@ type DeployComponent struct {
 	VersionIndex     int
 	DeployStatus     int
 	Status           int
+	DeployType       int
+	ServiceStatus    int
 	IsValid          int
 	FinishTime       time.Time
 	CreateTime       time.Time

@@ -53,6 +53,7 @@ type DeploySite struct {
 	MinimizeNormalTest int
 	IsValid            int
 	ClickType          int
+	DeployType         int
 	FinishTime         time.Time
 	CreateTime         time.Time
 	UpdateTime         time.Time

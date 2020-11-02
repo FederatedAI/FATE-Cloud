@@ -98,7 +98,7 @@ func GetInstituionByPartyId(partyId int)(string,error){
 	return "",nil
 }
 
-func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.InstitutionBaseStaticsResp, error) {
+func GetInstitutionBaseStatics() (*entity.InstitutionBaseStaticsResp, error) {
 	monitorBase, err := models.GetTotalMonitorByHis()
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ type SiteSiteMonitor struct {
 	entity.SitePair
 	models.MonitorBase
 }
-func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSiteModelingItem, error) {
+func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
 	monitorByHisList, err := models.GetSiteMonitorByHis()
 	if err != nil {
 		return nil, err

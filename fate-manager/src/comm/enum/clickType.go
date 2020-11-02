@@ -20,12 +20,19 @@ import "fate.manager/entity"
 type ClickType int32
 
 const (
-	ClickType_UNKONWN ClickType = -1
-	ClickType_CONNECT ClickType = 1
-	ClickType_PAGE    ClickType = 2
-	ClickType_PULL    ClickType = 3
-	ClickType_INSTALL ClickType = 4
-	ClickType_TEST    ClickType = 5
+	ClickType_UNKONWN                ClickType = -1
+	ClickType_CONNECT                ClickType = 1
+	ClickType_PAGE                   ClickType = 2
+	ClickType_PULL                   ClickType = 3
+	ClickType_INSTALL                ClickType = 4
+	ClickType_TEST                   ClickType = 5
+	AnsibleClickType_CONNECT         ClickType = 6
+	AnsibleClickType_PREPARE         ClickType = 7
+	AnsibleClickType_SYSTEM_CHECK    ClickType = 8
+	AnsibleClickType_ANSIBLE_INSTALL ClickType = 9
+	AnsibleClickType_ACQUISITON      ClickType = 10
+	AnsibleClickType_INSTALL         ClickType = 11
+	AnsibleClickType_TEST            ClickType = 12
 )
 
 func GetClickTypeString(p ClickType) string {
@@ -40,6 +47,20 @@ func GetClickTypeString(p ClickType) string {
 		return "click install next"
 	case ClickType_TEST:
 		return "click test finish"
+	case AnsibleClickType_CONNECT:
+		return "click ansible connect"
+	case AnsibleClickType_PREPARE:
+		return "click prepare"
+	case AnsibleClickType_SYSTEM_CHECK:
+		return "click system check"
+	case AnsibleClickType_ANSIBLE_INSTALL:
+		return "click ansible install"
+	case AnsibleClickType_ACQUISITON:
+		return "click package acquisition"
+	case AnsibleClickType_INSTALL:
+		return "click install"
+	case AnsibleClickType_TEST:
+		return "click test finish"
 	default:
 		return "unknown"
 	}
@@ -47,7 +68,7 @@ func GetClickTypeString(p ClickType) string {
 
 func GetClickTypeList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 13; i++ {
 		idPair := entity.IdPair{i, GetClickTypeString(ClickType(i))}
 		idPairList = append(idPairList, idPair)
 	}
