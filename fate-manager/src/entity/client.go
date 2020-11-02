@@ -334,6 +334,8 @@ type InstallItem struct {
 	UpgradeTime      int64       `json:"upgradeTime"`
 	UpgradeStatus    bool        `json:"upgradeStatus"`
 	OperationList    []Operation `json:"operation"`
+	DeployType       IdPair      `json:"deployType"`
+	ServiceStatus    IdPair      `json:"serviceStatus"`
 }
 
 type UpgradeFateReq struct {

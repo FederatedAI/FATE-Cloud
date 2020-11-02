@@ -413,6 +413,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName)),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
+			DeployType:       int(enum.DeployType_K8S),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
 			UpdateTime:       time.Now(),
@@ -1000,6 +1001,8 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 				ComponentName:    deployComponentList[j].ComponentName,
 				ComponentVersion: deployComponentList[j].ComponentVersion,
 				UpgradeStatus:    upgradeStatus,
+				DeployType:       entity.IdPair{Code:deployComponentList[j].DeployType,Desc:enum.GetDeployTypeString(enum.DeployType(deployComponentList[j].DeployType))},
+				ServiceStatus:    entity.IdPair{Code:deployComponentList[j].ServiceStatus,Desc:enum.GetServiceStatusString(enum.ServiceStatusType(deployComponentList[j].ServiceStatus))},
 			}
 
 			deployJob := models.DeployJob{

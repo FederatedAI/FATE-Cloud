@@ -129,6 +129,26 @@ func InitRouter() *gin.Engine {
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
 
+	//monitor
+	monitor := router.Group("/fate-manager/api/monitor").Use(JWT())
+	{
+		monitor.POST("/total",GetMonitorTotal)
+		monitor.POST("/institution",GetInstitutionBaseStatics)
+		monitor.POST("/site",GetSiteBaseStatistics)
+	}
+	//ansible
+	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
+	{
+		ansible.POST("/connectansible",ConnectAnsible)
+		ansible.POST("/prepare",Prepare)
+		ansible.POST("/updateMachine",UpdateMachine)
+		ansible.POST("/check",CheckSystem)
+		ansible.POST("/getcheck",GetCheckSytemList)
+		ansible.POST("/deployansible",StartDeployAnsible)
+		ansible.POST("/upload",LocalUpload)
+		ansible.POST("/deployansible/result",GetDeployAnsibleList)
+		ansible.POST("/autoacquire",AutoAcquire)
+	}
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
 	router.LoadHTMLFiles("./fate-manager/static/*/*")

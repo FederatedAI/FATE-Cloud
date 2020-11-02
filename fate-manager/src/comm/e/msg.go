@@ -110,6 +110,10 @@ var MsgFlags = map[int]string{
 	ERROR_GET_MONITOR_TOTAL_FAIL:            "Get Monitor Total Faild",
 	ERROR_GET_INSTITUTION_BASE_STATITCS_FAIL:"Get Institution Based Statistics Fail",
 	ERROR_GET_SITE_BASE_STTITCS_FAIL:        "Get Site Base Statistics Fail",
+	ERROR_CONNECT_ANSIBLE_FAIL:              "Connect To Ansible Server Fail",
+	ERROR_CHECK_SYSTEM_FAIL:                 "Check System Fail",
+	GET_CHECK_SYSYTEM_LIST_FAIL:             "Get Chck Sytem List Fail",
+	ERROR_GET_DEPLOY_ANSIBLE_LIST_FAIL:      "Get Deploy Ansible List Fail",
 }
 
 func GetMsg(code int) string {

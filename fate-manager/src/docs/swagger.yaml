@@ -128,6 +128,16 @@ definitions:
       msg:
         type: string
     type: object
+  app.InstitutionBaseStaticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.InstitutionBaseStaticsResp'
+        type: object
+      msg:
+        type: string
+    type: object
   app.InstitutionsResponse:
     properties:
       code:
@@ -175,6 +185,16 @@ definitions:
         type: integer
       data:
         type: boolean
+      msg:
+        type: string
+    type: object
+  app.MonitorResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.MonitorTotalResp'
+        type: object
       msg:
         type: string
     type: object
@@ -254,6 +274,17 @@ definitions:
       data:
         items:
           $ref: '#/definitions/entity.ComponentDeploy'
+        type: array
+      msg:
+        type: string
+    type: object
+  app.SiteBaseStatisticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.InstitutionSiteModelingItem'
         type: array
       msg:
         type: string
@@ -419,6 +450,15 @@ definitions:
       userName:
         type: string
     type: object
+  entity.AnsibleReq:
+    properties:
+      ansbileUrl:
+        type: string
+      partyId:
+        type: integer
+      productType:
+        type: integer
+    type: object
   entity.ApplyFateManager:
     properties:
       institutions:
@@ -451,6 +491,13 @@ definitions:
         items:
           $ref: '#/definitions/entity.IdPair'
         type: array
+    type: object
+  entity.AutoAcquireReq:
+    properties:
+      fateVersion:
+        type: string
+      partyId:
+        type: integer
     type: object
   entity.AutoTestItem:
     properties:
@@ -535,6 +582,11 @@ definitions:
       srcPartyId:
         type: integer
     type: object
+  entity.CheckSystemReq:
+    properties:
+      partyId:
+        type: integer
+    type: object
   entity.ClickReq:
     properties:
       clickType:
@@ -590,6 +642,11 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.DeployAnsibleReq:
+    properties:
+      partyId:
+        type: integer
     type: object
   entity.EditUserReq:
     properties:
@@ -704,12 +761,18 @@ definitions:
         type: string
       componentName:
         type: string
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       installTime:
         type: integer
       operation:
         items:
           $ref: '#/definitions/entity.Operation'
         type: array
+      serviceStatus:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       upgradeStatus:
         type: boolean
       upgradeTime:
@@ -733,6 +796,49 @@ definitions:
       productType:
         type: integer
     type: object
+  entity.InstitutionBaseStaticsResp:
+    properties:
+      completeJobs:
+        type: integer
+      completePercent:
+        type: number
+      data:
+        items:
+          $ref: '#/definitions/entity.InstitutionModelingItem'
+        type: array
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      totalJobs:
+        type: integer
+    type: object
+  entity.InstitutionModelingItem:
+    properties:
+      completeJobs:
+        type: integer
+      completePercent:
+        type: number
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      institution:
+        type: string
+      totalJobs:
+        type: integer
+    type: object
+  entity.InstitutionSiteModelingItem:
+    properties:
+      institution:
+        type: string
+      mixSiteModeling:
+        items:
+          $ref: '#/definitions/entity.MixSiteModeling'
+        type: array
+      siteName:
+        type: string
+    type: object
   entity.KubeReq:
     properties:
       federatedId:
@@ -742,6 +848,13 @@ definitions:
       partyId:
         type: integer
       productType:
+        type: integer
+    type: object
+  entity.LocalUploadReq:
+    properties:
+      fileContent:
+        type: string
+      partyId:
         type: integer
     type: object
   entity.LogReq:
@@ -783,6 +896,56 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.Machine:
+    properties:
+      ip:
+        type: string
+      rootName:
+        type: string
+      rootPwd:
+        type: string
+    type: object
+  entity.MixSiteModeling:
+    properties:
+      completeJobs:
+        type: integer
+      completePercent:
+        type: number
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      institutionSiteName:
+        type: string
+      totalJobs:
+        type: integer
+    type: object
+  entity.MonitorReq:
+    properties:
+      endDate:
+        type: string
+      startDate:
+        type: string
+    type: object
+  entity.MonitorTotalResp:
+    properties:
+      activeData:
+        type: integer
+      completeJobs:
+        type: integer
+      completePercent:
+        type: number
+      data:
+        items:
+          $ref: '#/definitions/entity.SiteModelingItem'
+        type: array
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      totalJobs:
+        type: integer
     type: object
   entity.Operation:
     properties:
@@ -856,6 +1019,18 @@ definitions:
         type: string
       procName:
         type: string
+    type: object
+  entity.PrepareReq:
+    properties:
+      controlNode:
+        $ref: '#/definitions/entity.Machine'
+        type: object
+      manageNode:
+        items:
+          $ref: '#/definitions/entity.Machine'
+        type: array
+      partyId:
+        type: integer
     type: object
   entity.PullComponentListReq:
     properties:
@@ -1035,6 +1210,9 @@ definitions:
       role:
         $ref: '#/definitions/entity.IdPair'
         type: object
+      serviceStatus:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       siteId:
         type: integer
       siteName:
@@ -1051,6 +1229,23 @@ definitions:
         type: integer
       siteName:
         type: string
+    type: object
+  entity.SiteModelingItem:
+    properties:
+      completeJobs:
+        type: integer
+      completePercent:
+        type: number
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      partyId:
+        type: integer
+      siteName:
+        type: string
+      totalJobs:
+        type: integer
     type: object
   entity.SitePair:
     properties:
@@ -1259,6 +1454,231 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Fate-Manager
 paths:
+  /fate-manager/api/ansible/autoacquire:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoAcquireReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: auto acquire package
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/check:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CheckSystemReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: check system to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/connectansible:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AnsibleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Connect To Ansible Server
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/deployansible:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.DeployAnsibleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: start to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/deployansible/result:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.DeployAnsibleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get deploy ansible list
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/getcheck:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CheckSystemReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get check system list
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/prepare:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.PrepareReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: prepare to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/updatemachine:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.PrepareReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: update to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/upload:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LocalUploadReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: local upload package
+      tags:
+      - AnsibleController
   /fate-manager/api/deploy/autotest:
     post:
       consumes:
@@ -1998,6 +2418,67 @@ paths:
       summary: sign out
       tags:
       - UserController
+  /fate-manager/api/monitor/statistics/institution:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.InstitutionBaseStaticsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Institution based statistics
+      tags:
+      - MonitorController
+  /fate-manager/api/monitor/statistics/site:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SiteBaseStatisticsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Site based statistics
+      tags:
+      - MonitorController
+  /fate-manager/api/monitor/total:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.MonitorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Monitor Total
+      tags:
+      - MonitorController
   /fate-manager/api/service/action:
     post:
       consumes:

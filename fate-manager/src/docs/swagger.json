@@ -14,6 +14,357 @@
     },
     "host": "localhost:9090",
     "paths": {
+        "/fate-manager/api/ansible/autoacquire": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "auto acquire package",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AutoAcquireReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/check": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "check system to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.CheckSystemReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/connectansible": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "Connect To Ansible Server",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AnsibleReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/deployansible": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "start to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.DeployAnsibleReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/deployansible/result": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "get deploy ansible list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.DeployAnsibleReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/getcheck": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "get check system list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.CheckSystemReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/prepare": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "prepare to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.PrepareReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/updatemachine": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "update to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.PrepareReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/upload": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "local upload package",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.LocalUploadReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/deploy/autotest": {
             "post": {
                 "consumes": [
@@ -1156,6 +1507,101 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.LogoutResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/monitor/statistics/institution": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonitorController"
+                ],
+                "summary": "Get Institution based statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.InstitutionBaseStaticsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/monitor/statistics/site": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonitorController"
+                ],
+                "summary": "Get Site based statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.SiteBaseStatisticsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/monitor/total": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MonitorController"
+                ],
+                "summary": "Get Monitor Total",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.MonitorReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.MonitorResponse"
                         }
                     },
                     "500": {
@@ -2805,6 +3251,21 @@
                 }
             }
         },
+        "app.InstitutionBaseStaticsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.InstitutionBaseStaticsResp"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "app.InstitutionsResponse": {
             "type": "object",
             "properties": {
@@ -2876,6 +3337,21 @@
                 },
                 "data": {
                     "type": "boolean"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.MonitorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.MonitorTotalResp"
                 },
                 "msg": {
                     "type": "string"
@@ -2998,6 +3474,23 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.ComponentDeploy"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.SiteBaseStatisticsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InstitutionSiteModelingItem"
                     }
                 },
                 "msg": {
@@ -3251,6 +3744,20 @@
                 }
             }
         },
+        "entity.AnsibleReq": {
+            "type": "object",
+            "properties": {
+                "ansbileUrl": {
+                    "type": "string"
+                },
+                "partyId": {
+                    "type": "integer"
+                },
+                "productType": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.ApplyFateManager": {
             "type": "object",
             "properties": {
@@ -3299,6 +3806,17 @@
                     "items": {
                         "$ref": "#/definitions/entity.IdPair"
                     }
+                }
+            }
+        },
+        "entity.AutoAcquireReq": {
+            "type": "object",
+            "properties": {
+                "fateVersion": {
+                    "type": "string"
+                },
+                "partyId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3430,6 +3948,14 @@
                 }
             }
         },
+        "entity.CheckSystemReq": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.ClickReq": {
             "type": "object",
             "properties": {
@@ -3512,6 +4038,14 @@
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.DeployAnsibleReq": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3688,6 +4222,10 @@
                 "componentName": {
                     "type": "string"
                 },
+                "deployType": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
                 "installTime": {
                     "type": "integer"
                 },
@@ -3696,6 +4234,10 @@
                     "items": {
                         "$ref": "#/definitions/entity.Operation"
                     }
+                },
+                "serviceStatus": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
                 },
                 "upgradeStatus": {
                     "type": "boolean"
@@ -3733,6 +4275,72 @@
                 }
             }
         },
+        "entity.InstitutionBaseStaticsResp": {
+            "type": "object",
+            "properties": {
+                "completeJobs": {
+                    "type": "integer"
+                },
+                "completePercent": {
+                    "type": "number"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InstitutionModelingItem"
+                    }
+                },
+                "failedJobs": {
+                    "type": "integer"
+                },
+                "failedPercent": {
+                    "type": "number"
+                },
+                "totalJobs": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.InstitutionModelingItem": {
+            "type": "object",
+            "properties": {
+                "completeJobs": {
+                    "type": "integer"
+                },
+                "completePercent": {
+                    "type": "number"
+                },
+                "failedJobs": {
+                    "type": "integer"
+                },
+                "failedPercent": {
+                    "type": "number"
+                },
+                "institution": {
+                    "type": "string"
+                },
+                "totalJobs": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.InstitutionSiteModelingItem": {
+            "type": "object",
+            "properties": {
+                "institution": {
+                    "type": "string"
+                },
+                "mixSiteModeling": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.MixSiteModeling"
+                    }
+                },
+                "siteName": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.KubeReq": {
             "type": "object",
             "properties": {
@@ -3746,6 +4354,17 @@
                     "type": "integer"
                 },
                 "productType": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.LocalUploadReq": {
+            "type": "object",
+            "properties": {
+                "fileContent": {
+                    "type": "string"
+                },
+                "partyId": {
                     "type": "integer"
                 }
             }
@@ -3809,6 +4428,83 @@
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.Machine": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                },
+                "rootName": {
+                    "type": "string"
+                },
+                "rootPwd": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.MixSiteModeling": {
+            "type": "object",
+            "properties": {
+                "completeJobs": {
+                    "type": "integer"
+                },
+                "completePercent": {
+                    "type": "number"
+                },
+                "failedJobs": {
+                    "type": "integer"
+                },
+                "failedPercent": {
+                    "type": "number"
+                },
+                "institutionSiteName": {
+                    "type": "string"
+                },
+                "totalJobs": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.MonitorReq": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.MonitorTotalResp": {
+            "type": "object",
+            "properties": {
+                "activeData": {
+                    "type": "integer"
+                },
+                "completeJobs": {
+                    "type": "integer"
+                },
+                "completePercent": {
+                    "type": "number"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.SiteModelingItem"
+                    }
+                },
+                "failedJobs": {
+                    "type": "integer"
+                },
+                "failedPercent": {
+                    "type": "number"
+                },
+                "totalJobs": {
+                    "type": "integer"
                 }
             }
         },
@@ -3921,6 +4617,24 @@
                 },
                 "procName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.PrepareReq": {
+            "type": "object",
+            "properties": {
+                "controlNode": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.Machine"
+                },
+                "manageNode": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Machine"
+                    }
+                },
+                "partyId": {
+                    "type": "integer"
                 }
             }
         },
@@ -4194,6 +4908,10 @@
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
                 },
+                "serviceStatus": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
                 "siteId": {
                     "type": "integer"
                 },
@@ -4217,6 +4935,32 @@
                 },
                 "siteName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.SiteModelingItem": {
+            "type": "object",
+            "properties": {
+                "completeJobs": {
+                    "type": "integer"
+                },
+                "completePercent": {
+                    "type": "number"
+                },
+                "failedJobs": {
+                    "type": "integer"
+                },
+                "failedPercent": {
+                    "type": "number"
+                },
+                "partyId": {
+                    "type": "integer"
+                },
+                "siteName": {
+                    "type": "string"
+                },
+                "totalJobs": {
+                    "type": "integer"
                 }
             }
         },
