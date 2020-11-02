@@ -18,4 +18,10 @@ public class JobStatisticsSummaryTodayQo implements Serializable {
     @NotNull(message = "finish date can't be null!")
     @ApiModelProperty(value = "finish date")
     private Date dateToday;
+
+    @ApiModelProperty("pageSize")
+    private Integer pageSize = 10;
+
+    @ApiModelProperty("pageNum")
+    private Integer pageNum = 1;
 }

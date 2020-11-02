@@ -26,4 +26,10 @@ public class JobStatisticsSummarySiteAllForPeriodQo implements Serializable {
     @NotNull(message = "institutions can't be null!")
     @ApiModelProperty(value = "institutions name")
     private String institutions;
+
+    @ApiModelProperty("pageSize")
+    private Integer pageSize = 10;
+
+    @ApiModelProperty("pageNum")
+    private Integer pageNum = 1;
 }
