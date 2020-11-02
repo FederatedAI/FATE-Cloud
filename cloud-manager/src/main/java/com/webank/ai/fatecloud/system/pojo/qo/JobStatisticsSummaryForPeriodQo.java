@@ -23,4 +23,10 @@ public class JobStatisticsSummaryForPeriodQo implements Serializable {
     @ApiModelProperty(value = "end date")
     private Date endDate;
 
+    @ApiModelProperty("pageSize")
+    private Integer pageSize = 10;
+
+    @ApiModelProperty("pageNum")
+    private Integer pageNum = 1;
+
 }

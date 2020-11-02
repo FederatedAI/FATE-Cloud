@@ -1,6 +1,7 @@
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper;
@@ -76,21 +77,39 @@ public class FederatedJobStatisticsService {
         return jobStatisticsSummaryTodayInstitutionsAllDto;
     }
 
-    public List<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryTodayInstitutionsEach(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
-        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
-        return jobStatisticsSummaryTodayInstitutionsEachDtos;
+    public PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryTodayInstitutionsEach(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
+
+        long count = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEachCount(jobStatisticsSummaryTodayQo);
+        PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtoPageBean = new PageBean<>(jobStatisticsSummaryTodayQo.getPageNum(), jobStatisticsSummaryTodayQo.getPageSize(), count);
+        long startIndex = jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.getStartIndex();
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(startIndex,jobStatisticsSummaryTodayQo);
+
+        jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.setList(jobStatisticsSummaryTodayInstitutionsEachDtos);
+        return jobStatisticsSummaryTodayInstitutionsEachDtoPageBean;
+
+
+//        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
+//        return jobStatisticsSummaryTodayInstitutionsEachDtos;
     }
 
     public JobStatisticsSummaryTodaySiteAllDto getJobStatisticsSummaryTodaySiteAll(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
 
-        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto =federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
+        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
 
         return jobStatisticsSummaryTodaySiteAllDto;
     }
 
-    public List<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummaryTodaySiteEach(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
-        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(jobStatisticsSummaryTodaySiteAllQo);
-        return jobStatisticsSummaryTodaySiteEachDtos;
+    public PageBean<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummaryTodaySiteEach(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
+        long count = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEachCount(jobStatisticsSummaryTodaySiteAllQo);
+        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtoPageBean = new PageBean<>(jobStatisticsSummaryTodaySiteAllQo.getPageNum(), jobStatisticsSummaryTodaySiteAllQo.getPageSize(), count);
+        long startIndex = jobStatisticsSummaryTodaySiteEachDtoPageBean.getStartIndex();
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(startIndex,jobStatisticsSummaryTodaySiteAllQo);
+
+        jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
+        return jobStatisticsSummaryTodaySiteEachDtoPageBean;
+
+//        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(jobStatisticsSummaryTodaySiteAllQo);
+//        return jobStatisticsSummaryTodaySiteEachDtos;
     }
 
     public JobStatisticsOfSiteDimensionDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
@@ -126,19 +145,31 @@ public class FederatedJobStatisticsService {
         return jobStatisticsSummaryTodayInstitutionsAllDto;
     }
 
-    public List<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryInstitutionsEachForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
-        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriod(jobStatisticsSummaryForPeriodQo);
-        return jobStatisticsSummaryTodayInstitutionsEachDtos;
+    public PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryInstitutionsEachForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
+
+        long count = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriodCount(jobStatisticsSummaryForPeriodQo);
+        PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtoPageBean = new PageBean<>(jobStatisticsSummaryForPeriodQo.getPageNum(), jobStatisticsSummaryForPeriodQo.getPageSize(), count);
+        long startIndex = jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.getStartIndex();
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriod(startIndex,jobStatisticsSummaryForPeriodQo);
+
+        jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
+        return jobStatisticsSummaryTodayInstitutionsEachDtoPageBean;
     }
 
     public JobStatisticsSummaryTodaySiteAllDto getJobStatisticsSummarySiteAllForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
-        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto =federatedJobStatisticsMapper.getJobStatisticsSummarySiteAllForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
+        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto = federatedJobStatisticsMapper.getJobStatisticsSummarySiteAllForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
 
         return jobStatisticsSummaryTodaySiteAllDto;
     }
 
-    public List<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummarySiteEachForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
-        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
-        return jobStatisticsSummaryTodaySiteEachDtos;
+    public PageBean<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummarySiteEachForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
+
+        long count = federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriodCount(jobStatisticsSummarySiteAllForPeriodQo);
+        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtoPageBean = new PageBean<>(jobStatisticsSummarySiteAllForPeriodQo.getPageNum(), jobStatisticsSummarySiteAllForPeriodQo.getPageSize(), count);
+        long startIndex = jobStatisticsSummaryTodaySiteEachDtoPageBean.getStartIndex();
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriod(startIndex,jobStatisticsSummarySiteAllForPeriodQo);
+
+        jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
+        return jobStatisticsSummaryTodaySiteEachDtoPageBean;
     }
 }

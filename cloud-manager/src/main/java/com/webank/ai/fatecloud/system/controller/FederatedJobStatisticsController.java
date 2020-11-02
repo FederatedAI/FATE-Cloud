@@ -2,6 +2,7 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedJobStatisticsServiceFacade;
@@ -72,7 +73,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/summary/institutions/each/today")
     @ApiOperation(value = "find job summary statistics for each institutions today ")
-    public CommonResponse<List<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryTodayInstitutionsEach(@Valid @RequestBody JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryTodayInstitutionsEach(@Valid @RequestBody JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobStatisticsSummaryTodayQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -92,7 +93,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/summary/site/each/today")
     @ApiOperation(value = "find job summary statistics for each site today ")
-    public CommonResponse<List<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummaryTodaySiteEach(@Valid @RequestBody JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummaryTodaySiteEach(@Valid @RequestBody JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobStatisticsSummaryTodaySiteAllQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -135,7 +136,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/summary/institutions/each/period")
     @ApiOperation(value = "find job summary statistics for each institutions for a period ")
-    public CommonResponse<List<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryInstitutionsEachForPeriod(@Valid @RequestBody JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryInstitutionsEachForPeriod(@Valid @RequestBody JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobStatisticsSummaryForPeriodQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -155,7 +156,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/summary/site/each/period")
     @ApiOperation(value = "find job summary statistics for each site for a period ")
-    public CommonResponse<List<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummarySiteEachForPeriod(@Valid @RequestBody JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummarySiteEachForPeriod(@Valid @RequestBody JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobStatisticsSummarySiteAllForPeriodQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
