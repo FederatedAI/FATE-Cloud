@@ -37,7 +37,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Site Manager
-	sites := router.Group("/fate-manager/api/site").Use(JWT())
+	sites := router.Group("/fate-manager/api/site")//.Use(JWT())
 	{
 		sites.GET("", GetHomeSiteList)
 		sites.GET("/other", GetOtherSiteList)
@@ -79,7 +79,7 @@ func InitRouter() *gin.Engine {
 		dropDownList.POST("/componentversion",GetComponentVersionList)
 	}
 	//Manager,Service Managment
-	services := router.Group("/fate-manager/api/service").Use(JWT())
+	services := router.Group("/fate-manager/api/service")//.Use(JWT())
 	{
 		services.POST("/info", GetService)
 		services.POST("/action", DoAcation)
@@ -91,7 +91,7 @@ func InitRouter() *gin.Engine {
 		services.POST("/pagestatus", GetPageStatus)
 	}
 	//FATE Deploy
-	deploys := router.Group("/fate-manager/api/deploy").Use(JWT())
+	deploys := router.Group("/fate-manager/api/deploy")//.Use(JWT())
 	{
 		deploys.GET("/prepare", GetPrepare)
 		deploys.POST("/pulllist", GetPullComponentList)
@@ -112,7 +112,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//User
-	user := router.Group("/fate-manager/api/user").Use(JWT())
+	user := router.Group("/fate-manager/api/user")//.Use(JWT())
 	{
 		user.GET("/info", GetUserInfo)
 		user.POST("/list", GetUserList)
@@ -130,14 +130,14 @@ func InitRouter() *gin.Engine {
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
 
 	//monitor
-	monitor := router.Group("/fate-manager/api/monitor").Use(JWT())
+	monitor := router.Group("/fate-manager/api/monitor")//.Use(JWT())
 	{
 		monitor.POST("/total",GetMonitorTotal)
 		monitor.POST("/institution",GetInstitutionBaseStatics)
 		monitor.POST("/site",GetSiteBaseStatistics)
 	}
 	//ansible
-	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
+	ansible := router.Group("/fate-manager/api/ansible")//.Use(JWT())
 	{
 		ansible.POST("/connectansible",ConnectAnsible)
 		ansible.POST("/prepare",Prepare)

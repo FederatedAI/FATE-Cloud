@@ -154,10 +154,10 @@ func JobTask() {
 
 				componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 				site := models.SiteInfo{
-					FederatedId:        deployJobList[i].FederatedId,
-					PartyId:            deployJobList[i].PartyId,
-					FateVersion:        deploySiteList[0].FateVersion,
-					ComponentVersion:   string(componentVersonMapjson),
+					FederatedId:      deployJobList[i].FederatedId,
+					PartyId:          deployJobList[i].PartyId,
+					FateVersion:      deploySiteList[0].FateVersion,
+					ComponentVersion: string(componentVersonMapjson),
 					//FateServingVersion: "1.2.1",
 				}
 				models.UpdateSite(&site)
@@ -458,7 +458,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 		applySiteInfo.Status = int(enum.IS_VALID_YES)
 		if len(validAuditList) > 0 {
 			models.UpdateApplySiteInfo(data, &applySiteInfo)
-		} else if len(validAudit) >0{
+		} else if len(validAudit) > 0 {
 			applySiteInfo = models.ApplySiteInfo{
 				Institutions: string(validAuditJson),
 				Status:       int(enum.IS_VALID_YES),
@@ -527,15 +527,15 @@ func AllowApplyTask(info *models.AccountInfo) {
 func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
-		ProductType:  int(enum.PRODUCT_TYPE_FATE),
-		IsValid:      int(enum.IS_VALID_YES),
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
 	if err != nil {
 		return
 	}
 	for i := 0; i < len(deployComponentList); i++ {
-		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS){
+		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS) {
 			continue
 		}
 		testname := deployComponentList[i].ComponentName
@@ -616,5 +616,95 @@ func AutoTestTask() {
 			models.UpdateAutoTest(autoTestData, autoTest)
 		}
 		models.UpdateDeploySite(deploySiteData, deploySite)
+	}
+}
+
+type FlowJobQuery struct {
+	PartyId int `json:"party_id"`
+}
+type SiteInstitution struct {
+	SiteName string `json:"siteName"`
+	Institution string `json:"institution"`
+}
+func MonitorTask(accountInfo *models.AccountInfo) {
+	siteInfo := models.SiteInfo{
+		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
+		Status:        int(enum.SITE_STATUS_JOINED),
+	}
+	flowAddressList, err := models.GetFlowAddressList(&siteInfo)
+	if err != nil {
+		return
+	}
+	var siteNameMap = make(map[int]SiteInstitution)
+	for i :=0;i< len(flowAddressList) ;i++  {
+		siteInstitution := SiteInstitution{
+			SiteName:    flowAddressList[i].SiteName,
+			Institution: accountInfo.Institutions,
+		}
+		siteNameMap[flowAddressList[i].PartyId] = siteInstitution
+	}
+	for i := 0; i < len(flowAddressList); i++ {
+		flowJobQuery := FlowJobQuery{PartyId: flowAddressList[i].PartyId}
+		result, err := http.POST(http.Url("http://"+flowAddressList[i].Address+setting.FlowJobQuery), flowJobQuery, nil)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			return
+		}
+		var flowJobQueryResp entity.FlowJobQueryResp
+		err = json.Unmarshal([]byte(result.Body), &flowJobQueryResp)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return
+		}
+		if flowJobQueryResp.Code == e.SUCCESS {
+			for j :=0;j<len(flowJobQueryResp.Data) ;j++  {
+				flowJobQuery := flowJobQueryResp.Data[j]
+				ds,_ :=strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000,0).Format("20060102"))
+				monitorDetail := models.MonitorDetail{
+					Ds:               ds,
+					GuestSiteName:    "",
+					GuestInstitution: "",
+					HostSiteName:     "",
+					HostInstitution:  "",
+					ArbiterSiteName:  "",
+					StartTime:        flowJobQuery.StartTime,
+					EndTime:          flowJobQuery.EndTime,
+					JobId:            flowJobQuery.JobId,
+					Status:           flowJobQuery.Status,
+					CreateTime:       flowJobQuery.CreateTime,
+					UpdateTime:       flowJobQuery.UpdateTime,
+				}
+				if len(flowJobQuery.Roles.Guest) >0 {
+					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
+					_,ok := siteNameMap[monitorDetail.GuestPartyId]
+					if ok {
+						monitorDetail.GuestSiteName = siteNameMap[monitorDetail.GuestPartyId].SiteName
+						monitorDetail.GuestInstitution = siteNameMap[monitorDetail.GuestPartyId].Institution
+					}
+				}
+				if len(flowJobQuery.Roles.Host) >0 {
+					monitorDetail.HostPartyId = flowJobQuery.Roles.Host[0]
+					_,ok := siteNameMap[monitorDetail.HostPartyId]
+					if ok {
+						monitorDetail.HostSiteName = siteNameMap[monitorDetail.HostPartyId].SiteName
+						monitorDetail.HostInstitution = siteNameMap[monitorDetail.HostPartyId].Institution
+					}
+				}
+				if len(flowJobQuery.Roles.Arbiter) >0 {
+					monitorDetail.ArbiterPartyId = flowJobQuery.Roles.Arbiter[0]
+					_,ok := siteNameMap[monitorDetail.ArbiterPartyId]
+					if ok {
+						monitorDetail.ArbiterSiteName = siteNameMap[monitorDetail.ArbiterPartyId].SiteName
+						monitorDetail.ArbiterInstitution = siteNameMap[monitorDetail.ArbiterPartyId].Institution
+					}
+				}
+				monitorDetailList,_ := models.GetMonitorDetail(&monitorDetail)
+				if len(monitorDetailList) == 0{
+					models.AddMonitorDetail(&monitorDetail)
+				}else{
+					models.UpdateMonitorDetail(&monitorDetail)
+				}
+			}
+		}
 	}
 }
