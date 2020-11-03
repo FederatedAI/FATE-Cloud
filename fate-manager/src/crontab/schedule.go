@@ -33,20 +33,20 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	go SiteStatusTask()
-	go IpManagerTask()
-	go HeartTask()
-	go JobTask()
-	go TestOnlyTask()
-	go ComponentStatusTask()
-	go ApplyResultTask(accountInfo)
-	go AllowApplyTask(accountInfo)
-	if AutoTestCheck {
-		AutoTestTask()
-		AutoTestCheck = false
-	}
+	//go SiteStatusTask()
+	//go IpManagerTask()
+	//go HeartTask()
+	//go JobTask()
+	//go TestOnlyTask()
+	//go ComponentStatusTask()
+	//go ApplyResultTask(accountInfo)
+	//go AllowApplyTask(accountInfo)
+	//if AutoTestCheck {
+	//	AutoTestTask()
+	//	AutoTestCheck = false
+	//}
+	go MonitorTask(accountInfo)
 }
-
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))
 	for {
@@ -56,7 +56,6 @@ func SiteStatusTask() {
 		<-ticker.C
 	}
 }
-
 func IpManagerTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
 	for {
@@ -66,7 +65,6 @@ func IpManagerTask() {
 		<-ticker.C
 	}
 }
-
 func HeartTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))
 	for {
@@ -76,7 +74,6 @@ func HeartTask() {
 		<-ticker.C
 	}
 }
-
 func JobTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Job))
 	for {
@@ -86,7 +83,6 @@ func JobTask() {
 		<-ticker.C
 	}
 }
-
 func TestOnlyTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Test))
 	for {
@@ -96,7 +92,6 @@ func TestOnlyTask() {
 		<-ticker.C
 	}
 }
-
 func ApplyResultTask(accountInfo *models.AccountInfo) {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
 	for {
@@ -128,4 +123,9 @@ func AutoTestTask() {
 	logging.Debug("AutoTestTask start...")
 	job_service.AutoTestTask()
 	logging.Debug("AutoTestTask end...")
+}
+func MonitorTask(accountInfo *models.AccountInfo){
+	logging.Debug("MonitorTask start...")
+	job_service.MonitorTask(accountInfo)
+	logging.Debug("MonitorTask end...")
 }
