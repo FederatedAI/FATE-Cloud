@@ -18,25 +18,26 @@ package models
 import (
 	"fate.manager/entity"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type MonitorDetail struct {
 	Id               int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
 	Ds               int
-	DsUnix           int64
 	GuestPartyId     int
 	GuestSiteName    string
-	GuestRole        int
 	GuestInstitution string
 	HostPartyId      int
 	HostSiteName     string
-	HostRole         int
 	HostInstitution  string
+	ArbiterPartyId   int
+	ArbiterSiteName  string
+	ArbiterInstitution string
 	JobId            string
-	Status           int
-	CreateTime       time.Time
-	UpdateTime       time.Time
+	StartTime        int64
+	EndTime          int64
+	Status           string
+	CreateTime       int64
+	UpdateTime       int64
 }
 type MonitorBase struct {
 	Total       int
@@ -88,4 +89,31 @@ func GetSiteMonitorByHis()([]*MonitorBySite,error){
 		return nil, err
 	}
 	return monitorByHisList, nil
+}
+
+func AddMonitorDetail(info *MonitorDetail) error {
+	if err := db.Create(&info).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateMonitorDetail(info *MonitorDetail) error {
+	if err := db.Model(&MonitorDetail{}).Where("job_id  = ? ", info.JobId).Updates(info).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetMonitorDetail(info *MonitorDetail)([]*MonitorDetail,error){
+	var result []*MonitorDetail
+	Db := db
+	if len(info.JobId) > 0 {
+		Db = Db.Where("job_id = ?", info.JobId)
+	}
+	err := Db.Find(&result).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return result, nil
 }

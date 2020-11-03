@@ -40,6 +40,7 @@ var AuthorityResults = "/cloud-manager/api/authority/results"
 var FunctionAllUri = "/cloud-manager/api/function/find/all/fateManager"
 var OtherSiteUri = "/cloud-manager/api/site/page/fateManager"
 var ApprovedUri = "/cloud-manager/api/authority/institutions/approved"
+var FlowJobQuery = "/v1/job/query"
 
 type Server struct {
 	RunMode      string
