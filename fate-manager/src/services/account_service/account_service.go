@@ -16,11 +16,16 @@
 package account_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
+	"fate.manager/comm/http"
 	"fate.manager/comm/logging"
+	"fate.manager/comm/setting"
+	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/federated_service"
 	"fate.manager/services/site_service"
 	"fate.manager/services/user_service"
 	"fmt"
@@ -329,8 +334,44 @@ func GetUserInfo(token string) (*entity.UserInfoResp, error) {
 	return &userInfoResp, nil
 }
 
-func PermissionAuthority(reportIpReq entity.PermissionAuthorityReq) (bool, error) {
-	return true, nil
+
+func PermissionAuthority(permissionAuthorityReq entity.PermissionAuthorityReq) (bool, error) {
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return false,err
+	}
+	checkPartyId := entity.CheckPartyId{
+		Institutions: accountInfo.Institutions,
+		PartyId:      permissionAuthorityReq.PartyId,
+	}
+	checkPartyIdJson,_ := json.Marshal(checkPartyId)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    accountInfo.AppKey,
+		UserAppSecret: accountInfo.AppSecret,
+		FateManagerId: accountInfo.CloudUserId,
+		Body:          string(checkPartyIdJson),
+		Uri:           setting.CheckPartyUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return false,err
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.CheckPartyUri), checkPartyId, headerInfoMap)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return false,err
+	}
+	var checkPartyIdResp entity.CheckPartyIdResp
+	err = json.Unmarshal([]byte(result.Body), &checkPartyIdResp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return false,err
+	}
+	if checkPartyIdResp.Code == e.SUCCESS {
+		return checkPartyIdResp.Data,nil
+	}
+	return false,nil
 }
 
 func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSiteItem,error){
