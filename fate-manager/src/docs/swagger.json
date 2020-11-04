@@ -1518,7 +1518,7 @@
                 }
             }
         },
-        "/fate-manager/api/monitor/statistics/institution": {
+        "/fate-manager/api/monitor/institution": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -1546,7 +1546,7 @@
                 }
             }
         },
-        "/fate-manager/api/monitor/statistics/site": {
+        "/fate-manager/api/monitor/site": {
             "get": {
                 "consumes": [
                     "application/json"

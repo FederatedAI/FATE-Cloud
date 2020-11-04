@@ -133,8 +133,8 @@ func InitRouter() *gin.Engine {
 	monitor := router.Group("/fate-manager/api/monitor")//.Use(JWT())
 	{
 		monitor.POST("/total",GetMonitorTotal)
-		monitor.POST("/institution",GetInstitutionBaseStatics)
-		monitor.POST("/site",GetSiteBaseStatistics)
+		monitor.GET("/institution",GetInstitutionBaseStatics)
+		monitor.GET("/site",GetSiteBaseStatistics)
 	}
 	//ansible
 	ansible := router.Group("/fate-manager/api/ansible")//.Use(JWT())

@@ -29,6 +29,7 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/k8s_service"
+	"fate.manager/services/user_service"
 	"fmt"
 	"log"
 	"os"
@@ -636,6 +637,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		return
 	}
 	var siteNameMap = make(map[int]SiteInstitution)
+	siteNameMap,_ = GetOtherPartyIdInstitution()
 	for i :=0;i< len(flowAddressList) ;i++  {
 		siteInstitution := SiteInstitution{
 			SiteName:    flowAddressList[i].SiteName,
@@ -707,4 +709,114 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
+}
+
+func GetOtherSiteList() ([]entity.FederatedItem, error) {
+	var federatedItemList []entity.FederatedItem
+	federatedInfo, err := models.GetFederatedInfo()
+	if err != nil || len(federatedInfo) == 0 {
+		return nil, err
+	}
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return nil, err
+	}
+
+	ApplyResultTask(accountInfo)
+	applySiteInfo := models.ApplySiteInfo{
+		Status: int(enum.IS_VALID_YES),
+	}
+	applySiteInfoList, err := models.GetApplySiteInfo(applySiteInfo)
+	if len(applySiteInfoList) > 0 {
+		var auditresultlist []entity.IdPair
+		err = json.Unmarshal([]byte(applySiteInfoList[0].Institutions), &auditresultlist)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return nil, err
+		}
+		for i := 0; i < len(auditresultlist); i++ {
+			if auditresultlist[i].Code != int(enum.AuditStatus_AGREED) {
+				continue
+			}
+			querySiteReq := entity.QuerySiteReq{
+				Institutions: auditresultlist[i].Desc,
+				PageNum:      1,
+				PageSize:     100,
+			}
+			applySiteReqJson, _ := json.Marshal(querySiteReq)
+			headInfo := util.UserHeaderInfo{
+				UserAppKey:    accountInfo.AppKey,
+				UserAppSecret: accountInfo.AppSecret,
+				FateManagerId: accountInfo.CloudUserId,
+				Body:          string(applySiteReqJson),
+				Uri:           setting.OtherSiteUri,
+			}
+			headerInfoMap := util.GetUserHeadInfo(headInfo)
+			federationList, err := federated_service.GetFederationInfo()
+			if err != nil || len(federationList) == 0 {
+				return nil, err
+			}
+			result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+				return nil, err
+			}
+			var resp entity.ApplyResp
+			err = json.Unmarshal([]byte(result.Body), &resp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return nil, err
+			}
+			if resp.Code == e.SUCCESS {
+				var siteItemList []entity.SiteItem
+				for k := 0; k < len(resp.Data.List); k++ {
+					item := resp.Data.List[k]
+					siteItem := entity.SiteItem{
+						Id:       item.Id,
+						PartyId:  item.PartyId,
+						SiteName: item.SiteName,
+						Role: entity.IdPair{
+							Code: item.Role,
+							Desc: enum.GetRoleString(enum.RoleType(item.Role)),
+						},
+						Status: entity.IdPair{
+							Code: item.Status,
+							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
+						},
+						AcativationTime: item.ActivationTime,
+					}
+					siteItemList = append(siteItemList, siteItem)
+				}
+				federatedItem := entity.FederatedItem{
+					FederatedId:             federatedInfo[0].Id,
+					FateManagerInstitutions: auditresultlist[i].Desc,
+					Size:                    len(siteItemList),
+					SiteItemList:            siteItemList,
+				}
+				federatedItemList = append(federatedItemList, federatedItem)
+			}
+		}
+	}
+	return federatedItemList, nil
+}
+
+
+func GetOtherPartyIdInstitution()(map[int]SiteInstitution,error){
+	siteItemList,err := GetOtherSiteList()
+	if err != nil {
+		return nil,err
+	}
+	var siteInstitutionMap = make(map[int]SiteInstitution)
+	for i := 0; i < len(siteItemList) ;i++  {
+		federatedItem := siteItemList[i]
+		for j := 0; j < len(federatedItem.SiteItemList);j++  {
+			SiteItem := federatedItem.SiteItemList[j]
+			SiteInstitution := SiteInstitution{
+				SiteName:    SiteItem.SiteName,
+				Institution: federatedItem.FateManagerInstitutions,
+			}
+			siteInstitutionMap[SiteItem.PartyId] = SiteInstitution
+		}
+	}
+	return siteInstitutionMap,nil
 }

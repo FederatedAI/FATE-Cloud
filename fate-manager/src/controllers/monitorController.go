@@ -62,7 +62,7 @@ func GetMonitorTotal(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.InstitutionBaseStaticsResponse
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/monitor/statistics/institution [get]
+// @Router /fate-manager/api/monitor/institution [get]
 func GetInstitutionBaseStatics(c *gin.Context) {
 	appG := app.Gin{C: c}
 	result, err := monitor_service.GetInstitutionBaseStatics()
@@ -79,7 +79,7 @@ func GetInstitutionBaseStatics(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.SiteBaseStatisticsResponse
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/monitor/statistics/site [get]
+// @Router /fate-manager/api/monitor/site [get]
 func GetSiteBaseStatistics(c *gin.Context) {
 	appG := app.Gin{C: c}
 	result, err := monitor_service.GetSiteBaseStatistics()

@@ -152,3 +152,11 @@ type ApproveResp struct {
 	CloudCommResp
 	Data ApproveData `json:"data"`
 }
+type CheckPartyId struct {
+	Institutions string `json:"institutions"`
+	PartyId      int    `json:"partyId"`
+}
+type CheckPartyIdResp struct {
+	CloudCommResp
+	Data bool `json:"data"`
+}
