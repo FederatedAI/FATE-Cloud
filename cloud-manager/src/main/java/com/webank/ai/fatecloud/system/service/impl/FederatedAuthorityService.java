@@ -278,7 +278,7 @@ public class FederatedAuthorityService {
 
     public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status",2,4).eq("generation",1);
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status", 2, 4).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         long institutionsCount = federatedSiteAuthorityDos.size();
 
@@ -291,5 +291,13 @@ public class FederatedAuthorityService {
 
         return institutionsForFateDtoPageBean;
 
+    }
+
+    public Boolean checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo) {
+        FederatedSiteAuthorityDo federatedSiteAuthorityDo = federatedSiteAuthorityMapper.checkPartyIdAuthority(partyIdCheckQo);
+        if (federatedSiteAuthorityDo == null) {
+            return false;
+        }
+        return true;
     }
 }
