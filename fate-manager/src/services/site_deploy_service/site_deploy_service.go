@@ -272,7 +272,6 @@ func Install(installReq entity.InstallReq) (int, error) {
 		deploySiteinfo["deploy_status"] = int(enum.DeployStatus_UNDER_INSTALLATION)
 		deploySiteinfo["chart"] = deploySiteList[0].Chart
 		deploySiteinfo["chart_version"] = deploySiteList[0].ChartVersion
-		deploySiteinfo["cluster_id"] = clusterInstallResp.Data.ClusterId
 		deploySiteinfo["config"] = string(valBj)
 
 		if deploySiteList[0].DeployStatus >= int(enum.DeployStatus_INSTALLED) {

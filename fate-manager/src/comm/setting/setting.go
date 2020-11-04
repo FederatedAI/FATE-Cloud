@@ -75,6 +75,7 @@ type Kubenetes struct {
 	Registry                 string
 	SessionProcessorsPerNode int
 	TestPartyId              int
+	ModeAlone                bool
 }
 
 var KubenetesSetting = &Kubenetes{}

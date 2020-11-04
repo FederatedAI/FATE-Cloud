@@ -8,7 +8,7 @@
                 cell-class-name="tableCell"
                 @filter-change="tofilter"
                 max-height="255">
-                <el-table-column prop type="index" label="Index" width="55"></el-table-column>
+                <el-table-column prop type="index" label="Index" width="70"></el-table-column>
                 <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip min-width="85">
                 <template slot-scope="scope">
                     <!-- 1 not joined,2 joined,3 removed -->
@@ -89,14 +89,14 @@
                         <span>{{scope.row.fateVersion}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column
+                <!-- <el-table-column
                     :filters="fateServingVersionSelect"
                     :filter-multiple="false"
                     column-key="fateServingVersion"
                     filter-placement="bottom"
                     prop="fateServingVersion"
                     label="FATE Serving"
-                    min-width="100" show-overflow-tooltip></el-table-column>
+                    min-width="110" show-overflow-tooltip></el-table-column> -->
                 <el-table-column prop="activationTime" label="Activation Time" min-width="125" show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span>{{scope.row.activationTime | dateFormat}}</span>
@@ -227,7 +227,6 @@ export default {
     },
     methods: {
         tofilter(value) {
-            console.log('value==>>', value)
             for (const key in value) {
                 this.data[key] = value[key][0]
             }

@@ -16,13 +16,17 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fate.manager/comm/app"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
+	"fate.manager/comm/logging"
+	"fate.manager/entity"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/site_service"
 	"fate.manager/services/version_service"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -233,14 +237,23 @@ func GetFateServingVersionList(c *gin.Context) {
 // @Tags DropDownController
 // @Accept  json
 // @Produce  json
-// @Param fateVersion query string false "int valid"
+// @Param fateVersion query string false "string valid"
 // @Success 200 {object} app.ComponentResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/dropdown/componentversion [post]
 func GetComponentVersionList(c *gin.Context) {
 	appG := app.Gin{C: c}
-	fateVersion := c.Request.FormValue("fateVersion")
-	siteResponse, err := version_service.GetComponetVersionListByFateVersion(fateVersion)
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var componentversionReq entity.ComponentversionReq
+	if jsonError := json.Unmarshal(body, &componentversionReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	siteResponse, err := version_service.GetComponetVersionListByFateVersion(componentversionReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_VERSION_DROP_LIST_FAIL, nil)
 		return
