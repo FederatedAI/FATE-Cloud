@@ -10,8 +10,6 @@ body {
     text-rendering: optimizeLegibility;
     font-family: productsans;
     //ie浏览器
-    
-
     ::-webkit-scrollbar {
         width: 7px;
         height: 7px;
@@ -59,4 +57,11 @@ html {
         color: #848C99;
     }
 
+}
+.el-tooltip__popper{
+    background: #303133 !important;
+    color: #FFF !important;
+    .popper__arrow:after {
+        border-top-color: #303133 !important;
+      }
 }

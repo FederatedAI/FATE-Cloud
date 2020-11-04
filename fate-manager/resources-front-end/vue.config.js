@@ -11,7 +11,14 @@ const productionGzipExtensions = ['js', 'css']
 function resolve(dir) {
     return path.join(__dirname, dir)
 }
-
+// const proxyTargetMap = {
+//     // prod: 'http://www.xxxx.cn',//生产
+//     prod: 'http://www.vueadmin.cn', // 生产
+//     randy: 'http:/47.105.71.81:3306', //
+//     peter: 'http://192.168.11.178:3001'
+// }
+// let proxyTarget = proxyTargetMap[process.env.API_TYPE] || proxyTargetMap.prod
+// console.log('==>>proxyTarget==>>', proxyTarget)
 let publicPath = process.env.NODE_ENV === 'production' ? '/fate-manager/static/' : '/'
 let dllPublishPath = '/fate-manager/static/vendor/'
 let IS_PROD = ['production', 'test'].includes(process.env.NODE_ENV)
@@ -98,14 +105,24 @@ module.exports = {
     devServer: {
         disableHostCheck: true,
         open: process.platform === 'darwin',
-        host: '127.1.1.1',
+        host: '10.58.32.145',
         port: 8010,
         https: false,
         hotOnly: false,
         // eslint-disable-next-line no-dupe-keys
         open: true,
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
-        proxy: {},
+        proxy: {
+            '/fate-manager': {
+                target: 'http://172.16.153.88:9090',
+                // target: 'http://***REMOVED***:9090/',
+
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/fate-manager': '/fate-manager'
+                }
+            }
+        },
         before: app => { }
     },
     // eslint-disable-next-line no-dupe-keys

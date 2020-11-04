@@ -36,7 +36,16 @@
                     <el-table-column type="index" label="Index" width="70"></el-table-column>
                     <el-table-column prop="componentName" label="Installation item">
                         <template slot-scope="scope">
-                            <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >{{scope.row.componentName}}</span>
+                            <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >
+                                {{scope.row.componentName}}
+                                <el-tooltip effect="dark" placement="bottom">
+                                    <div style="font-size:14px" slot="content">
+                                        <div>Before accessing FATEBoard, please configure the host that corresponding to </div>
+                                        <div>FATEBoard deployment machine IP, for example: 172.16.0.1 10000.fateboard.kubefate.net</div>
+                                    </div>
+                                    <i class="el-icon-info icon-info"></i>
+                                </el-tooltip>
+                            </span>
                             <span v-else> {{scope.row.componentName}}</span>
                         </template>
                     </el-table-column>
@@ -95,6 +104,7 @@ import { getInstallList, updateIp, installStart, toClick, tofateboard } from '@/
 import checkip from '@/utils/checkip'
 import { toLog } from '@/api/deploy'
 import log from './log'
+import event from '@/utils/event'
 export default {
     name: 'pulltable',
     props: {
@@ -186,6 +196,13 @@ export default {
         toEdited(row) {
             if (!checkip(this.input)) {
                 this.$message.error('The address is invalid. Please enter again!')
+                return
+            }
+            if (row.address === this.input) {
+                this.tableData = this.tableData.map((item, index) => {
+                    item.edit = false
+                    return item
+                })
                 return
             }
             let data = {
@@ -285,6 +302,7 @@ export default {
         lessTime() {
             this.initiInstallList().then(res => {
                 if (res.length > 0 && res.every(item => item.deployStatus.code === 2)) { // 已经拉取，等待安装
+                    event.$emit('myFun', false)
                     this.btntype = 'info'
                     this.updataipstart = true
                     this.disabledStart = false
@@ -307,6 +325,7 @@ export default {
                 } else if (res.length === 0) {
                     this.btntype = 'info'
                 } else {
+                    event.$emit('myFun', true)
                     this.btntype = 'info'
                     this.disabledStart = true
                     this.time = setTimeout(() => {
@@ -332,4 +351,5 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" >
 @import 'src/styles/deploying.scss';
+
 </style>

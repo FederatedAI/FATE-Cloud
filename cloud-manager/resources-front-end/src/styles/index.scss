@@ -57,3 +57,11 @@ html {
     }
 
 }
+
+.el-tooltip__popper{
+    background: #303133 !important;
+    color: #FFF !important;
+    .popper__arrow:after {
+        border-top-color: #303133 !important;
+      }
+}

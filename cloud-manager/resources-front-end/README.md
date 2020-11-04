@@ -1,5 +1,5 @@
 # fate cloud manager
-fate-cloud定制联邦服务管理端
+cloud-manager
 
 ## Build Setup
 

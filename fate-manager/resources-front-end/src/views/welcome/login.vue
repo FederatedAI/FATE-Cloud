@@ -55,7 +55,7 @@
         </div>
         <activte-dialog ref="activtedialog"/>
         <el-dialog :visible.sync="contactdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="contact-dialog">
-            <div class="line-text-two">Please contact the administrator to add permissions for you.</div>
+            <div class="line-text-two">Please contact the administrator to add permission for you.</div>
             <div class="dialog-footer">
                 <el-button class="ok-btn" type="primary" @click="contactdialog=false">OK</el-button>
             </div>
@@ -181,6 +181,10 @@ export default {
                 if (valid) {
                     this.$store.dispatch('Login', data).then(res => {
                         this.$router.push({ path: '/home/sitemanage' })
+                    }).catch(res => {
+                        if (res.code === 10064) {
+                            this.contactdialog = true
+                        }
                     })
                 }
             })
