@@ -6,9 +6,9 @@
                 header-row-class-name="tableHead"
                 header-cell-class-name="tableHeadCell"
                 cell-class-name="tableCell"
-                @filter-change="tochange"
-                height="100%">
-                <el-table-column prop type="index" label="Index" width="55"></el-table-column>
+                @filter-change="tofilter"
+                max-height="255">
+                <el-table-column prop type="index" label="Index" width="70"></el-table-column>
                 <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip min-width="85">
                 <template slot-scope="scope">
                     <!-- 1 not joined,2 joined,3 removed -->
@@ -48,19 +48,18 @@
                 <el-table-column prop="networkAccessExits" label="Network Access Exits" width="200">
                 <template slot-scope="scope">
                     <div v-if="scope.row.networkAccessExitsArr.length>2">
-                    <el-popover
-                        placement="bottom"
-                        popper-class="scope"
-                        :visible-arrow="false"
-                        :offset="-30"
-                        trigger="hover"
-                    >
-                        <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessExitsArr" :key="index" >{{item}}</div>
-                        <div slot="reference" class="icon-caret">
-                        <span>{{`${scope.row.networkAccessExitsArr[0]}...`}}</span>
-                        <i class="el-icon-caret-bottom" />
-                        </div>
-                    </el-popover>
+                        <el-popover
+                            placement="bottom"
+                            popper-class="scope"
+                            :visible-arrow="false"
+                            :offset="-30"
+                            trigger="hover">
+                            <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessExitsArr" :key="index" >{{item}}</div>
+                            <div slot="reference" class="icon-caret">
+                                <span>{{`${scope.row.networkAccessExitsArr[0]}...`}}</span>
+                                <i class="el-icon-caret-bottom" />
+                            </div>
+                        </el-popover>
                     </div>
                     <div v-else>{{scope.row.networkAccessExits.split(';')[0]}}</div>
                 </template>
@@ -77,12 +76,27 @@
                         <span>{{scope.row.role===1?'Guest':'Host'}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="fateVersion" label="FATE" show-overflow-tooltip min-width="80">
+                <el-table-column
+                    :filters="fateVersionSelect"
+                    :filter-multiple="false"
+                    column-key="fateVersion"
+                    filter-placement="bottom"
+                    prop="fateVersion"
+                    label="FATE"
+                    show-overflow-tooltip
+                    min-width="80">
                     <template slot-scope="scope">
                         <span>{{scope.row.fateVersion}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="fateServingVersion" label="FATE Serving" min-width="100" show-overflow-tooltip></el-table-column>
+                <!-- <el-table-column
+                    :filters="fateServingVersionSelect"
+                    :filter-multiple="false"
+                    column-key="fateServingVersion"
+                    filter-placement="bottom"
+                    prop="fateServingVersion"
+                    label="FATE Serving"
+                    min-width="110" show-overflow-tooltip></el-table-column> -->
                 <el-table-column prop="activationTime" label="Activation Time" min-width="125" show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span>{{scope.row.activationTime | dateFormat}}</span>
@@ -119,7 +133,7 @@
                 background
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                :current-page.sync="currentPage"
                 :page-size="data.pageSize"
                 layout="total, prev, pager, next, jumper"
                 :total="total"
@@ -138,74 +152,41 @@
 
 <script>
 
-import { siteDelete, siteList } from '@/api/federated'
-import { switchState } from '@/api/setting'
+import { siteDelete, siteList, getversion } from '@/api/federated'
 import moment from 'moment'
-import { mapGetters } from 'vuex'
-// import elementResizeDetectorMaker from 'element-resize-detector'
 
 export default {
-    name: 'Site',
-    components: {
-        // notJoined
-        // siteAdd
-    },
+    name: 'Siteatble',
+    components: {},
     props: {
         institutions: {
             type: String,
             default: function() {
                 return ''
             }
+        },
+        condition: {
+            type: String,
+            default: function() {
+                return ''
+            }
         }
     },
-
     filters: {
-        dateFormat(vaule) {
-            return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '--'
+        dateFormat(value) {
+            return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
         }
     },
     data() {
         return {
-            total: 0,
-
-            isActive: false, // 点击激活状态
-            showarrow: false, // 是否显示左右箭头
-            clickState: false, // 点击状态,
-            activebody: false, // 变化的表格
-            tipsVisible: false, // 提示弹框
-            tipstempData: {
-                institutions: '',
-                insList: []
-            },
-            siteState: '', // 是否显示Site-Authorization
-            historyList: [],
-            itemList: [],
-            authority: {
-                institutions: '',
-                list: []
-            },
-            styleWidth: '',
-            activeNames: '',
-            delSitename: '',
-            deleteRowId: '', // 删除
+            total: 0, // 总共多少页
+            currentPage: 1, // 当前页
+            delSitename: '', // 删除项
+            deleteRowId: '', // 删除id
             dialogVisible: false,
-            currentPage1: 1, // 当前页
             tableData: [],
-            checkList: [1], // 弹框值
-            checkboxList: [1, 2], // 需选中的值
-            cancelAuthorVisible: false, // 取消弹框授权
-            fateVersionSelect: [// fate下拉
-                {
-                    value: 0,
-                    label: 'FATE'
-                }
-            ],
-            fateServingVersionSelect: [// fateServingVersion下拉
-                {
-                    value: 0,
-                    label: 'FATE Serving'
-                }
-            ],
+            fateVersionSelect: [], // fate下拉
+            fateServingVersionSelect: [], // fateServingVersion下拉
             siteStatusSelect: [// status下拉
                 //  1 not joined,2 joined,3 removed
                 {
@@ -232,53 +213,33 @@ export default {
                 }
             ],
             data: {
-                // fateVersion: '',
-                // fateServingVersion: '',
                 pageNum: 1,
-                pageSize: 20
-                // role: '',
-                // status: ''
+                pageSize: 10
             }
         }
     },
-    computed: {
-        ...mapGetters(['getInfo'])
-    },
     created() {
         this.$nextTick(res => {
-            // this.getinitinstitutions()
-
-            // this.info()
+            this.initList()
+            this.togetversion('fate_version')
+            this.togetversion('fate_serving_version')
         })
     },
-    mounted() {
-        this.initList()
-        // let erd = elementResizeDetectorMaker()
-        // // 监听 是否会出现箭头
-        // erd.listenTo(this.$refs.siteitem, (element) => { // 这里的this.$refs 指定要监听的元素对象，对应的是<div ref="fan"></div>
-        //     this.getstylewidth()
-        // })
-    },
     methods: {
-        tochange(value) {
-            console.log('value==>>', value)
+        tofilter(value) {
+            for (const key in value) {
+                this.data[key] = value[key][0]
+            }
+            this.data.pageNum = 1
+            this.currentPage = 1
+            this.initList()
         },
-        // 初始化信息
-        info() {
-            // 获取sit-auto 状态
-            switchState().then(res => {
-                this.siteState = ''
-                res.data.forEach(item => {
-                    if (item.functionName === 'Site-Authorization') {
-                        this.siteState = item.status === 1
-                    }
-                })
-            })
-        },
+
         // 初始化表格
         initList() {
             this.tableData = []
             this.data.institutions = this.institutions
+            this.data.condition = this.condition
             for (const key in this.data) {
                 if (this.data.hasOwnProperty(key)) {
                     const element = this.data[key]
@@ -296,7 +257,25 @@ export default {
                 this.tableData = [ ...res.data.list ]
             })
         },
-
+        // 获取版本号
+        togetversion(version) {
+            let data = {
+                institutions: this.institutions,
+                versionName: version
+            }
+            getversion(data).then((res) => {
+                res.data.forEach(item => {
+                    let obj = {}
+                    obj.value = item
+                    obj.text = item
+                    if (version === 'fate_version') {
+                        this.fateVersionSelect.push(obj)
+                    } else {
+                        this.fateServingVersionSelect.push(obj)
+                    }
+                })
+            })
+        },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`)
         },

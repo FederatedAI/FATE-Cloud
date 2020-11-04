@@ -112,7 +112,6 @@ export default {
                 this.formInline.fateVersion = res.data
                 this.$refs.tablepull.disVersion = true
             }
-
             this.togetpages()
         })
     },
@@ -143,7 +142,6 @@ export default {
                     this.formInline.fateVersion = res.data
                     this.$refs.tablepull.disVersion = true
                 }
-
                 this.togetpages()
             })
         },

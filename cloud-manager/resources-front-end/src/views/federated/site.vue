@@ -1,77 +1,105 @@
 <template>
   <div class="site-box">
-    <div class="site">
+    <div class="site" >
         <div class="site-header">
             <el-button class="add" type="primary" @click="addsite">Add</el-button>
             <el-input class="input input-placeholder" v-model.trim="data.condition" placeholder="Search for Site Name or Party ID" clearable>
             <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
             </el-input>
-            <el-select class="sel-role input-placeholder" v-model="data.institutions" placeholder="institution">
+            <el-select class="sel-role input-placeholder" v-model="data.institutionsArray" filterable multiple collapse-tags placeholder="institution">
                 <el-option
-                    v-for="item in institutionsItemList"
-                    :key="item.value"
+                    v-for="(item,index) in institutionsSelectList"
+                    :key="index"
                     :label="item.label"
                     :value="item.value">
                 </el-option>
             </el-select>
+            <el-button class="go" type="text" @click="toFold" >
+                <span v-if='activeName.length>0'>unfold all</span>
+                <span v-else>fold all</span>
+            </el-button>
             <el-button class="go" @click="toSearch" type="primary">GO</el-button>
         </div>
-        <div class="collapse"  >
-            <el-collapse  v-for="(item, index) in institutionsItemList" :key="index">
-                <el-collapse-item>
+        <div class="collapse" >
+            <el-collapse v-model="activeName" v-for="(itm, index) in institutionsItemList" :key="index" >
+                <el-collapse-item  :name="itm.institutions">
                     <template slot="title">
-                        <span class="ins" >{{item.institutions}}</span>
-                        <img v-if="item.tooltip && siteState" src="@/assets/msg.png" @click.stop="toshowins(item.institutions)" alt="" >
-                        <el-popover
-                            v-if="siteState"
-                            v-model="item.visible"
-                            placement="bottom"
-                            :visible-arrow="false"
-                            width="700"
-                            :offset="-340"
-                            popper-class="site-history"
-                            trigger="click">
-                            <div class="content">
-                                <div class="title">
-                                    <div class="title-time">Time</div>
-                                    <div class="title-history">History</div>
-                                </div>
-                                <div class="content-box">
-                                    <div v-for="(item, index) in historyList" :key="index" >
-                                        <div class="title-time">{{item.updateTime | dateFormat}}</div>
-                                        <div class="title-history">
-                                            <span>{{item.status===2?'Agree':'Reject'}}</span>
-                                            to authorize {{item.institutions}} to view the sites of
-                                            <span v-for="(elm, ind) in item.authorityApplyReceivers" :key="ind">
-                                                <span v-if="ind===item.authorityApplyReceivers.length-1">{{elm.authorityInstitutions}}</span>
-                                                <span v-else>{{elm.authorityInstitutions}},</span>
-                                            </span>
+                        <span class="ins" >{{itm.institutions}}</span>
+                        <img v-if="itm.tooltip && siteState" src="@/assets/msg.png" @click.stop="toshowins(itm.institutions)" alt="" >
+                        <span v-if="itm.historyList.length>0">
+                            <el-popover
+                                v-if="siteState"
+                                v-model="itm.visible"
+                                placement="bottom"
+                                :visible-arrow="false"
+                                width="700"
+                                :offset="-340"
+                                popper-class="site-history"
+                                trigger="click">
+                                <div class="content">
+                                    <div class="title">
+                                        <div class="title-time">Time</div>
+                                        <div class="title-history">History</div>
+                                    </div>
+                                    <div class="content-box">
+                                        <div v-for="(item, index) in itm.historyList" :key="index" >
+                                            <div class="title-time">{{item.updateTime | dateFormat}}</div>
+                                            <div class="title-history">
+                                                <span v-if="item.cancel.length>0">
+                                                    Canceled the authorization of {{item.institutions}} to
+                                                    <span v-for="(elm, ind) in item.cancel" :key="ind">
+                                                        <span v-if="ind===item.cancel.length-1">{{elm}}</span>
+                                                        <span v-else>{{elm}},</span>
+                                                    </span>
+                                                </span>
+                                                <span v-if="item.agree.length>0">
+                                                    Agreed to authorze {{item.institutions}} to view sites of
+                                                    <span v-for="(elm, ind) in item.agree" :key="ind">
+                                                        <span v-if="ind===item.agree.length-1">{{elm}}</span>
+                                                        <span v-else>{{elm}},</span>
+                                                    </span>
+                                                </span>
+                                                <span v-if="item.reject.length>0">
+                                                    Rejected to authorize  {{item.institutions}}  to view the sites of
+                                                    <span v-for="(elm, ind) in item.reject" :key="ind">
+                                                        <span v-if="ind===item.reject.length-1">{{elm}}</span>
+                                                        <span v-else>{{elm}},</span>
+                                                    </span>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <img slot="reference" class="tickets" src="@/assets/historyclick.png" @click.stop="gethistory(item.institutions,index)" alt="" >
-                        </el-popover>
-
+                                <img slot="reference"  class="tickets" src="@/assets/historyclick.png" @click.stop="gethistory(index)" alt="" >
+                            </el-popover>
+                        </span>
+                        <span v-else class="ins">
+                            <img class="disable" src="@/assets/history.png" alt="" >
+                        </span>
                         <div class="sitenum">
-                            <span>{{item.number}}</span>
-                            <span>sites  joined</span>
+                            <span>{{itm.number}}</span>
+                            <span>
+                                <span v-if="itm.number === 1">site</span>
+                                <span v-else>sites</span>
+                                joined
+                            </span>
                         </div>
                     </template>
-                    <div  class="msg-warn" v-if=" siteState && item.authoritylist && item.authoritylist.length>0">
+                    <div  class="msg-warn" v-if=" siteState && itm.authoritylist && itm.authoritylist.length>0">
                         <span>
-                            {{item.institutions}}
+                            {{itm.institutions}}
                         </span>
                             has permission to view the sites of
-                        <span v-for="(itr, ind) in item.authoritylist" :key="ind">
-                            <span v-if="ind===item.authoritylist.length-1">{{itr}}</span>
+                        <span v-for="(itr, ind) in itm.authoritylist" :key="ind">
+                            <span v-if="ind===itm.authoritylist.length-1">{{itr}}</span>
                             <span v-else>{{itr}},</span>
                         </span>
-                        <el-button  class="btn" @click="toshowcancelAuthor(item.authoritylist,item.institutions)" type="text">
+                        <el-button  class="btn" @click="toshowcancelAuthor(itm.authoritylist,itm.institutions)" type="text">
                             Cancal authorization
                         </el-button>
                     </div>
-                    <sitetable ref="getins" :institutions="item.institutions"/>
+                    <sitetable ref="sitelist" :institutions="itm.institutions" :condition="data.condition"/>
+
                 </el-collapse-item>
             </el-collapse>
             <div class="pagination">
@@ -115,12 +143,13 @@
             <div class="line-text-one">Please select the institution to cancel</div>
             <div class="line-text-one">the authorization to {{canceltempData.institutions}}</div>
              <div class="dialog-main">
-                <el-checkbox-group v-model="canceltempData.cancelAuthorList">
+                <el-checkbox style="margin-bottom:10px" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">all</el-checkbox>
+                <el-checkbox-group v-model="canceltempData.cancelAuthorList"  @change="handleCheckedCitiesChange">
                     <div v-for="(item, index) in canceltempData.cancelcheckboxList" :key="index"> <el-checkbox :label="item"></el-checkbox></div>
                 </el-checkbox-group>
             </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="tocancelAuthor">Sure</el-button>
+                <el-button class="ok-btn" type="primary" :disabled="canceltempData.cancelAuthorList.length===0" @click="tocancelAuthor">Sure</el-button>
                 <el-button class="ok-btn" type="info" @click="cancelAuthorVisible = false">Cancel</el-button>
             </div>
         </el-dialog>
@@ -142,14 +171,12 @@ import { switchState } from '@/api/setting'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
 import sitetable from './siteaatable'
-// import elementResizeDetectorMaker from 'element-resize-detector'
+import { setTimeout } from 'timers'
 
 export default {
     name: 'Site',
     components: {
         sitetable
-        // notJoined
-        // siteAdd
     },
     filters: {
         dateFormat(vaule) {
@@ -158,11 +185,10 @@ export default {
     },
     data() {
         return {
+            activeName: [], // 折叠版激活
+            loading: true,
             currentPage1: 1, // 当前页
             total: 0,
-            visible: false, // 历史记录弹框
-            clickState: false, // 点击状态,
-            activebody: false, // 变化的表格
             tipsVisible: false, // 提示弹框
             tipstempData: {
                 institucheckList: [], // 已经同意的institutions
@@ -178,13 +204,17 @@ export default {
                 cancelAuthorList: [], // 已经选择
                 cancelcheckboxList: [] // 待选中
             },
-            institutionsItemList: [], // 站点下拉
+            institutionsItemList: [], // 站点列表
+            institutionsSelectList: [], // 站点下拉
             data: {
-                // condition: '',
-                // institutions:'',
+                condition: '',
+                // institutionsArray: [],
                 pageNum: 1,
                 pageSize: 20
-            }
+            },
+            isIndeterminate: false,
+            checkAll: false
+
         }
     },
     computed: {
@@ -192,17 +222,12 @@ export default {
     },
     created() {
         this.$nextTick(res => {
+            this.getinsSelectList()
             this.getinitinstitutions()
             this.info()
         })
     },
-    mounted() {
-        // let erd = elementResizeDetectorMaker()
-        // // 监听 是否会出现箭头
-        // erd.listenTo(this.$refs.siteitem, (element) => { // 这里的this.$refs 指定要监听的元素对象，对应的是<div ref="fan"></div>
-        //     this.getstylewidth()
-        // })
-    },
+
     methods: {
 
         // 初始化信息和权限
@@ -217,65 +242,111 @@ export default {
                 })
             })
         },
-        // 获取机构数
-        async getinitinstitutions() {
+        // 站点下拉接口
+        async getinsSelectList() {
             let data = {
                 pageNum: 1,
                 pageSize: 100
             }
             let res = await institutionsList(data)
-            this.total = res.data.totalRecord
-            this.institutionsItemList = [] // 清空记录
             res.data.list.forEach((item, index) => {
-                item.value = item.institutions
-                item.label = item.institutions
-                item.visible = false
-                // 获取ins授权信息
-                let dataparams = {
-                    institutions: item.institutions
+                let obj = {}
+                obj.value = item.institutions
+                obj.label = item.institutions
+                this.institutionsSelectList.push(obj)
+            })
+        },
+        // 获取机构数
+        async getinitinstitutions() {
+            // 清空筛选条件
+            for (const key in this.data) {
+                if (this.data.hasOwnProperty(key)) {
+                    const element = this.data[key]
+                    if (!element || JSON.stringify(element) === '[]') {
+                        delete this.data[key]
+                    }
                 }
-                authorityPermiss(dataparams).then(res => {
-                    item.authoritylist = res.data
-                })
-                // 小黄点显示
-                let params = {
-                    institutions: [item.institutions]
-                }
-                institutionsStatus(params).then(r => {
+            }
+            await institutionsList(this.data).then(resl => {
+                this.total = resl.data.totalRecord
+                this.institutionsItemList = [] // 清空记录
+                let Arr = []
+                resl.data.list.forEach(async (item, index) => {
+                    item.historyList = []
+                    item.visible = false // 历史记录弹框
+                    Arr.push(item)
+                    this.institutionsItemList = Arr
+                    this.activeName.push(item.institutions)
+                    // 获取历史记录
+                    let data = {
+                        institutions: item.institutions,
+                        pageNum: 1,
+                        pageSize: 100
+                    }
+                    let res = await getinstitutionsHistory(data)
+                    res.data.list.forEach((itr) => {
+                        let obj = {}
+                        obj.agree = []
+                        obj.reject = []
+                        obj.cancel = []
+                        obj.updateTime = itr.updateTime
+                        obj.institutions = itr.institutions
+                        itr.authorityApplyReceivers.forEach((elm) => {
+                            if (elm.status === 2) {
+                                obj.agree.push(elm.authorityInstitutions)
+                            } else if (elm.status === 3) {
+                                obj.reject.push(elm.authorityInstitutions)
+                            } else if (elm.status === 4) {
+                                obj.cancel.push(elm.authorityInstitutions)
+                            }
+                        })
+                        item.historyList.push(obj)
+                    })
+                    // 获取institutions中cancel授权信息
+                    let dataparams = {
+                        institutions: item.institutions
+                    }
+                    let re = await authorityPermiss(dataparams)
+                    item.authoritylist = re.data
+                    // 获取小黄点显示状态
+                    let params = {
+                        institutions: [item.institutions]
+                    }
+                    let r = await institutionsStatus(params)
+                    // this.institutionsItemList.push(item)
                     if (r.data.length > 0) {
                         item.tooltip = true
                     } else {
                         item.tooltip = false
                     }
-                    this.institutionsItemList.push(item)
                 })
+                setTimeout(() => {
+                    this.institutionsItemList = [...Arr]
+                }, 1000)
             })
-        },
-        // 获取机构列表
-        // getinstitutionsItemList(){
 
-        // },
-        // 获取机构历史记录
-        gethistory(item, index) {
+            return this.institutionsItemList
+        },
+        // 点击显示机构历史记录
+        gethistory(index) {
             // 其他弹框隐藏
             this.institutionsItemList.forEach(item => {
                 item.visible = false
             })
-            let data = {
-                institutions: item,
-                pageNum: 1,
-                pageSize: 100
-            }
-            getinstitutionsHistory(data).then(res => {
-                // 其他弹框显示
+            // 显示本次点击弹框
+            setTimeout(() => {
                 this.institutionsItemList[index].visible = true
-                this.visible = true
-                this.historyList = res.data.list
-            })
+            }, 500)
         },
         // 搜索
         toSearch() {
             this.data.pageNum = 1
+            this.getinitinstitutions().then(res => {
+                res.forEach((item, index) => {
+                    console.log('index==>>', index)
+                    this.$refs['sitelist'][index].initList()
+                })
+            })
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`)
@@ -342,6 +413,24 @@ export default {
                 this.getinitinstitutions()
                 this.info()
             })
+        },
+        // 全选
+        handleCheckAllChange(val) {
+            this.canceltempData.cancelAuthorList = val ? this.canceltempData.cancelcheckboxList : []
+            this.isIndeterminate = false
+        },
+        handleCheckedCitiesChange(value) {
+            let checkedCount = value.length
+            this.checkAll = checkedCount === this.canceltempData.cancelcheckboxList.length
+            this.isIndeterminate = checkedCount > 0 && checkedCount < this.canceltempData.cancelcheckboxList.length
+        },
+        // 展开或者折叠
+        toFold() {
+            if (this.activeName.length > 0) {
+                this.activeName = []
+            } else {
+                this.activeName = this.institutionsItemList.map(item => item.institutions)
+            }
         }
     }
 }

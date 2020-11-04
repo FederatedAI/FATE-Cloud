@@ -21,7 +21,7 @@ export function register(data) {
 // 登录
 export function login(data) {
     return request({
-        url: '/cloud-manager//api/cloud/user/login',
+        url: '/cloud-manager/api/cloud/user/login',
         method: 'post',
         data
     })
