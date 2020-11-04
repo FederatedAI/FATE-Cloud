@@ -106,7 +106,7 @@ export default {
             checkPass: false, // 检查通过
             groupNamewarn: false,
             beenUsed: '', // 已经有使用范围
-            cannotEdit: null,
+            cannotEdit: '',
             partidform: {},
             roleSelect: [
                 {
@@ -289,7 +289,7 @@ export default {
         },
         // 重置
         toReset() {
-            this.cannotEdit = null
+            this.cannotEdit.intervalWithPartyIds = ''
             this.beenUsed = ''
         },
         // 取消表单验证
