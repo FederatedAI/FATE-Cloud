@@ -109,9 +109,9 @@
                         </span>
                         <span class="info-text">{{form.fateVersion}}</span>
                     </el-form-item>
-                    <el-form-item label="FATE-Serving version">
+                    <!-- <el-form-item label="FATE-Serving version">
                         <span class="info-text ">{{form.fateServingVersion}}</span>
-                    </el-form-item>
+                    </el-form-item> -->
                 </el-col>
             </el-row>
         </el-form>

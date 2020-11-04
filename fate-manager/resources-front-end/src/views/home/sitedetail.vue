@@ -121,9 +121,15 @@
                 </el-tooltip> -->
                 <span v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                     <div class="info-del" v-if="form.status && form.status.code !== 3">
-                        <img src="@/assets/edit_click.png" v-if="editVersion === 1" @click="toEditVersion" class="edit" alt />
-                        <el-button v-if="editVersion === 2" @click="versiondialog=true"  type="primary">Submit</el-button>
-                        <el-button v-if="editVersion === 2" @click="editVersion = 1" type="info">Cancel</el-button>
+                        <span v-if="form.versionEditStatus.code===2">
+                            <img src="@/assets/edit_click.png" v-if="editVersion === 1" @click="toEditVersion" class="edit" alt />
+                            <el-button v-if="editVersion === 2" @click="versiondialog=true"  type="primary">Submit</el-button>
+                            <el-button v-if="editVersion === 2" @click="toCanceleditVersion" type="info">Cancel</el-button>
+                        </span>
+                        <span v-else>
+                             <img src="@/assets/edit_disable.png" style="cursor:not-allowed" class="edit" alt />
+                        </span>
+
                     </div>
                 </span>
             </div>
@@ -147,7 +153,7 @@
                         <!-- fateVersion版本下拉 -->
                         <span v-if="editVersion === 1" class="info-text">{{form.fateVersion}}</span>
                         <span  v-if="editVersion === 2" class="info-text-select" >
-                            <el-select v-model="fateVersion" placeholder="">
+                            <el-select v-model="fateVersion" @change="togetcomponentVersion" placeholder="">
                                 <el-option
                                     v-for="item in version"
                                     :key="item.value"
@@ -171,7 +177,7 @@
                         </span>
                     </el-form-item>
                 </el-col>
-                <el-col :span="12">
+                <!-- <el-col :span="12">
                     <el-form-item label="FATE-Serving version" style="height:100%;">
                         <span v-if="editVersion === 1" class="info-text Network-text">{{form.fateServingVersion}}</span>
                         <span v-if="editVersion === 2" class="info-text-select">
@@ -185,7 +191,7 @@
                             </el-select>
                         </span>
                     </el-form-item>
-                </el-col>
+                </el-col> -->
             </el-row>
             </el-form>
         </div>
@@ -332,6 +338,7 @@ import {
     getMysqlList,
     getNodeList,
     getrollsiteList,
+    getcomponentversion,
     updateVersion
 } from '@/api/home'
 import moment from 'moment'
@@ -364,6 +371,7 @@ export default {
             networkAccessEntrancesOld: '', // 旧ip
             networkAccessExitsOld: '', // 新ip
             formVersion: {}, // 更新版本号集合
+            tempobject: {}, // 编辑版本临时数据
             fateServingVersion: '', // 待更新
             fateVersion: '', // 待更新
             versiondialog: false, // 是否确定更新版本弹框
@@ -594,6 +602,7 @@ export default {
         // 编辑版本
         toEditVersion() {
             let object = JSON.parse(JSON.stringify(this.form.componentVersion))
+            this.tempobject = object
             function getres (res, setl) {
                 return res.data && res.data.forEach(item => {
                     let o = {}
@@ -645,6 +654,11 @@ export default {
 
             this.editVersion = 2
         },
+        // 取消编辑版本
+        toCanceleditVersion() {
+            this.form.componentVersion = this.tempobject
+            this.editVersion = 1
+        },
         // 确定更新
         sureVersion() {
             let data = {
@@ -659,11 +673,32 @@ export default {
                 this.editVersion = 1
                 this.initInfo()
             })
-            console.log('formVersion==>>', this.formVersion)
         },
         // 自动更新版本
         toRefresh() {
 
+        },
+        // 获取子版本
+        togetcomponentVersion(val) {
+            let data = {
+                fateVersion: val
+            }
+            getcomponentversion(data).then(res => {
+                let object = JSON.parse(res.data)
+                let arr = []
+                for (const key in object) {
+                    let obj = {}
+                    obj.label = key
+                    obj.version = object[key]
+                    arr.push(obj)
+                }
+                this.form.componentVersion = arr
+                let OBJ = {}
+                this.form.componentVersion.forEach(item => {
+                    OBJ[item.label] = item['version']
+                })
+                this.formVersion = { ...OBJ }
+            })
         }
 
     }

@@ -260,14 +260,26 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+		if setting.KubenetesSetting.ModeAlone{
+			cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+		}
 		if setting.KubenetesSetting.SudoTag {
 			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+			if setting.KubenetesSetting.ModeAlone{
+				cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+			}
 		}
 		util.ExecCommand(cmd)
 
 		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		if setting.KubenetesSetting.ModeAlone{
+			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		}
 		if setting.KubenetesSetting.SudoTag {
 			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+			if setting.KubenetesSetting.ModeAlone{
+				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+			}
 		}
 		result, _ := util.ExecCommand(cmd)
 		if len(result) > 0 {

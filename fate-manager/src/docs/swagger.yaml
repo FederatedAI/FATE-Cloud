@@ -964,7 +964,6 @@ definitions:
       componentVersion:
         type: string
       createTime:
-        description: ReadStatus             IdPair     `json:"readStatus"`
         type: integer
       editStatus:
         $ref: '#/definitions/entity.IdPair'
@@ -995,6 +994,9 @@ definitions:
       siteName:
         type: string
       status:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
+      versionEditStatus:
         $ref: '#/definitions/entity.IdPair'
         type: object
     type: object
@@ -1661,7 +1663,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: int valid
+      - description: string valid
         in: query
         name: fateVersion
         type: string

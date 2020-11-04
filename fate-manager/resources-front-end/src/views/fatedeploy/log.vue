@@ -121,14 +121,13 @@ export default {
             }
         }
         .log-content{
-                position: absolute;
-            height: calc(100% - 249px);
+            position: absolute;
+            height: calc(100% - 125px);
             width: calc(100% - 72px);
             overflow: auto;
             border-top: 2px solid #E6EBF0;
             border-bottom: 1px solid #E6EBF0;
-            // height: 560px;
-            overflow: auto;
+            word-wrap: break-word;
             padding: 24px 0;
             .log-li{
                 font-size: 14px;
