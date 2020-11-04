@@ -171,4 +171,15 @@ public class FederatedAuthorityServiceFacade {
     }
 
 
+    public CommonResponse<Boolean> checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) {
+        //check authority
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(partyIdCheckQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+        if (!result) {
+            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+        Boolean authorityResult  = federatedAuthorityService.checkPartyIdAuthority(partyIdCheckQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityResult);
+
+    }
 }
