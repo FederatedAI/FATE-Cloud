@@ -2418,7 +2418,7 @@ paths:
       summary: sign out
       tags:
       - UserController
-  /fate-manager/api/monitor/statistics/institution:
+  /fate-manager/api/monitor/institution:
     get:
       consumes:
       - application/json
@@ -2436,7 +2436,7 @@ paths:
       summary: Get Institution based statistics
       tags:
       - MonitorController
-  /fate-manager/api/monitor/statistics/site:
+  /fate-manager/api/monitor/site:
     get:
       consumes:
       - application/json

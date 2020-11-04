@@ -58,7 +58,7 @@ type MonitorBySite struct {
 
 func GetTotalMonitorByRegion(monitorReq entity.MonitorReq)(*MonitorTotal,error){
 	var monitorTotal *MonitorTotal
-	err := db.Select("SELECT COUNT(DISTINCT guest_party_id) active_data,SUM(job_id) total,SUM(if(job_status=1,1,0)) complete,SUM(if(job_status=0,1,0)) failed  from t_fate_monitor_detail where create_time >= ? and create_time < ?",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorTotal).Error
+	err := db.Table("t_fate_monitor_detail").Select("COUNT(DISTINCT guest_party_id) active_data,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ?",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorTotal).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func GetTotalMonitorByRegion(monitorReq entity.MonitorReq)(*MonitorTotal,error){
 
 func GetSiteMonitorByRegion(monitorReq entity.MonitorReq)([]*MonitorBySite,error){
 	var monitorBySiteList []*MonitorBySite
-	err := db.Select("SELECT guest_party_id,guest_site_name,host_party_id,host_site_name,SUM(job_id) total,SUM(if(job_status=1,1,0)) complete,SUM(if(job_status=0,1,0)) failed  from t_fate_monitor_detail where create_time >= ? and create_time < ? group by guest_party_id,host_party_id",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorBySiteList).Error
+	err := db.Table("t_fate_monitor_detail").Select("guest_party_id,guest_site_name,host_party_id,host_site_name,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ? group by guest_party_id,host_party_id",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorBySiteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -75,16 +75,16 @@ func GetSiteMonitorByRegion(monitorReq entity.MonitorReq)([]*MonitorBySite,error
 }
 
 func GetTotalMonitorByHis()(*MonitorBase,error){
-	var monitorBase *MonitorBase
-	err := db.Select("SELECT SUM(job_id) total,SUM(if(job_status=1,1,0)) complete,SUM(if(job_status=0,1,0)) failed  from t_fate_monitor_detail").Find(&monitorBase).Error
+	var monitorBase MonitorBase
+	err := db.Table("t_fate_monitor_detail").Select("COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Find(&monitorBase).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	return monitorBase, nil
+	return &monitorBase, nil
 }
 func GetSiteMonitorByHis()([]*MonitorBySite,error){
 	var monitorByHisList []*MonitorBySite
-	err := db.Select("SELECT guest_party_id,host_party_id,SUM(job_id) total,SUM(if(job_status=1,1,0)) complete,SUM(if(job_status=0,1,0)) failed  from t_fate_monitor_detail where create_time >= ? and create_time < ? group by guest_party_id,host_party_id").Find(&monitorByHisList).Error
+	err := db.Table("t_fate_monitor_detail").Select("guest_party_id,host_party_id,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ? group by guest_party_id,host_party_id").Find(&monitorByHisList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}

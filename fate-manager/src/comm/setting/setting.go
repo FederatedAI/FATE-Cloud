@@ -21,26 +21,30 @@ import (
 	"time"
 )
 
-var SiteQueryUri = "/cloud-manager/api/site/findOneSite/fateManager"
-var HeartUri = "/cloud-manager/api/site/heart/fateManager"
-var ActivateUri = "/cloud-manager/api/site/activate"
-var IpAcceptUri = "/cloud-manager/api/site/ip/accept"
-var IpQueryUri = "/cloud-manager/api/site/ip/query"
-var CheckUri = "/cloud-manager/api/site/checkUrl"
-var FederationUri = "/cloud-manager/api/federation/findOrganization"
-var UpdateVersionUri = "/cloud-manager/api/site/fate/version"
-var CheckAuthorityUri = "/cloud-manager/api/site/checkAuthority/fateManager"
-var CheckWebUri = "/cloud-manager/api/site/checkWeb"
-var SystemAddUri = "/cloud-manager/api/system/add"
-var UserActivateUri = "/cloud-manager/api/fate/user/activate"
-var AuthorityInstitutions = "/cloud-manager/api/authority/institutions"
-var AuthorityApply = "/cloud-manager/api/authority/apply"
-var AuthorityApplied = "/cloud-manager/api/authority/applied"
-var AuthorityResults = "/cloud-manager/api/authority/results"
-var FunctionAllUri = "/cloud-manager/api/function/find/all/fateManager"
-var OtherSiteUri = "/cloud-manager/api/site/page/fateManager"
-var ApprovedUri = "/cloud-manager/api/authority/institutions/approved"
-var FlowJobQuery = "/v1/job/query"
+const (
+	SiteQueryUri          = "/cloud-manager/api/site/findOneSite/fateManager"
+	HeartUri              = "/cloud-manager/api/site/heart/fateManager"
+	ActivateUri           = "/cloud-manager/api/site/activate"
+	IpAcceptUri           = "/cloud-manager/api/site/ip/accept"
+	IpQueryUri            = "/cloud-manager/api/site/ip/query"
+	CheckUri              = "/cloud-manager/api/site/checkUrl"
+	FederationUri         = "/cloud-manager/api/federation/findOrganization"
+	UpdateVersionUri      = "/cloud-manager/api/site/fate/version"
+	CheckAuthorityUri     = "/cloud-manager/api/site/checkAuthority/fateManager"
+	CheckWebUri           = "/cloud-manager/api/site/checkWeb"
+	SystemAddUri          = "/cloud-manager/api/system/add"
+	UserActivateUri       = "/cloud-manager/api/fate/user/activate"
+	AuthorityInstitutions = "/cloud-manager/api/authority/institutions"
+	AuthorityApply        = "/cloud-manager/api/authority/apply"
+	AuthorityApplied      = "/cloud-manager/api/authority/applied"
+	FunctionAllUri        = "/cloud-manager/api/function/find/all/fateManager"
+	OtherSiteUri          = "/cloud-manager/api/site/page/fateManager"
+	ApprovedUri           = "/cloud-manager/api/authority/institutions/approved"
+	CheckPartyUri         = "/cloud-manager/api/authority/check/partyId"
+)
+const (
+	FlowJobQuery          = "/v1/job/query"
+)
 
 type Server struct {
 	RunMode      string
