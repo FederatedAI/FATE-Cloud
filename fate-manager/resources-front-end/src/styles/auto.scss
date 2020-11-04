@@ -81,33 +81,28 @@
                 vertical-align: top;
                 display: inline-block;
                 height: 36px;
-                width: 320px;
+                // width: 320px;
                 background: #E6EBF0;
-
                 .el-tabs__active-bar {
-                    position: relative;
-                }
-
-                .el-tabs__nav-wrap::after {
                     height: 0;
                 }
-
                 .el-tabs__item {
+
                     padding: 0;
                     width: 160px;
                     text-align: center;
                     line-height: 34px;
                     background-color: #E6EBF0;
-                    height: 34px;
+                    height: 36px;
                     font-size: 18px;
                     color: #217AD9;
+                    border-top: 2px solid #E6EBF0;
                 }
-
                 .is-active {
+                    border-top: 2px solid #217AD9;
                     background: #fff;
                 }
             }
-
             .empty {
                 display: inline-block;
                 height: 36px;
@@ -115,24 +110,9 @@
                 width: calc(100% - 320px);
             }
 
-            .table-title {
-                height: 40px;
-                // background-color: pink;
-                line-height: 35px;
-
-                div {
-                    width: 11.11%;
-                    display: inline-block;
-                    color: #B8BFCC;
-                    text-align: center;
-                }
-
-                div:nth-child(9) {
-                    text-align: right
-                }
-
-                div:nth-child(1) {
-                    text-align: left
+            .table{
+                .is-scrolling-none{
+                    display: none;
                 }
             }
         }
@@ -140,7 +120,8 @@
         .content {
             width: 100%;
             text-align: center;
-            border-top: 2px solid #E6EBF0;
+            border-top: 2px solid #fff;
+            margin-top: -2px;
             height: 200px;
             //渐变色
             background-image: linear-gradient(#F5F8FA, #fff);

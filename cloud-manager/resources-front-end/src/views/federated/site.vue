@@ -14,10 +14,14 @@
                     :value="item.value">
                 </el-option>
             </el-select>
+            <el-button class="go" type="text" @click="toFold" >
+                <span v-if='activeName.length>0'>unfold all</span>
+                <span v-else>fold all</span>
+            </el-button>
             <el-button class="go" @click="toSearch" type="primary">GO</el-button>
         </div>
         <div class="collapse" >
-            <el-collapse  v-for="(itm, index) in institutionsItemList" :key="index" >
+            <el-collapse v-model="activeName" v-for="(itm, index) in institutionsItemList" :key="index" >
                 <el-collapse-item  :name="itm.institutions">
                     <template slot="title">
                         <span class="ins" >{{itm.institutions}}</span>
@@ -74,7 +78,11 @@
                         </span>
                         <div class="sitenum">
                             <span>{{itm.number}}</span>
-                            <span>sites  joined</span>
+                            <span>
+                                <span v-if="itm.number === 1">site</span>
+                                <span v-else>sites</span>
+                                joined
+                            </span>
                         </div>
                     </template>
                     <div  class="msg-warn" v-if=" siteState && itm.authoritylist && itm.authoritylist.length>0">
@@ -91,7 +99,7 @@
                         </el-button>
                     </div>
                     <sitetable ref="sitelist" :institutions="itm.institutions" :condition="data.condition"/>
-                    <!-- <sitetable ref="sitelist" /> -->
+
                 </el-collapse-item>
             </el-collapse>
             <div class="pagination">
@@ -177,6 +185,7 @@ export default {
     },
     data() {
         return {
+            activeName: [], // 折叠版激活
             loading: true,
             currentPage1: 1, // 当前页
             total: 0,
@@ -248,7 +257,7 @@ export default {
             })
         },
         // 获取机构数
-        getinitinstitutions() {
+        async getinitinstitutions() {
             // 清空筛选条件
             for (const key in this.data) {
                 if (this.data.hasOwnProperty(key)) {
@@ -258,7 +267,7 @@ export default {
                     }
                 }
             }
-            institutionsList(this.data).then(resl => {
+            await institutionsList(this.data).then(resl => {
                 this.total = resl.data.totalRecord
                 this.institutionsItemList = [] // 清空记录
                 let Arr = []
@@ -267,6 +276,7 @@ export default {
                     item.visible = false // 历史记录弹框
                     Arr.push(item)
                     this.institutionsItemList = Arr
+                    this.activeName.push(item.institutions)
                     // 获取历史记录
                     let data = {
                         institutions: item.institutions,
@@ -314,6 +324,8 @@ export default {
                     this.institutionsItemList = [...Arr]
                 }, 1000)
             })
+
+            return this.institutionsItemList
         },
         // 点击显示机构历史记录
         gethistory(index) {
@@ -329,7 +341,12 @@ export default {
         // 搜索
         toSearch() {
             this.data.pageNum = 1
-            this.getinitinstitutions()
+            this.getinitinstitutions().then(res => {
+                res.forEach((item, index) => {
+                    console.log('index==>>', index)
+                    this.$refs['sitelist'][index].initList()
+                })
+            })
         },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`)
@@ -406,6 +423,14 @@ export default {
             let checkedCount = value.length
             this.checkAll = checkedCount === this.canceltempData.cancelcheckboxList.length
             this.isIndeterminate = checkedCount > 0 && checkedCount < this.canceltempData.cancelcheckboxList.length
+        },
+        // 展开或者折叠
+        toFold() {
+            if (this.activeName.length > 0) {
+                this.activeName = []
+            } else {
+                this.activeName = this.institutionsItemList.map(item => item.institutions)
+            }
         }
     }
 }

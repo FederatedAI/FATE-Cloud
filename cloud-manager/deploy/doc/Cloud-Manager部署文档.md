@@ -261,3 +261,7 @@ Cloud-Manager 是一个web服务.如果部署成功,可以通过网址(例:http:
 注意: 请用真实配置的IP和端口访问,上文只是示例!
 
 
+8.其他
+======
+
+Cloud-Manager支持账号系统的切换。如果有需要请重新实现接口com.webank.ai.fatecloud.system.Interface.FederatedCloudManagerOriginUserServiceInterface，并切换成新的实现类！

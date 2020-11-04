@@ -105,7 +105,7 @@ type SiteDetailResp struct {
 	ComponentVersion       string `json:"componentVersion"`
 	Status                 IdPair `json:"status"`
 	EditStatus             IdPair `json:"editStatus"`
-	//ReadStatus             IdPair     `json:"readStatus"`
+	VersionEditStatus      IdPair `json:"versionEditStatus"`
 	CreateTime      int64 `json:"createTime"`
 	AcativationTime int64 `json:"acativationTime"`
 }
@@ -541,4 +541,7 @@ type SubLoginResp struct {
 type AllowReq struct {
 	PartyId                 int       `json:"partyId"`
 	RoleName                string `json:"roleName"`
+}
+type ComponentversionReq struct {
+	FateVersion string `json:"fateVersion"`
 }

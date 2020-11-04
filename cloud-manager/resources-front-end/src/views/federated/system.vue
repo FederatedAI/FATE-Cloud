@@ -3,8 +3,8 @@
     <div class="system">
       <div class="system-header">
         <el-radio-group class="radio" v-model="radio">
-            <el-radio-button label="FATE"></el-radio-button>
-            <el-radio-button disabled label="FATE Serving"></el-radio-button>
+            <!-- <el-radio-button label="FATE"></el-radio-button> -->
+            <!-- <el-radio-button disabled label="FATE Serving"></el-radio-button> -->
         </el-radio-group>
         <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID"> </el-input>
         <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
@@ -29,13 +29,13 @@
             tooltip-effect="light"
           >
             <el-table-column type="index" label="Index" class-name="cell-td-td" width="70"></el-table-column>
-            <el-table-column prop="siteName" label="Site Name" class-name="cell-td-td">
+            <el-table-column prop="siteName" label="Site Name" min-width="90" class-name="cell-td-td">
                 <template slot-scope="scope">
                     <!-- <el-button type="text">{{scope.row.siteName}}</el-button> -->
                     <span>{{scope.row.siteName}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
             <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td"></el-table-column>
             <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td" >
                 <template slot-scope="scope">
@@ -97,7 +97,7 @@
                                 v-model="elm.visible"
                                 popper-class="system-history"
                                 :offset="-300"
-                                width="420"
+                                width="450"
                                 trigger="click">
                                 <div class="content">
                                     <div class="title">
@@ -107,13 +107,27 @@
                                     <div class="content-box">
                                         <div v-for="(item, index) in elm.historylist" :key="index">
                                             <div class="title-time">{{item.updateTime | dateFormat}}</div>
-                                            <div class="title-history">
-                                                <span v-if="index===0"> Installed to </span>
-                                                <span v-else> upgraded to </span>
+                                            <div v-if="index===0 " class="title-history">
+                                                <span >Installed </span>
                                                 <span class="version">{{item.version}}</span>
                                                 <span v-if="item.updateStatus===1"> successfully</span>
                                                 <span v-if="item.updateStatus===2"> failed</span>
                                             </div>
+                                            <div v-if="index > 0 " class="title-history">
+                                                <span v-if="elm.historylist[index-1].updateStatus===1">
+                                                    upgraded to
+                                                    <span class="version">{{item.version}}</span>
+                                                    <span v-if="item.updateStatus===1"> successfully</span>
+                                                    <span v-if="item.updateStatus===2"> failed</span>
+                                                </span>
+                                                <span v-if="elm.historylist[index-1].updateStatus===2">
+                                                    Installed
+                                                    <span class="version">{{item.version}}</span>
+                                                    <span v-if="item.updateStatus===1"> successfully</span>
+                                                    <span v-if="item.updateStatus===2"> failed</span>
+                                                </span>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>

@@ -670,7 +670,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "int valid",
+                        "description": "string valid",
                         "name": "fateVersion",
                         "in": "query"
                     }
@@ -4052,7 +4052,6 @@
                     "type": "string"
                 },
                 "createTime": {
-                    "description": "ReadStatus             IdPair     `json:\"readStatus\"`",
                     "type": "integer"
                 },
                 "editStatus": {
@@ -4097,6 +4096,10 @@
                     "type": "string"
                 },
                 "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
+                "versionEditStatus": {
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
                 }

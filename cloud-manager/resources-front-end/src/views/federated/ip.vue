@@ -26,14 +26,14 @@
             height="100%"
           >
             <el-table-column prop="" type="index"  label="Index" class-name="cell-td-td" width="70"></el-table-column>
-            <el-table-column prop="siteName" label="Site Name" class-name="cell-td-td" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td"></el-table-column>
+            <el-table-column prop="siteName" label="Site Name" class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td" ></el-table-column>
             <el-table-column prop="role" label="Role" class-name="cell-td-td">
                 <template slot-scope="scope">
                     <span>{{scope.row.role===1?'Guest':'Host'}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="networkAccessEntrances" label="Network Acess Entrances" min-width="180px">
+            <el-table-column prop="networkAccessEntrances" label="Network Acess Entrances" min-width="210px">
               <template slot-scope="scope"  >
                    <span v-if="scope.row.networkAccessEntrancesOld"
                    :class="{ 'cell-td': scope.row.networkAccessEntrancesOld.split(';').length>=scope.row.networkAccessExitsOld.split(';').length?false:true }">
@@ -204,7 +204,7 @@
         </div>
         <div class="line-text-two">Do you confirm these updates?</div>
         <div class="dialog-footer">
-          <el-button class="ok-btn" type="primary" @click="sureAction">Sure</el-button>
+          <el-button class="ok-btn" type="primary" @click="sureAction">Agree</el-button>
           <el-button class="ok-btn" type="info" @click="rejectAction">Reject</el-button>
           <el-button class="ok-btn" type="info" @click="cancelAction">Cancel</el-button>
         </div>
