@@ -31,6 +31,10 @@ public class JobStatisticsQo implements Serializable {
     @ApiModelProperty(value = "failed count")
     private Integer jobFailedCount;
 
+    @NotNull(message = "running count can't be null!")
+    @ApiModelProperty(value = "running count")
+    private Integer jobRunningCount;
+
     @NotNull(message = "finish date can't be null!")
     @ApiModelProperty(value = "finish date")
     private Date jobFinishDate;

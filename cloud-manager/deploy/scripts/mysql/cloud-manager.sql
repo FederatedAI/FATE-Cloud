@@ -154,6 +154,7 @@ create table IF NOT EXISTS `t_job_statistics`(
     `site_host_id` bigint(20) NOT NULL  COMMENT 'site id to cooperation',
     `job_success_count` bigint(20) not null COMMENT 'count of successful jobs',
     `job_failed_count` bigint(20) NOT NULL COMMENT 'count of failed jobs',
+    `job_running_count` bigint(20) NOT NULL COMMENT 'count of running jobs',
     `job_finish_date` date NOT NULL COMMENT 'type: day',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
