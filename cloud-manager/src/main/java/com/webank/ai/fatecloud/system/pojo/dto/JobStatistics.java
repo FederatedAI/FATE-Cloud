@@ -20,6 +20,9 @@ public class JobStatistics implements Serializable {
     @ApiModelProperty(value = "success count")
     private String jobSuccessCount;
 
+    @ApiModelProperty(value = "running count")
+    private String jobRunningCount;
+
     @ApiModelProperty(value = "failed count")
     private String jobFailedCount;
 }

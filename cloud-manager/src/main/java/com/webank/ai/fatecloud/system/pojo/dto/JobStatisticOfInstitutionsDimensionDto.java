@@ -23,4 +23,7 @@ public class JobStatisticOfInstitutionsDimensionDto implements Serializable {
     @ApiModelProperty(value = "failed job count for institutions")
     private String failedJobCountForInstitutions;
 
+    @ApiModelProperty(value = "running job count for institutions")
+    private String runningJobCountForInstitutions;
+
 }
