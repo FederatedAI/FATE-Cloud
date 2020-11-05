@@ -38,6 +38,10 @@ public class FederatedJobStatisticsDo implements Serializable {
     @TableField(value = "job_failed_count")
     private Integer jobFailedCount;
 
+    @ApiModelProperty(value = "running count")
+    @TableField(value = "job_running_count")
+    private Integer jobRunningCount;
+
     @ApiModelProperty(value = "finish date")
     @TableField(value = "job_finish_date")
     private Date jobFinishDate;
@@ -55,6 +59,7 @@ public class FederatedJobStatisticsDo implements Serializable {
         this.siteHostId = jobStatisticsQo.getSiteHostId();
         this.jobSuccessCount = jobStatisticsQo.getJobSuccessCount();
         this.jobFailedCount = jobStatisticsQo.getJobFailedCount();
+        this.jobRunningCount=jobStatisticsQo.getJobRunningCount();
         this.jobFinishDate = jobStatisticsQo.getJobFinishDate();
     }
 }

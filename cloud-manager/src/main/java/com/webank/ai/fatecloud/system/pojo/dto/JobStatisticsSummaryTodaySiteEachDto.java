@@ -23,6 +23,9 @@ public class JobStatisticsSummaryTodaySiteEachDto implements Serializable {
     @ApiModelProperty(value = "total failed job count")
     private Integer failedJobCount;
 
-    @ApiModelProperty(value = "total successfuljob count")
+    @ApiModelProperty(value = "total successful job count")
     private Integer successJobCount;
+
+    @ApiModelProperty(value = "total running job count")
+    private Integer runningJobCount;
 }
