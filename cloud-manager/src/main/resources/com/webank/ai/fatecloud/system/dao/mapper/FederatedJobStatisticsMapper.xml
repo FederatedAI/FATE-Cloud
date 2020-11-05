@@ -83,7 +83,7 @@
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteAllDto">
         SELECT count(1) siteCount,sum(tmp.job_failed_count) failedJobCount,sum(tmp.job_success_count) successJobCount ,sum(tmp.job_running_count) runningJobCount
         from
-        ( select js.site_guest_id,js.job_failed_count,js.job_success_count
+        ( select js.site_guest_id,js.job_failed_count,js.job_success_count,js.job_running_count
         FROM t_job_statistics js,t_federated_site_manager sm
         where js.site_guest_id =sm.id
         and js.job_finish_date=#{dateToday,jdbcType=DATE}
