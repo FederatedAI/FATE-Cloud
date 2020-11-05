@@ -77,13 +77,13 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/system/add")
         ;
 
-        registry.addInterceptor(getReferrerInterceptor());
+//        registry.addInterceptor(getReferrerInterceptor());
 
     }
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowCredentials(true);
-//    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowCredentials(true);
+    }
 
 }
