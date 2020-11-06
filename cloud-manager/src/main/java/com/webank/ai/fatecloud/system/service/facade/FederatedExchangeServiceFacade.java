@@ -2,6 +2,7 @@ package com.webank.ai.fatecloud.system.service.facade;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangeAddQo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangeDeleteQo;
@@ -40,9 +41,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     }
 
-    public CommonResponse<List<FederatedExchangeDo>> findExchangePage(ExchangePageQo exchangePageQo) {
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(ExchangePageQo exchangePageQo) {
 
-        List<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
+        PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS,exchangePage);
     }
