@@ -3,7 +3,7 @@
 <mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedExchangeMapper">
 
     <select id="findExchangePage"
-            resultType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo">
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo">
         select * FROM t_federated_exchange order by exchange_name asc limit #{startIndex}, #{exchangePageQo.pageSize}
     </select>
 
