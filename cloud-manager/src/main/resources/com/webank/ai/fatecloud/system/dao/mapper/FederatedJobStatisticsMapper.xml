@@ -128,7 +128,7 @@
     <select id="getJobStatisticsODimensionForPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
-        SELECT sm2.institutions,sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions,,sum(js.job_running_count) runningJobCountForInstitutions
+        SELECT sm2.institutions,sum(js.job_success_count) successJobCountForInstitutions, sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions
         FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
         where js.site_guest_id = sm.id
         and js.site_host_id=sm2.id
