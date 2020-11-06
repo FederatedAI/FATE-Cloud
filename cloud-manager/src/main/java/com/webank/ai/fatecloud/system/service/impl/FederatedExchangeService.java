@@ -47,14 +47,15 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-    public List<FederatedExchangeDo> findExchangePage(ExchangePageQo exchangePageQo) {
+    public PageBean<FederatedExchangeDo> findExchangePage(ExchangePageQo exchangePageQo) {
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
         Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
         PageBean<FederatedExchangeDo> siteDetailDtoPageBean = new PageBean<>(exchangePageQo.getPageNum(), exchangePageQo.getPageSize(), count);
         long startIndex = siteDetailDtoPageBean.getStartIndex();
 
         List<FederatedExchangeDo> federatedExchangeDoList=federatedExchangeMapper.findExchangePage(startIndex,exchangePageQo);
-        return federatedExchangeDoList;
+        siteDetailDtoPageBean.setList(federatedExchangeDoList);
+        return siteDetailDtoPageBean;
 
     }
 }
