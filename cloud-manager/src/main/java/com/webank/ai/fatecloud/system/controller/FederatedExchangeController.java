@@ -1,6 +1,7 @@
 package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
+import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangeAddQo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangeDeleteQo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/exchange")
@@ -47,7 +50,7 @@ public class FederatedExchangeController {
 
     @PostMapping(value = "/page")
     @ApiOperation(value = "find exchange page")
-    public CommonResponse findExchangePage(@RequestBody ExchangePageQo exchangePageQo) {
+    public CommonResponse<List<FederatedExchangeDo>> findExchangePage(@RequestBody ExchangePageQo exchangePageQo) {
         log.info("url:find paged exchange, requestBody:{}", exchangePageQo);
         return federatedExchangeServiceFacade.findExchangePage(exchangePageQo);
     }
