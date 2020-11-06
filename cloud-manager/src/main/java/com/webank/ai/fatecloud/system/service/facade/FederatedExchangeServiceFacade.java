@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -39,9 +40,10 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     }
 
-    public CommonResponse findExchangePage(ExchangePageQo exchangePageQo) {
+    public CommonResponse<List<FederatedExchangeDo>> findExchangePage(ExchangePageQo exchangePageQo) {
 
-        federatedExchangeService.findExchangePage(exchangePageQo);
-        return null;
+        List<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS,exchangePage);
     }
 }
