@@ -5,6 +5,8 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/job_service"
+	"fmt"
+	"strconv"
 )
 
 func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, error) {
@@ -70,35 +72,43 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 	}
 	var data []entity.SiteModelingItem
 	for k, v := range monitorBaseMap {
+		SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Success)/float64(v.Total)), 64)
+		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Running)/float64(v.Total)), 64)
+		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Timeout)/float64(v.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout))/float64(v.Total)), 64)
 		siteModelingItem := entity.SiteModelingItem{
 			PartyId:  k.PartyId,
 			SiteName: k.SiteName,
 			JobBase: entity.JobBase{
 				TotalJobs:      v.Total,
 				SuccessJobs:    v.Success,
-				SuccessPercent: float32(v.Success / v.Total),
+				SuccessPercent: SuccessPercent,
 				RunningJobs:    v.Running,
-				RunningPercent: float32(v.Running / v.Total),
+				RunningPercent: RunningPercent,
 				TimeoutJobs:    v.Timeout,
-				TimeoutPercent: float32(v.Timeout / v.Total),
+				TimeoutPercent: TimeoutPercent,
 				FailedJobs:     v.Failed + v.Timeout,
-				FailedPercent:  float32((v.Failed + v.Timeout) / v.Total),
+				FailedPercent:  FailedPercent,
 			},
 		}
 		data = append(data, siteModelingItem)
 	}
+	SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Success)/float64(monitorBase.Total)), 64)
+	RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Running)/float64(monitorBase.Total)), 64)
+	TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Timeout)/float64(monitorBase.Total)), 64)
+	FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout))/float64(monitorBase.Total)), 64)
 	monitorTotalResp := entity.MonitorTotalResp{
 		ActiveData: monitorBase.ActiveData,
 		JobBase: entity.JobBase{
 			TotalJobs:      monitorBase.Total,
 			SuccessJobs:    monitorBase.Success,
-			SuccessPercent: float32(monitorBase.Success / monitorBase.Total),
+			SuccessPercent: SuccessPercent,
 			RunningJobs:    monitorBase.Running,
-			RunningPercent: float32(monitorBase.Running / monitorBase.Total),
+			RunningPercent: RunningPercent,
 			TimeoutJobs:    monitorBase.Timeout,
-			TimeoutPercent: float32(monitorBase.Timeout / monitorBase.Total),
+			TimeoutPercent: TimeoutPercent,
 			FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
-			FailedPercent:  float32((monitorBase.Failed + monitorBase.Timeout) / monitorBase.Total),
+			FailedPercent:  FailedPercent,
 		},
 		SiteModeling: data,
 	}
@@ -177,33 +187,41 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 	}
 	var data []entity.InstitutionModelingItem
 	for k, v := range monitorBaseMap {
+		SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Success)/float64(v.Total)), 64)
+		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Running)/float64(v.Total)), 64)
+		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Timeout)/float64(v.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout))/float64(v.Total)), 64)
 		institutionModelingItem := entity.InstitutionModelingItem{
 			Institution: k,
 			JobBase: entity.JobBase{
 				TotalJobs:      v.Total,
 				SuccessJobs:    v.Success,
-				SuccessPercent: float32(v.Success / v.Total),
+				SuccessPercent: SuccessPercent,
 				RunningJobs:    v.Running,
-				RunningPercent: float32(v.Running / v.Total),
+				RunningPercent: RunningPercent,
 				TimeoutJobs:    v.Timeout,
-				TimeoutPercent: float32(v.Timeout / v.Total),
+				TimeoutPercent: TimeoutPercent,
 				FailedJobs:     v.Failed + v.Timeout,
-				FailedPercent:  float32((v.Failed + v.Timeout) / v.Total),
+				FailedPercent:  FailedPercent,
 			},
 		}
 		data = append(data, institutionModelingItem)
 	}
+	SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Success)/float64(monitorBase.Total)), 64)
+	RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Running)/float64(monitorBase.Total)), 64)
+	TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Timeout)/float64(monitorBase.Total)), 64)
+	FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout))/float64(monitorBase.Total)), 64)
 	monitorTotalResp := entity.InstitutionBaseStaticsResp{
 		JobBase: entity.JobBase{
 			TotalJobs:      monitorBase.Total,
 			SuccessJobs:    monitorBase.Success,
-			SuccessPercent: float32(monitorBase.Success / monitorBase.Total),
+			SuccessPercent: SuccessPercent,
 			RunningJobs:    monitorBase.Running,
-			RunningPercent: float32(monitorBase.Running / monitorBase.Total),
+			RunningPercent: RunningPercent,
 			TimeoutJobs:    monitorBase.Timeout,
-			TimeoutPercent: float32(monitorBase.Timeout / monitorBase.Total),
+			TimeoutPercent: TimeoutPercent,
 			FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
-			FailedPercent:  float32((monitorBase.Failed + monitorBase.Timeout) / monitorBase.Total),
+			FailedPercent:  FailedPercent,
 		},
 		InstitutionModeling: data,
 	}
@@ -297,18 +315,22 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSi
 			if err != nil || len(institution) == 0 {
 				continue
 			}
+			SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Success)/float64(siteSiteMonitor.Total)), 64)
+			RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Running)/float64(siteSiteMonitor.Total)), 64)
+			TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Timeout)/float64(siteSiteMonitor.Total)), 64)
+			FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((siteSiteMonitor.Failed+siteSiteMonitor.Timeout))/float64(siteSiteMonitor.Total)), 64)
 			mixSiteModeling := entity.MixSiteModeling{
 				InstitutionSiteName: institution,
 				JobBase: entity.JobBase{
 					TotalJobs:      siteSiteMonitor.Total,
 					SuccessJobs:    siteSiteMonitor.Success,
-					SuccessPercent: float32(siteSiteMonitor.Success / siteSiteMonitor.Total),
+					SuccessPercent: SuccessPercent,
 					RunningJobs:    siteSiteMonitor.Running,
-					RunningPercent: float32(siteSiteMonitor.Running / siteSiteMonitor.Total),
+					RunningPercent: RunningPercent,
 					TimeoutJobs:    siteSiteMonitor.Timeout,
-					TimeoutPercent: float32(siteSiteMonitor.Timeout / siteSiteMonitor.Total),
+					TimeoutPercent: TimeoutPercent,
 					FailedJobs:     siteSiteMonitor.Failed + siteSiteMonitor.Timeout,
-					FailedPercent:  float32((siteSiteMonitor.Failed + siteSiteMonitor.Timeout) / siteSiteMonitor.Total),
+					FailedPercent:  FailedPercent,
 				},
 			}
 			_, ok := institutionMap[institution]

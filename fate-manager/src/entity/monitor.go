@@ -3,13 +3,13 @@ package entity
 type JobBase struct {
 	TotalJobs       int     `json:"totalJobs"`
 	SuccessJobs     int     `json:"successJobs"`
-	SuccessPercent  float32 `json:"successPercent"`
+	SuccessPercent  float64 `json:"successPercent"`
 	RunningJobs     int     `json:"runningJobs"`
-	RunningPercent  float32 `json:"runningPercent"`
+	RunningPercent  float64 `json:"runningPercent"`
 	TimeoutJobs     int     `json:"timeoutJobs"`
-	TimeoutPercent  float32 `json:"timeoutPercent"`
+	TimeoutPercent  float64 `json:"timeoutPercent"`
 	FailedJobs      int     `json:"failedJobs"`
-	FailedPercent   float32 `json:"failedPercent"`
+	FailedPercent   float64 `json:"failedPercent"`
 }
 type SiteModelingItem struct {
 	PartyId  int    `json:"partyId"`
