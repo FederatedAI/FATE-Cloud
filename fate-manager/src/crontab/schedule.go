@@ -33,18 +33,18 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	go SiteStatusTask()
-	go IpManagerTask()
-	go HeartTask()
-	go JobTask()
-	go TestOnlyTask()
-	go ComponentStatusTask()
-	go ApplyResultTask(accountInfo)
-	go AllowApplyTask(accountInfo)
-	if AutoTestCheck {
-		AutoTestTask()
-		AutoTestCheck = false
-	}
+	//go SiteStatusTask()
+	//go IpManagerTask()
+	//go HeartTask()
+	//go JobTask()
+	//go TestOnlyTask()
+	//go ComponentStatusTask()
+	//go ApplyResultTask(accountInfo)
+	//go AllowApplyTask(accountInfo)
+	//if AutoTestCheck {
+	//	AutoTestTask()
+	//	AutoTestCheck = false
+	//}
 	go MonitorTask(accountInfo)
 }
 func SiteStatusTask() {
