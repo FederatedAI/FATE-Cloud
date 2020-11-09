@@ -1199,6 +1199,13 @@ func Click(req entity.ClickReq) bool {
 			IsValid:     int(enum.IS_VALID_YES),
 		}
 		models.UpdateDeploySite(data, deploySite)
+
+		siteInfo := models.SiteInfo{
+			FederatedId:            req.FederatedId,
+			PartyId:                req.PartyId,
+			ServiceStatus:          int(enum.SERVICE_STATUS_AVAILABLE),
+		}
+		models.UpdateSite(&siteInfo)
 	}
 	return true
 }

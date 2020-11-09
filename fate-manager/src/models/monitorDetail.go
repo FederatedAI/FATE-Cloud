@@ -21,70 +21,105 @@ import (
 )
 
 type MonitorDetail struct {
-	Id               int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
-	Ds               int
-	GuestPartyId     int
-	GuestSiteName    string
-	GuestInstitution string
-	HostPartyId      int
-	HostSiteName     string
-	HostInstitution  string
-	ArbiterPartyId   int
-	ArbiterSiteName  string
+	Id                 int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
+	Ds                 int
+	GuestPartyId       int
+	GuestSiteName      string
+	GuestInstitution   string
+	HostPartyId        int
+	HostSiteName       string
+	HostInstitution    string
+	ArbiterPartyId     int
+	ArbiterSiteName    string
 	ArbiterInstitution string
-	JobId            string
-	StartTime        int64
-	EndTime          int64
-	Status           string
-	CreateTime       int64
-	UpdateTime       int64
+	JobId              string
+	StartTime          int64
+	EndTime            int64
+	Status             string
+	CreateTime         int64
+	UpdateTime         int64
 }
 type MonitorBase struct {
-	Total       int
-	Complete    int
-	Failed      int
+	Total   int
+	Success int
+	Running int
+	Timeout int
+	Failed  int
 }
 type MonitorTotal struct {
 	MonitorBase
-	ActiveData  int
+	ActiveData int
 }
 type MonitorBySite struct {
-	GuestPartyId     int
-	GuestSiteName    string
-	HostPartyId      int
-	HostSiteName     string
+	GuestPartyId  int
+	GuestSiteName string
+	HostPartyId   int
+	HostSiteName  string
 	MonitorBase
 }
 
-func GetTotalMonitorByRegion(monitorReq entity.MonitorReq)(*MonitorTotal,error){
-	var monitorTotal *MonitorTotal
-	err := db.Table("t_fate_monitor_detail").Select("COUNT(DISTINCT guest_party_id) active_data,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ?",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorTotal).Error
+func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error) {
+	var monitorTotal MonitorTotal
+	err := db.Table("t_fate_monitor_detail").
+		Select("COUNT(DISTINCT guest_party_id) active_data,"+
+			"COUNT(job_id) total,"+
+			"SUM(if(status='success',1,0)) success,"+
+			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='timeout',1,0)) timeout,"+
+			"SUM(if(status='failed',1,0)) failed").
+		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Find(&monitorTotal).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	return monitorTotal, nil
+	return &monitorTotal, nil
 }
 
-func GetSiteMonitorByRegion(monitorReq entity.MonitorReq)([]*MonitorBySite,error){
+func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorBySiteList []*MonitorBySite
-	err := db.Table("t_fate_monitor_detail").Select("guest_party_id,guest_site_name,host_party_id,host_site_name,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ? group by guest_party_id,host_party_id",monitorReq.StartDate,monitorReq.EndDate).Find(&monitorBySiteList).Error
+	err := db.Table("t_fate_monitor_detail").
+		Select("guest_party_id,guest_site_name,host_party_id,host_site_name,COUNT(job_id) total,"+
+			"SUM(if(status='success',1,0)) success,"+
+			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='timeout',1,0)) timeout,"+
+			"SUM(if(status='failed',1,0)) failed").
+		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Group("guest_party_id,host_party_id").
+		Find(&monitorBySiteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 	return monitorBySiteList, nil
 }
 
-func GetTotalMonitorByHis()(*MonitorBase,error){
+func GetTotalMonitorByHis(monitorReq entity.MonitorReq) (*MonitorBase, error) {
 	var monitorBase MonitorBase
-	err := db.Table("t_fate_monitor_detail").Select("COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Find(&monitorBase).Error
+	err := db.Table("t_fate_monitor_detail").
+		Select("COUNT(job_id) total,"+
+			"SUM(if(status='success',1,0)) success,"+
+			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='timeout',1,0)) timeout,"+
+			"SUM(if(status='failed',1,0)) failed").
+		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Group("guest_party_id,host_party_id").
+		Find(&monitorBase).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 	return &monitorBase, nil
 }
-func GetSiteMonitorByHis()([]*MonitorBySite,error){
+func GetSiteMonitorByHis(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorByHisList []*MonitorBySite
-	err := db.Table("t_fate_monitor_detail").Select("guest_party_id,host_party_id,COUNT(job_id) total,SUM(if(status='success',1,0)) complete,SUM(if(status='failed',1,0)) failed").Where("create_time >= ? and create_time < ? group by guest_party_id,host_party_id").Find(&monitorByHisList).Error
+	err := db.Table("t_fate_monitor_detail").
+		Select("guest_party_id,host_party_id,guest_site_name,host_site_name,"+
+			"COUNT(job_id) total,"+
+			"SUM(if(status='success',1,0)) success,"+
+			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='timeout',1,0)) timeout,"+
+			"SUM(if(status='failed',1,0)) failed").
+		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Group("guest_party_id,host_party_id").
+		Find(&monitorByHisList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -105,7 +140,7 @@ func UpdateMonitorDetail(info *MonitorDetail) error {
 	return nil
 }
 
-func GetMonitorDetail(info *MonitorDetail)([]*MonitorDetail,error){
+func GetMonitorDetail(info *MonitorDetail) ([]*MonitorDetail, error) {
 	var result []*MonitorDetail
 	Db := db
 	if len(info.JobId) > 0 {

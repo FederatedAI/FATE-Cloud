@@ -43,7 +43,7 @@ func GetFederatedInfo() ([]*FederatedInfo, error) {
 func GetAll() ([]*entity.FederatedSiteItem, error) {
 	var homeSiteListItem []*entity.FederatedSiteItem
 	err := db.Table("t_fate_federated_info t1").Select("t1.id as federated_id, t1.federated_organization, t1.institutions,t2.institutions as fate_manager_institutions,t1.federated_url, " +
-		"t1.federated_url,t1.create_time,t2.site_id,t2.party_id,t2.site_name,t2.role,t2.status,t2.acativation_time,t2.app_key," +
+		"t1.federated_url,t1.create_time,t1.service_status,t2.site_id,t2.party_id,t2.site_name,t2.role,t2.status,t2.acativation_time,t2.app_key," +
 		"t2.app_secret,t2.fate_version,t2.fate_serving_version,t2.component_version").
 		Joins("left join t_fate_site_info t2 on t1.id = t2.federated_id where t1.status=1").
 		Scan(&homeSiteListItem).Error

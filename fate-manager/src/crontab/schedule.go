@@ -33,18 +33,18 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	//go SiteStatusTask()
-	//go IpManagerTask()
-	//go HeartTask()
-	//go JobTask()
-	//go TestOnlyTask()
-	//go ComponentStatusTask()
-	//go ApplyResultTask(accountInfo)
-	//go AllowApplyTask(accountInfo)
-	//if AutoTestCheck {
-	//	AutoTestTask()
-	//	AutoTestCheck = false
-	//}
+	go SiteStatusTask()
+	go IpManagerTask()
+	go HeartTask()
+	go JobTask()
+	go TestOnlyTask()
+	go ComponentStatusTask()
+	go ApplyResultTask(accountInfo)
+	go AllowApplyTask(accountInfo)
+	if AutoTestCheck {
+		AutoTestTask()
+		AutoTestCheck = false
+	}
 	go MonitorTask(accountInfo)
 }
 func SiteStatusTask() {
@@ -93,7 +93,7 @@ func TestOnlyTask() {
 	}
 }
 func ApplyResultTask(accountInfo *models.AccountInfo) {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Apply))
 	for {
 		logging.Debug("ApplyResultTask start...")
 		job_service.ApplyResultTask(accountInfo)
@@ -102,7 +102,7 @@ func ApplyResultTask(accountInfo *models.AccountInfo) {
 	}
 }
 func AllowApplyTask(accountInfo *models.AccountInfo) {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Apply))
 	for {
 		logging.Debug("AllowApplyTask start...")
 		job_service.AllowApplyTask(accountInfo)
@@ -111,7 +111,7 @@ func AllowApplyTask(accountInfo *models.AccountInfo) {
 	}
 }
 func ComponentStatusTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Test))
 	for {
 		logging.Debug("ComponentStatusTask start...")
 		job_service.ComponentStatusTask()
@@ -124,8 +124,12 @@ func AutoTestTask() {
 	job_service.AutoTestTask()
 	logging.Debug("AutoTestTask end...")
 }
-func MonitorTask(accountInfo *models.AccountInfo){
-	logging.Debug("MonitorTask start...")
-	job_service.MonitorTask(accountInfo)
-	logging.Debug("MonitorTask end...")
+func MonitorTask(accountInfo *models.AccountInfo) {
+	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Monitor))
+	for {
+		logging.Debug("MonitorTask start...")
+		job_service.MonitorTask(accountInfo)
+		logging.Debug("MonitorTask end...")
+		<-ticker.C
+	}
 }
