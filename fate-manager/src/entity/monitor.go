@@ -2,8 +2,12 @@ package entity
 
 type JobBase struct {
 	TotalJobs       int     `json:"totalJobs"`
-	CompleteJobs    int     `json:"completeJobs"`
-	CompletePercent float32 `json:"completePercent"`
+	SuccessJobs     int     `json:"successJobs"`
+	SuccessPercent  float32 `json:"successPercent"`
+	RunningJobs     int     `json:"runningJobs"`
+	RunningPercent  float32 `json:"runningPercent"`
+	TimeoutJobs     int     `json:"timeoutJobs"`
+	TimeoutPercent  float32 `json:"timeoutPercent"`
 	FailedJobs      int     `json:"failedJobs"`
 	FailedPercent   float32 `json:"failedPercent"`
 }
