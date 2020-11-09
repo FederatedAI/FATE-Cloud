@@ -1519,7 +1519,7 @@
             }
         },
         "/fate-manager/api/monitor/institution": {
-            "get": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -1530,6 +1530,17 @@
                     "MonitorController"
                 ],
                 "summary": "Get Institution based statistics",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.MonitorReq"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1547,7 +1558,7 @@
             }
         },
         "/fate-manager/api/monitor/site": {
-            "get": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -1558,6 +1569,17 @@
                     "MonitorController"
                 ],
                 "summary": "Get Site based statistics",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.MonitorReq"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4278,12 +4300,6 @@
         "entity.InstitutionBaseStaticsResp": {
             "type": "object",
             "properties": {
-                "completeJobs": {
-                    "type": "integer"
-                },
-                "completePercent": {
-                    "type": "number"
-                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -4296,6 +4312,24 @@
                 "failedPercent": {
                     "type": "number"
                 },
+                "runningJobs": {
+                    "type": "integer"
+                },
+                "runningPercent": {
+                    "type": "number"
+                },
+                "successJobs": {
+                    "type": "integer"
+                },
+                "successPercent": {
+                    "type": "number"
+                },
+                "timeoutJobs": {
+                    "type": "integer"
+                },
+                "timeoutPercent": {
+                    "type": "number"
+                },
                 "totalJobs": {
                     "type": "integer"
                 }
@@ -4304,12 +4338,6 @@
         "entity.InstitutionModelingItem": {
             "type": "object",
             "properties": {
-                "completeJobs": {
-                    "type": "integer"
-                },
-                "completePercent": {
-                    "type": "number"
-                },
                 "failedJobs": {
                     "type": "integer"
                 },
@@ -4318,6 +4346,24 @@
                 },
                 "institution": {
                     "type": "string"
+                },
+                "runningJobs": {
+                    "type": "integer"
+                },
+                "runningPercent": {
+                    "type": "number"
+                },
+                "successJobs": {
+                    "type": "integer"
+                },
+                "successPercent": {
+                    "type": "number"
+                },
+                "timeoutJobs": {
+                    "type": "integer"
+                },
+                "timeoutPercent": {
+                    "type": "number"
                 },
                 "totalJobs": {
                     "type": "integer"
@@ -4448,12 +4494,6 @@
         "entity.MixSiteModeling": {
             "type": "object",
             "properties": {
-                "completeJobs": {
-                    "type": "integer"
-                },
-                "completePercent": {
-                    "type": "number"
-                },
                 "failedJobs": {
                     "type": "integer"
                 },
@@ -4462,6 +4502,24 @@
                 },
                 "institutionSiteName": {
                     "type": "string"
+                },
+                "runningJobs": {
+                    "type": "integer"
+                },
+                "runningPercent": {
+                    "type": "number"
+                },
+                "successJobs": {
+                    "type": "integer"
+                },
+                "successPercent": {
+                    "type": "number"
+                },
+                "timeoutJobs": {
+                    "type": "integer"
+                },
+                "timeoutPercent": {
+                    "type": "number"
                 },
                 "totalJobs": {
                     "type": "integer"
@@ -4485,12 +4543,6 @@
                 "activeData": {
                     "type": "integer"
                 },
-                "completeJobs": {
-                    "type": "integer"
-                },
-                "completePercent": {
-                    "type": "number"
-                },
                 "data": {
                     "type": "array",
                     "items": {
@@ -4501,6 +4553,24 @@
                     "type": "integer"
                 },
                 "failedPercent": {
+                    "type": "number"
+                },
+                "runningJobs": {
+                    "type": "integer"
+                },
+                "runningPercent": {
+                    "type": "number"
+                },
+                "successJobs": {
+                    "type": "integer"
+                },
+                "successPercent": {
+                    "type": "number"
+                },
+                "timeoutJobs": {
+                    "type": "integer"
+                },
+                "timeoutPercent": {
                     "type": "number"
                 },
                 "totalJobs": {
@@ -4941,12 +5011,6 @@
         "entity.SiteModelingItem": {
             "type": "object",
             "properties": {
-                "completeJobs": {
-                    "type": "integer"
-                },
-                "completePercent": {
-                    "type": "number"
-                },
                 "failedJobs": {
                     "type": "integer"
                 },
@@ -4956,8 +5020,26 @@
                 "partyId": {
                     "type": "integer"
                 },
+                "runningJobs": {
+                    "type": "integer"
+                },
+                "runningPercent": {
+                    "type": "number"
+                },
                 "siteName": {
                     "type": "string"
+                },
+                "successJobs": {
+                    "type": "integer"
+                },
+                "successPercent": {
+                    "type": "number"
+                },
+                "timeoutJobs": {
+                    "type": "integer"
+                },
+                "timeoutPercent": {
+                    "type": "number"
                 },
                 "totalJobs": {
                     "type": "integer"

@@ -4,6 +4,7 @@ import (
 	"fate.manager/comm/enum"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/job_service"
 )
 
 func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, error) {
@@ -27,9 +28,11 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 			continue
 		}
 		itemBase := models.MonitorBase{
-			Total:    monitorBySite.Total,
-			Complete: monitorBySite.Complete,
-			Failed:   monitorBySite.Failed,
+			Total:   monitorBySite.Total,
+			Success: monitorBySite.Success,
+			Failed:  monitorBySite.Failed + monitorBySite.Timeout,
+			Running: monitorBySite.Running,
+			Timeout: monitorBySite.Timeout,
 		}
 		if len(siteInfoList) > 0 {
 			sitePair := entity.SitePair{
@@ -71,11 +74,15 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 			PartyId:  k.PartyId,
 			SiteName: k.SiteName,
 			JobBase: entity.JobBase{
-				TotalJobs:       v.Total,
-				CompleteJobs:    v.Complete,
-				CompletePercent: float32(v.Complete / v.Total),
-				FailedJobs:      v.Failed,
-				FailedPercent:   float32(v.Failed / v.Total),
+				TotalJobs:      v.Total,
+				SuccessJobs:    v.Success,
+				SuccessPercent: float32(v.Success / v.Total),
+				RunningJobs:    v.Running,
+				RunningPercent: float32(v.Running / v.Total),
+				TimeoutJobs:    v.Timeout,
+				TimeoutPercent: float32(v.Timeout / v.Total),
+				FailedJobs:     v.Failed + v.Timeout,
+				FailedPercent:  float32((v.Failed + v.Timeout) / v.Total),
 			},
 		}
 		data = append(data, siteModelingItem)
@@ -83,27 +90,36 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 	monitorTotalResp := entity.MonitorTotalResp{
 		ActiveData: monitorBase.ActiveData,
 		JobBase: entity.JobBase{
-			TotalJobs:       monitorBase.Total,
-			CompleteJobs:    monitorBase.Complete,
-			CompletePercent: float32(monitorBase.Complete / monitorBase.Total),
-			FailedJobs:      monitorBase.Failed,
-			FailedPercent:   float32(monitorBase.Failed / monitorBase.Total),
+			TotalJobs:      monitorBase.Total,
+			SuccessJobs:    monitorBase.Success,
+			SuccessPercent: float32(monitorBase.Success / monitorBase.Total),
+			RunningJobs:    monitorBase.Running,
+			RunningPercent: float32(monitorBase.Running / monitorBase.Total),
+			TimeoutJobs:    monitorBase.Timeout,
+			TimeoutPercent: float32(monitorBase.Timeout / monitorBase.Total),
+			FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
+			FailedPercent:  float32((monitorBase.Failed + monitorBase.Timeout) / monitorBase.Total),
 		},
 		SiteModeling: data,
 	}
 	return &monitorTotalResp, nil
 }
 
-func GetInstituionByPartyId(partyId int)(string,error){
-	return "",nil
+func GetInstituionByPartyId(partyId int) (string, error) {
+	institution := ""
+	_, ok := job_service.SiteNameMap[partyId]
+	if ok {
+		institution = job_service.SiteNameMap[partyId].Institution
+	}
+	return institution, nil
 }
 
-func GetInstitutionBaseStatics() (*entity.InstitutionBaseStaticsResp, error) {
-	monitorBase, err := models.GetTotalMonitorByHis()
+func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.InstitutionBaseStaticsResp, error) {
+	monitorBase, err := models.GetTotalMonitorByHis(monitorReq)
 	if err != nil {
 		return nil, err
 	}
-	monitorByHisList, err := models.GetSiteMonitorByHis()
+	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -119,13 +135,15 @@ func GetInstitutionBaseStatics() (*entity.InstitutionBaseStaticsResp, error) {
 			continue
 		}
 		itemBase := models.MonitorBase{
-			Total:    monitorByHis.Total,
-			Complete: monitorByHis.Complete,
-			Failed:   monitorByHis.Failed,
+			Total:   monitorByHis.Total,
+			Success: monitorByHis.Success,
+			Running: monitorByHis.Running,
+			Timeout: monitorByHis.Timeout,
+			Failed:  monitorByHis.Failed + monitorByHis.Timeout,
 		}
 		if len(siteInfoList) == 0 {
-			intitution,err := GetInstituionByPartyId(monitorByHis.GuestPartyId)
-			if err != nil || len(intitution) ==0{
+			intitution, _ := GetInstituionByPartyId(monitorByHis.GuestPartyId)
+			if len(intitution) == 0 {
 				continue
 			}
 			_, ok := monitorBaseMap[intitution]
@@ -143,16 +161,16 @@ func GetInstitutionBaseStatics() (*entity.InstitutionBaseStaticsResp, error) {
 				continue
 			}
 			if len(siteInfoList) == 0 {
-				intitution,err := GetInstituionByPartyId(monitorByHis.HostPartyId)
-				if err != nil{
+				institution, _ := GetInstituionByPartyId(monitorByHis.HostPartyId)
+				if len(institution) == 0 {
 					continue
 				}
-				_, ok := monitorBaseMap[intitution]
+				_, ok := monitorBaseMap[institution]
 				if ok {
-					itemBase = monitorBaseMap[intitution]
+					itemBase = monitorBaseMap[institution]
 					monitorBase.Total += monitorByHis.Total
 				} else {
-					monitorBaseMap[intitution] = itemBase
+					monitorBaseMap[institution] = itemBase
 				}
 			}
 		}
@@ -161,23 +179,31 @@ func GetInstitutionBaseStatics() (*entity.InstitutionBaseStaticsResp, error) {
 	for k, v := range monitorBaseMap {
 		institutionModelingItem := entity.InstitutionModelingItem{
 			Institution: k,
-			JobBase:     entity.JobBase{
-				TotalJobs:v.Total,
-				CompleteJobs:v.Complete,
-				CompletePercent: float32(v.Complete/v.Total),
-				FailedJobs:v.Failed,
-				FailedPercent:float32(v.Failed/v.Total),
+			JobBase: entity.JobBase{
+				TotalJobs:      v.Total,
+				SuccessJobs:    v.Success,
+				SuccessPercent: float32(v.Success / v.Total),
+				RunningJobs:    v.Running,
+				RunningPercent: float32(v.Running / v.Total),
+				TimeoutJobs:    v.Timeout,
+				TimeoutPercent: float32(v.Timeout / v.Total),
+				FailedJobs:     v.Failed + v.Timeout,
+				FailedPercent:  float32((v.Failed + v.Timeout) / v.Total),
 			},
 		}
 		data = append(data, institutionModelingItem)
 	}
 	monitorTotalResp := entity.InstitutionBaseStaticsResp{
-		JobBase:             entity.JobBase{
-			TotalJobs: monitorBase.Total,
-			CompleteJobs:monitorBase.Complete,
-			CompletePercent:float32(monitorBase.Complete/monitorBase.Total),
-			FailedJobs:monitorBase.Failed,
-			FailedPercent:float32(monitorBase.Failed/monitorBase.Total),
+		JobBase: entity.JobBase{
+			TotalJobs:      monitorBase.Total,
+			SuccessJobs:    monitorBase.Success,
+			SuccessPercent: float32(monitorBase.Success / monitorBase.Total),
+			RunningJobs:    monitorBase.Running,
+			RunningPercent: float32(monitorBase.Running / monitorBase.Total),
+			TimeoutJobs:    monitorBase.Timeout,
+			TimeoutPercent: float32(monitorBase.Timeout / monitorBase.Total),
+			FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
+			FailedPercent:  float32((monitorBase.Failed + monitorBase.Timeout) / monitorBase.Total),
 		},
 		InstitutionModeling: data,
 	}
@@ -188,8 +214,9 @@ type SiteSiteMonitor struct {
 	entity.SitePair
 	models.MonitorBase
 }
-func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
-	monitorByHisList, err := models.GetSiteMonitorByHis()
+
+func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSiteModelingItem, error) {
+	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -207,13 +234,15 @@ func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
 			}
 			siteSiteMonitor := SiteSiteMonitor{
 				SitePair: entity.SitePair{
-					PartyId:monitorByHis.HostPartyId,
-					SiteName:monitorByHis.HostSiteName,
+					PartyId:  monitorByHis.HostPartyId,
+					SiteName: monitorByHis.HostSiteName,
 				},
 				MonitorBase: models.MonitorBase{
-					Total:    monitorByHis.Total,
-					Complete: monitorByHis.Complete,
-					Failed:   monitorByHis.Failed,
+					Total:   monitorByHis.Total,
+					Success: monitorByHis.Success,
+					Running: monitorByHis.Running,
+					Timeout: monitorByHis.Timeout,
+					Failed:  monitorByHis.Failed + monitorByHis.Timeout,
 				},
 			}
 			if len(siteInfoList) > 0 {
@@ -224,12 +253,12 @@ func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
 				_, ok := siteSiteMonitorMap[sitePair]
 				if ok {
 					siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-				}else {
+				} else {
 					var SiteSiteMonitorList []SiteSiteMonitor
-					SiteSiteMonitorList = append(SiteSiteMonitorList,siteSiteMonitor)
+					SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
 					siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
 				}
-			}else {
+			} else {
 				siteInfo.PartyId = monitorByHis.HostPartyId
 				siteSiteMonitor.PartyId = monitorByHis.HostPartyId
 				siteSiteMonitor.SiteName = monitorByHis.HostSiteName
@@ -245,9 +274,9 @@ func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
 					_, ok := siteSiteMonitorMap[sitePair]
 					if ok {
 						siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-					}else {
+					} else {
 						var SiteSiteMonitorList []SiteSiteMonitor
-						SiteSiteMonitorList = append(SiteSiteMonitorList,siteSiteMonitor)
+						SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
 						siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
 					}
 				}
@@ -256,45 +285,49 @@ func GetSiteBaseStatistics() ([]entity.InstitutionSiteModelingItem, error) {
 	}
 
 	var InstitutionSiteModeling []entity.InstitutionSiteModelingItem
-	for k,v := range siteSiteMonitorMap {
+	for k, v := range siteSiteMonitorMap {
 
-		sitePair :=k
+		sitePair := k
 		siteSiteMonitorList := v
 
 		var institutionMap = make(map[string][]entity.MixSiteModeling)
-		for j := 0; j < len(siteSiteMonitorList) ; j++  {
+		for j := 0; j < len(siteSiteMonitorList); j++ {
 			siteSiteMonitor := siteSiteMonitorList[j]
-			institution,err := GetInstituionByPartyId(siteSiteMonitor.PartyId)
-			if err != nil || len(institution) ==0{
+			institution, err := GetInstituionByPartyId(siteSiteMonitor.PartyId)
+			if err != nil || len(institution) == 0 {
 				continue
 			}
 			mixSiteModeling := entity.MixSiteModeling{
 				InstitutionSiteName: institution,
-				JobBase:             entity.JobBase{
-					TotalJobs:siteSiteMonitor.Total,
-					CompleteJobs:siteSiteMonitor.Complete,
-					CompletePercent:float32(siteSiteMonitor.Complete/siteSiteMonitor.Total),
-					FailedJobs:siteSiteMonitor.Failed,
-					FailedPercent:float32(siteSiteMonitor.Failed/siteSiteMonitor.Total),
+				JobBase: entity.JobBase{
+					TotalJobs:      siteSiteMonitor.Total,
+					SuccessJobs:    siteSiteMonitor.Success,
+					SuccessPercent: float32(siteSiteMonitor.Success / siteSiteMonitor.Total),
+					RunningJobs:    siteSiteMonitor.Running,
+					RunningPercent: float32(siteSiteMonitor.Running / siteSiteMonitor.Total),
+					TimeoutJobs:    siteSiteMonitor.Timeout,
+					TimeoutPercent: float32(siteSiteMonitor.Timeout / siteSiteMonitor.Total),
+					FailedJobs:     siteSiteMonitor.Failed + siteSiteMonitor.Timeout,
+					FailedPercent:  float32((siteSiteMonitor.Failed + siteSiteMonitor.Timeout) / siteSiteMonitor.Total),
 				},
 			}
-			_,ok := institutionMap[institution]
+			_, ok := institutionMap[institution]
 			if ok {
-				institutionMap[institution] = append(institutionMap[institution],mixSiteModeling)
-			}else{
+				institutionMap[institution] = append(institutionMap[institution], mixSiteModeling)
+			} else {
 				var mixSiteModelingList []entity.MixSiteModeling
-				mixSiteModelingList = append(mixSiteModelingList,mixSiteModeling)
-				institutionMap[institution] =mixSiteModelingList
+				mixSiteModelingList = append(mixSiteModelingList, mixSiteModeling)
+				institutionMap[institution] = mixSiteModelingList
 			}
 		}
-		for kk,vv := range institutionMap {
+		for kk, vv := range institutionMap {
 			institutionSiteModelingItem := entity.InstitutionSiteModelingItem{
 				SiteName:        sitePair.SiteName,
 				Institution:     kk,
 				MixSiteModeling: vv,
 			}
-			InstitutionSiteModeling = append(InstitutionSiteModeling,institutionSiteModelingItem)
+			InstitutionSiteModeling = append(InstitutionSiteModeling, institutionSiteModelingItem)
 		}
 	}
-	return InstitutionSiteModeling,nil
+	return InstitutionSiteModeling, nil
 }

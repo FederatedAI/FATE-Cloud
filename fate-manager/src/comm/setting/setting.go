@@ -90,6 +90,8 @@ type Schedule struct {
 	Heart     int
 	Job       int
 	Test      int
+	Apply     int
+	Monitor   int
 }
 
 var ScheduleSetting = &Schedule{}

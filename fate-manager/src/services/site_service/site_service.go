@@ -154,6 +154,7 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 			siteItem.AcativationTime = federatedSiteItem.AcativationTime.UnixNano() / 1e6
 			siteItem.PartyId = federatedSiteItem.PartyId
 			siteItem.SiteName = federatedSiteItem.SiteName
+			siteItem.ServiceStatus = entity.IdPair{Code: federatedSiteItem.ServiceStatus, Desc: enum.GetServiceStatusString(enum.ServiceStatusType(federatedSiteItem.ServiceStatus))}
 
 			if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
 				headInfo.Uri = setting.SiteQueryUri
@@ -180,7 +181,6 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 					siteInfo.CreateTime      = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
 					siteInfo.AcativationTime = time.Unix(findOneSiteResp.Data.ActivationTime/1000, 0)
 					siteInfo.SiteId          = findOneSiteResp.Data.Id
-					siteInfo.ServiceStatus   = findOneSiteResp.Data.ServiceStatus
 					models.UpdateSite(&siteInfo)
 
 					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0 {
@@ -929,6 +929,10 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 						Status: entity.IdPair{
 							Code: item.Status,
 							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
+						},
+						ServiceStatus:entity.IdPair{
+							Code: item.ServiceStatus,
+							Desc: enum.GetServiceStatusString(enum.ServiceStatusType(item.ServiceStatus)),
 						},
 						AcativationTime: item.ActivationTime,
 					}

@@ -57,6 +57,7 @@ type FederatedSiteItem struct {
 	AppKey                  string    `json:"appKey"`
 	AppSecret               string    `json:"appSecret"`
 	Status                  int       `json:"status"`
+	ServiceStatus           int       `json:"serviceStatus"`
 	FateVersion             string    `json:"fateVersion"`
 	FateServingVersion      string    `json:"fateServingVersion"`
 	ComponentVersion        string    `json:"componentVersion"`

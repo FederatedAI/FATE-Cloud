@@ -627,6 +627,7 @@ type SiteInstitution struct {
 	SiteName string `json:"siteName"`
 	Institution string `json:"institution"`
 }
+var SiteNameMap map[int]SiteInstitution
 func MonitorTask(accountInfo *models.AccountInfo) {
 	siteInfo := models.SiteInfo{
 		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
@@ -636,14 +637,13 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 	if err != nil {
 		return
 	}
-	var siteNameMap = make(map[int]SiteInstitution)
-	siteNameMap,_ = GetOtherPartyIdInstitution()
+	SiteNameMap,_ = GetOtherPartyIdInstitution()
 	for i :=0;i< len(flowAddressList) ;i++  {
 		siteInstitution := SiteInstitution{
 			SiteName:    flowAddressList[i].SiteName,
 			Institution: accountInfo.Institutions,
 		}
-		siteNameMap[flowAddressList[i].PartyId] = siteInstitution
+		SiteNameMap[flowAddressList[i].PartyId] = siteInstitution
 	}
 	for i := 0; i < len(flowAddressList); i++ {
 		flowJobQuery := FlowJobQuery{PartyId: flowAddressList[i].PartyId}
@@ -678,26 +678,26 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				}
 				if len(flowJobQuery.Roles.Guest) >0 {
 					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
-					_,ok := siteNameMap[monitorDetail.GuestPartyId]
+					_,ok := SiteNameMap[monitorDetail.GuestPartyId]
 					if ok {
-						monitorDetail.GuestSiteName = siteNameMap[monitorDetail.GuestPartyId].SiteName
-						monitorDetail.GuestInstitution = siteNameMap[monitorDetail.GuestPartyId].Institution
+						monitorDetail.GuestSiteName = SiteNameMap[monitorDetail.GuestPartyId].SiteName
+						monitorDetail.GuestInstitution = SiteNameMap[monitorDetail.GuestPartyId].Institution
 					}
 				}
 				if len(flowJobQuery.Roles.Host) >0 {
 					monitorDetail.HostPartyId = flowJobQuery.Roles.Host[0]
-					_,ok := siteNameMap[monitorDetail.HostPartyId]
+					_,ok := SiteNameMap[monitorDetail.HostPartyId]
 					if ok {
-						monitorDetail.HostSiteName = siteNameMap[monitorDetail.HostPartyId].SiteName
-						monitorDetail.HostInstitution = siteNameMap[monitorDetail.HostPartyId].Institution
+						monitorDetail.HostSiteName = SiteNameMap[monitorDetail.HostPartyId].SiteName
+						monitorDetail.HostInstitution = SiteNameMap[monitorDetail.HostPartyId].Institution
 					}
 				}
 				if len(flowJobQuery.Roles.Arbiter) >0 {
 					monitorDetail.ArbiterPartyId = flowJobQuery.Roles.Arbiter[0]
-					_,ok := siteNameMap[monitorDetail.ArbiterPartyId]
+					_,ok := SiteNameMap[monitorDetail.ArbiterPartyId]
 					if ok {
-						monitorDetail.ArbiterSiteName = siteNameMap[monitorDetail.ArbiterPartyId].SiteName
-						monitorDetail.ArbiterInstitution = siteNameMap[monitorDetail.ArbiterPartyId].Institution
+						monitorDetail.ArbiterSiteName = SiteNameMap[monitorDetail.ArbiterPartyId].SiteName
+						monitorDetail.ArbiterInstitution = SiteNameMap[monitorDetail.ArbiterPartyId].Institution
 					}
 				}
 				monitorDetailList,_ := models.GetMonitorDetail(&monitorDetail)

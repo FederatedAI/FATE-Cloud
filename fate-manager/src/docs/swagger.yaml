@@ -798,10 +798,6 @@ definitions:
     type: object
   entity.InstitutionBaseStaticsResp:
     properties:
-      completeJobs:
-        type: integer
-      completePercent:
-        type: number
       data:
         items:
           $ref: '#/definitions/entity.InstitutionModelingItem'
@@ -810,21 +806,41 @@ definitions:
         type: integer
       failedPercent:
         type: number
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
       totalJobs:
         type: integer
     type: object
   entity.InstitutionModelingItem:
     properties:
-      completeJobs:
-        type: integer
-      completePercent:
-        type: number
       failedJobs:
         type: integer
       failedPercent:
         type: number
       institution:
         type: string
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
       totalJobs:
         type: integer
     type: object
@@ -908,16 +924,24 @@ definitions:
     type: object
   entity.MixSiteModeling:
     properties:
-      completeJobs:
-        type: integer
-      completePercent:
-        type: number
       failedJobs:
         type: integer
       failedPercent:
         type: number
       institutionSiteName:
         type: string
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
       totalJobs:
         type: integer
     type: object
@@ -932,10 +956,6 @@ definitions:
     properties:
       activeData:
         type: integer
-      completeJobs:
-        type: integer
-      completePercent:
-        type: number
       data:
         items:
           $ref: '#/definitions/entity.SiteModelingItem'
@@ -943,6 +963,18 @@ definitions:
       failedJobs:
         type: integer
       failedPercent:
+        type: number
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
         type: number
       totalJobs:
         type: integer
@@ -1232,18 +1264,26 @@ definitions:
     type: object
   entity.SiteModelingItem:
     properties:
-      completeJobs:
-        type: integer
-      completePercent:
-        type: number
       failedJobs:
         type: integer
       failedPercent:
         type: number
       partyId:
         type: integer
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
       siteName:
         type: string
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
       totalJobs:
         type: integer
     type: object
@@ -2419,9 +2459,16 @@ paths:
       tags:
       - UserController
   /fate-manager/api/monitor/institution:
-    get:
+    post:
       consumes:
       - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
       produces:
       - application/json
       responses:
@@ -2437,9 +2484,16 @@ paths:
       tags:
       - MonitorController
   /fate-manager/api/monitor/site:
-    get:
+    post:
       consumes:
       - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
       produces:
       - application/json
       responses:
