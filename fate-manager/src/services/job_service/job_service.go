@@ -410,6 +410,9 @@ func ApplyResultTask(info *models.AccountInfo) {
 			hitvalid := false
 			for k := 0; k < len(validAudit); k++ {
 				if item.Institutions == validAudit[k].Desc {
+					if item.Status == int(enum.AuditStatus_AGREED) {
+						go flushOtherSiteInfo(info, item.Institutions, true)
+					}
 					if item.Status != validAudit[k].Code {
 						validAudit[k].Code = item.Status
 						validAudit[k].ReadCode = int(enum.APPLY_READ_STATUS_NOT_READ)
@@ -419,6 +422,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 								Desc: item.Institutions,
 							}
 							cancelAudit = append(cancelAudit, calcelItem)
+							go flushOtherSiteInfo(info, item.Institutions, false)
 						}
 					}
 					hitvalid = true
@@ -430,6 +434,9 @@ func ApplyResultTask(info *models.AccountInfo) {
 					Code:     item.Status,
 					Desc:     item.Institutions,
 					ReadCode: int(enum.APPLY_READ_STATUS_NOT_READ),
+				}
+				if item.Status == int(enum.AuditStatus_AGREED) {
+					go flushOtherSiteInfo(info, item.Institutions, true)
 				}
 				validAudit = append(validAudit, validAuditItem)
 			}
@@ -467,6 +474,69 @@ func ApplyResultTask(info *models.AccountInfo) {
 				UpdateTime:   time.Now(),
 			}
 			models.AddApplySiteInfo(&applySiteInfo)
+		}
+	}
+}
+
+func flushOtherSiteInfo(accountInfo *models.AccountInfo, institution string, valid bool) {
+	querySiteReq := entity.QuerySiteReq{
+		Institutions: institution,
+		PageNum:      1,
+		PageSize:     100,
+	}
+	applySiteReqJson, _ := json.Marshal(querySiteReq)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    accountInfo.AppKey,
+		UserAppSecret: accountInfo.AppSecret,
+		FateManagerId: accountInfo.CloudUserId,
+		Body:          string(applySiteReqJson),
+		Uri:           setting.OtherSiteUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.OtherSiteUri), querySiteReq, headerInfoMap)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return
+	}
+	var resp entity.ApplyResp
+	err = json.Unmarshal([]byte(result.Body), &resp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return
+	}
+	if resp.Code == e.SUCCESS {
+		for k := 0; k < len(resp.Data.List); k++ {
+			item := resp.Data.List[k]
+			var data = make(map[string]interface{})
+			data["is_valid"] = int(enum.IS_VALID_NO)
+			if valid {
+				data["is_valid"] = int(enum.IS_VALID_YES)
+			}
+			data["update_time"] = time.Now()
+			otherSiteInfo := models.OtherSiteInfo{
+				PartyId:         item.PartyId,
+				SiteId:          item.Id,
+				SiteName:        item.SiteName,
+				Institutions:    item.Institutions,
+				Role:            item.Role,
+				ServiceStatus:   item.ServiceStatus,
+				Status:          item.Status,
+				IsValid:         int(enum.IS_VALID_YES),
+				CreateTime:      time.Unix(item.CreateTime/1000, 0),
+				AcativationTime: time.Unix(item.ActivationTime/1000, 0),
+				UpdateTime:      time.Unix(item.UpdateTime/1000, 0),
+			}
+
+			otherSiteInfoList, _ := models.GetOtherSiteInfoList(&otherSiteInfo)
+			if len(otherSiteInfoList) > 0 {
+				models.UpdateOterhSiteInfoByCondition(data, otherSiteInfo)
+			} else {
+				models.AddOterhSiteInfo(&otherSiteInfo)
+			}
 		}
 	}
 }
@@ -624,10 +694,11 @@ type FlowJobQuery struct {
 	PartyId int `json:"party_id"`
 }
 type SiteInstitution struct {
-	SiteName string `json:"siteName"`
+	SiteName    string `json:"siteName"`
 	Institution string `json:"institution"`
 }
-var SiteNameMap map[int]SiteInstitution
+
+
 func MonitorTask(accountInfo *models.AccountInfo) {
 	siteInfo := models.SiteInfo{
 		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
@@ -637,8 +708,8 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 	if err != nil {
 		return
 	}
-	SiteNameMap,_ = GetOtherPartyIdInstitution()
-	for i :=0;i< len(flowAddressList) ;i++  {
+	SiteNameMap, _ := GetOtherPartyIdInstitution()
+	for i := 0; i < len(flowAddressList); i++ {
 		siteInstitution := SiteInstitution{
 			SiteName:    flowAddressList[i].SiteName,
 			Institution: accountInfo.Institutions,
@@ -659,16 +730,11 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			return
 		}
 		if flowJobQueryResp.Code == e.SUCCESS {
-			for j :=0;j<len(flowJobQueryResp.Data) ;j++  {
+			for j := 0; j < len(flowJobQueryResp.Data); j++ {
 				flowJobQuery := flowJobQueryResp.Data[j]
-				ds,_ :=strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000,0).Format("20060102"))
+				ds, _ := strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000, 0).Format("20060102"))
 				monitorDetail := models.MonitorDetail{
 					Ds:               ds,
-					GuestSiteName:    "",
-					GuestInstitution: "",
-					HostSiteName:     "",
-					HostInstitution:  "",
-					ArbiterSiteName:  "",
 					StartTime:        flowJobQuery.StartTime,
 					EndTime:          flowJobQuery.EndTime,
 					JobId:            flowJobQuery.JobId,
@@ -676,34 +742,34 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 					CreateTime:       flowJobQuery.CreateTime,
 					UpdateTime:       flowJobQuery.UpdateTime,
 				}
-				if len(flowJobQuery.Roles.Guest) >0 {
+				if len(flowJobQuery.Roles.Guest) > 0 {
 					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
-					_,ok := SiteNameMap[monitorDetail.GuestPartyId]
+					_, ok := SiteNameMap[monitorDetail.GuestPartyId]
 					if ok {
 						monitorDetail.GuestSiteName = SiteNameMap[monitorDetail.GuestPartyId].SiteName
 						monitorDetail.GuestInstitution = SiteNameMap[monitorDetail.GuestPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Host) >0 {
+				if len(flowJobQuery.Roles.Host) > 0 {
 					monitorDetail.HostPartyId = flowJobQuery.Roles.Host[0]
-					_,ok := SiteNameMap[monitorDetail.HostPartyId]
+					_, ok := SiteNameMap[monitorDetail.HostPartyId]
 					if ok {
 						monitorDetail.HostSiteName = SiteNameMap[monitorDetail.HostPartyId].SiteName
 						monitorDetail.HostInstitution = SiteNameMap[monitorDetail.HostPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Arbiter) >0 {
+				if len(flowJobQuery.Roles.Arbiter) > 0 {
 					monitorDetail.ArbiterPartyId = flowJobQuery.Roles.Arbiter[0]
-					_,ok := SiteNameMap[monitorDetail.ArbiterPartyId]
+					_, ok := SiteNameMap[monitorDetail.ArbiterPartyId]
 					if ok {
 						monitorDetail.ArbiterSiteName = SiteNameMap[monitorDetail.ArbiterPartyId].SiteName
 						monitorDetail.ArbiterInstitution = SiteNameMap[monitorDetail.ArbiterPartyId].Institution
 					}
 				}
-				monitorDetailList,_ := models.GetMonitorDetail(&monitorDetail)
-				if len(monitorDetailList) == 0{
+				monitorDetailList, _ := models.GetMonitorDetail(&monitorDetail)
+				if len(monitorDetailList) == 0 {
 					models.AddMonitorDetail(&monitorDetail)
-				}else{
+				} else {
 					models.UpdateMonitorDetail(&monitorDetail)
 				}
 			}
@@ -800,16 +866,15 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 	return federatedItemList, nil
 }
 
-
-func GetOtherPartyIdInstitution()(map[int]SiteInstitution,error){
-	siteItemList,err := GetOtherSiteList()
+func GetOtherPartyIdInstitution() (map[int]SiteInstitution, error) {
+	siteItemList, err := GetOtherSiteList()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	var siteInstitutionMap = make(map[int]SiteInstitution)
-	for i := 0; i < len(siteItemList) ;i++  {
+	for i := 0; i < len(siteItemList); i++ {
 		federatedItem := siteItemList[i]
-		for j := 0; j < len(federatedItem.SiteItemList);j++  {
+		for j := 0; j < len(federatedItem.SiteItemList); j++ {
 			SiteItem := federatedItem.SiteItemList[j]
 			SiteInstitution := SiteInstitution{
 				SiteName:    SiteItem.SiteName,
@@ -818,5 +883,5 @@ func GetOtherPartyIdInstitution()(map[int]SiteInstitution,error){
 			siteInstitutionMap[SiteItem.PartyId] = SiteInstitution
 		}
 	}
-	return siteInstitutionMap,nil
+	return siteInstitutionMap, nil
 }

@@ -35,6 +35,7 @@ type AuditPair struct {
 type SitePair struct {
 	PartyId  int    `json:"partyId"`
 	SiteName string `json:"siteName"`
+	Institution string `json:"institution"`
 }
 type FederatedSite struct {
 	PartyId     int `json:"partyId"`

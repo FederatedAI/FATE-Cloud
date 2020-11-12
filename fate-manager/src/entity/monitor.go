@@ -1,15 +1,15 @@
 package entity
 
 type JobBase struct {
-	TotalJobs       int     `json:"totalJobs"`
-	SuccessJobs     int     `json:"successJobs"`
-	SuccessPercent  float64 `json:"successPercent"`
-	RunningJobs     int     `json:"runningJobs"`
-	RunningPercent  float64 `json:"runningPercent"`
-	TimeoutJobs     int     `json:"timeoutJobs"`
-	TimeoutPercent  float64 `json:"timeoutPercent"`
-	FailedJobs      int     `json:"failedJobs"`
-	FailedPercent   float64 `json:"failedPercent"`
+	TotalJobs      int     `json:"totalJobs"`
+	SuccessJobs    int     `json:"successJobs"`
+	SuccessPercent float64 `json:"successPercent"`
+	RunningJobs    int     `json:"runningJobs"`
+	RunningPercent float64 `json:"runningPercent"`
+	TimeoutJobs    int     `json:"timeoutJobs"`
+	TimeoutPercent float64 `json:"timeoutPercent"`
+	FailedJobs     int     `json:"failedJobs"`
+	FailedPercent  float64 `json:"failedPercent"`
 }
 type SiteModelingItem struct {
 	PartyId  int    `json:"partyId"`
@@ -32,13 +32,14 @@ type InstitutionBaseStaticsResp struct {
 	InstitutionModeling []InstitutionModelingItem `json:"data"`
 }
 type MixSiteModeling struct {
-	InstitutionSiteName string `json:"institutionSiteName"`
+	SiteName string `json:"siteName"`
 	JobBase
 }
-
-type InstitutionSiteModelingItem struct {
-	SiteName        string            `json:"siteName"`
-	Institution     string            `json:"institution"`
-	MixSiteModeling []MixSiteModeling `json:"mixSiteModeling"`
+type InstitutionSite struct {
+	InstitutionSiteName string            `json:"institutionSiteName"`
+	MixSiteModeling     []MixSiteModeling `json:"mixSiteModeling"`
 }
-
+type InstitutionSiteModelingItem struct {
+	Institution         string            `json:"institution"`
+	InstitutionSiteList []InstitutionSite `json:"institutionSiteList"`
+}
