@@ -24,7 +24,7 @@ type IdPair struct {
 	Desc string `json:"desc"`
 }
 type ComponentVersionPair struct {
-	ComponentName string    `json:"componentName""`
+	ComponentName    string `json:"componentName""`
 	ComponentVersion string `json:"componentVersion"`
 }
 type AuditPair struct {
@@ -33,8 +33,8 @@ type AuditPair struct {
 	ReadCode int    `json:"readCode"`
 }
 type SitePair struct {
-	PartyId  int    `json:"partyId"`
-	SiteName string `json:"siteName"`
+	PartyId     int    `json:"partyId"`
+	SiteName    string `json:"siteName"`
 	Institution string `json:"institution"`
 }
 type FederatedSite struct {
@@ -109,8 +109,8 @@ type SiteDetailResp struct {
 	Status                 IdPair `json:"status"`
 	EditStatus             IdPair `json:"editStatus"`
 	VersionEditStatus      IdPair `json:"versionEditStatus"`
-	CreateTime      int64 `json:"createTime"`
-	AcativationTime int64 `json:"acativationTime"`
+	CreateTime             int64  `json:"createTime"`
+	AcativationTime        int64  `json:"acativationTime"`
 }
 
 //update site requqest,uri:/api/site/update
@@ -374,7 +374,7 @@ type ToyResultReadReq struct {
 type LoginReq struct {
 	AccountName string `json:"userName"`
 	Password    string `json:"passWord"`
-	SubTag      bool    `json:"subTag"`
+	SubTag      bool   `json:"subTag"`
 }
 type LogoutReq struct {
 	AccountName string `json:"userName"`
@@ -540,27 +540,29 @@ type SubLoginReq struct {
 	PartyId int `json:"PartyId"`
 }
 type SubLoginResp struct {
-	PartyId                 int       `json:"partyId"`
-	SiteName                string    `json:"siteName"`
+	PartyId  int    `json:"partyId"`
+	SiteName string `json:"siteName"`
 	Role
 }
 type AllowReq struct {
-	PartyId                 int       `json:"partyId"`
-	RoleName                string `json:"roleName"`
+	PartyId  int    `json:"partyId"`
+	RoleName string `json:"roleName"`
 }
 type ComponentversionReq struct {
 	FateVersion string `json:"fateVersion"`
 }
 type ChangeLoginReq struct {
 	AccountName string `json:"userName"`
-	SubTag      bool    `json:"subTag"`
-	PartyId int `json:"PartyId"`
+	SubTag      bool   `json:"subTag"`
+	PartyId     int    `json:"PartyId"`
 }
 type ComponentVersionDetail struct {
-	Version   string   `json:"version"`
-	Address   string   `json:"address"`
+	Version string `json:"version"`
+	Address string `json:"address"`
 }
 type MonitorReq struct {
-	StartDate string   `json:"startDate"`
-	EndDate   string   `json:"endDate"`
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+	PageNum   int    `json:"pageNum"`
+	PageSize  int    `json:"pageSize"`
 }

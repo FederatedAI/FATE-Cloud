@@ -43,3 +43,7 @@ type InstitutionSiteModelingItem struct {
 	Institution         string            `json:"institution"`
 	InstitutionSiteList []InstitutionSite `json:"institutionSiteList"`
 }
+type InsitutionSiteModeling struct {
+	SiteList []string `json:"siteList"`
+	OtherSiteList []InstitutionSiteModelingItem `json:"data"`
+}

@@ -141,7 +141,7 @@ func InitRouter() *gin.Engine {
 	{
 		ansible.POST("/connectansible",ConnectAnsible)
 		ansible.POST("/prepare",Prepare)
-		ansible.POST("/updateMachine",UpdateMachine)
+		ansible.POST("/updatemachine",UpdateMachine)
 		ansible.POST("/check",CheckSystem)
 		ansible.POST("/getcheck",GetCheckSytemList)
 		ansible.POST("/deployansible",StartDeployAnsible)

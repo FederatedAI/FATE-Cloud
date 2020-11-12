@@ -61,7 +61,7 @@ func JobTask() {
 			UserName: "admin",
 			Password: "admin",
 		}
-		kubefateUrl := k8s_service.GetKubenetesUrl(deployJobList[i].FederatedId, deployJobList[i].PartyId)
+		kubefateUrl := k8s_service.GetKubenetesUrl(int(enum.DeployType_K8S))
 		token, err := util.GetToken(kubefateUrl, user)
 		if err != nil {
 			continue
@@ -69,7 +69,7 @@ func JobTask() {
 		authorization := fmt.Sprintf("Bearer %s", token)
 		head := make(map[string]interface{})
 		head["Authorization"] = authorization
-		kubenetesUrl := k8s_service.GetKubenetesUrl(deployJobList[i].FederatedId, deployJobList[i].PartyId)
+		kubenetesUrl := k8s_service.GetKubenetesUrl(int(enum.DeployType_K8S))
 		result, err := http.GET(http.Url(kubenetesUrl+"/v1/job/"+deployJobList[0].JobId), nil, head)
 		if err != nil || result == nil {
 			continue

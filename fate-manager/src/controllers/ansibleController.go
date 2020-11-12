@@ -100,23 +100,12 @@ func UpdateMachine(c *gin.Context) {
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.CheckSystemReq true "request param"
 // @Success 200 {object} app.CommResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/check [post]
 func CheckSystem (c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var checkSystemReq entity.CheckSystemReq
-	if jsonError := json.Unmarshal(body, &checkSystemReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := ansible_service.CheckSystem(checkSystemReq)
+	ret, err := ansible_service.CheckSystem()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, ret, nil)
 		return
@@ -128,23 +117,13 @@ func CheckSystem (c *gin.Context) {
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.CheckSystemReq true "request param"
 // @Success 200 {object} app.CommResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/getcheck [post]
 func GetCheckSytemList (c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var checkSystemReq entity.CheckSystemReq
-	if jsonError := json.Unmarshal(body, &checkSystemReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := ansible_service.GetCheckSytemList(checkSystemReq)
+
+	ret, err := ansible_service.GetCheckSytemList()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.GET_CHECK_SYSYTEM_LIST_FAIL, nil)
 		return

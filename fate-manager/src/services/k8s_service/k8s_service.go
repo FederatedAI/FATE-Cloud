@@ -16,21 +16,22 @@
 package k8s_service
 
 import (
+	"fate.manager/comm/enum"
 	"fate.manager/models"
 	"math/rand"
 	"strings"
 )
 
-func GetKubenetesUrl(federatedId int, partyId int) string {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+func GetKubenetesUrl(deployType int) string {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return ""
 	}
 	return kubenetsConf.KubenetesUrl
 }
 
-func GetNodeIp(federatedId int, partyId int) []string {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+func GetNodeIp(deployType int) []string {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return nil
 	}
@@ -48,7 +49,7 @@ func GetLabel(address string)string{
 	if len(address) ==0{
 		return label
 	}
-	kubenetsConf, err := models.GetKubenetesConf()
+	kubenetsConf, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
 	if err != nil {
 		return label
 	}
@@ -66,8 +67,8 @@ func GetLabel(address string)string{
 	}
 	return label
 }
-func CheckNodeIp(address string, federatedId int, partyId int) bool {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+func CheckNodeIp(address string, deployType int) bool {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return false
 	}
