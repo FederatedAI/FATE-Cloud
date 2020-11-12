@@ -584,11 +584,6 @@ definitions:
       srcPartyId:
         type: integer
     type: object
-  entity.CheckSystemReq:
-    properties:
-      partyId:
-        type: integer
-    type: object
   entity.ClickReq:
     properties:
       clickType:
@@ -928,10 +923,6 @@ definitions:
     properties:
       ip:
         type: string
-      rootName:
-        type: string
-      rootPwd:
-        type: string
     type: object
   entity.MixSiteModeling:
     properties:
@@ -960,6 +951,10 @@ definitions:
     properties:
       endDate:
         type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
       startDate:
         type: string
     type: object
@@ -1068,12 +1063,10 @@ definitions:
       controlNode:
         $ref: '#/definitions/entity.Machine'
         type: object
-      manageNode:
+      managerNode:
         items:
           $ref: '#/definitions/entity.Machine'
         type: array
-      partyId:
-        type: integer
     type: object
   entity.PullComponentListReq:
     properties:
@@ -1536,13 +1529,6 @@ paths:
     post:
       consumes:
       - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.CheckSystemReq'
       produces:
       - application/json
       responses:
@@ -1636,13 +1622,6 @@ paths:
     post:
       consumes:
       - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.CheckSystemReq'
       produces:
       - application/json
       responses:

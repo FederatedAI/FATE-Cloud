@@ -43,7 +43,16 @@ const (
 	CheckPartyUri         = "/cloud-manager/api/authority/check/partyId"
 )
 const (
-	FlowJobQuery          = "/v1/job/query"
+	FlowJobQuery = "/v1/job/query"
+)
+
+const (
+	AnsibleConnectUri    = "/ansible/v1/server/status"
+	AnsiblePrepareUri    = "/v1/check/pre"
+	AnsibleInstallUri    = "/ansible/v1/check/available"
+	AnsibleJobSubmitUri  = "/ansible/v1/job/submit"
+	AnsibleJobQueryUri   = "/ansible/v1/job/query"
+	AnsibleTestStatusUri = "/ansible/v1/test/status"
 )
 
 type Server struct {
