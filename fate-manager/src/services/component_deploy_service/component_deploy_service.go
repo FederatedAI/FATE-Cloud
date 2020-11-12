@@ -231,7 +231,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		}
 		kubeReq.FederatedId = federatedInfoList[0].Id
 	}
-	item, err := models.GetKubenetesConf()
+	item, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
@@ -246,7 +246,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			UpdateTime:   time.Now(),
 		}
 		models.AddKubenetesConf(&kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		//item, _ = models.GetKubenetesConf(int(enum.DeployType_K8S))
+		item = &kubenetesConf
 	} else if item.KubenetesUrl != kubeReq.Url {
 		var data = make(map[string]interface{})
 		data["kubenetes_url"] = kubeReq.Url
@@ -256,8 +257,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		kubenetesConf := models.KubenetesConf{
 			Id: item.Id,
 		}
-		models.UpdateKubenetesConf(data, kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		item, _ = models.GetKubenetesConf(int(enum.DeployType_K8S))
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
@@ -292,7 +293,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				Id:           item.Id,
 				KubenetesUrl: item.KubenetesUrl,
 			}
-			models.UpdateKubenetesConf(data, kubenetesConf)
+			models.UpdateKubenetesConf(data, &kubenetesConf)
 		}
 	}
 
@@ -400,7 +401,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
+				nodelist :=k8s_service.GetNodeIp(int(enum.DeployType_K8S))
 				if len(nodelist)==0{
 					continue
 				}

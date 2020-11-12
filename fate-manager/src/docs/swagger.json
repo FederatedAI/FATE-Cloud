@@ -65,17 +65,6 @@
                     "AnsibleController"
                 ],
                 "summary": "check system to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CheckSystemReq"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -221,17 +210,6 @@
                     "AnsibleController"
                 ],
                 "summary": "get check system list",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CheckSystemReq"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3973,14 +3951,6 @@
                 }
             }
         },
-        "entity.CheckSystemReq": {
-            "type": "object",
-            "properties": {
-                "partyId": {
-                    "type": "integer"
-                }
-            }
-        },
         "entity.ClickReq": {
             "type": "object",
             "properties": {
@@ -4499,12 +4469,6 @@
             "properties": {
                 "ip": {
                     "type": "string"
-                },
-                "rootName": {
-                    "type": "string"
-                },
-                "rootPwd": {
-                    "type": "string"
                 }
             }
         },
@@ -4548,6 +4512,12 @@
             "properties": {
                 "endDate": {
                     "type": "string"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
                 },
                 "startDate": {
                     "type": "string"
@@ -4714,14 +4684,11 @@
                     "type": "object",
                     "$ref": "#/definitions/entity.Machine"
                 },
-                "manageNode": {
+                "managerNode": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.Machine"
                     }
-                },
-                "partyId": {
-                    "type": "integer"
                 }
             }
         },

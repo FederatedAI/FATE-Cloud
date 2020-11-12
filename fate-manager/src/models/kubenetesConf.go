@@ -27,14 +27,15 @@ type KubenetesConf struct {
 	RollsitePort int
 	NodeList     string
 	DeployType   int
+	ClickType    int
 	CreateTime   time.Time
 	UpdateTime   time.Time
 }
 
-func GetKubenetesConf() (*KubenetesConf, error) {
+func GetKubenetesConf(deployType int) (*KubenetesConf, error) {
 	var kubenetesConf KubenetesConf
 	Db := db
-	err := Db.First(&kubenetesConf).Error
+	err := Db.Where("deploy_type=?", deployType).First(&kubenetesConf).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -48,10 +49,11 @@ func AddKubenetesConf(kubenetesConf *KubenetesConf) error {
 	return nil
 }
 
-func GetKubenetesUrl(federatedId int, partyId int) (*KubenetesConf, error) {
+func GetKubenetesUrl(deployType int) (*KubenetesConf, error) {
 	var kubenetesConf KubenetesConf
-	err := db.Table("t_fate_kubenetes_conf").Select("t_fate_kubenetes_conf.id,t_fate_kubenetes_conf.kubenetes_url,t_fate_kubenetes_conf.node_list").
-		Joins(" join t_fate_deploy_site on t_fate_kubenetes_conf.id = t_fate_deploy_site.kubenetes_id and t_fate_deploy_site.is_valid = 1").
+
+	err := db.Table("t_fate_kubenetes_conf t1").Select("t1.id,t1.kubenetes_url,t1.node_list").
+		Joins(" join t_fate_deploy_site t2 on t1.id = t2.kubenetes_id and t2.is_valid = 1 and t1.deploy_type= ?", deployType).
 		First(&kubenetesConf).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
@@ -60,13 +62,16 @@ func GetKubenetesUrl(federatedId int, partyId int) (*KubenetesConf, error) {
 	return &kubenetesConf, nil
 }
 
-func UpdateKubenetesConf(info map[string]interface{}, condition KubenetesConf) error {
+func UpdateKubenetesConf(info map[string]interface{}, condition *KubenetesConf) error {
 	Db := db
 	if condition.Id > 0 {
 		Db = Db.Where("id = ?", condition.Id)
 	}
 	if len(condition.KubenetesUrl) > 0 {
 		Db = Db.Where("kubenetes_url = ?", condition.KubenetesUrl)
+	}
+	if condition.DeployType > 0 {
+		Db = Db.Where("deploy_type", condition.DeployType)
 	}
 	if err := Db.Model(&KubenetesConf{}).Updates(info).Error; err != nil {
 		return err

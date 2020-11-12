@@ -126,7 +126,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 }
 
 func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.InstitutionBaseStaticsResp, error) {
-	monitorBase, err := models.GetTotalMonitorByHis(monitorReq)
+	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -236,13 +236,14 @@ type SiteSiteMonitor struct {
 	models.MonitorBase
 }
 
-func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSiteModelingItem, error) {
+func GetSiteBaseStatistics(monitorReq entity.MonitorReq) (*entity.InsitutionSiteModeling, error) {
 	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
 	if err != nil {
 		return nil, err
 	}
 	var siteSiteMonitorMap = make(map[entity.SitePair][]SiteSiteMonitor)
 	var InstitutionSiteList []entity.SitePair
+	var SiteList []string
 	for i := 0; i < len(monitorByHisList); i++ {
 		monitorByHis := monitorByHisList[i]
 		if monitorByHis.GuestPartyId != monitorByHis.HostPartyId {
@@ -274,6 +275,17 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSi
 				Institution:monitorByHis.GuestInstitution,
 			}
 			if len(siteInfoList) > 0 {
+				hitSite := false
+				for j := 0; j < len(SiteList) ;j++  {
+					if SiteList[j] == monitorByHis.GuestSiteName {
+						hitSite =true
+						break
+					}
+				}
+				if !hitSite{
+					SiteList = append(SiteList,monitorByHis.GuestSiteName)
+				}
+
 				InstitutionSiteList = append(InstitutionSiteList,siteSiteMonitor.SitePair)
 				_, ok := siteSiteMonitorMap[sitePair]
 				if ok {
@@ -299,6 +311,16 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSi
 					Institution:monitorByHis.HostInstitution,
 				}
 				if len(siteInfoList) > 0 {
+					hitSite := false
+					for j := 0; j < len(SiteList) ;j++  {
+						if SiteList[j] == monitorByHis.HostSiteName {
+							hitSite =true
+							break
+						}
+					}
+					if !hitSite{
+						SiteList = append(SiteList,monitorByHis.HostSiteName)
+					}
 					_, ok := siteSiteMonitorMap[sitePair]
 					if ok {
 						siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
@@ -379,15 +401,19 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) ([]entity.InstitutionSi
 		}
 	}
 
-	var InstitutionSiteModeling []entity.InstitutionSiteModelingItem
+	var list []entity.InstitutionSiteModelingItem
 	for k, v := range InstitutionSiteMap {
 
 		institutionSiteModelingItem := entity.InstitutionSiteModelingItem{
 				Institution:         k,
 				InstitutionSiteList: v,
 			}
-			InstitutionSiteModeling = append(InstitutionSiteModeling, institutionSiteModelingItem)
+		list = append(list, institutionSiteModelingItem)
 
 	}
-	return InstitutionSiteModeling, nil
+	insitutionSiteModeling := entity.InsitutionSiteModeling{
+		SiteList:      SiteList,
+		OtherSiteList: list,
+	}
+	return &insitutionSiteModeling, nil
 }

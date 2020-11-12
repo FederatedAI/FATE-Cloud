@@ -79,7 +79,11 @@ func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error
 
 func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorBySiteList []*MonitorBySite
-	err := db.Table("t_fate_monitor_detail").
+	Db := db
+	if monitorReq.PageNum > 0 && monitorReq.PageSize > 0 {
+		Db = Db.Limit(monitorReq.PageSize).Offset((monitorReq.PageNum - 1) * monitorReq.PageSize)
+	}
+	err := Db.Table("t_fate_monitor_detail").
 		Select("guest_party_id,guest_site_name,guest_institution,host_institution,host_party_id,host_site_name,COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
@@ -94,25 +98,29 @@ func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, err
 	return monitorBySiteList, nil
 }
 
-func GetTotalMonitorByHis(monitorReq entity.MonitorReq) (*MonitorBase, error) {
-	var monitorBase MonitorBase
-	err := db.Table("t_fate_monitor_detail").
-		Select("COUNT(job_id) total,"+
-			"SUM(if(status='success',1,0)) success,"+
-			"SUM(if(status='running',1,0)) running,"+
-			"SUM(if(status='timeout',1,0)) timeout,"+
-			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
-		Group("guest_party_id,host_party_id").
-		Find(&monitorBase).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, err
-	}
-	return &monitorBase, nil
-}
+//func GetTotalMonitorByHis(monitorReq entity.MonitorReq) (*MonitorBase, error) {
+//	var monitorBase MonitorBase
+//	err := db.Table("t_fate_monitor_detail").
+//		Select("COUNT(job_id) total,"+
+//			"SUM(if(status='success',1,0)) success,"+
+//			"SUM(if(status='running',1,0)) running,"+
+//			"SUM(if(status='timeout',1,0)) timeout,"+
+//			"SUM(if(status='failed',1,0)) failed").
+//		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+//		//Group("guest_party_id,host_party_id").
+//		Find(&monitorBase).Error
+//	if err != nil && err != gorm.ErrRecordNotFound {
+//		return nil, err
+//	}
+//	return &monitorBase, nil
+//}
 func GetSiteMonitorByHis(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorByHisList []*MonitorBySite
-	err := db.Table("t_fate_monitor_detail").
+	Db := db
+	if monitorReq.PageNum > 0 && monitorReq.PageSize > 0 {
+		Db = Db.Limit(monitorReq.PageSize).Offset((monitorReq.PageNum - 1) * monitorReq.PageSize)
+	}
+	err := Db.Table("t_fate_monitor_detail").
 		Select("guest_party_id,host_party_id,guest_institution,host_institution,guest_site_name,host_site_name,"+
 			"COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+

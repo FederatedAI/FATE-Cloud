@@ -214,7 +214,7 @@ func Install(installReq entity.InstallReq) (int, error) {
 		UserName: "admin",
 		Password: "admin",
 	}
-	kubefateUrl := k8s_service.GetKubenetesUrl(installReq.FederatedId, installReq.PartyId)
+	kubefateUrl := k8s_service.GetKubenetesUrl(int(enum.DeployType_K8S))
 	token, err := util.GetToken(kubefateUrl, user)
 	if err != nil {
 		return e.ERROR_GET_TOKEN_FAIL, err
@@ -396,7 +396,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	}
 	models.UpdateDeployComponent(data, deployComponent)
 	for i := 0; i < len(componentVersionList); i++ {
-		nodelist := k8s_service.GetNodeIp(upgradeReq.FederatedId, upgradeReq.PartyId)
+		nodelist := k8s_service.GetNodeIp(int(enum.DeployType_K8S))
 		if len(nodelist)==0{
 			continue
 		}
@@ -458,7 +458,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_TEST_PASSED) {
 
-		ret := k8s_service.CheckNodeIp(updateReq.Address, updateReq.FederatedId, updateReq.PartyId)
+		ret := k8s_service.CheckNodeIp(updateReq.Address, int(enum.DeployType_K8S))
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}
@@ -1162,6 +1162,31 @@ func TestResult(testResultReq entity.TestResultReq) (*entity.IdPair, error) {
 }
 
 func Click(req entity.ClickReq) bool {
+	if req.ClickType == int(enum.AnsibleClickType_PREPARE) || req.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) || req.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL){
+		conf,err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+		if err != nil{
+			return false
+		}
+		if conf.ClickType < req.ClickType {
+			var data = make(map[string]interface{})
+			data["click_type"] = req.ClickType
+			models.UpdateKubenetesConf(data,conf)
+
+			deploySite := models.DeploySite{
+				IsValid:            int(enum.IS_VALID_YES),
+				DeployType:         int(enum.DeployType_ANSIBLE),
+			}
+			deploySiteList,_ := models.GetDeploySite(&deploySite)
+			for i :=0; i<len(deploySiteList);i++  {
+				if deploySiteList[i].ClickType < req.ClickType {
+					data["click_type"] = req.ClickType
+					models.UpdateDeploySite(data,deploySite)
+				}
+			}
+			return true
+		}
+		return false
+	}
 	deploySite := models.DeploySite{
 		FederatedId: req.FederatedId,
 		PartyId:     req.PartyId,
@@ -1277,7 +1302,7 @@ func GetFateBoardUrl(federatedSite entity.FederatedSite) (string, error) {
 		return "", nil
 	}
 
-	kubefateConf, err := models.GetKubenetesConf()
+	kubefateConf, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
 	if err != nil {
 		return "", err
 	}
