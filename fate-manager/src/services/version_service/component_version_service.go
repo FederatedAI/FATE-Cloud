@@ -361,6 +361,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 	data["fate_version"] = commitImagePullReq.FateVersion
 	data["component_version"] = string(componentVersonMapjson)
+	data["deploy_type"] = int(enum.DeployType_K8S)
 	models.UpdateSiteByCondition(data, info)
 	return e.SUCCESS, nil
 }

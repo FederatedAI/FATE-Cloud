@@ -3743,6 +3743,9 @@
                 "creator": {
                     "type": "string"
                 },
+                "institution": {
+                    "type": "string"
+                },
                 "partyId": {
                     "type": "integer"
                 },
@@ -4049,6 +4052,9 @@
         "entity.DeleteUserReq": {
             "type": "object",
             "properties": {
+                "institution": {
+                    "type": "string"
+                },
                 "partyId": {
                     "type": "integer"
                 },
@@ -4370,10 +4376,10 @@
                 }
             }
         },
-        "entity.InstitutionSiteModelingItem": {
+        "entity.InstitutionSite": {
             "type": "object",
             "properties": {
-                "institution": {
+                "institutionSiteName": {
                     "type": "string"
                 },
                 "mixSiteModeling": {
@@ -4381,9 +4387,20 @@
                     "items": {
                         "$ref": "#/definitions/entity.MixSiteModeling"
                     }
-                },
-                "siteName": {
+                }
+            }
+        },
+        "entity.InstitutionSiteModelingItem": {
+            "type": "object",
+            "properties": {
+                "institution": {
                     "type": "string"
+                },
+                "institutionSiteList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InstitutionSite"
+                    }
                 }
             }
         },
@@ -4500,14 +4517,14 @@
                 "failedPercent": {
                     "type": "number"
                 },
-                "institutionSiteName": {
-                    "type": "string"
-                },
                 "runningJobs": {
                     "type": "integer"
                 },
                 "runningPercent": {
                     "type": "number"
+                },
+                "siteName": {
+                    "type": "string"
                 },
                 "successJobs": {
                     "type": "integer"
@@ -5049,6 +5066,9 @@
         "entity.SitePair": {
             "type": "object",
             "properties": {
+                "institution": {
+                    "type": "string"
+                },
                 "partyId": {
                     "type": "integer"
                 },

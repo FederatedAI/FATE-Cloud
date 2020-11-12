@@ -1002,7 +1002,10 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 				ComponentVersion: deployComponentList[j].ComponentVersion,
 				UpgradeStatus:    upgradeStatus,
 				DeployType:       entity.IdPair{Code:deployComponentList[j].DeployType,Desc:enum.GetDeployTypeString(enum.DeployType(deployComponentList[j].DeployType))},
-				ServiceStatus:    entity.IdPair{Code:deployComponentList[j].ServiceStatus,Desc:enum.GetServiceStatusString(enum.ServiceStatusType(deployComponentList[j].ServiceStatus))},
+				ServiceStatus:    entity.IdPair{Code:int(enum.SERVICE_STATUS_UNAVAILABLE),Desc:enum.GetServiceStatusString(enum.SERVICE_STATUS_UNAVAILABLE)},
+			}
+			if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING){
+				installItem.ServiceStatus = entity.IdPair{Code:int(enum.SERVICE_STATUS_AVAILABLE),Desc:enum.GetServiceStatusString(enum.SERVICE_STATUS_AVAILABLE)}
 			}
 
 			deployJob := models.DeployJob{

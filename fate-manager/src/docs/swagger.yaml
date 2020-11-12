@@ -435,6 +435,8 @@ definitions:
     properties:
       creator:
         type: string
+      institution:
+        type: string
       partyId:
         type: integer
       permissionList:
@@ -634,6 +636,8 @@ definitions:
     type: object
   entity.DeleteUserReq:
     properties:
+      institution:
+        type: string
       partyId:
         type: integer
       siteName:
@@ -844,16 +848,23 @@ definitions:
       totalJobs:
         type: integer
     type: object
-  entity.InstitutionSiteModelingItem:
+  entity.InstitutionSite:
     properties:
-      institution:
+      institutionSiteName:
         type: string
       mixSiteModeling:
         items:
           $ref: '#/definitions/entity.MixSiteModeling'
         type: array
-      siteName:
+    type: object
+  entity.InstitutionSiteModelingItem:
+    properties:
+      institution:
         type: string
+      institutionSiteList:
+        items:
+          $ref: '#/definitions/entity.InstitutionSite'
+        type: array
     type: object
   entity.KubeReq:
     properties:
@@ -928,12 +939,12 @@ definitions:
         type: integer
       failedPercent:
         type: number
-      institutionSiteName:
-        type: string
       runningJobs:
         type: integer
       runningPercent:
         type: number
+      siteName:
+        type: string
       successJobs:
         type: integer
       successPercent:
@@ -1289,6 +1300,8 @@ definitions:
     type: object
   entity.SitePair:
     properties:
+      institution:
+        type: string
       partyId:
         type: integer
       siteName:

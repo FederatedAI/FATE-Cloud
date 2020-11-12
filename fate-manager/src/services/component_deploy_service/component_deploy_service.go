@@ -469,6 +469,15 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_YES)
 		models.UpdateDeploySite(data, deploySite)
 	}
+	var data = make(map[string]interface{})
+	data["deploy_type"]=int(enum.DeployType_K8S)
+	data["update_time"] = time.Now()
+	siteInfo := models.SiteInfo{
+		FederatedId:            kubeReq.FederatedId,
+		PartyId:                kubeReq.PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	models.UpdateSiteByCondition(data,siteInfo)
 	return e.SUCCESS, nil
 }
 
