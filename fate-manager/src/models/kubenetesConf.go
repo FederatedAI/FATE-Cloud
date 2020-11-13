@@ -28,6 +28,7 @@ type KubenetesConf struct {
 	NodeList     string
 	DeployType   int
 	ClickType    int
+	AnsibleCheck string
 	CreateTime   time.Time
 	UpdateTime   time.Time
 }
@@ -71,7 +72,7 @@ func UpdateKubenetesConf(info map[string]interface{}, condition *KubenetesConf) 
 		Db = Db.Where("kubenetes_url = ?", condition.KubenetesUrl)
 	}
 	if condition.DeployType > 0 {
-		Db = Db.Where("deploy_type", condition.DeployType)
+		Db = Db.Where("deploy_type = ?", condition.DeployType)
 	}
 	if err := Db.Model(&KubenetesConf{}).Updates(info).Error; err != nil {
 		return err

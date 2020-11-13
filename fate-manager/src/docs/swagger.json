@@ -69,7 +69,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.CommResp"
+                            "$ref": "#/definitions/app.AnsibleCheckResp"
                         }
                     },
                     "500": {
@@ -182,34 +182,6 @@
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CommResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/fate-manager/api/ansible/getcheck": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleController"
-                ],
-                "summary": "get check system list",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3054,6 +3026,23 @@
         }
     },
     "definitions": {
+        "app.AnsibleCheckResp": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AnsiblePrepareItem"
+                    }
+                },
+                "retcode": {
+                    "type": "integer"
+                },
+                "retmsg": {
+                    "type": "string"
+                }
+            }
+        },
         "app.ApplyFateManagerResponse": {
             "type": "object",
             "properties": {
@@ -3744,6 +3733,20 @@
                 },
                 "userName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.AnsiblePrepareItem": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                },
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Prepare"
+                    }
                 }
             }
         },
@@ -4464,14 +4467,6 @@
                 }
             }
         },
-        "entity.Machine": {
-            "type": "object",
-            "properties": {
-                "ip": {
-                    "type": "string"
-                }
-            }
-        },
         "entity.MixSiteModeling": {
             "type": "object",
             "properties": {
@@ -4666,6 +4661,20 @@
                 }
             }
         },
+        "entity.Prepare": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.PrepareItem": {
             "type": "object",
             "properties": {
@@ -4681,13 +4690,12 @@
             "type": "object",
             "properties": {
                 "controlNode": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.Machine"
+                    "type": "string"
                 },
                 "managerNode": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.Machine"
+                        "type": "string"
                     }
                 }
             }

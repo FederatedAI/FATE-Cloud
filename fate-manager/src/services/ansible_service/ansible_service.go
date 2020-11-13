@@ -71,117 +71,54 @@ func ConnectAnsible(ansibleReq entity.AnsibleReq) (int, error) {
 }
 
 func Prepare(prepareReq entity.PrepareReq) (int, error) {
-	if len(prepareReq.ManagerNode) == 0 || len(prepareReq.ControlNode.Ip) == 0 {
+	if len(prepareReq.ManagerNode) == 0 || len(prepareReq.ControlNode) == 0 {
 		return e.INVALID_PARAMS, nil
 	}
-	ansibleInfo := models.AnsibleInfo{
-		NodeType:   int(enum.NodeType_Control),
-		IsValid:    int(enum.IS_VALID_YES),
-		CreateTime: time.Now(),
-		UpdateTime: time.Now(),
+	prepareReqJson,_ := json.Marshal(prepareReq)
+	kubenetesConf :=models.KubenetesConf{
+		DeployType:   int(enum.DeployType_ANSIBLE),
 	}
-	var data = make(map[string]interface{})
-	data["is_valid"] = int(enum.IS_VALID_NO)
-	models.UpdateAnsibleInfoByCondition(data, ansibleInfo)
-
-	ansibleInfo.Ip = prepareReq.ControlNode.Ip
-	ansibleInfo.IsValid = int(enum.IS_VALID_YES)
-	models.AddAnsibleInfo(&ansibleInfo)
-
-	ansibleInfo = models.AnsibleInfo{
-		NodeType:   int(enum.NodeType_Manager),
-		IsValid:    int(enum.IS_VALID_YES),
-		CreateTime: time.Now(),
-		UpdateTime: time.Now(),
-	}
-	if len(prepareReq.ManagerNode) >0 {
-		data = make(map[string]interface{})
-		data["is_valid"] = int(enum.IS_VALID_NO)
-		models.UpdateAnsibleInfoByCondition(data, ansibleInfo)
-	}
-	for i := 0; i < len(prepareReq.ManagerNode); i++ {
-		ansibleInfo.Id =0
-		ansibleInfo.Ip = prepareReq.ManagerNode[i].Ip
-		ansibleInfo.IsValid = int(enum.IS_VALID_YES)
-		models.AddAnsibleInfo(&ansibleInfo)
-	}
+	var data =make(map[string]interface{})
+	data["node_list"] = string(prepareReqJson)
+	models.UpdateKubenetesConf(data,&kubenetesConf)
 	return e.SUCCESS, nil
 }
-func UpdateMachine(prepareReq entity.PrepareReq) (int, error) {
-	if len(prepareReq.ControlNode.Ip) > 0 {
-		ansibleInfo := models.AnsibleInfo{
-			NodeType: int(enum.NodeType_Control),
-			IsValid:  int(enum.IS_VALID_YES),
-		}
-		var data = make(map[string]interface{})
-		data["ip"] = prepareReq.ControlNode.Ip
-		models.UpdateAnsibleInfoByCondition(data, ansibleInfo)
-	}
-	if len(prepareReq.ManagerNode) > 0 {
-		ansibleInfo := models.AnsibleInfo{
-			NodeType: int(enum.NodeType_Manager),
-			IsValid:  int(enum.IS_VALID_YES),
-		}
-		var data = make(map[string]interface{})
-		data["is_valid"] = int(enum.IS_VALID_NO)
-		models.UpdateAnsibleInfoByCondition(data, ansibleInfo)
-		for i := 0; i < len(prepareReq.ManagerNode); i++ {
-			ansibleInfo = models.AnsibleInfo{
-				Ip:         prepareReq.ManagerNode[i].Ip,
-				NodeType:   int(enum.NodeType_Manager),
-				IsValid:    int(enum.IS_VALID_YES),
-				CreateTime: time.Now(),
-				UpdateTime: time.Now(),
-			}
-			models.AddAnsibleInfo(&ansibleInfo)
-		}
-	}
-	return e.SUCCESS, nil
-}
-func CheckSystem() (int, error) {
+
+func CheckSystem() ([]entity.AnsiblePrepareItem, error) {
 	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
 	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
+		return nil, err
 	}
 	if conf.Id == 0 {
-		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
+		return nil, err
 	}
-	ansibleInfo := models.AnsibleInfo{
-		IsValid: int(enum.IS_VALID_YES),
-	}
-	ansibleInfoList, err := models.GetAnsibleInfoList(ansibleInfo)
-	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
-	}
-	var controlNode entity.Machine
-	var managerNode []entity.Machine
-	for i := 0; i < len(ansibleInfoList); i++ {
-		if ansibleInfoList[i].NodeType == int(enum.NodeType_Control) {
-			controlNode.Ip = ansibleInfoList[i].Ip
-		} else {
-			item := entity.Machine{Ip: ansibleInfoList[i].Ip}
-			managerNode = append(managerNode, item)
-		}
-	}
-	prepareReq := entity.PrepareReq{
-		ControlNode: controlNode,
-		ManagerNode: managerNode,
+	var prepareReq  entity.PrepareReq
+	err = json.Unmarshal([]byte(conf.NodeList),&prepareReq)
+	if err != nil{
+		return nil,err
 	}
 	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), prepareReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return e.ERROR_HTTP_FAIL, err
+		return nil, err
 	}
-	var commResp app.CommResp
-	err = json.Unmarshal([]byte(result.Body), &commResp)
+	var ansiblePrepareResp app.AnsibleCheckResp
+	err = json.Unmarshal([]byte(result.Body), &ansiblePrepareResp)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return e.ERROR_PARSE_JSON_ERROR, err
+		return nil, err
 	}
-	if commResp.Code == e.SUCCESS || true {
-
+	if ansiblePrepareResp.Code == e.SUCCESS {
+		ansiblePrepareItemJson,_ := json.Marshal(ansiblePrepareResp.Data)
+		kubenetesConf := models.KubenetesConf{
+			DeployType:   int(enum.DeployType_ANSIBLE),
+		}
+		var data =make(map[string]interface{})
+		data["ansible_check"] = string(ansiblePrepareItemJson)
+		models.UpdateKubenetesConf(data,&kubenetesConf)
+		return ansiblePrepareResp.Data,nil
 	}
-	return e.SUCCESS, nil
+	return nil, nil
 }
 func StartDeployAnsible(deployAnsibleReq entity.DeployAnsibleReq) (int, error) {
 	return e.SUCCESS, nil
@@ -193,32 +130,7 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) (int, error) {
 func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (int, error) {
 	return e.SUCCESS, nil
 }
-func GetCheckSytemList() (*entity.CheckSystemResp, error) {
-	var checkItemList []entity.CheckItem
-	var itemList = []string{"Host resources and operating system",
-		"Network requirements",
-		"Basic environment configuration",
-		"Hostname configuration",
-		"Join host mapping",
-		"Turn off selinux",
-		"Modifying Linux system parameters",
-		"Turn off the firewall",
-		"Software environment initialization",
-		"Increase virtual memory"}
-	for i := 0; i < len(itemList); i++ {
-		checkItem := entity.CheckItem{
-			TestItem:     itemList[i],
-			TestDuration: 0,
-			Status:       0,
-		}
-		checkItemList = append(checkItemList, checkItem)
-	}
 
-	CheckSystemResp := entity.CheckSystemResp{
-		CheckItemList: checkItemList,
-	}
-	return &CheckSystemResp, nil
-}
 func GetDeployAnsibleList(deployAnsibleReq entity.DeployAnsibleReq) (*entity.DeployAnsibleResp, error) {
 	return nil, nil
 }

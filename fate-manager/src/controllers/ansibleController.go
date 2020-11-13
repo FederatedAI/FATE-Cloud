@@ -88,7 +88,7 @@ func UpdateMachine(c *gin.Context) {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")
 	}
-	ret, err := ansible_service.UpdateMachine(prepareReq)
+	ret, err := ansible_service.Prepare(prepareReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, ret, nil)
 		return
@@ -100,30 +100,12 @@ func UpdateMachine(c *gin.Context) {
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} app.CommResp
+// @Success 200 {object} app.AnsibleCheckResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/check [post]
 func CheckSystem (c *gin.Context) {
 	appG := app.Gin{C: c}
 	ret, err := ansible_service.CheckSystem()
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, ret, nil)
-		return
-	}
-	appG.Response(http.StatusOK, ret, nil)
-}
-
-// @Summary get check system list
-// @Tags AnsibleController
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} app.CommResp
-// @Failure 500 {object} app.Response
-// @Router /fate-manager/api/ansible/getcheck [post]
-func GetCheckSytemList (c *gin.Context) {
-	appG := app.Gin{C: c}
-
-	ret, err := ansible_service.GetCheckSytemList()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.GET_CHECK_SYSYTEM_LIST_FAIL, nil)
 		return
