@@ -30,7 +30,6 @@ type InstitutionModelingItem struct {
 type InstitutionBaseStaticsResp struct {
 	JobBase
 	InstitutionModeling []InstitutionModelingItem `json:"data"`
-	Total int `json:"total"`
 }
 type MixSiteModeling struct {
 	SiteName string `json:"siteName"`
@@ -47,5 +46,4 @@ type InstitutionSiteModelingItem struct {
 type InsitutionSiteModeling struct {
 	SiteList []string `json:"siteList"`
 	OtherSiteList []InstitutionSiteModelingItem `json:"data"`
-	Total int `json:"total"`
 }
