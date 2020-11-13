@@ -4,10 +4,7 @@ import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteModelDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelHistoryQo;
-import com.webank.ai.fatecloud.system.pojo.qo.OneSiteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.SiteListWithModelsQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedModelServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +32,13 @@ public class FederatedSystemController {
     public CommonResponse addModelNew(@RequestBody ArrayList<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest){
         log.info("RequestBody:{} Http:{}", modelAddQos,httpServletRequest);
         return federatedModelServiceFacade.addModelNew(modelAddQos,httpServletRequest);
+    }
+
+    @PostMapping(value = "/heart")
+    @ApiOperation(value = "update model status")
+    public CommonResponse modelHeart(@RequestBody ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest){
+        log.info("RequestBody:{} Http:{}", modelHeartQos,httpServletRequest);
+        return federatedModelServiceFacade.modelHeart(modelHeartQos,httpServletRequest);
     }
 
     @PostMapping(value = "/page")
