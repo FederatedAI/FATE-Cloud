@@ -65,11 +65,22 @@
                     "AnsibleController"
                 ],
                 "summary": "check system to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.CheckSystemReq"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.AnsibleCheckResp"
+                            "$ref": "#/definitions/app.CheckSystemResp"
                         }
                     },
                     "500": {
@@ -1157,6 +1168,34 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.FederationResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/dropdown/managernode": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DropDownController"
+                ],
+                "summary": "Get Ansible Manager Ip List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
                         }
                     },
                     "500": {
@@ -3026,23 +3065,6 @@
         }
     },
     "definitions": {
-        "app.AnsibleCheckResp": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.AnsiblePrepareItem"
-                    }
-                },
-                "retcode": {
-                    "type": "integer"
-                },
-                "retmsg": {
-                    "type": "string"
-                }
-            }
-        },
         "app.ApplyFateManagerResponse": {
             "type": "object",
             "properties": {
@@ -3096,6 +3118,23 @@
                 "data": {
                     "type": "object",
                     "$ref": "#/definitions/entity.CheckJwtResp"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.CheckSystemResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Prepare"
+                    }
                 },
                 "msg": {
                     "type": "string"
@@ -3736,20 +3775,6 @@
                 }
             }
         },
-        "entity.AnsiblePrepareItem": {
-            "type": "object",
-            "properties": {
-                "ip": {
-                    "type": "string"
-                },
-                "list": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Prepare"
-                    }
-                }
-            }
-        },
         "entity.AnsibleReq": {
             "type": "object",
             "properties": {
@@ -3951,6 +3976,14 @@
                 },
                 "srcPartyId": {
                     "type": "integer"
+                }
+            }
+        },
+        "entity.CheckSystemReq": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
                 }
             }
         },
@@ -4309,6 +4342,9 @@
                 "timeoutPercent": {
                     "type": "number"
                 },
+                "total": {
+                    "type": "integer"
+                },
                 "totalJobs": {
                     "type": "integer"
                 }
@@ -4508,12 +4544,6 @@
                 "endDate": {
                     "type": "string"
                 },
-                "pageNum": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
-                },
                 "startDate": {
                     "type": "string"
                 }
@@ -4666,6 +4696,9 @@
             "properties": {
                 "details": {
                     "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

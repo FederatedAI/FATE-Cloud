@@ -115,6 +115,7 @@ var MsgFlags = map[int]string{
 	GET_CHECK_SYSYTEM_LIST_FAIL:             "Get Chck Sytem List Fail",
 	ERROR_GET_DEPLOY_ANSIBLE_LIST_FAIL:      "Get Deploy Ansible List Fail",
 	ERROR_ANSIBLE_CONNECT_FIRST:             "Ansible Not Connect Fail",
+	ERROR_GET_MANAGER_IP_FAIL:               "Get Manager Ip List Fail",
 }
 
 func GetMsg(code int) string {
