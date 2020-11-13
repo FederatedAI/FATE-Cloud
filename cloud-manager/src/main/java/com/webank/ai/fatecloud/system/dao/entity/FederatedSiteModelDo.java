@@ -26,6 +26,7 @@ public class FederatedSiteModelDo implements Serializable {
         this.type = modelAddQo.getType();
         this.id = modelAddQo.getId();
         this.updateStatus=modelAddQo.getUpdateStatus();
+        this.detectiveStatus=modelAddQo.getDetectiveStatus();
     }
 
     @ApiModelProperty(value = "primary key")
@@ -55,6 +56,14 @@ public class FederatedSiteModelDo implements Serializable {
     @ApiModelProperty(value = "model update status")
     @TableField(value = "update_status")
     private Integer updateStatus;
+
+    @ApiModelProperty(value = "model detective status")
+    @TableField(value = "detective_status")
+    private Integer detectiveStatus;
+
+    @ApiModelProperty(value = "model detective time")
+    @TableField(value = "last_detective_time")
+    private Date lastDetectiveTime;
 
     @ApiModelProperty(value = "system type")
     @TableField(value = "type")

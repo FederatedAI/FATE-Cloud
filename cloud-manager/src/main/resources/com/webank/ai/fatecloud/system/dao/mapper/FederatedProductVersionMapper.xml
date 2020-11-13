@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.entity.FederatedProductVersionDo">
+
+    <resultMap id="componentMap" type="com.webank.ai.fatecloud.system.pojo.dto.ProductVersionPageDto">
+        <result property="productName" column="product_name"></result>
+        <result property="productVersion" column="product_version"></result>
+        <result property="publicStatus" column="public_status"></result>
+
+        <collection property="componentVersions"
+                    ofType="com.webank.ai.fatecloud.system.pojo.dto.ComponentVersion">
+            <result property="componentName" column="component_name"></result>
+            <result property="componentVersion" column="component_version"></result>
+            <result property="imageRepository" column="image_repository"></result>
+            <result property="imageTag" column="image_tag"></result>
+            <result property="imageName" column="image_name"></result>
+            <result property="imageDownloadUrl" column="image_download_url"></result>
+            <result property="packageName" column="package_name"></result>
+            <result property="packageDownloadUrl" column="package_download_url"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="count" parameterType="com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageQo"
+            resultType="long">
+        SELECT count(1) FROM
+        ( SELECT count(1) from t_product_version
+        <where>
+            <if test="productVersion != null">
+                and product_version=#{productVersion}
+            </if>
+            group by product_name,product_version
+        </where>
+        ) tmp
+    </select>
+
+    <select id="page" resultMap="componentMap">
+
+        select pv.* from t_product_version pv,
+        (
+        SELECT product_name, product_version
+        FROM t_product_version
+        <where>
+            <if test="productVersion != null">
+                and product_version=#{productVersion}
+            </if>
+            group by product_name,product_version
+            order by product_name limit #{startIndex}, #{productVersionPageQo.pageSize}
+        </where>
+        ) tmp
+        <where>
+            and pv.product_name=tmp.product_name
+            and pv.product_version=tmp.product_version
+        </where>
+
+    </select>
+
+</mapper>

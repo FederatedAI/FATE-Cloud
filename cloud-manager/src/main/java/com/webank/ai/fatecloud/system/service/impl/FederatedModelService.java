@@ -9,12 +9,10 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteModelDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedGroupSetMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedModelMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelHistoryQo;
-import com.webank.ai.fatecloud.system.pojo.qo.OneSiteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.SiteListWithModelsQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,23 +31,6 @@ public class FederatedModelService {
     FederatedSiteManagerMapper federatedSiteManagerMapper;
 
     @Transactional
-    public void addModel(ModelAddQo modelAddQo) {
-        FederatedSiteModelDo modelDo = new FederatedSiteModelDo(modelAddQo);
-
-        //update model status of site existed in databases
-        QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteModelDoQueryWrapper.eq("id", modelAddQo.getId()).eq("install_items", modelAddQo.getInstallItems()).eq("status", 1);
-        List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
-        if (federatedSiteModelDos.size() > 0) {
-            for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
-                federatedSiteModelDo.setStatus(2);
-                federatedModelMapper.updateById(federatedSiteModelDo);
-            }
-            modelDo.setInstallTime(federatedSiteModelDos.get(0).getInstallTime());
-        }
-        federatedModelMapper.insert(modelDo);
-    }
-
     public void addModelNew(List<ModelAddQo> modelAddQos) {
         //update status of old models
         QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapperForOldModel = new QueryWrapper<>();
@@ -75,7 +56,7 @@ public class FederatedModelService {
             }
         }
 
-        int detectiveStatus = 2;
+        int detectiveStatus = 1;
         for (ModelAddQo modelAddQo : modelAddQos) {
             FederatedSiteModelDo modelDo = new FederatedSiteModelDo(modelAddQo);
 
@@ -93,9 +74,10 @@ public class FederatedModelService {
                 modelDo.setInstallTime(modelAddQo.getUpdateTime());
             }
             modelDo.setUpdateTime(modelAddQo.getUpdateTime());
+            modelDo.setLastDetectiveTime(new Date());
             federatedModelMapper.insert(modelDo);
-            if (modelAddQo.getUpdateStatus() == 2) {
-                detectiveStatus = 1;
+            if (modelAddQo.getDetectiveStatus() == 2) {
+                detectiveStatus = 2;
             }
         }
 
@@ -103,13 +85,34 @@ public class FederatedModelService {
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
         federatedSiteManagerDo.setId(modelAddQos.get(0).getId());
         federatedSiteManagerDo.setLastDetectiveTime(new Date());
-        if (detectiveStatus == 2) {
-            federatedSiteManagerDo.setDetectiveStatus(2);
-        } else {
-            federatedSiteManagerDo.setDetectiveStatus(1);
-        }
+        federatedSiteManagerDo.setDetectiveStatus(detectiveStatus);
         federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
 
+    }
+
+    @Transactional
+    public void modelHeart(ArrayList<ModelHeartQo> modelHeartQos) {
+        Date date = new Date();
+        int detectiveStatus = 1;
+
+        for (ModelHeartQo modelHeartQo : modelHeartQos) {
+            QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion = new QueryWrapper<>();
+            federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion.eq("id", modelHeartQo.getId()).eq("status", 1).eq("install_items", modelHeartQo.getInstallItems()).eq("version", modelHeartQo.getVersion());
+            FederatedSiteModelDo modelDo = new FederatedSiteModelDo();
+            modelDo.setDetectiveStatus(modelHeartQo.getDetectiveStatus());
+            modelDo.setLastDetectiveTime(date);
+            federatedModelMapper.update(modelDo, federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion);
+            if (modelHeartQo.getDetectiveStatus() == 2) {
+                detectiveStatus = 2;
+            }
+        }
+
+        //update site detective status
+        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
+        federatedSiteManagerDo.setId(modelHeartQos.get(0).getId());
+        federatedSiteManagerDo.setLastDetectiveTime(date);
+        federatedSiteManagerDo.setDetectiveStatus(detectiveStatus);
+        federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
     }
 
     public PageBean<FederatedSiteManagerDo> findPagedSitesWithModel(SiteListWithModelsQo siteListWithModelsQo) {
@@ -133,5 +136,31 @@ public class FederatedModelService {
         List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
         return federatedSiteModelDos;
     }
+
+    //update model status and site status
+    @Scheduled(cron = "0 0/1 * * * ? ")
+    public void updateModelAndSiteStatus() {
+        log.info("start detective");
+        long time = new Date().getTime();
+        QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteModelDoQueryWrapper.eq("status", 1).eq("detective_status", 1);
+        List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
+        for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
+            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 1800000) {
+                //update model status
+                federatedSiteModelDo.setDetectiveStatus(2);
+                federatedModelMapper.updateById(federatedSiteModelDo);
+
+                //update site status
+                FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectById(federatedSiteModelDo.getId());
+                if (federatedSiteManagerDo.getDetectiveStatus() == 1) {
+                    federatedSiteManagerDo.setDetectiveStatus(2);
+                    federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
+                }
+
+            }
+        }
+    }
+
 
 }
