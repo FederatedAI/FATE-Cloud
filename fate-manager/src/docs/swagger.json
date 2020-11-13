@@ -4342,9 +4342,6 @@
                 "timeoutPercent": {
                     "type": "number"
                 },
-                "total": {
-                    "type": "integer"
-                },
                 "totalJobs": {
                     "type": "integer"
                 }
