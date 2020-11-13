@@ -46,6 +46,7 @@ type Prepare struct {
 	Name    string `json:"name"`
 	Details string `json:"details"`
 	Status  string `json:"status"`
+	Duration int64   `json:"duration"`
 }
 type AnsiblePrepareItem struct {
 	Ip   string    `json:"ip"`
@@ -54,4 +55,11 @@ type AnsiblePrepareItem struct {
 
 type AnsiblePrepare struct {
 	IpPrepareList []AnsiblePrepareItem
+}
+type CheckSystemReq struct {
+	Ip string `json:"ip"`
+}
+type IpStatus struct {
+	Ip string `json:"ip"`
+	Status string `json:"status"`
 }

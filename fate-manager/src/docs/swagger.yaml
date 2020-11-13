@@ -1,15 +1,4 @@
 definitions:
-  app.AnsibleCheckResp:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/entity.AnsiblePrepareItem'
-        type: array
-      retcode:
-        type: integer
-      retmsg:
-        type: string
-    type: object
   app.ApplyFateManagerResponse:
     properties:
       code:
@@ -46,6 +35,17 @@ definitions:
       data:
         $ref: '#/definitions/entity.CheckJwtResp'
         type: object
+      msg:
+        type: string
+    type: object
+  app.CheckSystemResp:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.Prepare'
+        type: array
       msg:
         type: string
     type: object
@@ -463,15 +463,6 @@ definitions:
       userName:
         type: string
     type: object
-  entity.AnsiblePrepareItem:
-    properties:
-      ip:
-        type: string
-      list:
-        items:
-          $ref: '#/definitions/entity.Prepare'
-        type: array
-    type: object
   entity.AnsibleReq:
     properties:
       ansbileUrl:
@@ -603,6 +594,11 @@ definitions:
         type: string
       srcPartyId:
         type: integer
+    type: object
+  entity.CheckSystemReq:
+    properties:
+      ip:
+        type: string
     type: object
   entity.ClickReq:
     properties:
@@ -837,6 +833,8 @@ definitions:
         type: integer
       timeoutPercent:
         type: number
+      total:
+        type: integer
       totalJobs:
         type: integer
     type: object
@@ -966,10 +964,6 @@ definitions:
     properties:
       endDate:
         type: string
-      pageNum:
-        type: integer
-      pageSize:
-        type: integer
       startDate:
         type: string
     type: object
@@ -1070,6 +1064,8 @@ definitions:
     properties:
       details:
         type: string
+      duration:
+        type: integer
       name:
         type: string
       status:
@@ -1552,13 +1548,20 @@ paths:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CheckSystemReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.AnsibleCheckResp'
+            $ref: '#/definitions/app.CheckSystemResp'
         "500":
           description: Internal Server Error
           schema:
@@ -2261,6 +2264,24 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get Federation List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/managernode:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Ansible Manager Ip List
       tags:
       - DropDownController
   /fate-manager/api/dropdown/mysql:

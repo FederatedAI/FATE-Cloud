@@ -23,6 +23,7 @@ import (
 	"fate.manager/comm/logging"
 	"fate.manager/entity"
 	"fate.manager/services/federated_service"
+	"fate.manager/services/k8s_service"
 	"fate.manager/services/site_service"
 	"fate.manager/services/version_service"
 	"github.com/gin-gonic/gin"
@@ -259,4 +260,21 @@ func GetComponentVersionList(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, siteResponse)
+}
+
+// @Summary Get Ansible Manager Ip List
+// @Tags DropDownController
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/dropdown/managernode [get]
+func GetManagerIp(c *gin.Context) {
+	appG := app.Gin{C: c}
+	ret, err := k8s_service.GetManagerIp()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_MANAGER_IP_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }

@@ -57,7 +57,7 @@ func ConnectAnsible(ansibleReq entity.AnsibleReq) (int, error) {
 			CreateTime:         time.Now(),
 			UpdateTime:         time.Now(),
 		}
-		if conf.ClickType > 0{
+		if conf.ClickType > 0 {
 			deploySite.ClickType = conf.ClickType
 		}
 		deploySite.ClickType = conf.ClickType
@@ -74,17 +74,17 @@ func Prepare(prepareReq entity.PrepareReq) (int, error) {
 	if len(prepareReq.ManagerNode) == 0 || len(prepareReq.ControlNode) == 0 {
 		return e.INVALID_PARAMS, nil
 	}
-	prepareReqJson,_ := json.Marshal(prepareReq)
-	kubenetesConf :=models.KubenetesConf{
-		DeployType:   int(enum.DeployType_ANSIBLE),
+	prepareReqJson, _ := json.Marshal(prepareReq)
+	kubenetesConf := models.KubenetesConf{
+		DeployType: int(enum.DeployType_ANSIBLE),
 	}
-	var data =make(map[string]interface{})
+	var data = make(map[string]interface{})
 	data["node_list"] = string(prepareReqJson)
-	models.UpdateKubenetesConf(data,&kubenetesConf)
+	models.UpdateKubenetesConf(data, &kubenetesConf)
 	return e.SUCCESS, nil
 }
 
-func CheckSystem() ([]entity.AnsiblePrepareItem, error) {
+func CheckSystem(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
 	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
 	if err != nil {
 		return nil, err
@@ -92,12 +92,14 @@ func CheckSystem() ([]entity.AnsiblePrepareItem, error) {
 	if conf.Id == 0 {
 		return nil, err
 	}
-	var prepareReq  entity.PrepareReq
-	err = json.Unmarshal([]byte(conf.NodeList),&prepareReq)
-	if err != nil{
-		return nil,err
+	var prepareReq entity.PrepareReq
+	err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
+	if err != nil {
+		return nil, err
 	}
+	startTime := time.Now().UnixNano()
 	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), prepareReq, nil)
+	endTime := time.Now().UnixNano()
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return nil, err
@@ -109,14 +111,26 @@ func CheckSystem() ([]entity.AnsiblePrepareItem, error) {
 		return nil, err
 	}
 	if ansiblePrepareResp.Code == e.SUCCESS {
-		ansiblePrepareItemJson,_ := json.Marshal(ansiblePrepareResp.Data)
+		ansiblePrepareItemJson, _ := json.Marshal(ansiblePrepareResp.Data)
 		kubenetesConf := models.KubenetesConf{
-			DeployType:   int(enum.DeployType_ANSIBLE),
+			DeployType: int(enum.DeployType_ANSIBLE),
 		}
-		var data =make(map[string]interface{})
+		var data = make(map[string]interface{})
 		data["ansible_check"] = string(ansiblePrepareItemJson)
-		models.UpdateKubenetesConf(data,&kubenetesConf)
-		return ansiblePrepareResp.Data,nil
+
+		var list []entity.Prepare
+		for i := 0; i < len(ansiblePrepareResp.Data); {
+			ansiblePrepareItem := ansiblePrepareResp.Data[i]
+			if ansiblePrepareItem.Ip == checkSystemReq.Ip {
+				list = ansiblePrepareItem.List
+				for j := 0; j < len(list); j++ {
+					list[j].Duration = (endTime - startTime)/1e6
+				}
+				break
+			}
+		}
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		return list, nil
 	}
 	return nil, nil
 }

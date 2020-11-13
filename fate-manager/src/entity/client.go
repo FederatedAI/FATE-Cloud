@@ -563,6 +563,4 @@ type ComponentVersionDetail struct {
 type MonitorReq struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
-	PageNum   int    `json:"pageNum"`
-	PageSize  int    `json:"pageSize"`
 }
