@@ -77,6 +77,7 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/fateboard", GetFateBoardVersionList)
 		dropDownList.GET("/fateserving", GetFateServingVersionList)
 		dropDownList.POST("/componentversion",GetComponentVersionList)
+		dropDownList.GET("/managernode",GetManagerIp)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service")//.Use(JWT())

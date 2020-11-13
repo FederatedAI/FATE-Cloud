@@ -16,7 +16,9 @@
 package k8s_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/enum"
+	"fate.manager/entity"
 	"fate.manager/models"
 	"math/rand"
 	"strings"
@@ -37,28 +39,28 @@ func GetNodeIp(deployType int) []string {
 	}
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
 	var node string
-	if len(nodeList) >0 {
+	if len(nodeList) > 0 {
 		node = nodeList[rand.Intn(len(nodeList))]
 	}
-	list := strings.Split(node,":")
+	list := strings.Split(node, ":")
 	return list
 }
 
-func GetLabel(address string)string{
+func GetLabel(address string) string {
 	label := ""
-	if len(address) ==0{
+	if len(address) == 0 {
 		return label
 	}
 	kubenetsConf, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
 	if err != nil {
 		return label
 	}
-	addressList := strings.Split(address,":")
-	nodelist := strings.Split(kubenetsConf.NodeList,",")
+	addressList := strings.Split(address, ":")
+	nodelist := strings.Split(kubenetsConf.NodeList, ",")
 
-	for i :=0;i<len(nodelist) ;i++  {
-		node := strings.Split(nodelist[i],":")
-		if len(node) ==2 {
+	for i := 0; i < len(nodelist); i++ {
+		node := strings.Split(nodelist[i], ":")
+		if len(node) == 2 {
 			if node[1] == addressList[0] {
 				label = node[0]
 				break
@@ -67,6 +69,7 @@ func GetLabel(address string)string{
 	}
 	return label
 }
+
 func CheckNodeIp(address string, deployType int) bool {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
@@ -79,8 +82,8 @@ func CheckNodeIp(address string, deployType int) bool {
 	var tag = false
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
 	for i := 0; i < len(nodeList); i++ {
-		lablist := strings.Split(nodeList[i],":")
-		if len(lablist) ==2{
+		lablist := strings.Split(nodeList[i], ":")
+		if len(lablist) == 2 {
 			if lablist[1] == ipList[0] {
 				tag = true
 				break
@@ -88,4 +91,49 @@ func CheckNodeIp(address string, deployType int) bool {
 		}
 	}
 	return tag
+}
+
+func GetManagerIp() ([]entity.IpStatus, error) {
+	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	if err != nil {
+		return nil, err
+	}
+	if len(conf.NodeList) > 0 {
+		var prepareReq entity.PrepareReq
+		err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
+		if err != nil {
+			return nil, err
+		}
+		status := "success"
+		if len(conf.AnsibleCheck) == 0 {
+
+		}
+		var ansiblePrepare []entity.AnsiblePrepareItem
+		err = json.Unmarshal([]byte(conf.AnsibleCheck), &ansiblePrepare)
+		if err != nil {
+			return nil, err
+		}
+		var IpStatusList []entity.IpStatus
+		for i := 0; i < len(prepareReq.ManagerNode); i++ {
+			ipStatus := entity.IpStatus{
+				Ip:     prepareReq.ManagerNode[i],
+				Status: status,
+			}
+			for j := 0; j < len(ansiblePrepare); j++ {
+				if prepareReq.ManagerNode[i] == ansiblePrepare[j].Ip {
+					for k := 0; k < len(ansiblePrepare[j].List); k++ {
+						if ansiblePrepare[j].List[k].Status != "success" {
+							status = "failed"
+							break
+						}
+					}
+					break
+				}
+			}
+			ipStatus.Status = status
+			IpStatusList = append(IpStatusList, ipStatus)
+		}
+		return IpStatusList, nil
+	}
+	return nil, nil
 }
