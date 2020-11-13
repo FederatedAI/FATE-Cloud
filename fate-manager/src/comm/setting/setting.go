@@ -48,7 +48,7 @@ const (
 
 const (
 	AnsibleConnectUri    = "/ansible/v1/server/status"
-	AnsiblePrepareUri    = "/v1/check/pre"
+	AnsiblePrepareUri    = "/ansible/v1/check/pre"
 	AnsibleInstallUri    = "/ansible/v1/check/available"
 	AnsibleJobSubmitUri  = "/ansible/v1/job/submit"
 	AnsibleJobQueryUri   = "/ansible/v1/job/query"
