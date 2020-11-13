@@ -1,4 +1,15 @@
 definitions:
+  app.AnsibleCheckResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/entity.AnsiblePrepareItem'
+        type: array
+      retcode:
+        type: integer
+      retmsg:
+        type: string
+    type: object
   app.ApplyFateManagerResponse:
     properties:
       code:
@@ -451,6 +462,15 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.AnsiblePrepareItem:
+    properties:
+      ip:
+        type: string
+      list:
+        items:
+          $ref: '#/definitions/entity.Prepare'
+        type: array
     type: object
   entity.AnsibleReq:
     properties:
@@ -919,11 +939,6 @@ definitions:
       userName:
         type: string
     type: object
-  entity.Machine:
-    properties:
-      ip:
-        type: string
-    type: object
   entity.MixSiteModeling:
     properties:
       failedJobs:
@@ -1051,6 +1066,15 @@ definitions:
       PartyId:
         type: integer
     type: object
+  entity.Prepare:
+    properties:
+      details:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
   entity.PrepareItem:
     properties:
       procDesc:
@@ -1061,11 +1085,10 @@ definitions:
   entity.PrepareReq:
     properties:
       controlNode:
-        $ref: '#/definitions/entity.Machine'
-        type: object
+        type: string
       managerNode:
         items:
-          $ref: '#/definitions/entity.Machine'
+          type: string
         type: array
     type: object
   entity.PullComponentListReq:
@@ -1535,7 +1558,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.CommResp'
+            $ref: '#/definitions/app.AnsibleCheckResp'
         "500":
           description: Internal Server Error
           schema:
@@ -1616,24 +1639,6 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: get deploy ansible list
-      tags:
-      - AnsibleController
-  /fate-manager/api/ansible/getcheck:
-    post:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.CommResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/app.Response'
-      summary: get check system list
       tags:
       - AnsibleController
   /fate-manager/api/ansible/prepare:
