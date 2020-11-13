@@ -833,8 +833,6 @@ definitions:
         type: integer
       timeoutPercent:
         type: number
-      total:
-        type: integer
       totalJobs:
         type: integer
     type: object
