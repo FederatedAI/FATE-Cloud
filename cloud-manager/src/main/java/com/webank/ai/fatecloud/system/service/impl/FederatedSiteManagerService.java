@@ -395,25 +395,25 @@ public class FederatedSiteManagerService {
     /*
     * update the survive status of site
     * */
-    @Scheduled(cron = "0 0/1 * * * ? ")
-    public void updateSiteStatus() {
-        log.info("start detective");
-        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
-        ew.select("id", "last_detective_time");
-        ew.eq("status", 2).eq("detective_status", 2);
-        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
-        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
-            long time = new Date().getTime();
-            Date lastDetectiveTime = federatedSiteManagerDo.getLastDetectiveTime();
-            if (time - lastDetectiveTime.getTime() > 60000) {
-                FederatedSiteManagerDo federatedSiteManagerDoToUpdate = new FederatedSiteManagerDo();
-                federatedSiteManagerDoToUpdate.setDetectiveStatus(1);
-                QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
-                federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
-                federatedSiteManagerMapper.update(federatedSiteManagerDoToUpdate, ew);
-            }
-        }
-    }
+//    @Scheduled(cron = "0 0/1 * * * ? ")
+//    public void updateSiteStatus() {
+//        log.info("start detective");
+//        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+//        ew.select("id", "last_detective_time");
+//        ew.eq("status", 2).eq("detective_status", 2);
+//        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
+//        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
+//            long time = new Date().getTime();
+//            Date lastDetectiveTime = federatedSiteManagerDo.getLastDetectiveTime();
+//            if (time - lastDetectiveTime.getTime() > 60000) {
+//                FederatedSiteManagerDo federatedSiteManagerDoToUpdate = new FederatedSiteManagerDo();
+//                federatedSiteManagerDoToUpdate.setDetectiveStatus(1);
+//                QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
+//                federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
+//                federatedSiteManagerMapper.update(federatedSiteManagerDoToUpdate, ew);
+//            }
+//        }
+//    }
 
     public Boolean updateVersion(Long partyId, String appKey, VersionUpdateQo versionUpdateQo) {
 

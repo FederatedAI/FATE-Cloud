@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
   `activation_time` timestamp NULL DEFAULT NULL COMMENT 'activation_time',
-  `detective_status` tinyint(4) DEFAULT '1' COMMENT '站点探活状态：1：非存活，2：存活',
-  `last_detective_time` timestamp NULL DEFAULT NULL COMMENT '探活时间',
+  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：survie，2：not survive',
+  `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated SITE Manager';
@@ -85,6 +85,8 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_model` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Update Time',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'version status 1:current, 2:old',
   `update_status` tinyint(4) NOT NULL  COMMENT 'version update status 1:success, 2:failed',
+  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'model status when detect：1：survive，2：not survive',
+  `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `type` varchar(128) DEFAULT NULL COMMENT 'system type',
   `id` bigint(20) NOT NULL COMMENT 'site id',
    PRIMARY KEY (`model_id`)
@@ -172,3 +174,21 @@ CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`exchange_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
+
+CREATE TABLE IF NOT EXISTS `t_product_version` (
+--  `product_version_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `product_name` varchar(128) DEFAULT NULL COMMENT 'procuct name',
+  `product_version` varchar(128) DEFAULT NULL COMMENT 'product version',
+  `component_name` varchar(128) DEFAULT NULL COMMENT 'component name',
+  `component_version` varchar(128) DEFAULT NULL COMMENT 'component version',
+  `image_repository` varchar(128) DEFAULT NULL COMMENT 'image repository',
+  `image_tag` varchar(128) DEFAULT NULL COMMENT 'image tag',
+  `image_name` varchar(128) DEFAULT NULL COMMENT 'image name',
+  `image_download_url` varchar(512) DEFAULT NULL COMMENT 'url for download image',
+  `package_name` varchar(128) DEFAULT NULL COMMENT 'package name',
+  `package_download_url` varchar(512) DEFAULT NULL COMMENT 'url for download package',
+  `public_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 public, 2 private',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  PRIMARY KEY (product_name,product_version,component_name)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='product version management';
