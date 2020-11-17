@@ -833,6 +833,8 @@ definitions:
         type: integer
       timeoutPercent:
         type: number
+      total:
+        type: integer
       totalJobs:
         type: integer
     type: object
@@ -962,6 +964,10 @@ definitions:
     properties:
       endDate:
         type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
       startDate:
         type: string
     type: object

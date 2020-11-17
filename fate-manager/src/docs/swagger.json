@@ -4342,6 +4342,9 @@
                 "timeoutPercent": {
                     "type": "number"
                 },
+                "total": {
+                    "type": "integer"
+                },
                 "totalJobs": {
                     "type": "integer"
                 }
@@ -4540,6 +4543,12 @@
             "properties": {
                 "endDate": {
                     "type": "string"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
                 },
                 "startDate": {
                     "type": "string"
