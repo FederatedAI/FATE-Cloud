@@ -80,9 +80,7 @@ func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error
 func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorBySiteList []*MonitorBySite
 	Db := db
-	//if monitorReq.PageNum > 0 && monitorReq.PageSize > 0 {
-	//	Db = Db.Limit(monitorReq.PageSize).Offset((monitorReq.PageNum - 1) * monitorReq.PageSize)
-	//}
+
 	err := Db.Table("t_fate_monitor_detail").
 		Select("guest_party_id,guest_site_name,guest_institution,host_institution,host_party_id,host_site_name,COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
@@ -101,9 +99,6 @@ func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, err
 func GetSiteMonitorByHis(monitorReq entity.MonitorReq) ([]*MonitorBySite, error) {
 	var monitorByHisList []*MonitorBySite
 	Db := db
-	//if monitorReq.PageNum > 0 && monitorReq.PageSize > 0 {
-	//	Db = Db.Limit(monitorReq.PageSize).Offset((monitorReq.PageNum - 1) * monitorReq.PageSize)
-	//}
 	err := Db.Table("t_fate_monitor_detail").
 		Select("guest_party_id,host_party_id,guest_institution,host_institution,guest_site_name,host_site_name,"+
 			"COUNT(job_id) total,"+

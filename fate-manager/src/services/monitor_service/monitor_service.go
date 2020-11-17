@@ -129,76 +129,28 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 }
 
 func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.InstitutionBaseStaticsResp, error) {
+	if monitorReq.PageSize == 0 && monitorReq.PageNum == 0 {
+		monitorReq.PageSize = 15
+		monitorReq.PageNum = 1
+	}
 	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
 	if err != nil {
 		return nil, err
 	}
-	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
+
+	MonitorByInstitutionList, err := models.GetReportInstitutionRegion(monitorReq)
 	if err != nil {
 		return nil, err
 	}
-	var monitorBaseMap = make(map[string]models.MonitorBase)
-	for i := 0; i < len(monitorByHisList); i++ {
-		monitorByHis := monitorByHisList[i]
-		siteInfo := models.SiteInfo{
-			PartyId: monitorByHis.GuestPartyId,
-			//Status:  int(enum.SITE_STATUS_JOINED),
-		}
-		siteInfoList, err := models.GetSiteList(&siteInfo)
-		if err != nil {
-			continue
-		}
-		itemBase := models.MonitorBase{
-			Total:   monitorByHis.Total,
-			Success: monitorByHis.Success,
-			Running: monitorByHis.Running,
-			Timeout: monitorByHis.Timeout,
-			Failed:  monitorByHis.Failed + monitorByHis.Timeout,
-		}
-		if len(siteInfoList) == 0 {
-			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
-			if ok {
-				itemBaseTmp := monitorBaseMap[monitorByHis.GuestInstitution]
-				itemBaseTmp.Total += itemBase.Total
-				itemBaseTmp.Success += itemBase.Success
-				itemBaseTmp.Running += itemBase.Running
-				itemBaseTmp.Failed += itemBase.Failed
-				itemBaseTmp.Timeout += itemBase.Timeout
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
-			} else {
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
-			}
-			continue
-		} else {
-			siteInfo.PartyId = monitorByHis.HostPartyId
-			siteInfoList, err = models.GetSiteList(&siteInfo)
-			if err != nil {
-				continue
-			}
-			if len(siteInfoList) == 0 {
-				_, ok := monitorBaseMap[monitorByHis.HostInstitution]
-				if ok {
-					itemBaseTmp := monitorBaseMap[monitorByHis.HostInstitution]
-					itemBaseTmp.Total += itemBase.Total
-					itemBaseTmp.Success += itemBase.Success
-					itemBaseTmp.Running += itemBase.Running
-					itemBaseTmp.Failed += itemBase.Failed
-					itemBaseTmp.Timeout += itemBase.Timeout
-					monitorBaseMap[monitorByHis.HostInstitution] = itemBaseTmp
-				} else {
-					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
-				}
-			}
-		}
-	}
 	var data []entity.InstitutionModelingItem
-	for k, v := range monitorBaseMap {
+	for i := 0; i < len(MonitorByInstitutionList); i++ {
+		v := MonitorByInstitutionList[i]
 		SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Success)/float64(v.Total)), 64)
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Running)/float64(v.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Timeout)/float64(v.Total)), 64)
 		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout))/float64(v.Total)), 64)
 		institutionModelingItem := entity.InstitutionModelingItem{
-			Institution: k,
+			Institution: v.Institution,
 			JobBase: entity.JobBase{
 				TotalJobs:      v.Total,
 				SuccessJobs:    v.Success,
@@ -213,7 +165,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 		}
 		data = append(data, institutionModelingItem)
 	}
-	if len(monitorByHisList) >0 {
+	if len(MonitorByInstitutionList) > 0 {
 		SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Success)/float64(monitorBase.Total)), 64)
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Running)/float64(monitorBase.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Timeout)/float64(monitorBase.Total)), 64)
@@ -231,199 +183,162 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 				FailedPercent:  FailedPercent,
 			},
 			InstitutionModeling: data,
-
 		}
 		return &monitorTotalResp, nil
 	}
-	return nil,nil
+	return nil, nil
 }
 
-type SiteSiteMonitor struct {
-	entity.SitePair
+type SiteMonitor struct {
+	SiteName string
 	models.MonitorBase
 }
 
 func GetSiteBaseStatistics(monitorReq entity.MonitorReq) (*entity.InsitutionSiteModeling, error) {
-	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
+	if monitorReq.PageSize == 0 && monitorReq.PageNum == 0 {
+		monitorReq.PageSize = 15
+		monitorReq.PageNum = 1
+	}
+	InstitutionSiteList, err := models.GetInstitutionSiteList(monitorReq)
 	if err != nil {
 		return nil, err
 	}
-	var siteSiteMonitorMap = make(map[entity.SitePair][]SiteSiteMonitor)
-	var InstitutionSiteList []entity.SitePair
-	var SiteList []string
-	for i := 0; i < len(monitorByHisList); i++ {
-		monitorByHis := monitorByHisList[i]
-		if monitorByHis.GuestPartyId != monitorByHis.HostPartyId {
-			siteInfo := models.SiteInfo{
-				PartyId: monitorByHis.GuestPartyId,
-				//Status:  int(enum.SITE_STATUS_JOINED),
-			}
-			siteInfoList, err := models.GetSiteList(&siteInfo)
-			if err != nil {
-				continue
-			}
-			siteSiteMonitor := SiteSiteMonitor{
-				SitePair: entity.SitePair{
-					PartyId:     monitorByHis.HostPartyId,
-					SiteName:    monitorByHis.HostSiteName,
-					Institution: monitorByHis.HostInstitution,
-				},
-				MonitorBase: models.MonitorBase{
-					Total:   monitorByHis.Total,
-					Success: monitorByHis.Success,
-					Running: monitorByHis.Running,
-					Timeout: monitorByHis.Timeout,
-					Failed:  monitorByHis.Failed + monitorByHis.Timeout,
-				},
-			}
-			sitePair := entity.SitePair{
-				PartyId:     monitorByHis.GuestPartyId,
-				SiteName:    monitorByHis.GuestSiteName,
-				Institution: monitorByHis.GuestInstitution,
-			}
-			if len(siteInfoList) > 0 {
-				hitSite := false
-				for j := 0; j < len(SiteList); j++ {
-					if SiteList[j] == monitorByHis.GuestSiteName {
-						hitSite = true
-						break
-					}
-				}
-				if !hitSite {
-					SiteList = append(SiteList, monitorByHis.GuestSiteName)
-				}
-
-				InstitutionSiteList = append(InstitutionSiteList, siteSiteMonitor.SitePair)
-				_, ok := siteSiteMonitorMap[sitePair]
-				if ok {
-					siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-				} else {
-					var SiteSiteMonitorList []SiteSiteMonitor
-					SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
-					siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
-				}
-			} else {
-				InstitutionSiteList = append(InstitutionSiteList, sitePair)
-				siteInfo.PartyId = monitorByHis.HostPartyId
-				siteSiteMonitor.PartyId = monitorByHis.HostPartyId
-				siteSiteMonitor.SiteName = monitorByHis.HostSiteName
-				siteSiteMonitor.Institution = monitorByHis.HostInstitution
-				siteInfoList, err = models.GetSiteList(&siteInfo)
-				if err != nil {
-					continue
-				}
-				sitePair := entity.SitePair{
-					PartyId:     monitorByHis.HostPartyId,
-					SiteName:    monitorByHis.HostSiteName,
-					Institution: monitorByHis.HostInstitution,
-				}
-				if len(siteInfoList) > 0 {
-					hitSite := false
-					for j := 0; j < len(SiteList); j++ {
-						if SiteList[j] == monitorByHis.HostSiteName {
-							hitSite = true
-							break
-						}
-					}
-					if !hitSite {
-						SiteList = append(SiteList, monitorByHis.HostSiteName)
-					}
-					_, ok := siteSiteMonitorMap[sitePair]
-					if ok {
-						siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-					} else {
-						var SiteSiteMonitorList []SiteSiteMonitor
-						SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
-						siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
-					}
-				}
-			}
-		}
+	if len(InstitutionSiteList) == 0 {
+		return nil, nil
 	}
 
-	var InstitutionSiteMap = make(map[string][]entity.InstitutionSite)
-	for i := 0; i < len(InstitutionSiteList); i++ {
-		InstitutionsitePair := InstitutionSiteList[i]
-		var MixSiteModelinglist []entity.MixSiteModeling
-		for k, v := range siteSiteMonitorMap {
-			sitePair := k
-			siteSiteMonitorList := v
-			hitTag := false
-			for j := 0; j < len(siteSiteMonitorList); j++ {
-				siteSiteMonitor := siteSiteMonitorList[j]
-				if siteSiteMonitor.PartyId == InstitutionsitePair.PartyId {
-					hitTag = true
+	SiteMonitorByRegionList, err := models.GetReportSiteRegion(monitorReq, InstitutionSiteList)
+	if err != nil {
+		return nil, err
+	}
+	var data = make(map[string]map[string][]SiteMonitor)
+	var rowList []string
+	for i := 0; i < len(SiteMonitorByRegionList); i++ {
 
-					SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Success)/float64(siteSiteMonitor.Total)), 64)
-					RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Running)/float64(siteSiteMonitor.Total)), 64)
-					TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteSiteMonitor.Timeout)/float64(siteSiteMonitor.Total)), 64)
-					FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((siteSiteMonitor.Failed+siteSiteMonitor.Timeout))/float64(siteSiteMonitor.Total)), 64)
-					mixSiteModeling := entity.MixSiteModeling{
-						SiteName: sitePair.SiteName,
-						JobBase: entity.JobBase{
-							TotalJobs:      siteSiteMonitor.Total,
-							SuccessJobs:    siteSiteMonitor.Success,
-							SuccessPercent: SuccessPercent,
-							RunningJobs:    siteSiteMonitor.Running,
-							RunningPercent: RunningPercent,
-							TimeoutJobs:    siteSiteMonitor.Timeout,
-							TimeoutPercent: TimeoutPercent,
-							FailedJobs:     siteSiteMonitor.Failed + siteSiteMonitor.Timeout,
-							FailedPercent:  FailedPercent,
-						},
-					}
-					MixSiteModelinglist = append(MixSiteModelinglist, mixSiteModeling)
-					break
-				}
+		siteMonitorByRegion := SiteMonitorByRegionList[i]
+		institution := siteMonitorByRegion.Institution
+		institutionSiteName := siteMonitorByRegion.InstitutionSiteName
+		siteName := siteMonitorByRegion.SiteName
+
+		hitTag :=false
+		for j :=0 ;j< len(rowList);j++{
+			if siteName == rowList[j] {
+				hitTag =true
+				break
 			}
-			if !hitTag {
+		}
+		if !hitTag{
+			rowList = append(rowList, siteName)
+		}
+		monitorBase := models.MonitorBase{
+			Total:   siteMonitorByRegion.Total,
+			Success: siteMonitorByRegion.Success,
+			Running: siteMonitorByRegion.Running,
+			Timeout: siteMonitorByRegion.Timeout,
+			Failed:  siteMonitorByRegion.Failed + siteMonitorByRegion.Timeout,
+		}
+		siteMonitor := SiteMonitor{
+			SiteName:    siteName,
+			MonitorBase: monitorBase,
+		}
+		_, ok := data[institution]
+		if ok {
+			siteMonitorMap := data[institution]
+			_, ok = siteMonitorMap[institutionSiteName]
+			if ok {
+				siteMonitorMap[institutionSiteName] = append(siteMonitorMap[institutionSiteName], siteMonitor)
+			} else {
+				var SiteMonitorList []SiteMonitor
+				SiteMonitorList = append(SiteMonitorList, siteMonitor)
+				var siteMonitorMap = make(map[string][]SiteMonitor)
+				siteMonitorMap[institutionSiteName] = SiteMonitorList
+			}
+		} else {
+			var SiteMonitorList []SiteMonitor
+			SiteMonitorList = append(SiteMonitorList, siteMonitor)
+			var siteMonitorMap = make(map[string][]SiteMonitor)
+			siteMonitorMap[institutionSiteName] = SiteMonitorList
+			data[institution] = siteMonitorMap
+		}
+	}
+	var OtherSiteList []entity.InstitutionSiteModelingItem
+	for k, v := range data {
+		institution := k
+		var InstitutionSiteList []entity.InstitutionSite
+		for k2, v2 := range v {
+			institutionSiteName := k2
+			siteList := v2
+			var MixSiteModelinglist []entity.MixSiteModeling
+			for j := 0; j < len(siteList); j++ {
+				siteMonitor := siteList[j]
+				SuccessPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteMonitor.Success)/float64(siteMonitor.Total)), 64)
+				RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteMonitor.Running)/float64(siteMonitor.Total)), 64)
+				TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(siteMonitor.Timeout)/float64(siteMonitor.Total)), 64)
+				FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((siteMonitor.Failed+siteMonitor.Timeout))/float64(siteMonitor.Total)), 64)
 				mixSiteModeling := entity.MixSiteModeling{
-					SiteName: sitePair.SiteName,
+					SiteName: siteMonitor.SiteName,
 					JobBase: entity.JobBase{
-						TotalJobs:      0,
-						SuccessJobs:    0,
-						SuccessPercent: 0.00,
-						RunningJobs:    0,
-						RunningPercent: 0.00,
-						TimeoutJobs:    0,
-						TimeoutPercent: 0.00,
-						FailedJobs:     0,
-						FailedPercent:  0.00,
+						TotalJobs:      siteMonitor.Total,
+						SuccessJobs:    siteMonitor.Success,
+						SuccessPercent: SuccessPercent,
+						RunningJobs:    siteMonitor.Running,
+						RunningPercent: RunningPercent,
+						TimeoutJobs:    siteMonitor.Timeout,
+						TimeoutPercent: TimeoutPercent,
+						FailedJobs:     siteMonitor.Failed + siteMonitor.Timeout,
+						FailedPercent:  FailedPercent,
 					},
 				}
 				MixSiteModelinglist = append(MixSiteModelinglist, mixSiteModeling)
 			}
+			if len(siteList) < len(rowList) {
+				for k := 0; k < len(rowList); k++ {
+					siteName := rowList[k]
+					hitTag := false
+					for l := 0; l < len(siteList); l++ {
+						if siteName == siteList[l].SiteName {
+							hitTag = true
+							break
+						}
+					}
+					if !hitTag {
+						mixSiteModeling := entity.MixSiteModeling{
+							SiteName: siteName,
+							JobBase: entity.JobBase{
+								TotalJobs:      0,
+								SuccessJobs:    0,
+								SuccessPercent: 0.00,
+								RunningJobs:    0,
+								RunningPercent: 0.00,
+								TimeoutJobs:    0,
+								TimeoutPercent: 0.00,
+								FailedJobs:     0,
+								FailedPercent:  0.00,
+							},
+						}
+						MixSiteModelinglist = append(MixSiteModelinglist, mixSiteModeling)
+					}
+				}
+			}
+			institutionSite := entity.InstitutionSite{
+				InstitutionSiteName: institutionSiteName,
+				MixSiteModeling:     MixSiteModelinglist,
+			}
+			InstitutionSiteList = append(InstitutionSiteList, institutionSite)
 		}
-		institutionSite := entity.InstitutionSite{
-			InstitutionSiteName: InstitutionsitePair.SiteName,
-			MixSiteModeling:     MixSiteModelinglist,
-		}
-		_, ok := InstitutionSiteMap[InstitutionsitePair.Institution]
-		if ok {
-			InstitutionSiteMap[InstitutionsitePair.Institution] = append(InstitutionSiteMap[InstitutionsitePair.Institution], institutionSite)
-		} else {
-			var InsitutionSiteList []entity.InstitutionSite
-			InsitutionSiteList = append(InsitutionSiteList, institutionSite)
-			InstitutionSiteMap[InstitutionsitePair.Institution] = InsitutionSiteList
-		}
-	}
-
-	var list []entity.InstitutionSiteModelingItem
-	for k, v := range InstitutionSiteMap {
-
 		institutionSiteModelingItem := entity.InstitutionSiteModelingItem{
-			Institution:         k,
-			InstitutionSiteList: v,
+			Institution:         institution,
+			InstitutionSiteList: InstitutionSiteList,
 		}
-		list = append(list, institutionSiteModelingItem)
-
+		OtherSiteList = append(OtherSiteList, institutionSiteModelingItem)
 	}
-	if len(SiteList) >0 {
+	if len(rowList) > 0 {
 		insitutionSiteModeling := entity.InsitutionSiteModeling{
-			SiteList:      SiteList,
-			OtherSiteList: list,
+			SiteList:      rowList,
+			OtherSiteList: OtherSiteList,
+			Total: len(InstitutionSiteList),
 		}
 		return &insitutionSiteModeling, nil
 	}
-	return nil,nil
+	return nil, nil
 }

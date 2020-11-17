@@ -698,7 +698,6 @@ type SiteInstitution struct {
 	Institution string `json:"institution"`
 }
 
-
 func MonitorTask(accountInfo *models.AccountInfo) {
 	siteInfo := models.SiteInfo{
 		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
@@ -709,6 +708,9 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		return
 	}
 	SiteNameMap, _ := GetOtherPartyIdInstitution()
+	if SiteNameMap == nil {
+		SiteNameMap = make(map[int]SiteInstitution)
+	}
 	for i := 0; i < len(flowAddressList); i++ {
 		siteInstitution := SiteInstitution{
 			SiteName:    flowAddressList[i].SiteName,
@@ -734,13 +736,13 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				flowJobQuery := flowJobQueryResp.Data[j]
 				ds, _ := strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000, 0).Format("20060102"))
 				monitorDetail := models.MonitorDetail{
-					Ds:               ds,
-					StartTime:        flowJobQuery.StartTime,
-					EndTime:          flowJobQuery.EndTime,
-					JobId:            flowJobQuery.JobId,
-					Status:           flowJobQuery.Status,
-					CreateTime:       flowJobQuery.CreateTime,
-					UpdateTime:       flowJobQuery.UpdateTime,
+					Ds:         ds,
+					StartTime:  flowJobQuery.StartTime,
+					EndTime:    flowJobQuery.EndTime,
+					JobId:      flowJobQuery.JobId,
+					Status:     flowJobQuery.Status,
+					CreateTime: flowJobQuery.CreateTime,
+					UpdateTime: flowJobQuery.UpdateTime,
 				}
 				if len(flowJobQuery.Roles.Guest) > 0 {
 					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
@@ -772,6 +774,236 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				} else {
 					models.UpdateMonitorDetail(&monitorDetail)
 				}
+			}
+		}
+	}
+	curTime := time.Now().Format("20060102")
+	curTime ="20201028"
+	monitorReq := entity.MonitorReq{
+		StartDate: curTime,
+		EndDate:   curTime,
+	}
+	InstitutionReport(monitorReq)
+	SiteReport(monitorReq)
+}
+
+func InstitutionReport(monitorReq entity.MonitorReq) {
+	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
+	if err != nil {
+		return
+	}
+	var monitorBaseMap = make(map[string]models.MonitorBase)
+	for i := 0; i < len(monitorByHisList); i++ {
+		monitorByHis := monitorByHisList[i]
+		siteInfo := models.SiteInfo{
+			PartyId: monitorByHis.GuestPartyId,
+		}
+		siteInfoList, err := models.GetSiteList(&siteInfo)
+		if err != nil {
+			continue
+		}
+		itemBase := models.MonitorBase{
+			Total:   monitorByHis.Total,
+			Success: monitorByHis.Success,
+			Running: monitorByHis.Running,
+			Timeout: monitorByHis.Timeout,
+			Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+		}
+		if len(siteInfoList) == 0 {
+			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
+			if ok {
+				itemBaseTmp := monitorBaseMap[monitorByHis.GuestInstitution]
+				itemBaseTmp.Total += itemBase.Total
+				itemBaseTmp.Success += itemBase.Success
+				itemBaseTmp.Running += itemBase.Running
+				itemBaseTmp.Failed += itemBase.Failed
+				itemBaseTmp.Timeout += itemBase.Timeout
+				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
+			} else {
+				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
+			}
+			continue
+		} else {
+			siteInfo.PartyId = monitorByHis.HostPartyId
+			siteInfoList, err = models.GetSiteList(&siteInfo)
+			if err != nil {
+				continue
+			}
+			if len(siteInfoList) == 0 {
+				_, ok := monitorBaseMap[monitorByHis.HostInstitution]
+				if ok {
+					itemBaseTmp := monitorBaseMap[monitorByHis.HostInstitution]
+					itemBaseTmp.Total += itemBase.Total
+					itemBaseTmp.Success += itemBase.Success
+					itemBaseTmp.Running += itemBase.Running
+					itemBaseTmp.Failed += itemBase.Failed
+					itemBaseTmp.Timeout += itemBase.Timeout
+					monitorBaseMap[monitorByHis.HostInstitution] = itemBaseTmp
+				} else {
+					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
+				}
+			}
+		}
+	}
+	for k, v := range monitorBaseMap {
+		reportInstitution := models.ReportInstitution{
+			Ds:          monitorReq.StartDate,
+			Institution: k,
+		}
+		list, _ := models.GetReportInstitution(&reportInstitution)
+		if len(list) > 0 {
+			var data = make(map[string]interface{})
+			data["success"] = v.Success
+			data["running"] = v.Running
+			data["timeout"] = v.Timeout
+			data["failed"] = v.Failed
+			data["update_time"] = time.Now()
+			models.UpdateReportInstitution(data, reportInstitution)
+		} else {
+			reportInstitution.Total = v.Total
+			reportInstitution.Success = v.Success
+			reportInstitution.Running = v.Running
+			reportInstitution.Timeout = v.Timeout
+			reportInstitution.Failed = v.Failed
+			reportInstitution.CreateTime = time.Now()
+			reportInstitution.UpdateTime = time.Now()
+			models.AddReportInstitution(&reportInstitution)
+		}
+	}
+}
+
+type SiteSiteMonitor struct {
+	entity.SitePair
+	models.MonitorBase
+}
+
+func SiteReport(monitorReq entity.MonitorReq) {
+	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
+	if err != nil {
+		return
+	}
+	var siteSiteMonitorMap = make(map[entity.SitePair][]SiteSiteMonitor)
+	var InstitutionSiteList []entity.SitePair
+	var SiteList []string
+	for i := 0; i < len(monitorByHisList); i++ {
+		monitorByHis := monitorByHisList[i]
+		if monitorByHis.GuestPartyId != monitorByHis.HostPartyId {
+			siteInfo := models.SiteInfo{
+				PartyId: monitorByHis.GuestPartyId,
+			}
+			siteInfoList, err := models.GetSiteList(&siteInfo)
+			if err != nil {
+				continue
+			}
+			siteSiteMonitor := SiteSiteMonitor{
+				SitePair: entity.SitePair{
+					PartyId:     monitorByHis.HostPartyId,
+					SiteName:    monitorByHis.HostSiteName,
+					Institution: monitorByHis.HostInstitution,
+				},
+				MonitorBase: models.MonitorBase{
+					Total:   monitorByHis.Total,
+					Success: monitorByHis.Success,
+					Running: monitorByHis.Running,
+					Timeout: monitorByHis.Timeout,
+					Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+				},
+			}
+			sitePair := entity.SitePair{
+				PartyId:     monitorByHis.GuestPartyId,
+				SiteName:    monitorByHis.GuestSiteName,
+				Institution: monitorByHis.GuestInstitution,
+			}
+			if len(siteInfoList) > 0 {
+				hitSite := false
+				for j := 0; j < len(SiteList); j++ {
+					if SiteList[j] == monitorByHis.GuestSiteName {
+						hitSite = true
+						break
+					}
+				}
+				if !hitSite {
+					SiteList = append(SiteList, monitorByHis.GuestSiteName)
+				}
+
+				InstitutionSiteList = append(InstitutionSiteList, siteSiteMonitor.SitePair)
+				_, ok := siteSiteMonitorMap[sitePair]
+				if ok {
+					siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
+				} else {
+					var SiteSiteMonitorList []SiteSiteMonitor
+					SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
+					siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
+				}
+			} else {
+				InstitutionSiteList = append(InstitutionSiteList, sitePair)
+				siteInfo.PartyId = monitorByHis.HostPartyId
+				siteSiteMonitor.PartyId = monitorByHis.HostPartyId
+				siteSiteMonitor.SiteName = monitorByHis.HostSiteName
+				siteSiteMonitor.Institution = monitorByHis.HostInstitution
+				siteInfoList, err = models.GetSiteList(&siteInfo)
+				if err != nil {
+					continue
+				}
+				sitePair := entity.SitePair{
+					PartyId:     monitorByHis.HostPartyId,
+					SiteName:    monitorByHis.HostSiteName,
+					Institution: monitorByHis.HostInstitution,
+				}
+				if len(siteInfoList) > 0 {
+					hitSite := false
+					for j := 0; j < len(SiteList); j++ {
+						if SiteList[j] == monitorByHis.HostSiteName {
+							hitSite = true
+							break
+						}
+					}
+					if !hitSite {
+						SiteList = append(SiteList, monitorByHis.HostSiteName)
+					}
+					_, ok := siteSiteMonitorMap[sitePair]
+					if ok {
+						siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
+					} else {
+						var SiteSiteMonitorList []SiteSiteMonitor
+						SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
+						siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
+					}
+				}
+			}
+		}
+	}
+
+	for k, v := range siteSiteMonitorMap {
+
+		siteSiteMonitorList := v
+
+		for j := 0; j < len(siteSiteMonitorList); j++ {
+			siteSiteMonitor := siteSiteMonitorList[j]
+			reportSite := models.ReportSite{
+				Ds:                  monitorReq.StartDate,
+				Institution:         k.Institution,
+				InstitutionSiteName: k.SiteName,
+				SiteName:            siteSiteMonitor.SiteName,
+			}
+			list, _ := models.GetReportSite(&reportSite)
+			if len(list) > 0 {
+				var data = make(map[string]interface{})
+				data["success"] = siteSiteMonitor.Success
+				data["running"] = siteSiteMonitor.Running
+				data["timeout"] = siteSiteMonitor.Timeout
+				data["failed"] = siteSiteMonitor.Failed
+				data["update_time"] = time.Now()
+				models.UpdateReportSite(data, reportSite)
+			} else {
+				reportSite.Total = siteSiteMonitor.Total
+				reportSite.Success = siteSiteMonitor.Success
+				reportSite.Running = siteSiteMonitor.Running
+				reportSite.Timeout = siteSiteMonitor.Timeout
+				reportSite.Failed = siteSiteMonitor.Failed
+				reportSite.CreateTime = time.Now()
+				reportSite.UpdateTime = time.Now()
+				models.AddReportSite(&reportSite)
 			}
 		}
 	}
