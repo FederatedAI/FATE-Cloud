@@ -49,7 +49,9 @@ const (
 const (
 	AnsibleConnectUri    = "/ansible/v1/server/status"
 	AnsiblePrepareUri    = "/ansible/v1/check/pre"
-	AnsibleInstallUri    = "/ansible/v1/check/available"
+	AnsibleInstallUri    = "/ansible/v1/server/status"
+	AnsibleLocalUpload   = "/ansible/v1/local/upload"
+	AnsibleAutoAcquire   = "/ansible/v1/auto/acquire"
 	AnsibleJobSubmitUri  = "/ansible/v1/job/submit"
 	AnsibleJobQueryUri   = "/ansible/v1/job/query"
 	AnsibleTestStatusUri = "/ansible/v1/test/status"

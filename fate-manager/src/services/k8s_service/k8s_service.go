@@ -24,7 +24,7 @@ import (
 	"strings"
 )
 
-func GetKubenetesUrl(deployType int) string {
+func GetKubenetesUrl(deployType enum.DeployType) string {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return ""
@@ -32,7 +32,7 @@ func GetKubenetesUrl(deployType int) string {
 	return kubenetsConf.KubenetesUrl
 }
 
-func GetNodeIp(deployType int) []string {
+func GetNodeIp(deployType enum.DeployType) []string {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return nil
@@ -70,7 +70,7 @@ func GetLabel(address string) string {
 	return label
 }
 
-func CheckNodeIp(address string, deployType int) bool {
+func CheckNodeIp(address string, deployType enum.DeployType) bool {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return false

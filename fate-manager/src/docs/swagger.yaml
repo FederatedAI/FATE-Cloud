@@ -463,13 +463,11 @@ definitions:
       userName:
         type: string
     type: object
-  entity.AnsibleReq:
+  entity.AnsibleConnectReq:
     properties:
       ansbileUrl:
         type: string
       partyId:
-        type: integer
-      productType:
         type: integer
     type: object
   entity.ApplyFateManager:
@@ -511,6 +509,8 @@ definitions:
         type: string
       partyId:
         type: integer
+      siteName:
+        type: string
     type: object
   entity.AutoTestItem:
     properties:
@@ -613,6 +613,8 @@ definitions:
     type: object
   entity.CommitImagePullReq:
     properties:
+      deployType:
+        type: integer
       fateVersion:
         type: string
       federatedId:
@@ -660,8 +662,8 @@ definitions:
     type: object
   entity.DeployAnsibleReq:
     properties:
-      partyId:
-        type: integer
+      controlNode:
+        type: string
     type: object
   entity.EditUserReq:
     properties:
@@ -892,10 +894,14 @@ definitions:
     type: object
   entity.LocalUploadReq:
     properties:
-      fileContent:
+      ip:
         type: string
       partyId:
         type: integer
+      path:
+        type: string
+      siteName:
+        type: string
     type: object
   entity.LogReq:
     properties:
@@ -1540,7 +1546,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.CommResp'
+            $ref: '#/definitions/app.InstallListResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -1583,7 +1589,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.AnsibleReq'
+          $ref: '#/definitions/entity.AnsibleConnectReq'
       produces:
       - application/json
       responses:
@@ -1602,13 +1608,6 @@ paths:
     post:
       consumes:
       - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.DeployAnsibleReq'
       produces:
       - application/json
       responses:
@@ -1715,7 +1714,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.CommResp'
+            $ref: '#/definitions/app.InstallListResponse'
         "500":
           description: Internal Server Error
           schema:
