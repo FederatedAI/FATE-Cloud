@@ -401,7 +401,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(int(enum.DeployType_K8S))
+				nodelist :=k8s_service.GetNodeIp(enum.DeployType_K8S)
 				if len(nodelist)==0{
 					continue
 				}

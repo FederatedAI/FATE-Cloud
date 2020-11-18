@@ -274,6 +274,7 @@ type CommitImagePullReq struct {
 	FederatedSite
 	ProductType int    `json:"productType"`
 	FateVersion string `json:"fateVersion"`
+	DeployType int     `json:"deployType"`
 }
 
 type InstallReq struct {

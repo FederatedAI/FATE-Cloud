@@ -16,7 +16,7 @@ import (
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.AnsibleReq true "request param"
+// @Param request body entity.AnsibleConnectReq true "request param"
 // @Success 200 {object} app.CommResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/connectansible [post]
@@ -27,7 +27,7 @@ func ConnectAnsible(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
 		return
 	}
-	var ansibleReq entity.AnsibleReq
+	var ansibleReq entity.AnsibleConnectReq
 	if jsonError := json.Unmarshal(body, &ansibleReq); jsonError != nil {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")
@@ -128,23 +128,12 @@ func CheckSystem (c *gin.Context) {
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.DeployAnsibleReq true "request param"
 // @Success 200 {object} app.CommResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/deployansible [post]
 func StartDeployAnsible(c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var deployAnsibleReq entity.DeployAnsibleReq
-	if jsonError := json.Unmarshal(body, &deployAnsibleReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := ansible_service.StartDeployAnsible(deployAnsibleReq)
+	ret, err := ansible_service.StartDeployAnsible()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, ret, nil)
 		return
@@ -185,7 +174,7 @@ func GetDeployAnsibleList(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.LocalUploadReq true "request param"
-// @Success 200 {object} app.CommResp
+// @Success 200 {object} app.InstallListResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/upload [post]
 func LocalUpload(c *gin.Context) {
@@ -202,10 +191,10 @@ func LocalUpload(c *gin.Context) {
 	}
 	ret, err := ansible_service.LocalUpload(localUploadReq)
 	if err != nil {
-		appG.Response(http.StatusInternalServerError, ret, nil)
+		appG.Response(http.StatusInternalServerError, e.ERROR_LOACAL_UPLOAD_FAIL, nil)
 		return
 	}
-	appG.Response(http.StatusOK, ret, nil)
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }
 
 
@@ -214,7 +203,7 @@ func LocalUpload(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoAcquireReq true "request param"
-// @Success 200 {object} app.CommResp
+// @Success 200 {object} app.InstallListResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/autoacquire [post]
 func AutoAcquire(c *gin.Context) {
@@ -231,8 +220,8 @@ func AutoAcquire(c *gin.Context) {
 	}
 	ret, err := ansible_service.AutoAcquire(autoAcquireReq)
 	if err != nil {
-		appG.Response(http.StatusInternalServerError, ret, nil)
+		appG.Response(http.StatusInternalServerError, e.ERROR_AUTO_ACQUIRE_FAIL, nil)
 		return
 	}
-	appG.Response(http.StatusOK, ret, nil)
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }

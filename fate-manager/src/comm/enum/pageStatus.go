@@ -18,6 +18,7 @@ package enum
 import "fate.manager/entity"
 
 type PageStatus int32
+type AnsiblePageStatus int32
 
 const (
 	PAGE_STATUS_UNKNOWN   PageStatus = -1
@@ -27,6 +28,16 @@ const (
 	PAGE_STATUS_INSTALL   PageStatus = 3
 	PAGE_STATUS_TEST      PageStatus = 4
 	PAGE_STATUS_SERVICE   PageStatus = 5
+)
+
+const (
+	Ansible_PAGE_STATUS_UNKNOWN         AnsiblePageStatus = -1
+	Ansible_PAGE_STATUS_CHECK           AnsiblePageStatus = 1
+	Ansible_PAGE_STATUS_INSTALL_ANSIBLE AnsiblePageStatus = 2
+	Ansible_PAGE_STATUS_PACKAGE         AnsiblePageStatus = 3
+	Ansible_PAGE_STATUS_INSTALL         AnsiblePageStatus = 4
+	Ansible_PAGE_STATUS_TEST            AnsiblePageStatus = 5
+	Ansible_PAGE_STATUS_SERVICE         AnsiblePageStatus = 6
 )
 
 func GetPageStatusString(p PageStatus) string {
@@ -52,6 +63,34 @@ func GetPageStatusList() []entity.IdPair {
 	var idPairList []entity.IdPair
 	for i := 0; i < 6; i++ {
 		idPair := entity.IdPair{i, GetPageStatusString(PageStatus(i))}
+		idPairList = append(idPairList, idPair)
+	}
+	return idPairList
+}
+
+func GetAnsiblePageStatusString(p AnsiblePageStatus) string {
+	switch p {
+	case Ansible_PAGE_STATUS_CHECK:
+		return "Ansible System Check"
+	case Ansible_PAGE_STATUS_INSTALL_ANSIBLE:
+		return "Install Ansible"
+	case Ansible_PAGE_STATUS_PACKAGE:
+		return "Load Package"
+	case Ansible_PAGE_STATUS_INSTALL:
+		return "Install Fate"
+	case Ansible_PAGE_STATUS_TEST:
+		return "Auto Test Page"
+	case Ansible_PAGE_STATUS_SERVICE:
+		return "Service Managerment"
+	default:
+		return "unknown"
+	}
+}
+
+func GetAnsiblePageStatusList() []entity.IdPair {
+	var idPairList []entity.IdPair
+	for i := 1; i < 7; i++ {
+		idPair := entity.IdPair{i, GetAnsiblePageStatusString(AnsiblePageStatus(i))}
 		idPairList = append(idPairList, idPair)
 	}
 	return idPairList
