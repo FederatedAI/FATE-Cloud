@@ -1,22 +1,35 @@
 package entity
 
-import "os"
+type AnsibleCommResp struct {
+	Code int    `json:"retcode"`
+	Msg  string `json:"retmsg"`
+}
 
-type AnsibleReq struct {
+type AnsibleCheckResp struct {
+	AnsibleCommResp
+	Data []AnsiblePrepareItem `json:"data"`
+}
+
+type AnsibleInstallListResponse struct {
+	AnsibleCommResp
+	Data AcquireResp `json:"data"`
+}
+type SubmitResponse struct {
+	AnsibleCommResp
+	Data AnsibleSubmitData `json:"data"`
+}
+type QueryResponse struct {
+	AnsibleCommResp
+	Data QueryData `json:"data"`
+}
+type AnsibleConnectReq struct {
 	PartyId     int    `json:"partyId"`
-	ProductType int    `json:"productType"`
 	Url         string `json:"ansbileUrl"`
 }
-type Machine struct {
-	ip string `json:"ip"`
-}
+
 type PrepareReq struct {
 	ControlNode string   `json:"controlNode"`
 	ManagerNode []string `json:"managerNode"`
-}
-type PrepareReqBak struct {
-	ControlNode Machine   `json:"controlNode"`
-	ManagerNode []Machine `json:"managerNode"`
 }
 type CheckItem struct {
 	TestItem     string `json:"testItem"`
@@ -28,25 +41,28 @@ type CheckSystemResp struct {
 	CheckItemList []CheckItem `json:"Checklist"`
 }
 type DeployAnsibleReq struct {
-	PartyId int `json:"partyId"`
+	ControlNode string `json:"controlNode"`
 }
 type DeployAnsibleResp struct {
 	PartyId int `json:"partyId"`
 }
 type LocalUploadReq struct {
-	PartyId     int     `json:"partyId"`
-	FileContent os.File `json:"fileContent"`
+	PartyId  int    `json:"partyId"`
+	SiteName string `json:"siteName"`
+	Ip       string `json:"ip"`
+	Path     string `json:"path"`
 }
 type AutoAcquireReq struct {
 	PartyId     int    `json:"partyId"`
+	SiteName    string `json:"siteName"`
 	FateVersion string `json:"fateVersion"`
 }
 
 type Prepare struct {
-	Name    string `json:"name"`
-	Details string `json:"details"`
-	Status  string `json:"status"`
-	Duration int64   `json:"duration"`
+	Name     string `json:"name"`
+	Details  string `json:"details"`
+	Status   string `json:"status"`
+	Duration int64  `json:"duration"`
 }
 type AnsiblePrepareItem struct {
 	Ip   string    `json:"ip"`
@@ -60,6 +76,47 @@ type CheckSystemReq struct {
 	Ip string `json:"ip"`
 }
 type IpStatus struct {
-	Ip string `json:"ip"`
+	Ip     string `json:"ip"`
 	Status string `json:"status"`
 }
+type AcquireRespItem struct {
+	Item             string `json:"item"`
+	Description      string `json:"description"`
+	ComponentVersion string `json:"componentVersion"`
+	Size             string `json:"size"`
+	Time             int64  `json:"time"`
+	Status           IdPair `json:"status"`
+}
+
+type AcquireResp struct {
+	FateVersion         string            `json:"fateVersion"`
+	AcquireRespItemList []AcquireRespItem `json:"list"`
+}
+type AnsibleSubmitData struct {
+	JobId string `json:"job_id"`
+}
+type Play struct {
+	CreateTime int64  `json:"create_time"`
+	Elapsed    int    `json:"elapsed"`
+	StartTime  int64  `json:"start_time"`
+	Status     string `json:"status"`
+	EndTime    int64  `json:"end_time"`
+	JobId      string `json:"job_id"`
+}
+type PlayItem struct {
+	Play
+	Module string `json:"module"`
+}
+type QueryData struct {
+	Play
+	Plays []PlayItem `json:"plays"`
+}
+type AnsibleConnectResp struct {
+	AnsibleCommResp
+	Data map[string]ConnectItem `json:"data"`
+}
+type ConnectItem struct {
+	Status string `json:"status"`
+	UpdateTime string `json:"uptime"`
+}
+

@@ -41,7 +41,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.CommResp"
+                            "$ref": "#/definitions/app.InstallListResponse"
                         }
                     },
                     "500": {
@@ -111,7 +111,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.AnsibleReq"
+                            "$ref": "#/definitions/entity.AnsibleConnectReq"
                         }
                     }
                 ],
@@ -143,17 +143,6 @@
                     "AnsibleController"
                 ],
                 "summary": "start to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.DeployAnsibleReq"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -314,7 +303,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.CommResp"
+                            "$ref": "#/definitions/app.InstallListResponse"
                         }
                     },
                     "500": {
@@ -3775,16 +3764,13 @@
                 }
             }
         },
-        "entity.AnsibleReq": {
+        "entity.AnsibleConnectReq": {
             "type": "object",
             "properties": {
                 "ansbileUrl": {
                     "type": "string"
                 },
                 "partyId": {
-                    "type": "integer"
-                },
-                "productType": {
                     "type": "integer"
                 }
             }
@@ -3848,6 +3834,9 @@
                 },
                 "partyId": {
                     "type": "integer"
+                },
+                "siteName": {
+                    "type": "string"
                 }
             }
         },
@@ -4007,6 +3996,9 @@
         "entity.CommitImagePullReq": {
             "type": "object",
             "properties": {
+                "deployType": {
+                    "type": "integer"
+                },
                 "fateVersion": {
                     "type": "string"
                 },
@@ -4078,8 +4070,8 @@
         "entity.DeployAnsibleReq": {
             "type": "object",
             "properties": {
-                "partyId": {
-                    "type": "integer"
+                "controlNode": {
+                    "type": "string"
                 }
             }
         },
@@ -4433,11 +4425,17 @@
         "entity.LocalUploadReq": {
             "type": "object",
             "properties": {
-                "fileContent": {
+                "ip": {
                     "type": "string"
                 },
                 "partyId": {
                     "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "siteName": {
+                    "type": "string"
                 }
             }
         },
