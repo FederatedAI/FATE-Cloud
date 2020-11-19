@@ -1,5 +1,6 @@
 package com.webank.ai.fatecloud.system.pojo.dto;
 
+import com.webank.ai.fatecloud.common.util.PageBean;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -12,15 +13,11 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @Data
-@ApiModel(value = "jobs statistics for sites bean")
 public class JobStatisticsOfSiteDimensionDto implements Serializable {
 
-    @ApiModelProperty(value = "statistics for job")
-    private List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensions;
+    private PageBean<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensions;
 
-    @ApiModelProperty(value = "site list of the institutions")
     private List<String> sites;
 
-    @ApiModelProperty(value = "site list of the institutions")
     private List<InstitutionsWithSites> institutionsWithSites;
 }

@@ -53,7 +53,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/institutions/today")
     @ApiOperation(value = "find job statistics of institutions dimension")
-    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(@Valid @RequestBody JobOfSiteDimensionQo jobOfSiteDimensionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -115,7 +115,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/institutions/period")
     @ApiOperation(value = "find job statistics of institutions dimension for a period")
-    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", jobOfSiteDimensionPeriodQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
