@@ -1,7 +1,6 @@
 package com.webank.ai.fatecloud.system.pojo.dto;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -12,10 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class JobStatisticsOfSiteDimension implements Serializable {
+public class ProductVersionDto implements Serializable {
 
-    private String siteGuestName;
+    private List<String> productNameList;
 
-    private List<InstitutionsWithHostSite> institutionsWithHostSites;
-
+    private List<String> productVersionList;
 }

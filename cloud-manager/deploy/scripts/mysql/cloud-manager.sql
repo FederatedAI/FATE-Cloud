@@ -176,13 +176,9 @@ CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
 
 CREATE TABLE IF NOT EXISTS `t_product_version` (
---  `product_version_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `product_name` varchar(128) DEFAULT NULL COMMENT 'procuct name',
-  `product_version` varchar(128) DEFAULT NULL COMMENT 'product version',
-  `component_name` varchar(128) DEFAULT NULL COMMENT 'component name',
-  `component_version` varchar(128) DEFAULT NULL COMMENT 'component version',
-  `image_repository` varchar(128) DEFAULT NULL COMMENT 'image repository',
-  `image_tag` varchar(128) DEFAULT NULL COMMENT 'image tag',
+  `product_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `product_name` varchar(128)  not NULL COMMENT 'procuct name',
+  `product_version` varchar(128)  not NULL COMMENT 'product version',
   `image_name` varchar(128) DEFAULT NULL COMMENT 'image name',
   `image_download_url` varchar(512) DEFAULT NULL COMMENT 'url for download image',
   `package_name` varchar(128) DEFAULT NULL COMMENT 'package name',
@@ -190,5 +186,19 @@ CREATE TABLE IF NOT EXISTS `t_product_version` (
   `public_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 public, 2 private',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
-  PRIMARY KEY (product_name,product_version,component_name)
+  unique key `name_version` (`product_name`, `product_version`),
+  PRIMARY KEY (product_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='product version management';
+
+
+CREATE TABLE IF NOT EXISTS `t_component_version` (
+  `component_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `component_name` varchar(128)  not NULL COMMENT 'component name',
+  `component_version` varchar(128)  not NULL COMMENT 'component version',
+  `image_repository` varchar(128) DEFAULT NULL COMMENT 'image repository',
+  `image_tag` varchar(128) DEFAULT NULL COMMENT 'image tag',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `product_id` bigint(20) NOT NULL COMMENT ' Product Primary Key',
+  PRIMARY KEY (component_id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='component version management';

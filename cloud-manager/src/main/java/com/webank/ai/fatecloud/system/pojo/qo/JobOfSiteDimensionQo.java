@@ -22,4 +22,11 @@ public class JobOfSiteDimensionQo implements Serializable {
     @NotNull(message = "date can't be null!")
     @ApiModelProperty("date today")
     private Date dateToday;
+
+    @ApiModelProperty("page number")
+    private Integer pageNum = 1;
+
+    @ApiModelProperty("page size")
+    private Integer pageSize = 10;
+
 }

@@ -1,6 +1,7 @@
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-import com.webank.ai.fatecloud.system.dao.entity.FederatedComponentVersionDo;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -13,7 +14,10 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class ProductVersionAddQo implements Serializable {
+public class ProductVersionUpdateQo implements Serializable {
+
+    @NotNull(message = "product id can't be null!")
+    private Long productId;
 
     @NotNull(message = "product name can't be null!")
     private String productName;
@@ -31,7 +35,6 @@ public class ProductVersionAddQo implements Serializable {
 
     private Integer publicStatus;
 
-    @NotNull(message = "component version can't be null")
     private List<ComponentVersionAddQo> componentVersionAddQos;
 
 }
