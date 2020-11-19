@@ -36,14 +36,14 @@
 
 
     <select id="getPagedJobStatisticsOfSiteDimension" resultMap="jobStatisticsMap">
-        SELECT sm.site_name siteHostName,sm2.site_name
-        siteGuestName,js.job_success_count,js.job_failed_count,js.job_running_count,sm.institutions
-        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
+        SELECT
+        (SELECT sm.site_name  FROM t_federated_site_manager sm WHERE sm.id = js.site_host_id) AS   siteHostName,
+        (SELECT sm.site_name  FROM t_federated_site_manager sm WHERE sm.id = js.site_guest_id) AS   siteGuestName,
+        js.job_success_count,js.job_failed_count,js.job_running_count,sm.institutions
+        FROM t_job_statistics js
         where js.site_guest_id in (select id from t_federated_site_manager where institutions =#{jobOfSiteDimensionQo.institutions} and status = 2)
         and js.job_finish_date between #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE} and #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and sm.id=js.site_host_id
-        and sm2.id=js.site_guest_id
-        and sm.id in (select * from
+        and js.site_host_id in (select * from
         (select id from t_federated_site_manager where institutions !=#{jobOfSiteDimensionQo.institutions} and status=2 order by institutions asc, site_name asc limit #{startIndex},#{jobOfSiteDimensionQo.pageSize} )
         tmp )
     </select>
