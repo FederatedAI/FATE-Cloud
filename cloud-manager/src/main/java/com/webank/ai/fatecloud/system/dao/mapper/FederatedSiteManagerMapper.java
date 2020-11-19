@@ -34,5 +34,9 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
     long countForInstitutions(InstitutionQo institutionQo);
 
     List<InstitutionsWithSites> findInstitutionsWithSites(String institutions);
+
+    long findCountOfSite(JobOfSiteDimensionQo jobOfSiteDimensionQo);
+
+    long findCountOfSitePeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo);
 }
 

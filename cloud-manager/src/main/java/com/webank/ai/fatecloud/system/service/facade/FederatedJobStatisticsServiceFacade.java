@@ -1,5 +1,6 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
@@ -43,8 +44,8 @@ public class FederatedJobStatisticsServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
     }
 
-    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
+    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
 
@@ -80,8 +81,8 @@ public class FederatedJobStatisticsServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
     }
 
-    public CommonResponse<List<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
-        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimensionForPeriod(jobOfSiteDimensionPeriodQo);
+    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimensionForPeriod(jobOfSiteDimensionPeriodQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);    }
 

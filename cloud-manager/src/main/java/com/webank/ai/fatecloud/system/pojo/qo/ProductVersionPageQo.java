@@ -14,6 +14,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ProductVersionPageQo implements Serializable {
 
+    private String productName;
+
     private String productVersion;
 
     private Integer pageNum = 1;

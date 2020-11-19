@@ -2,7 +2,6 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedProductVersionDo;
-import com.webank.ai.fatecloud.system.pojo.dto.ProductVersionPageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageQo;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,5 +11,9 @@ public interface FederatedProductVersionMapper extends BaseMapper<FederatedProdu
 
     long count(ProductVersionPageQo productVersionPageQo);
 
-    List<ProductVersionPageDto> page(@Param(value = "startIndex") long startIndex, @Param(value = "productVersionPageQo") ProductVersionPageQo productVersionPageQo);
+    List<FederatedProductVersionDo> page(@Param(value = "startIndex") long startIndex, @Param(value = "productVersionPageQo") ProductVersionPageQo productVersionPageQo);
+
+    List<String> getProductNames();
+
+    List<String> getProductVersions();
 }

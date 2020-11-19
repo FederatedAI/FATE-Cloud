@@ -1,14 +1,18 @@
 package com.webank.ai.fatecloud.system.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionAddQo;
+import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionUpdateQo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,9 +23,9 @@ import java.util.Date;
 @ApiModel(value = "product version do bean")
 public class FederatedProductVersionDo implements Serializable {
 
-//    @ApiModelProperty(value = "primary key")
-//    @TableId(value = "product_version_id", type = IdType.AUTO)
-//    private Long id;
+    @ApiModelProperty(value = "primary key")
+    @TableId(value = "product_id", type = IdType.AUTO)
+    private Long productId;
 
     @ApiModelProperty(value = "product name")
     @TableField(value = "product_name")
@@ -30,22 +34,6 @@ public class FederatedProductVersionDo implements Serializable {
     @ApiModelProperty(value = "product version")
     @TableField(value = "product_version")
     private String productVersion;
-
-    @ApiModelProperty(value = "component name")
-    @TableField(value = "component_name")
-    private String componentName;
-
-    @ApiModelProperty(value = "component version")
-    @TableField(value = "component_version")
-    private String componentVersion;
-
-    @ApiModelProperty(value = "image repository")
-    @TableField(value = "image_repository")
-    private String imageRepository;
-
-    @ApiModelProperty(value = "image tag")
-    @TableField(value = "image_tag")
-    private String imageTag;
 
     @ApiModelProperty(value = "image name")
     @TableField(value = "image_name")
@@ -75,18 +63,28 @@ public class FederatedProductVersionDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
-    public FederatedProductVersionDo(ProductVersionAddQo productVersionAddQo){
-        this.productName= productVersionAddQo.getProductName();
-        this.productVersion= productVersionAddQo.getProductVersion();
-        this.componentName= productVersionAddQo.getComponentName();
-        this.componentVersion= productVersionAddQo.getComponentVersion();
-        this.imageRepository= productVersionAddQo.getImageRepository();
-        this.imageTag= productVersionAddQo.getImageTag();
-        this.imageName= productVersionAddQo.getImageName();
-        this.imageDownloadUrl= productVersionAddQo.getPackageDownloadUrl();
-        this.packageName= productVersionAddQo.getPackageName();
-        this.packageDownloadUrl= productVersionAddQo.getPackageDownloadUrl();
-        this.publicStatus= productVersionAddQo.getPublicStatus();
+    @ApiModelProperty(value = "component version list")
+    @TableField(exist = false)
+    private List<FederatedComponentVersionDo> federatedComponentVersionDos;
+
+    public FederatedProductVersionDo(ProductVersionAddQo productVersionAddQo) {
+        this.productName = productVersionAddQo.getProductName();
+        this.productVersion = productVersionAddQo.getProductVersion();
+        this.imageName = productVersionAddQo.getImageName();
+        this.imageDownloadUrl = productVersionAddQo.getImageDownloadUrl();
+        this.packageName = productVersionAddQo.getPackageName();
+        this.packageDownloadUrl = productVersionAddQo.getPackageDownloadUrl();
+        this.publicStatus = productVersionAddQo.getPublicStatus();
     }
 
+    public FederatedProductVersionDo(ProductVersionUpdateQo productVersionUpdateQo) {
+        this.productId=productVersionUpdateQo.getProductId();
+        this.productName = productVersionUpdateQo.getProductName();
+        this.productVersion = productVersionUpdateQo.getProductVersion();
+        this.imageName = productVersionUpdateQo.getImageName();
+        this.imageDownloadUrl = productVersionUpdateQo.getImageDownloadUrl();
+        this.packageName = productVersionUpdateQo.getPackageName();
+        this.packageDownloadUrl = productVersionUpdateQo.getPackageDownloadUrl();
+        this.publicStatus = productVersionUpdateQo.getPublicStatus();
+    }
 }
