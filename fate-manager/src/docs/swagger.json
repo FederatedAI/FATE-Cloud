@@ -159,45 +159,6 @@
                 }
             }
         },
-        "/fate-manager/api/ansible/deployansible/result": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleController"
-                ],
-                "summary": "get deploy ansible list",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.DeployAnsibleReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CommResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/fate-manager/api/ansible/prepare": {
             "post": {
                 "consumes": [
@@ -4063,14 +4024,6 @@
                     "type": "string"
                 },
                 "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.DeployAnsibleReq": {
-            "type": "object",
-            "properties": {
-                "controlNode": {
                     "type": "string"
                 }
             }
