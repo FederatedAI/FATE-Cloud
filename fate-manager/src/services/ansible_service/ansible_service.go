@@ -10,6 +10,7 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +20,9 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 	if ansibleReq.PartyId == 0 || len(ansibleReq.Url) == 0 {
 		return e.INVALID_PARAMS, nil
 	}
-	result, err := http.POST(http.Url(ansibleReq.Url+setting.AnsibleConnectUri), nil, nil)
+	var connectReq entity.ConnectAnsible
+	connectReq.PartyId = ansibleReq.PartyId
+	result, err := http.POST(http.Url(ansibleReq.Url+setting.AnsibleConnectUri), connectReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
@@ -38,7 +41,7 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			CreateTime:   time.Now(),
 			UpdateTime:   time.Now(),
 		}
-		conf, _ := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+		conf, _ := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 		if conf.Id == 0 {
 			models.AddKubenetesConf(&kubenetesConf)
 		}
@@ -68,32 +71,45 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		if len(deploySiteList) == 0 {
 			models.AddDeploySite(&deploySite)
 		}
-		for k, v := range connectResp.Data {
-			deployComponent := models.DeployComponent{
-				PartyId:       ansibleReq.PartyId,
-				ProductType:   int(enum.PRODUCT_TYPE_FATE),
-				ComponentName: k,
-				ComponentVersion:"",
-				DeployStatus:  int(enum.ANSIBLE_DeployStatus_INSTALLED),
-				DeployType:    int(enum.DeployType_ANSIBLE),
-				IsValid:       int(enum.IS_VALID_YES),
-				CreateTime:    time.Now(),
-				UpdateTime:    time.Now(),
+		for i := 0; i < len(connectResp.Data.List); i++ {
+			connectItem := connectResp.Data.List[i]
+			 address := ""
+			for j := 0;j< len(connectItem.Ips) ;j++  {
+				ipport := fmt.Sprintf("%s:%d",connectItem.Ips[j],connectItem.Port)
+				if connectItem.Module == "fateflow"{
+					ipport = fmt.Sprintf("%s:%d",connectItem.Ips[j],connectItem.GrpcPort)
+				}
+				address=fmt.Sprintf("%s;%s",ipport,address)
 			}
-			if v.Status == "running" {
+			deployComponent := models.DeployComponent{
+				PartyId:          ansibleReq.PartyId,
+				ProductType:      int(enum.PRODUCT_TYPE_FATE),
+				ComponentName:    connectItem.Module,
+				ComponentVersion: connectResp.Data.FateVersion,
+				Address:          address,
+				DeployStatus:     int(enum.ANSIBLE_DeployStatus_INSTALLED),
+				DeployType:       int(enum.DeployType_ANSIBLE),
+				IsValid:          int(enum.IS_VALID_YES),
+				CreateTime:       time.Now(),
+				UpdateTime:       time.Now(),
+			}
+			if connectItem.Status == "RUNNING" {
 				deployComponent.Status = int(enum.SITE_RUN_STATUS_RUNNING)
-			} else if v.Status == "stopped" {
+			} else if connectItem.Status == "STOPPED" {
 				deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
 			} else {
+				deployComponent.DeployStatus= int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED)
 				deployComponent.Status = int(enum.SITE_RUN_STATUS_UNKNOWN)
 			}
-			models.AddDeployComponent(&deployComponent)
-
+			deployComponentList, _ := models.GetDeployComponent(deployComponent)
+			if len(deployComponentList) == 0 {
+				models.AddDeployComponent(&deployComponent)
+			}
 			autoTest := models.AutoTest{
 				PartyId:     ansibleReq.PartyId,
 				ProductType: int(enum.PRODUCT_TYPE_FATE),
-				FateVersion: "",
-				TestItem:    k,
+				FateVersion: connectResp.Data.FateVersion,
+				TestItem:    connectItem.Module,
 				CreateTime:  time.Now(),
 				UpdateTime:  time.Now(),
 			}
@@ -127,7 +143,7 @@ func Prepare(prepareReq entity.PrepareReq) (int, error) {
 }
 
 func CheckSystem(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
-	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
 	}
@@ -176,8 +192,9 @@ func CheckSystem(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error)
 	}
 	return nil, nil
 }
+
 func StartDeployAnsible() (int, error) {
-	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
@@ -209,7 +226,7 @@ func StartDeployAnsible() (int, error) {
 }
 
 func LocalUpload(localUploadReq entity.LocalUploadReq) (*entity.AcquireResp, error) {
-	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
 	}
@@ -233,8 +250,9 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) (*entity.AcquireResp, err
 	}
 	return nil, nil
 }
+
 func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (*entity.AcquireResp, error) {
-	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
 	}
@@ -291,10 +309,6 @@ func UpdatePackage(partyId int, Data entity.AcquireResp) {
 		}
 		models.AddDeployComponent(&deployComponent)
 	}
-}
-
-func GetDeployAnsibleList(deployAnsibleReq entity.DeployAnsibleReq) (*entity.DeployAnsibleResp, error) {
-	return nil, nil
 }
 
 type IpNode struct {
@@ -493,4 +507,24 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		}
 
 	}
+}
+
+func AnsibleAutoTest(autoTestReq entity.AutoTestReq, site models.DeploySite) (int, error) {
+	req := entity.ConnectAnsible{PartyId: autoTestReq.PartyId}
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleTestStatusUri), req, nil)
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return e.ERROR_HTTP_FAIL, err
+	}
+	var queryResponse entity.QueryResponse
+	err = json.Unmarshal([]byte(result.Body), &queryResponse)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return e.ERROR_PARSE_JSON_ERROR, err
+	}
+	if queryResponse.Code == e.SUCCESS {
+
+	}
+
+	return e.SUCCESS, nil
 }

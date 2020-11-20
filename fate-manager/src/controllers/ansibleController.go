@@ -141,34 +141,6 @@ func StartDeployAnsible(c *gin.Context) {
 	appG.Response(http.StatusOK, ret, nil)
 }
 
-// @Summary get deploy ansible list
-// @Tags AnsibleController
-// @Accept  json
-// @Produce  json
-// @Param request body entity.DeployAnsibleReq true "request param"
-// @Success 200 {object} app.CommResp
-// @Failure 500 {object} app.Response
-// @Router /fate-manager/api/ansible/deployansible/result [post]
-func GetDeployAnsibleList(c *gin.Context) {
-	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var deployAnsibleReq entity.DeployAnsibleReq
-	if jsonError := json.Unmarshal(body, &deployAnsibleReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := ansible_service.GetDeployAnsibleList(deployAnsibleReq)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.ERROR_GET_DEPLOY_ANSIBLE_LIST_FAIL, nil)
-		return
-	}
-	appG.Response(http.StatusOK, e.SUCCESS, ret)
-}
-
 // @Summary local upload package
 // @Tags AnsibleController
 // @Accept  json

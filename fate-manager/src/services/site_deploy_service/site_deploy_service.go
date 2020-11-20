@@ -498,6 +498,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 	}
 	return e.SUCCESS, nil
 }
+
 func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestListRespItem, error) {
 	deploySite := models.DeploySite{
 		FederatedId: autoTestListReq.FederatedId,
@@ -565,6 +566,9 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_AUTO_TEST_FAIL, err
+	}
+	if deploySiteList[0].DeployType == int(enum.DeployType_ANSIBLE){
+		return ansible_service.AnsibleAutoTest(autoTestReq,deploySiteList[0])
 	}
 	cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
 	if setting.KubenetesSetting.SudoTag {
@@ -659,6 +663,7 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 
 	return e.SUCCESS, nil
 }
+
 func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	autoTest := models.AutoTest{
 		PartyId:     autoTestReq.PartyId,
@@ -1182,7 +1187,7 @@ func TestResult(testResultReq entity.TestResultReq) (*entity.IdPair, error) {
 
 func Click(req entity.ClickReq) bool {
 	if req.ClickType == int(enum.AnsibleClickType_PREPARE) || req.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) || req.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
-		conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+		conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 		if err != nil {
 			return false
 		}
@@ -1256,6 +1261,7 @@ func Click(req entity.ClickReq) bool {
 	}
 	return true
 }
+
 func ToyResultRead(req entity.ToyResultReadReq) bool {
 	deploySite := models.DeploySite{
 		FederatedId: req.FederatedId,
@@ -1306,6 +1312,7 @@ func GetTestLog(logReq entity.LogReq) (map[string][]string, error) {
 	logs["all"] = all
 	return logs, nil
 }
+
 func GetFateBoardUrl(federatedSite entity.FederatedSite) (string, error) {
 	deploySite := models.DeploySite{
 		FederatedId: federatedSite.FederatedId,
@@ -1321,7 +1328,7 @@ func GetFateBoardUrl(federatedSite entity.FederatedSite) (string, error) {
 		return "", nil
 	}
 
-	kubefateConf, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
+	kubefateConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return "", err
 	}

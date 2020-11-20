@@ -51,7 +51,7 @@ func GetLabel(address string) string {
 	if len(address) == 0 {
 		return label
 	}
-	kubenetsConf, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
+	kubenetsConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return label
 	}
@@ -94,7 +94,7 @@ func CheckNodeIp(address string, deployType enum.DeployType) bool {
 }
 
 func GetManagerIp() ([]entity.IpStatus, error) {
-	conf, err := models.GetKubenetesConf(int(enum.DeployType_ANSIBLE))
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
 	}
