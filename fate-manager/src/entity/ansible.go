@@ -23,8 +23,8 @@ type QueryResponse struct {
 	Data QueryData `json:"data"`
 }
 type AnsibleConnectReq struct {
-	PartyId     int    `json:"partyId"`
-	Url         string `json:"ansbileUrl"`
+	PartyId int    `json:"partyId"`
+	Url     string `json:"ansbileUrl"`
 }
 
 type PrepareReq struct {
@@ -43,8 +43,16 @@ type CheckSystemResp struct {
 type DeployAnsibleReq struct {
 	ControlNode string `json:"controlNode"`
 }
-type DeployAnsibleResp struct {
-	PartyId int `json:"partyId"`
+type ConnectAnsible struct {
+	PartyId int `json:"party_id"`
+}
+type AnsibleAutoTestRespItem struct {
+	Status string `json:"status"`
+
+}
+type AnsibleAutoTestResp struct {
+	AnsibleCommResp
+	Data map[string]AnsibleAutoTestRespItem
 }
 type LocalUploadReq struct {
 	PartyId  int    `json:"partyId"`
@@ -80,16 +88,15 @@ type IpStatus struct {
 	Status string `json:"status"`
 }
 type AcquireRespItem struct {
-	Item             string `json:"item"`
+	Item             string `json:"module"`
 	Description      string `json:"description"`
-	ComponentVersion string `json:"componentVersion"`
+	ComponentVersion string `json:"version"`
 	Size             string `json:"size"`
 	Time             int64  `json:"time"`
-	Status           IdPair `json:"status"`
 }
 
 type AcquireResp struct {
-	FateVersion         string            `json:"fateVersion"`
+	FateVersion         string            `json:"version"`
 	AcquireRespItemList []AcquireRespItem `json:"list"`
 }
 type AnsibleSubmitData struct {
@@ -113,10 +120,18 @@ type QueryData struct {
 }
 type AnsibleConnectResp struct {
 	AnsibleCommResp
-	Data map[string]ConnectItem `json:"data"`
+	Data AnsibleConnect `json:"data"`
 }
 type ConnectItem struct {
-	Status string `json:"status"`
-	UpdateTime string `json:"uptime"`
+	Ips    []string `json:"ips"`
+	Port   int      `json:"port"`
+	HttpPort int    `json:"httpPort"`
+	GrpcPort int 	`json:"grpcPort"`
+	Module string   `json:"name"`
+	Status string   `json:"status"`
 }
-
+type AnsibleConnect struct {
+	PartyId string      `json:"status"`
+	FateVersion string `json:"version"`
+	List    []ConnectItem `json:"list"`
+}

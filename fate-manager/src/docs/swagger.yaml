@@ -660,11 +660,6 @@ definitions:
       userName:
         type: string
     type: object
-  entity.DeployAnsibleReq:
-    properties:
-      controlNode:
-        type: string
-    type: object
   entity.EditUserReq:
     properties:
       oldPartyId:
@@ -1620,31 +1615,6 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: start to deploy ansible
-      tags:
-      - AnsibleController
-  /fate-manager/api/ansible/deployansible/result:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.DeployAnsibleReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.CommResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/app.Response'
-      summary: get deploy ansible list
       tags:
       - AnsibleController
   /fate-manager/api/ansible/prepare:

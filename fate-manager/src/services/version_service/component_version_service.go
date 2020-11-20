@@ -169,7 +169,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 
 func GetDefaultPort(componentName string) int {
 	var port int
-	k8sinfo, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
+	k8sinfo, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil || k8sinfo.Id == 0 {
 		return 0
 	}
@@ -340,7 +340,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["click_type"] = int(enum.ClickType_PULL)
 		models.UpdateDeploySite(data, deploySite)
 	}
-	kubefateConf, _ := models.GetKubenetesConf(int(enum.DeployType_K8S))
+	kubefateConf, _ := models.GetKubenetesConf(enum.DeployType_K8S)
 	kubenetesConf := models.KubenetesConf{
 		KubenetesUrl: kubefateConf.KubenetesUrl,
 	}

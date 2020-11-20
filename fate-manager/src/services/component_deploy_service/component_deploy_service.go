@@ -231,7 +231,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		}
 		kubeReq.FederatedId = federatedInfoList[0].Id
 	}
-	item, err := models.GetKubenetesConf(int(enum.DeployType_K8S))
+	item, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
@@ -258,7 +258,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			Id: item.Id,
 		}
 		models.UpdateKubenetesConf(data, &kubenetesConf)
-		item, _ = models.GetKubenetesConf(int(enum.DeployType_K8S))
+		item, _ = models.GetKubenetesConf(enum.DeployType_K8S)
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"

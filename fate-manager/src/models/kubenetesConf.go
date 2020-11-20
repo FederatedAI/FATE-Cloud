@@ -34,10 +34,10 @@ type KubenetesConf struct {
 	UpdateTime   time.Time
 }
 
-func GetKubenetesConf(deployType int) (*KubenetesConf, error) {
+func GetKubenetesConf(deployType enum.DeployType) (*KubenetesConf, error) {
 	var kubenetesConf KubenetesConf
 	Db := db
-	err := Db.Where("deploy_type=?", deployType).First(&kubenetesConf).Error
+	err := Db.Where("deploy_type=?", int(deployType)).First(&kubenetesConf).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -52,15 +52,19 @@ func AddKubenetesConf(kubenetesConf *KubenetesConf) error {
 }
 
 func GetKubenetesUrl(deployType enum.DeployType) (*KubenetesConf, error) {
-	var kubenetesConf KubenetesConf
+	var kubenetesConfList []KubenetesConf
 
 	err := db.Table("t_fate_kubenetes_conf t1").Select("t1.id,t1.kubenetes_url,t1.node_list").
 		Joins(" join t_fate_deploy_site t2 on t1.id = t2.kubenetes_id and t2.is_valid = 1 and t1.deploy_type= ?", int(deployType)).
-		First(&kubenetesConf).Error
+		Scan(&kubenetesConfList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 
+	var kubenetesConf KubenetesConf
+	if len(kubenetesConfList) >0 {
+		kubenetesConf = kubenetesConfList[0]
+	}
 	return &kubenetesConf, nil
 }
 
