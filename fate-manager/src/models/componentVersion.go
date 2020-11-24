@@ -35,6 +35,7 @@ type ComponentVersion struct {
 	ImageCreateTime  time.Time
 	VersionIndex     int
 	PullStatus       int
+	PackageStatus    int
 	CreateTime       time.Time
 	UpdateTime       time.Time
 }
@@ -67,8 +68,16 @@ func UpdateComponentVersion(info *ComponentVersion) error {
 	}
 	return nil
 }
-func AddComponentVersion(componentVersion *ComponentVersion) error {
-	if err := db.Create(&componentVersion).Error; err != nil {
+
+func UpdateComponentVersionByCondition(condition map[string]interface{},info *ComponentVersion) error {
+	Db := db
+	if len(info.FateVersion) > 0 {
+		Db = Db.Where("fate_version = ?", info.FateVersion)
+	}
+	if info.ProductType > 0 {
+		Db = Db.Where("product_type = ?", info.ProductType)
+	}
+	if err := Db.Model(&ComponentVersion{}).Updates(condition).Error; err != nil {
 		return err
 	}
 	return nil

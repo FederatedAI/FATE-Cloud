@@ -9,14 +9,25 @@ type AnsibleCheckResp struct {
 	AnsibleCommResp
 	Data []AnsiblePrepareItem `json:"data"`
 }
-
+type LocalUpload struct {
+	FateVersion string `json:"fateVersion"`
+}
 type AnsibleInstallListResponse struct {
 	AnsibleCommResp
-	Data AcquireResp `json:"data"`
+	Data LocalUpload `json:"data"`
 }
 type SubmitResponse struct {
 	AnsibleCommResp
 	Data AnsibleSubmitData `json:"data"`
+}
+type VersionDownload struct {
+	StartTime int64 `json:"start_time"`
+	EndTime   int64 `json:"end_time"`
+	Status    string `json:"status"`
+}
+type VersionDownloadResponse struct {
+	AnsibleCommResp
+	Data VersionDownload `json:"data"`
 }
 type QueryResponse struct {
 	AnsibleCommResp
@@ -97,12 +108,9 @@ type AcquireRespItem struct {
 	ComponentVersion string `json:"version"`
 	Size             string `json:"size"`
 	Time             int64  `json:"time"`
+	Status           IdPair `json:"status"`
 }
 
-type AcquireResp struct {
-	FateVersion         string            `json:"version"`
-	AcquireRespItemList []AcquireRespItem `json:"list"`
-}
 type AnsibleSubmitData struct {
 	JobId string `json:"job_id"`
 }

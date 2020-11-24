@@ -54,6 +54,9 @@ type DeploySite struct {
 	IsValid            int
 	ClickType          int
 	DeployType         int
+	AcquireTag         string
+	AcquireStartTime   time.Time
+	AcquireEndTime     time.Time
 	FinishTime         time.Time
 	CreateTime         time.Time
 	UpdateTime         time.Time

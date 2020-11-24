@@ -791,7 +791,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 	}
 	InstitutionReport(monitorReq)
 	SiteReport(monitorReq)
-	MonitorPush(monitorReq,accountInfo)
+	MonitorPush(monitorReq, accountInfo)
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -1134,7 +1134,7 @@ type MonitorPushSite struct {
 	HostId     string `json:"siteHostId"`
 }
 
-func MonitorPush(monitorReq entity.MonitorReq,accountInfo *models.AccountInfo) {
+func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) {
 	pushSiteList, err := models.GetPushSiteMonitorList(monitorReq)
 	if err != nil {
 		return
@@ -1150,7 +1150,7 @@ func MonitorPush(monitorReq entity.MonitorReq,accountInfo *models.AccountInfo) {
 			GuestId:    pushSite.GuestPartyId,
 			HostId:     pushSite.HostPartyId,
 		}
-		data= append(data,monitorPushSite)
+		data = append(data, monitorPushSite)
 	}
 
 	dataJson, _ := json.Marshal(data)
@@ -1182,6 +1182,61 @@ func MonitorPush(monitorReq entity.MonitorReq,accountInfo *models.AccountInfo) {
 		if updateResp.Code == e.SUCCESS {
 			msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
 			logging.Debug(msg)
+		}
+	}
+}
+
+type VersionDownloadReq struct {
+	FateVersion string `json:"version"`
+}
+func PackageStatusTask() {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return
+	}
+	if conf.Id == 0 {
+		return
+	}
+
+	fateVersion := models.FateVersion{
+		ProductType:  int(enum.PRODUCT_TYPE_FATE),
+		PackageStatus: int(enum.PACKAGE_STATUS_NO),
+	}
+
+	fateVersionList,err := models.GetFateVersionList(&fateVersion)
+	if err != nil {
+		return
+	}
+
+	for i :=0;i< len(fateVersionList) ;i++  {
+		req := VersionDownloadReq{FateVersion:fateVersionList[i].FateVersion}
+		result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUpload), req, nil)
+		if err != nil || result == nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			return
+		}
+		var versionDownloadResponse entity.VersionDownloadResponse
+		err = json.Unmarshal([]byte(result.Body), &versionDownloadResponse)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return
+		}
+		if versionDownloadResponse.Code == e.SUCCESS {
+			var data= make(map[string]interface{})
+			data["package_status"] = int(enum.PACKAGE_STATUS_NO)
+			if versionDownloadResponse.Data.Status == "success" {
+				data["package_status"] = int(enum.PACKAGE_STATUS_YES)
+			}else if versionDownloadResponse.Data.Status == "running" {
+				data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
+			}
+			fateVersion.FateVersion = fateVersionList[i].FateVersion
+			models.UpdateFateVersion(data,&fateVersion)
+
+			componentVersion := models.ComponentVersion{
+				FateVersion:      fateVersionList[i].FateVersion,
+				ProductType:      int(enum.PRODUCT_TYPE_FATE),
+			}
+			models.UpdateComponentVersionByCondition(data,&componentVersion)
 		}
 	}
 }
