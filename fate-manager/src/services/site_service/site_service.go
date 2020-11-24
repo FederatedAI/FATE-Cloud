@@ -272,6 +272,12 @@ func UpdateSite(updateSiteReq *entity.UpdateSiteReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
+type CloudSystemHeart struct {
+	DetectiveStatus  int    `json:"detectiveStatus"`
+	SiteId           int64  `json:"id"`
+	ComponentName    string `json:"installItems"`
+	ComponentVersion string `json:"version"`
+}
 func HeartTask() {
 	federatedSiteList, err := federated_service.GetHomeSiteList()
 	if err != nil {
@@ -301,8 +307,55 @@ func HeartTask() {
 					return
 				}
 				if updateResp.Code == e.SUCCESS {
-					msg, _ := fmt.Scanf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
+					msg := fmt.Sprintf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
 					logging.Debug(msg)
+				}
+			}
+			deployComponent := models.DeployComponent{
+				PartyId:          federatedSiteItem.PartyId,
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			deployComponentList,_ := models.GetDeployComponent(deployComponent)
+			var cloudSystemHeartList []CloudSystemHeart
+			for j :=0 ;j<len(deployComponentList) ;j++  {
+				cloudSystemHeart := CloudSystemHeart{
+					DetectiveStatus:  1,
+					SiteId:           federatedSiteItem.SiteId,
+					ComponentName:    deployComponentList[j].ComponentName,
+					ComponentVersion: deployComponentList[j].ComponentVersion,
+				}
+				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING){
+					cloudSystemHeart.DetectiveStatus =2
+				}
+				cloudSystemHeartList = append(cloudSystemHeartList,cloudSystemHeart)
+			}
+			if len(cloudSystemHeartList) > 0 {
+				cloudSystemAddJson, _ := json.Marshal(cloudSystemHeartList)
+				headInfo := util.HeaderInfo{
+					AppKey:    federatedSiteItem.AppKey,
+					AppSecret: federatedSiteItem.AppSecret,
+					PartyId:   federatedSiteItem.PartyId,
+					Body:      string(cloudSystemAddJson),
+					Role:      federatedSiteItem.Role,
+					Uri:       setting.SystemHeartUri,
+				}
+				headerInfoMap := util.GetHeaderInfo(headInfo)
+				result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.SystemHeartUri), cloudSystemHeartList, headerInfoMap)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+					continue
+				}
+				if len(result.Body) > 0 {
+					var updateResp entity.CloudCommResp
+					err = json.Unmarshal([]byte(result.Body), &updateResp)
+					if err != nil {
+						logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+						return
+					}
+					if updateResp.Code == e.SUCCESS {
+						msg := fmt.Sprintf("partyid:%d system heart success! content:%s",federatedSiteItem.PartyId,string(cloudSystemAddJson))
+						logging.Debug(msg)
+					}
 				}
 			}
 		}

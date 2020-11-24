@@ -100,11 +100,28 @@ func UpdateMachine(c *gin.Context) {
 // @Tags AnsibleController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.CheckSystemReq true "request param"
-// @Success 200 {object} app.CheckSystemResp
+// @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/check [post]
 func CheckSystem (c *gin.Context) {
+	appG := app.Gin{C: c}
+	ret, err := ansible_service.CheckSystem()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.GET_CHECK_SYSYTEM_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
+}
+
+// @Summary get check system list
+// @Tags AnsibleController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.CheckSystemReq true "request param"
+// @Success 200 {object} app.CheckSystemResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/getcheck [post]
+func GetCheck (c *gin.Context) {
 	appG := app.Gin{C: c}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -116,9 +133,26 @@ func CheckSystem (c *gin.Context) {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")
 	}
-	ret, err := ansible_service.CheckSystem(checkSystemReq)
+	ret, err := ansible_service.GetCheck(checkSystemReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.GET_CHECK_SYSYTEM_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
+}
+
+// @Summary get Ansible list
+// @Tags AnsibleController
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} app.AnsibleListResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/list [get]
+func GetAnsibleList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	ret, err := ansible_service.GetAnsibleList()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.GET_ANSIBLE_LIST_FAIL, nil)
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
