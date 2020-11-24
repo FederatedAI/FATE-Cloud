@@ -10,6 +10,7 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
+	"fate.manager/services/version_service"
 	"fmt"
 	"strconv"
 	"strings"
@@ -241,14 +242,23 @@ func StartDeployAnsible() (int, error) {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
 	}
-	var ansiblePrepareResp entity.AnsibleCheckResp
-	err = json.Unmarshal([]byte(result.Body), &ansiblePrepareResp)
+	var deployAnsibleResp entity.DeployAnsibleResp
+	err = json.Unmarshal([]byte(result.Body), &deployAnsibleResp)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
-	if ansiblePrepareResp.Code == e.SUCCESS {
-		return e.SUCCESS, nil
+	if deployAnsibleResp.Code == e.SUCCESS {
+
+		kubenetesConf := models.KubenetesConf{
+			DeployType: int(enum.DeployType_ANSIBLE),
+		}
+		var data = make(map[string]interface{})
+		data["ansible_status"] = deployAnsibleResp.Data.Status
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		if deployAnsibleResp.Data.Status == "success" {
+			return e.SUCCESS, nil
+		}
 	}
 	return e.ERROR_DEPLOY_ANSIBLE_FAIL, nil
 }
@@ -270,11 +280,12 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) ([]entity.AcquireRespItem
 	err = json.Unmarshal([]byte(result.Body), &ansibleInstallListResponse)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return nil, err
+		//return nil, err
 	}
 	if ansibleInstallListResponse.Code == e.SUCCESS {
 		componentVersion := models.ComponentVersion{
-			FateVersion: ansibleInstallListResponse.Data.FateVersion,
+			//FateVersion: ansibleInstallListResponse.Data.FateVersion,
+			FateVersion: "1.4.3",
 		}
 		componentVersionList, err := models.GetComponetVersionList(componentVersion)
 		if err != nil {
@@ -317,9 +328,9 @@ func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) ([]entity.AcquireRespItem
 	err = json.Unmarshal([]byte(result.Body), &ansibleInstallListResponse)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return nil, err
+		//return nil, err
 	}
-	if ansibleInstallListResponse.Code == e.SUCCESS {
+	if ansibleInstallListResponse.Code == e.SUCCESS || true {
 		componentVersion := models.ComponentVersion{
 			FateVersion: ansibleInstallListResponse.Data.FateVersion,
 		}
@@ -568,7 +579,8 @@ func AnsibleAutoTest(autoTestReq entity.AutoTestReq, site models.DeploySite) (in
 func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 	var data = make(map[string]interface{})
 	data["fate_version"] = commitImagePullReq.FateVersion
-	data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADING)
+	data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
+	data["click_type"] = int(enum.AnsibleClickType_ACQUISITON)
 	deploySite := models.DeploySite{
 		PartyId:     commitImagePullReq.PartyId,
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
@@ -581,18 +593,29 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		FateVersion: commitImagePullReq.FateVersion,
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
 	}
+	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 	componentVersionList, err := models.GetComponetVersionList(componentVersion)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	for i := 0; i < len(componentVersionList); i++ {
+		port := version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_ANSIBLE)
+		nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
+		if len(nodelist)==0{
+			continue
+		}
+		componentVersionDetail := entity.ComponentVersionDetail{
+			Version: componentVersionList[i].ComponentVersion,
+			Address: nodelist[1] + ":" + strconv.Itoa(port),
+		}
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
 			PartyId:          commitImagePullReq.PartyId,
 			ProductType:      int(enum.PRODUCT_TYPE_FATE),
 			FateVersion:      commitImagePullReq.FateVersion,
 			ComponentVersion: componentVersionList[i].ComponentVersion,
 			ComponentName:    componentVersionList[i].ComponentName,
-			Address:          "",
+			Address:          nodelist[0] + ":" + strconv.Itoa(port),
 			VersionIndex:     componentVersionList[i].VersionIndex,
 			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
 			DeployType:       int(enum.DeployType_ANSIBLE),

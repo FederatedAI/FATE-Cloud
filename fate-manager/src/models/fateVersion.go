@@ -21,15 +21,16 @@ import (
 )
 
 type FateVersion struct {
-	Id           int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
-	FateVersion  string
-	ProductType  int
-	ChartVersion string
-	VersionIndex int
-	PullStatus   int
+	Id            int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
+	FateVersion   string
+	ProductType   int
+	ChartVersion  string
+	VersionIndex  int
+	PullStatus    int
 	PackageStatus int
-	CreateTime   time.Time
-	UpdateTime   time.Time
+	PackageUrl    string
+	CreateTime    time.Time
+	UpdateTime    time.Time
 }
 
 func GetFateVersionList(fateVersion *FateVersion) ([]*FateVersion, error) {
@@ -60,7 +61,7 @@ func GetFateVersionList(fateVersion *FateVersion) ([]*FateVersion, error) {
 	return fateVersionList, nil
 }
 
-func UpdateFateVersion(condition map[string]interface{},info *FateVersion) error {
+func UpdateFateVersion(condition map[string]interface{}, info *FateVersion) error {
 	Db := db
 	if len(info.FateVersion) > 0 {
 		Db = Db.Where("fate_version = ?", info.FateVersion)
