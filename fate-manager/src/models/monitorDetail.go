@@ -51,13 +51,22 @@ type MonitorTotal struct {
 	ActiveData int
 }
 type MonitorBySite struct {
-	GuestPartyId  int
-	GuestSiteName string
+	GuestPartyId     int
+	GuestSiteName    string
 	GuestInstitution string
-	HostPartyId   int
-	HostSiteName  string
-	HostInstitution string
+	HostPartyId      int
+	HostSiteName     string
+	HostInstitution  string
 	MonitorBase
+}
+
+type PushSite struct {
+	GuestPartyId string
+	HostPartyId  string
+	Success      int
+	Running      int
+	Failed       int
+	Timeout      int
 }
 
 func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error) {
@@ -113,6 +122,24 @@ func GetSiteMonitorByHis(monitorReq entity.MonitorReq) ([]*MonitorBySite, error)
 		return nil, err
 	}
 	return monitorByHisList, nil
+}
+
+func GetPushSiteMonitorList(monitorReq entity.MonitorReq) ([]*PushSite,error) {
+	var pushSiteList []*PushSite
+	Db := db
+	err := Db.Table("t_fate_monitor_detail").
+		Select("guest_party_id,host_party_id,"+
+			"SUM(if(status='success',1,0)) success,"+
+			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='timeout',1,0)) timeout,"+
+			"SUM(if(status='failed',1,0)) failed").
+		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Group("guest_party_id,host_party_id").
+		Find(&pushSiteList).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return pushSiteList, nil
 }
 
 func AddMonitorDetail(info *MonitorDetail) error {

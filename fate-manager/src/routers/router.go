@@ -124,12 +124,12 @@ func InitRouter() *gin.Engine {
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
 		user.POST("/userpartylist",GetLoginUserManagerList)
-		user.POST("/allowpartylist",GetAllAllowPartyList)
+
 		user.POST("/sublogin",SubLogin)
 		user.POST("/changelogin",ChangeLogin)
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
-
+	router.POST("/fate-manager/api/user/allowpartylist",GetAllAllowPartyList)
 	//monitor
 	monitor := router.Group("/fate-manager/api/monitor")//.Use(JWT())
 	{
@@ -144,6 +144,8 @@ func InitRouter() *gin.Engine {
 		ansible.POST("/prepare",Prepare)
 		ansible.POST("/updatemachine",UpdateMachine)
 		ansible.POST("/check",CheckSystem)
+		ansible.POST("/getcheck",GetCheck)
+		ansible.GET("/list",GetAnsibleList)
 		ansible.POST("/deployansible",StartDeployAnsible)
 		ansible.POST("/upload",LocalUpload)
 		ansible.POST("/autoacquire",AutoAcquire)

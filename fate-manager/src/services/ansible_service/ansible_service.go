@@ -73,13 +73,13 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		}
 		for i := 0; i < len(connectResp.Data.List); i++ {
 			connectItem := connectResp.Data.List[i]
-			 address := ""
-			for j := 0;j< len(connectItem.Ips) ;j++  {
-				ipport := fmt.Sprintf("%s:%d",connectItem.Ips[j],connectItem.Port)
-				if connectItem.Module == "fateflow"{
-					ipport = fmt.Sprintf("%s:%d",connectItem.Ips[j],connectItem.GrpcPort)
+			address := ""
+			for j := 0; j < len(connectItem.Ips); j++ {
+				ipport := fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
+				if connectItem.Module == "fateflow" {
+					ipport = fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.GrpcPort)
 				}
-				address=fmt.Sprintf("%s;%s",ipport,address)
+				address = fmt.Sprintf("%s;%s", ipport, address)
 			}
 			deployComponent := models.DeployComponent{
 				PartyId:          ansibleReq.PartyId,
@@ -98,7 +98,7 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			} else if connectItem.Status == "STOPPED" {
 				deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
 			} else {
-				deployComponent.DeployStatus= int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED)
+				deployComponent.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED)
 				deployComponent.Status = int(enum.SITE_RUN_STATUS_UNKNOWN)
 			}
 			deployComponentList, _ := models.GetDeployComponent(deployComponent)
@@ -142,7 +142,53 @@ func Prepare(prepareReq entity.PrepareReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
-func CheckSystem(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
+func CheckSystem() (int, error) {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if conf.Id == 0 {
+		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
+	}
+	var prepareReq entity.PrepareReq
+	err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
+	if err != nil {
+		return e.ERROR_PARSE_JSON_ERROR, err
+	}
+	startTime := time.Now().UnixNano()
+	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), prepareReq, nil)
+	endTime := time.Now().UnixNano()
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return e.ERROR_HTTP_FAIL, err
+	}
+	var ansiblePrepareResp entity.AnsibleCheckResp
+	err = json.Unmarshal([]byte(result.Body), &ansiblePrepareResp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return e.ERROR_PARSE_JSON_ERROR, err
+	}
+	if ansiblePrepareResp.Code == e.SUCCESS {
+		for i := 0; i < len(ansiblePrepareResp.Data); {
+			ansiblePrepareItem := &ansiblePrepareResp.Data[i]
+			for j := 0; j < len(ansiblePrepareItem.List); j++ {
+				ansiblePrepareItem.List[j].Duration = (endTime - startTime) / 1e6
+			}
+			break
+		}
+		ansiblePrepareItemJson, _ := json.Marshal(ansiblePrepareResp.Data)
+		kubenetesConf := models.KubenetesConf{
+			DeployType: int(enum.DeployType_ANSIBLE),
+		}
+		var data = make(map[string]interface{})
+		data["ansible_check"] = string(ansiblePrepareItemJson)
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		return e.SUCCESS, nil
+	}
+	return e.GET_CHECK_SYSYTEM_LIST_FAIL, nil
+}
+
+func GetCheck(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
@@ -150,46 +196,28 @@ func CheckSystem(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error)
 	if conf.Id == 0 {
 		return nil, err
 	}
-	var prepareReq entity.PrepareReq
-	err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
-	if err != nil {
-		return nil, err
-	}
-	startTime := time.Now().UnixNano()
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), prepareReq, nil)
-	endTime := time.Now().UnixNano()
-	if err != nil || result == nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return nil, err
-	}
-	var ansiblePrepareResp entity.AnsibleCheckResp
-	err = json.Unmarshal([]byte(result.Body), &ansiblePrepareResp)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return nil, err
-	}
-	if ansiblePrepareResp.Code == e.SUCCESS {
-		ansiblePrepareItemJson, _ := json.Marshal(ansiblePrepareResp.Data)
-		kubenetesConf := models.KubenetesConf{
-			DeployType: int(enum.DeployType_ANSIBLE),
+	if len(conf.AnsibleCheck) > 0 {
+		var Data []entity.AnsiblePrepareItem
+		err = json.Unmarshal([]byte(conf.AnsibleCheck), &Data)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return nil, err
 		}
-		var data = make(map[string]interface{})
-		data["ansible_check"] = string(ansiblePrepareItemJson)
-
 		var list []entity.Prepare
-		for i := 0; i < len(ansiblePrepareResp.Data); {
-			ansiblePrepareItem := ansiblePrepareResp.Data[i]
+		for i := 0; i < len(Data); {
+			ansiblePrepareItem := Data[i]
 			if ansiblePrepareItem.Ip == checkSystemReq.Ip {
 				list = ansiblePrepareItem.List
-				for j := 0; j < len(list); j++ {
-					list[j].Duration = (endTime - startTime) / 1e6
-				}
 				break
 			}
 		}
-		models.UpdateKubenetesConf(data, &kubenetesConf)
 		return list, nil
 	}
+	return nil, nil
+}
+
+func GetAnsibleList()(*entity.AnsibleList,error){
+
 	return nil, nil
 }
 

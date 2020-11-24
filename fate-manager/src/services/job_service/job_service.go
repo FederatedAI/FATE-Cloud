@@ -40,6 +40,7 @@ import (
 )
 
 type CloudSystemAdd struct {
+	DetectiveStatus  int    `json:"detectiveStatus"`
 	SiteId           int64  `json:"id"`
 	ComponentName    string `json:"installItems"`
 	JobType          string `json:"type"`
@@ -59,7 +60,7 @@ func JobTask() {
 	}
 	for i := 0; i < len(deployJobList); i++ {
 		if deployJobList[i].DeployType == int(enum.DeployType_ANSIBLE) {
-             ansible_service.AnsibleJobQuery(deployJobList[i])
+			ansible_service.AnsibleJobQuery(deployJobList[i])
 		} else {
 			user := util.User{
 				UserName: "admin",
@@ -226,6 +227,7 @@ func JobTask() {
 					for k := 0; k < len(deployComponentList); k++ {
 						if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) || deployJob.Status == int(enum.JOB_STATUS_FAILED) {
 							cloudSystemAdd := CloudSystemAdd{
+								DetectiveStatus:  1,
 								SiteId:           siteInfo.SiteId,
 								ComponentName:    deployComponentList[k].ComponentName,
 								JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[i].JobType)),
@@ -234,6 +236,7 @@ func JobTask() {
 								ComponentVersion: deployComponentList[k].ComponentVersion,
 							}
 							if deployJob.Status == int(enum.JOB_STATUS_FAILED) {
+								cloudSystemAdd.JobStatus = 2
 								cloudSystemAdd.JobStatus = 2
 							}
 							cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
@@ -782,13 +785,13 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		}
 	}
 	curTime := time.Now().Format("20060102")
-	curTime = "20201028"
 	monitorReq := entity.MonitorReq{
 		StartDate: curTime,
 		EndDate:   curTime,
 	}
 	InstitutionReport(monitorReq)
 	SiteReport(monitorReq)
+	MonitorPush(monitorReq,accountInfo)
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -1120,4 +1123,65 @@ func GetOtherPartyIdInstitution() (map[int]SiteInstitution, error) {
 		}
 	}
 	return siteInstitutionMap, nil
+}
+
+type MonitorPushSite struct {
+	Failed     int    `json:"jobFailedCount"`
+	Running    int    `json:"jobRunningCount"`
+	Success    int    `json:"jobSuccessCount"`
+	FinishDate string `json:"jobFinishDate"`
+	GuestId    string `json:"siteGuestId"`
+	HostId     string `json:"siteHostId"`
+}
+
+func MonitorPush(monitorReq entity.MonitorReq,accountInfo *models.AccountInfo) {
+	pushSiteList, err := models.GetPushSiteMonitorList(monitorReq)
+	if err != nil {
+		return
+	}
+	var data []MonitorPushSite
+	for i := 0; i < len(pushSiteList); i++ {
+		pushSite := pushSiteList[i]
+		monitorPushSite := MonitorPushSite{
+			Failed:     pushSite.Failed + pushSite.Timeout,
+			Running:    pushSite.Running,
+			Success:    pushSite.Success,
+			FinishDate: monitorReq.EndDate,
+			GuestId:    pushSite.GuestPartyId,
+			HostId:     pushSite.HostPartyId,
+		}
+		data= append(data,monitorPushSite)
+	}
+
+	dataJson, _ := json.Marshal(data)
+	headInfo := util.HeaderInfo{
+		AppKey:    accountInfo.AppKey,
+		AppSecret: accountInfo.AppSecret,
+		PartyId:   accountInfo.PartyId,
+		Body:      string(dataJson),
+		Role:      accountInfo.Role,
+		Uri:       setting.MonitorPushUri,
+	}
+	headerInfoMap := util.GetHeaderInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.MonitorPushUri), data, headerInfoMap)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return
+	}
+	if len(result.Body) > 0 {
+		var updateResp entity.CloudCommResp
+		err = json.Unmarshal([]byte(result.Body), &updateResp)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return
+		}
+		if updateResp.Code == e.SUCCESS {
+			msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
+			logging.Debug(msg)
+		}
+	}
 }
