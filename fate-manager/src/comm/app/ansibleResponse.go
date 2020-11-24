@@ -13,3 +13,8 @@ type AnsibleListResponse struct {
 	CommResp
 	Data entity.AnsibleList `json:"data"`
 }
+
+type AnsiblePackageResponse struct {
+	CommResp
+	Data []entity.AcquireRespItem `json:"data"`
+}

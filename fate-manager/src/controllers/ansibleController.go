@@ -180,7 +180,7 @@ func StartDeployAnsible(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.LocalUploadReq true "request param"
-// @Success 200 {object} app.InstallListResponse
+// @Success 200 {object} app.AnsiblePackageResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/upload [post]
 func LocalUpload(c *gin.Context) {
@@ -209,7 +209,7 @@ func LocalUpload(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoAcquireReq true "request param"
-// @Success 200 {object} app.InstallListResponse
+// @Success 200 {object} app.AnsiblePackageResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/autoacquire [post]
 func AutoAcquire(c *gin.Context) {
