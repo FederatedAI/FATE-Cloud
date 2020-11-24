@@ -1,4 +1,14 @@
 definitions:
+  app.AnsibleListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.AnsibleList'
+        type: object
+      msg:
+        type: string
+    type: object
   app.ApplyFateManagerResponse:
     properties:
       code:
@@ -469,6 +479,16 @@ definitions:
         type: string
       partyId:
         type: integer
+    type: object
+  entity.AnsibleList:
+    properties:
+      duration:
+        type: integer
+      ip:
+        type: string
+      status:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
     type: object
   entity.ApplyFateManager:
     properties:
@@ -1553,20 +1573,13 @@ paths:
     post:
       consumes:
       - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.CheckSystemReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.CheckSystemResp'
+            $ref: '#/definitions/app.Response'
         "500":
           description: Internal Server Error
           schema:
@@ -1615,6 +1628,49 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: start to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/getcheck:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CheckSystemReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CheckSystemResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get check system list
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AnsibleListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get Ansible list
       tags:
       - AnsibleController
   /fate-manager/api/ansible/prepare:

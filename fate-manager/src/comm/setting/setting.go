@@ -41,6 +41,8 @@ const (
 	OtherSiteUri          = "/cloud-manager/api/site/page/fateManager"
 	ApprovedUri           = "/cloud-manager/api/authority/institutions/approved"
 	CheckPartyUri         = "/cloud-manager/api/authority/check/partyId"
+	SystemHeartUri        = "/cloud-manager/api/system/heart"
+	MonitorPushUri        = "/cloud-manager/api/job/push"
 )
 const (
 	FlowJobQuery = "/v1/job/query"

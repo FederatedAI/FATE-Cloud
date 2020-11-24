@@ -65,22 +65,11 @@
                     "AnsibleController"
                 ],
                 "summary": "check system to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CheckSystemReq"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.CheckSystemResp"
+                            "$ref": "#/definitions/app.Response"
                         }
                     },
                     "500": {
@@ -148,6 +137,73 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/getcheck": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "get check system list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.CheckSystemReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CheckSystemResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleController"
+                ],
+                "summary": "get Ansible list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.AnsibleListResponse"
                         }
                     },
                     "500": {
@@ -3015,6 +3071,21 @@
         }
     },
     "definitions": {
+        "app.AnsibleListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.AnsibleList"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "app.ApplyFateManagerResponse": {
             "type": "object",
             "properties": {
@@ -3733,6 +3804,21 @@
                 },
                 "partyId": {
                     "type": "integer"
+                }
+            }
+        },
+        "entity.AnsibleList": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "type": "integer"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
                 }
             }
         },

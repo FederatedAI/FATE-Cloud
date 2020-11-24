@@ -76,7 +76,11 @@ type AnsiblePrepareItem struct {
 	Ip   string    `json:"ip"`
 	List []Prepare `json:"list"`
 }
-
+type AnsibleList struct {
+	Ip string `json:"ip"`
+	Duration int `json:"duration"`
+	Status IdPair `json:"status"`
+}
 type AnsiblePrepare struct {
 	IpPrepareList []AnsiblePrepareItem
 }
