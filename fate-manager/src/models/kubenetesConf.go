@@ -22,16 +22,17 @@ import (
 )
 
 type KubenetesConf struct {
-	Id           int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
-	KubenetesUrl string
-	PythonPort   int
-	RollsitePort int
-	NodeList     string
-	DeployType   int
-	ClickType    int
-	AnsibleCheck string
-	CreateTime   time.Time
-	UpdateTime   time.Time
+	Id            int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
+	KubenetesUrl  string
+	PythonPort    int
+	RollsitePort  int
+	NodeList      string
+	DeployType    int
+	ClickType     int
+	AnsibleCheck  string
+	AnsibleStatus string
+	CreateTime    time.Time
+	UpdateTime    time.Time
 }
 
 func GetKubenetesConf(deployType enum.DeployType) (*KubenetesConf, error) {
@@ -62,7 +63,7 @@ func GetKubenetesUrl(deployType enum.DeployType) (*KubenetesConf, error) {
 	}
 
 	var kubenetesConf KubenetesConf
-	if len(kubenetesConfList) >0 {
+	if len(kubenetesConfList) > 0 {
 		kubenetesConf = kubenetesConfList[0]
 	}
 	return &kubenetesConf, nil

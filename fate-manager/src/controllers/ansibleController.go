@@ -68,6 +68,34 @@ func Prepare(c *gin.Context) {
 	appG.Response(http.StatusOK, ret, nil)
 }
 
+// @Summary commit package
+// @Tags AnsibleController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.CommitImagePullReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/commit [post]
+func CommitPackage(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var commit entity.CommitImagePullReq
+	if jsonError := json.Unmarshal(body, &commit); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.CommitPackage(commit)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, ret, nil)
+}
+
 // @Summary update to deploy ansible
 // @Tags AnsibleController
 // @Accept  json

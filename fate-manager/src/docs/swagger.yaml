@@ -559,11 +559,9 @@ definitions:
     type: object
   entity.AutoAcquireReq:
     properties:
-      fateVersion:
+      downloadUrl:
         type: string
-      partyId:
-        type: integer
-      siteName:
+      fateVersion:
         type: string
     type: object
   entity.AutoTestItem:
@@ -945,11 +943,7 @@ definitions:
     properties:
       ip:
         type: string
-      partyId:
-        type: integer
       path:
-        type: string
-      siteName:
         type: string
     type: object
   entity.LogReq:
@@ -1619,6 +1613,31 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: check system to deploy ansible
+      tags:
+      - AnsibleController
+  /fate-manager/api/ansible/commit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CommitImagePullReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: commit package
       tags:
       - AnsibleController
   /fate-manager/api/ansible/connectansible:
