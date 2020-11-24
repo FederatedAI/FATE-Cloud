@@ -524,6 +524,11 @@ definitions:
         $ref: '#/definitions/entity.IdPair'
         type: object
     type: object
+  entity.AnsibleLog:
+    properties:
+      level:
+        type: string
+    type: object
   entity.ApplyFateManager:
     properties:
       institutions:
@@ -1596,7 +1601,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: auto acquire package
       tags:
-      - AnsibleController
+      - AnsibleDeployController
   /fate-manager/api/ansible/check:
     post:
       consumes:
@@ -1614,7 +1619,32 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: check system to deploy ansible
       tags:
-      - AnsibleController
+      - AnsibleDeployController
+  /fate-manager/api/ansible/click:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ClickReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Click page
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/commit:
     post:
       consumes:
@@ -1639,7 +1669,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: commit package
       tags:
-      - AnsibleController
+      - AnsibleDeployController
   /fate-manager/api/ansible/connectansible:
     post:
       consumes:
@@ -1664,7 +1694,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Connect To Ansible Server
       tags:
-      - AnsibleController
+      - AnsibleDeployController
   /fate-manager/api/ansible/deployansible:
     post:
       consumes:
@@ -1682,7 +1712,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: start to deploy ansible
       tags:
-      - AnsibleController
+      - AnsibleDeployController
   /fate-manager/api/ansible/getcheck:
     post:
       consumes:
@@ -1707,7 +1737,32 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: get check system list
       tags:
-      - AnsibleController
+      - AnsibleDeployController
+  /fate-manager/api/ansible/install:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InstallReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Install Fate All Component
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/list:
     get:
       consumes:
@@ -1725,7 +1780,32 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: get Ansible list
       tags:
-      - AnsibleController
+      - AnsibleDeployController
+  /fate-manager/api/ansible/log:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AnsibleLog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.LogResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Ansible Server Log
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/prepare:
     post:
       consumes:
@@ -1750,7 +1830,32 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: prepare to deploy ansible
       tags:
-      - AnsibleController
+      - AnsibleDeployController
+  /fate-manager/api/ansible/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Update Component Ip Address
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/updatemachine:
     post:
       consumes:
@@ -1775,7 +1880,32 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: update to deploy ansible
       tags:
-      - AnsibleController
+      - AnsibleDeployController
+  /fate-manager/api/ansible/upgrade:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpgradeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Uprade Site
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/upload:
     post:
       consumes:
@@ -1800,7 +1930,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: local upload package
       tags:
-      - AnsibleController
+      - AnsibleDeployController
   /fate-manager/api/deploy/autotest:
     post:
       consumes:
@@ -1825,7 +1955,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Do Auto Test Start
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/click:
     post:
       consumes:
@@ -1850,7 +1980,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Click page
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/commit:
     post:
       consumes:
@@ -1875,7 +2005,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Commit Pull Images
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/fateboard:
     post:
       consumes:
@@ -1900,7 +2030,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Fateboard Url
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/install:
     post:
       consumes:
@@ -1925,7 +2055,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Install Fate All Component
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/installlist:
     post:
       consumes:
@@ -1950,7 +2080,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Pull Site Component List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/prepare:
     get:
       consumes:
@@ -1968,7 +2098,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Prepare Details
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/pull:
     post:
       consumes:
@@ -1993,7 +2123,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Pull Fate Series Image
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/pulllist:
     post:
       consumes:
@@ -2018,7 +2148,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Pull Site Component List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testlist:
     post:
       consumes:
@@ -2043,7 +2173,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Auto Test Site List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testlog:
     post:
       consumes:
@@ -2068,7 +2198,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Autotest Log
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testresult:
     post:
       consumes:
@@ -2093,7 +2223,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Toy Test Result
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testresultread:
     post:
       consumes:
@@ -2118,7 +2248,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Toy Test Only Read
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/update:
     post:
       consumes:
@@ -2143,7 +2273,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Update Component Ip Address
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/upgrade:
     post:
       consumes:
@@ -2168,7 +2298,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Uprade Site
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/version:
     post:
       consumes:
@@ -2193,7 +2323,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Install Version
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/dropdown/cluster:
     get:
       consumes:
@@ -2682,7 +2812,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Connect Exists Kubernetes
       tags:
-      - ServiceController
+      - KubernetesDeployController
   /fate-manager/api/service/info:
     post:
       consumes:
@@ -2757,7 +2887,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Component Install Log
       tags:
-      - ServiceController
+      - KubernetesDeployController
   /fate-manager/api/service/overview:
     post:
       consumes:

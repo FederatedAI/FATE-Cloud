@@ -18,21 +18,25 @@ package enum
 import "fate.manager/entity"
 
 type ClickType int32
+type AnsibleClickType int32
 
 const (
-	ClickType_UNKONWN                ClickType = -1
-	ClickType_CONNECT                ClickType = 1
-	ClickType_PAGE                   ClickType = 2
-	ClickType_PULL                   ClickType = 3
-	ClickType_INSTALL                ClickType = 4
-	ClickType_TEST                   ClickType = 5
-	AnsibleClickType_CONNECT         ClickType = 6
-	AnsibleClickType_PREPARE         ClickType = 7
-	AnsibleClickType_SYSTEM_CHECK    ClickType = 8
-	AnsibleClickType_ANSIBLE_INSTALL ClickType = 9
-	AnsibleClickType_ACQUISITON      ClickType = 10
-	AnsibleClickType_INSTALL         ClickType = 11
-	AnsibleClickType_TEST            ClickType = 12
+	ClickType_UNKONWN ClickType = -1
+	ClickType_CONNECT ClickType = 1
+	ClickType_PAGE    ClickType = 2
+	ClickType_PULL    ClickType = 3
+	ClickType_INSTALL ClickType = 4
+	ClickType_TEST    ClickType = 5
+)
+const (
+	AnsibleClickType_UNKONWN         AnsibleClickType = -1
+	AnsibleClickType_CONNECT         AnsibleClickType = 1
+	AnsibleClickType_PREPARE         AnsibleClickType = 2
+	AnsibleClickType_SYSTEM_CHECK    AnsibleClickType = 3
+	AnsibleClickType_ANSIBLE_INSTALL AnsibleClickType = 4
+	AnsibleClickType_ACQUISITON      AnsibleClickType = 5
+	AnsibleClickType_INSTALL         AnsibleClickType = 6
+	AnsibleClickType_TEST            AnsibleClickType = 7
 )
 
 func GetClickTypeString(p ClickType) string {
@@ -47,6 +51,13 @@ func GetClickTypeString(p ClickType) string {
 		return "click install next"
 	case ClickType_TEST:
 		return "click test finish"
+	default:
+		return "unknown"
+	}
+}
+
+func GetAnsibleClickTypeString(p AnsibleClickType) string {
+	switch p {
 	case AnsibleClickType_CONNECT:
 		return "click ansible connect"
 	case AnsibleClickType_PREPARE:
@@ -68,8 +79,17 @@ func GetClickTypeString(p ClickType) string {
 
 func GetClickTypeList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 0; i < 13; i++ {
+	for i := 1; i < 6; i++ {
 		idPair := entity.IdPair{i, GetClickTypeString(ClickType(i))}
+		idPairList = append(idPairList, idPair)
+	}
+	return idPairList
+}
+
+func GetAnsibleClickTypeList() []entity.IdPair {
+	var idPairList []entity.IdPair
+	for i := 1; i < 8; i++ {
+		idPair := entity.IdPair{i, GetAnsibleClickTypeString(AnsibleClickType(i))}
 		idPairList = append(idPairList, idPair)
 	}
 	return idPairList
