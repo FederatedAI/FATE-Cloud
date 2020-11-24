@@ -169,6 +169,7 @@ func Install(installReq entity.InstallReq) (int, error) {
 		FederatedId: installReq.FederatedId,
 		PartyId:     installReq.PartyId,
 		ProductType: installReq.ProductType,
+		DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
@@ -176,15 +177,6 @@ func Install(installReq entity.InstallReq) (int, error) {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}else if len(deploySiteList) == 0{
 		return e.ERROR_PARTY_INSTALLED_FAIL, err
-	} else {
-		if deploySiteList[0].DeployType == int(enum.DeployType_ANSIBLE) {
-			return ansible_service.InstallByAnsible(installReq,deploySiteList[0])
-		}else {
-			if deploySiteList[0].DeployStatus == int(enum.DeployStatus_INSTALLING) ||
-				deploySiteList[0].DeployStatus == int(enum.DeployStatus_UNDER_INSTALLATION) {
-				return e.ERROR_PARTY_IS_INSTALLING_FAIL, err
-			}
-		}
 	}
 
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
@@ -334,6 +326,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	deploySite := models.DeploySite{
 		PartyId:     upgradeReq.PartyId,
 		ProductType: upgradeReq.ProductType,
+		DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
@@ -504,6 +497,7 @@ func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestLi
 		FederatedId: autoTestListReq.FederatedId,
 		PartyId:     autoTestListReq.PartyId,
 		ProductType: autoTestListReq.ProductType,
+		DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
@@ -1186,37 +1180,11 @@ func TestResult(testResultReq entity.TestResultReq) (*entity.IdPair, error) {
 }
 
 func Click(req entity.ClickReq) bool {
-	if req.ClickType == int(enum.AnsibleClickType_PREPARE) || req.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) || req.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
-		conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-		if err != nil {
-			return false
-		}
-		if conf.ClickType < req.ClickType {
-			var data = make(map[string]interface{})
-			data["click_type"] = req.ClickType
-			models.UpdateKubenetesConf(data, conf)
-
-			deploySite := models.DeploySite{
-				IsValid:    int(enum.IS_VALID_YES),
-				DeployType: int(enum.DeployType_ANSIBLE),
-			}
-			deploySiteList, _ := models.GetDeploySite(&deploySite)
-			for i := 0; i < len(deploySiteList); i++ {
-				if deploySiteList[i].ClickType < req.ClickType {
-					data["click_type"] = req.ClickType
-					models.UpdateDeploySite(data, deploySite)
-				}
-			}
-			return true
-		}
-		return false
-	}
 	deploySite := models.DeploySite{
 		FederatedId: req.FederatedId,
 		PartyId:     req.PartyId,
 		ProductType: req.ProductType,
 		IsValid:     int(enum.IS_VALID_YES),
-		ClickType:   req.ClickType,
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {

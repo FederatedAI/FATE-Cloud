@@ -271,7 +271,7 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) ([]entity.AcquireRespItem
 	if conf.Id == 0 {
 		return nil, err
 	}
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUpload), localUploadReq, nil)
+	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUploadUri), localUploadReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return nil, err
@@ -319,7 +319,7 @@ func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) ([]entity.AcquireRespItem
 	if conf.Id == 0 {
 		return nil, err
 	}
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleAutoAcquire), autoAcquireReq, nil)
+	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageDownUri), autoAcquireReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return nil, err
@@ -400,7 +400,20 @@ type ClusterInstallByAnsible struct {
 	Modules     Modules `json:"modules"`
 }
 
-func InstallByAnsible(installReq entity.InstallReq, deploySite models.DeploySite) (int, error) {
+func InstallByAnsible(installReq entity.InstallReq) (int, error) {
+	deploySite := models.DeploySite{
+		FederatedId: installReq.FederatedId,
+		PartyId:     installReq.PartyId,
+		ProductType: installReq.ProductType,
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+	deploySiteList, err := models.GetDeploySite(&deploySite)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
+	} else if len(deploySiteList) == 0 {
+		return e.ERROR_PARTY_INSTALLED_FAIL, err
+	}
 	if deploySite.DeployStatus != int(enum.ANSIBLE_DeployStatus_LOADED) {
 		return e.ERROR_INSTALL_ALL_FAIL, nil
 	}
@@ -483,6 +496,111 @@ func InstallByAnsible(installReq entity.InstallReq, deploySite models.DeploySite
 		}
 
 		models.AddDeployJob(&deployJob)
+	}
+	return e.SUCCESS, nil
+}
+
+func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
+	deploySite := models.DeploySite{
+		PartyId:     upgradeReq.PartyId,
+		ProductType: upgradeReq.ProductType,
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+	deploySiteList, err := models.GetDeploySite(&deploySite)
+	if err != nil || len(deploySiteList) == 0 {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	fateVerson := models.FateVersion{
+		FateVersion: upgradeReq.FateVersion,
+		ProductType: upgradeReq.ProductType,
+	}
+	fateVersonList, err := models.GetFateVersionList(&fateVerson)
+	if err != nil || len(fateVersonList) == 0 {
+		return e.ERROR_IMAGE_NOT_ALL_PULL_FAIL, err
+	}
+	if deploySiteList[0].Status != int(enum.SITE_RUN_STATUS_RUNNING) && deploySiteList[0].Status != int(enum.SITE_RUN_STATUS_STOPPED) {
+		return e.ERROR_UPDATE_SITE_FAIL, err
+	}
+	if deploySiteList[0].VersionIndex >= fateVersonList[0].VersionIndex {
+		logging.Debug(e.GetMsg(e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL))
+		return e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL, err
+	}
+	var data = make(map[string]interface{})
+	data["is_valid"] = int(enum.IS_VALID_NO)
+	models.UpdateDeploySite(data, deploySite)
+	deploySite = models.DeploySite{
+		FederatedId:  deploySiteList[0].FederatedId,
+		PartyId:      deploySiteList[0].PartyId,
+		ProductType:  deploySiteList[0].ProductType,
+		FateVersion:  upgradeReq.FateVersion,
+		DeployStatus: int(enum.ANSIBLE_DeployStatus_UNKNOWN),
+		Status:       int(enum.SITE_RUN_STATUS_UNKNOWN),
+		KubenetesId:  deploySiteList[0].KubenetesId,
+		IsValid:      int(enum.IS_VALID_YES),
+		ClickType:    int(enum.AnsibleClickType_ACQUISITON),
+		CreateTime:   time.Now(),
+		UpdateTime:   time.Now(),
+	}
+	models.AddDeploySite(&deploySite)
+
+	componentVersion := models.ComponentVersion{
+		FateVersion: upgradeReq.FateVersion,
+		ProductType: upgradeReq.ProductType,
+	}
+	componentVersionList, err := models.GetComponetVersionList(componentVersion)
+	if err != nil {
+		logging.Error("get component version list Failed")
+	}
+	siteInfo, err := models.GetSiteInfo(upgradeReq.PartyId, upgradeReq.FederatedId)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	deployComponent := models.DeployComponent{
+		FederatedId: upgradeReq.FederatedId,
+		PartyId:     upgradeReq.PartyId,
+		ProductType: upgradeReq.ProductType,
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		FateVersion: deploySiteList[0].FateVersion,
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil {
+		return e.ERROR_UPGRADE_ALL_FAIL, nil
+	}
+	models.UpdateDeployComponent(data, deployComponent)
+	for i := 0; i < len(componentVersionList); i++ {
+		nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
+		if len(nodelist) == 0 {
+			continue
+		}
+		deployComponent = models.DeployComponent{
+			FederatedId:      upgradeReq.FederatedId,
+			PartyId:          upgradeReq.PartyId,
+			SiteName:         siteInfo.SiteName,
+			ProductType:      upgradeReq.ProductType,
+			FateVersion:      upgradeReq.FateVersion,
+			ComponentVersion: componentVersionList[i].ComponentVersion,
+			ComponentName:    componentVersionList[i].ComponentName,
+			StartTime:        time.Now(),
+			VersionIndex:     fateVersonList[0].VersionIndex,
+			Address:          nodelist[0] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
+			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
+			DeployType:       int(enum.DeployType_ANSIBLE),
+			IsValid:          int(enum.IS_VALID_YES),
+			CreateTime:       time.Now(),
+			UpdateTime:       time.Now(),
+		}
+		for j := 0; j < len(deployComponentList); j++ {
+			if componentVersionList[i].ComponentName == deployComponentList[j].ComponentName {
+				deployComponent.Address = deployComponentList[j].Address
+				break
+			}
+		}
+		err = models.AddDeployComponent(&deployComponent)
+		if err != nil {
+			logging.Error("Add deploy componenet failed")
+		}
 	}
 	return e.SUCCESS, nil
 }
@@ -599,9 +717,9 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	for i := 0; i < len(componentVersionList); i++ {
-		port := version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_ANSIBLE)
+		port := version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)
 		nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
-		if len(nodelist)==0{
+		if len(nodelist) == 0 {
 			continue
 		}
 		componentVersionDetail := entity.ComponentVersionDetail{
@@ -626,4 +744,150 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		models.AddDeployComponent(&deployComponent)
 	}
 	return e.SUCCESS, nil
+}
+
+func Click(req entity.ClickReq) bool {
+	if req.ClickType == int(enum.AnsibleClickType_PREPARE) || req.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) || req.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
+		conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+		if err != nil {
+			return false
+		}
+		if conf.ClickType < req.ClickType {
+			var data = make(map[string]interface{})
+			data["click_type"] = req.ClickType
+			models.UpdateKubenetesConf(data, conf)
+
+			deploySite := models.DeploySite{
+				IsValid:    int(enum.IS_VALID_YES),
+				DeployType: int(enum.DeployType_ANSIBLE),
+			}
+			deploySiteList, _ := models.GetDeploySite(&deploySite)
+			for i := 0; i < len(deploySiteList); i++ {
+				if deploySiteList[i].ClickType < req.ClickType {
+					data["click_type"] = req.ClickType
+					models.UpdateDeploySite(data, deploySite)
+				}
+			}
+			return true
+		}
+		return false
+	}
+	deploySite := models.DeploySite{
+		FederatedId: req.FederatedId,
+		PartyId:     req.PartyId,
+		ProductType: req.ProductType,
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+	deploySiteList, err := models.GetDeploySite(&deploySite)
+	if err != nil || len(deploySiteList) == 0 {
+		return false
+	}
+	if deploySiteList[0].ClickType <= req.ClickType {
+		var data = make(map[string]interface{})
+		data["click_type"] = req.ClickType
+		err := models.UpdateDeploySite(data, deploySite)
+		if err != nil {
+			return false
+		}
+	}
+	if req.ClickType == int(enum.AnsibleClickType_TEST) {
+		deployComponent := models.DeployComponent{
+			FederatedId: req.FederatedId,
+			PartyId:     req.PartyId,
+			ProductType: req.ProductType,
+			IsValid:     int(enum.IS_VALID_YES),
+		}
+
+		var data = make(map[string]interface{})
+		data["duration"] = time.Now().UnixNano()/1e6 - deploySiteList[0].CreateTime.UnixNano()/1e6
+		data["finish_time"] = time.Now()
+		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_SUCCESS)
+		models.UpdateDeployComponent(data, deployComponent)
+
+		deploySite := models.DeploySite{
+			FederatedId: req.FederatedId,
+			PartyId:     req.PartyId,
+			ProductType: req.ProductType,
+			IsValid:     int(enum.IS_VALID_YES),
+		}
+		models.UpdateDeploySite(data, deploySite)
+
+		siteInfo := models.SiteInfo{
+			FederatedId:   req.FederatedId,
+			PartyId:       req.PartyId,
+			ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
+		}
+		models.UpdateSite(&siteInfo)
+	}
+	return true
+}
+
+func Update(updateReq entity.UpdateReq) (int, error) {
+	if len(updateReq.ComponentName) == 0 {
+		logging.Debug("update component failed")
+		return e.INVALID_PARAMS, nil
+	}
+	deployComponent := models.DeployComponent{
+		FederatedId:   updateReq.FederatedId,
+		PartyId:       updateReq.PartyId,
+		ProductType:   updateReq.ProductType,
+		ComponentName: updateReq.ComponentName,
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil || len(deployComponentList) == 0 {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_LOADED) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_INSTALLED) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_INSTALLING) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_FAILED) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_IN_TESTING) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED) ||
+		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
+
+		ret := k8s_service.CheckNodeIp(updateReq.Address, enum.DeployType_ANSIBLE)
+		if ret == false {
+			return e.ERROR_IP_NOT_COURRECT_FAIL, err
+		}
+		var data = make(map[string]interface{})
+		data["address"] = updateReq.Address
+		err = models.UpdateDeployComponent(data, deployComponent)
+		if err != nil {
+			logging.Error("update component failed")
+			return e.ERROR_UPDATE_DB_FAIL, err
+		}
+
+		data = make(map[string]interface{})
+		data["click_type"] = int(enum.AnsibleClickType_ACQUISITON)
+		deploySite := models.DeploySite{
+			FederatedId: updateReq.FederatedId,
+			PartyId:     updateReq.PartyId,
+			ProductType: updateReq.ProductType,
+			IsValid:     int(enum.IS_VALID_YES),
+		}
+		models.UpdateDeploySite(data, deploySite)
+	}
+	return e.SUCCESS, nil
+}
+
+func GetLog(ansibleLog entity.AnsibleLog) ([]string, error) {
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleTestStatusUri), ansibleLog, nil)
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return nil, err
+	}
+	var ansibleLogResp entity.AnsibleLogResponse
+	err = json.Unmarshal([]byte(result.Body), &ansibleLogResp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return nil, err
+	}
+	if ansibleLogResp.Code == e.SUCCESS {
+		return ansibleLogResp.Data, nil
+	}
+
+	return nil, nil
 }

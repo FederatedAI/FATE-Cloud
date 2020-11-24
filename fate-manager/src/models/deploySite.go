@@ -90,6 +90,9 @@ func GetDeploySite(info *DeploySite) ([]DeploySite, error) {
 	if info.ToyTestOnlyRead > 0 {
 		Db = Db.Where("toy_test_only_read = ?", info.ToyTestOnlyRead)
 	}
+	if info.DeployType >0 {
+		Db = Db.Where("deploy_type = ?", info.DeployType)
+	}
 	err := Db.Find(&deploySite).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err

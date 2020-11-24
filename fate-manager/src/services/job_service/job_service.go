@@ -1189,6 +1189,7 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) 
 type VersionDownloadReq struct {
 	FateVersion string `json:"version"`
 }
+
 func PackageStatusTask() {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
@@ -1199,18 +1200,18 @@ func PackageStatusTask() {
 	}
 
 	fateVersion := models.FateVersion{
-		ProductType:  int(enum.PRODUCT_TYPE_FATE),
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
 		PackageStatus: int(enum.PACKAGE_STATUS_NO),
 	}
 
-	fateVersionList,err := models.GetFateVersionList(&fateVersion)
+	fateVersionList, err := models.GetFateVersionList(&fateVersion)
 	if err != nil {
 		return
 	}
 
-	for i :=0;i< len(fateVersionList) ;i++  {
-		req := VersionDownloadReq{FateVersion:fateVersionList[i].FateVersion}
-		result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUpload), req, nil)
+	for i := 0; i < len(fateVersionList); i++ {
+		req := VersionDownloadReq{FateVersion: fateVersionList[i].FateVersion}
+		result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageQueryUri), req, nil)
 		if err != nil || result == nil {
 			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			return
@@ -1222,21 +1223,21 @@ func PackageStatusTask() {
 			return
 		}
 		if versionDownloadResponse.Code == e.SUCCESS {
-			var data= make(map[string]interface{})
+			var data = make(map[string]interface{})
 			data["package_status"] = int(enum.PACKAGE_STATUS_NO)
 			if versionDownloadResponse.Data.Status == "success" {
 				data["package_status"] = int(enum.PACKAGE_STATUS_YES)
-			}else if versionDownloadResponse.Data.Status == "running" {
+			} else if versionDownloadResponse.Data.Status == "running" {
 				data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
 			}
 			fateVersion.FateVersion = fateVersionList[i].FateVersion
-			models.UpdateFateVersion(data,&fateVersion)
+			models.UpdateFateVersion(data, &fateVersion)
 
 			componentVersion := models.ComponentVersion{
-				FateVersion:      fateVersionList[i].FateVersion,
-				ProductType:      int(enum.PRODUCT_TYPE_FATE),
+				FateVersion: fateVersionList[i].FateVersion,
+				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
-			models.UpdateComponentVersionByCondition(data,&componentVersion)
+			models.UpdateComponentVersionByCondition(data, &componentVersion)
 		}
 	}
 }
