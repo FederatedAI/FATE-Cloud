@@ -37,12 +37,24 @@ func GetNodeIp(deployType enum.DeployType) []string {
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return nil
 	}
-	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	var node string
-	if len(nodeList) > 0 {
-		node = nodeList[rand.Intn(len(nodeList))]
+	var list []string
+	if len(kubenetsConf.NodeList) > 0 {
+		if deployType == enum.DeployType_K8S {
+			nodeList := strings.Split(kubenetsConf.NodeList, ",")
+			var node string
+			if len(nodeList) > 0 {
+				node = nodeList[rand.Intn(len(nodeList))]
+			}
+			list = strings.Split(node, ":")
+		} else {
+			var prepareReq entity.PrepareReq
+			err := json.Unmarshal([]byte(kubenetsConf.NodeList), &prepareReq)
+			if err != nil {
+				return nil
+			}
+            list = prepareReq.ManagerNode
+		}
 	}
-	list := strings.Split(node, ":")
 	return list
 }
 

@@ -24,7 +24,6 @@ import (
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
-	"fate.manager/services/ansible_service"
 	"fate.manager/services/k8s_service"
 	"fmt"
 	"strconv"
@@ -168,9 +167,9 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	return
 }
 
-func GetDefaultPort(componentName string) int {
+func GetDefaultPort(componentName string,deployType enum.DeployType) int {
 	var port int
-	k8sinfo, err := models.GetKubenetesConf(enum.DeployType_K8S)
+	k8sinfo, err := models.GetKubenetesConf(deployType)
 	if err != nil || k8sinfo.Id == 0 {
 		return 0
 	}
@@ -217,9 +216,6 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
-	if commitImagePullReq.DeployType == int(enum.DeployType_ANSIBLE){
-		return ansible_service.CommitPackage(commitImagePullReq)
-	}
 	commitTag := false
 	for i := 0; i < len(componentVersionList); i++ {
 		if componentVersionList[i].PullStatus == int(enum.PULL_STATUS_NO) {
@@ -239,7 +235,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	updatePortTag := false
 	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 	for i := 0; i < len(componentVersionList); i++ {
-		port := GetDefaultPort(componentVersionList[i].ComponentName)
+		port := GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
 		nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
 		if len(nodelist)==0{
 			continue

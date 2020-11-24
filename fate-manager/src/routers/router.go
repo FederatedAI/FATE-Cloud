@@ -149,6 +149,7 @@ func InitRouter() *gin.Engine {
 		ansible.POST("/deployansible",StartDeployAnsible)
 		ansible.POST("/upload",LocalUpload)
 		ansible.POST("/autoacquire",AutoAcquire)
+		ansible.POST("/commit",CommitPackage)
 	}
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")

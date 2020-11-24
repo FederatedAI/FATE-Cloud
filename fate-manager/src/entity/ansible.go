@@ -61,20 +61,24 @@ type AnsibleAutoTestRespItem struct {
 	Status string `json:"status"`
 
 }
+type DeployAnsibleStatus struct {
+	Status string `json:"status"`
+}
+type DeployAnsibleResp struct {
+	AnsibleCommResp
+	Data DeployAnsibleStatus `json:"data"`
+}
 type AnsibleAutoTestResp struct {
 	AnsibleCommResp
 	Data map[string]AnsibleAutoTestRespItem
 }
 type LocalUploadReq struct {
-	PartyId  int    `json:"partyId"`
-	SiteName string `json:"siteName"`
 	Ip       string `json:"ip"`
 	Path     string `json:"path"`
 }
 type AutoAcquireReq struct {
-	PartyId     int    `json:"partyId"`
-	SiteName    string `json:"siteName"`
 	FateVersion string `json:"fateVersion"`
+	DownloadUrl string `json:"downloadUrl"`
 }
 
 type Prepare struct {

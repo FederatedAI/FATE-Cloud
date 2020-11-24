@@ -33,20 +33,20 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	go SiteStatusTask()
-	go IpManagerTask()
-	go HeartTask()
-	go JobTask()
-	go TestOnlyTask()
-	go ComponentStatusTask()
-	go ApplyResultTask(accountInfo)
-	go AllowApplyTask(accountInfo)
-	if AutoTestCheck {
-		AutoTestTask()
-		AutoTestCheck = false
-	}
-	go MonitorTask(accountInfo)
-	go PackageStatusTask()
+	//go SiteStatusTask()
+	//go IpManagerTask()
+	//go HeartTask()
+	//go JobTask()
+	//go TestOnlyTask()
+	//go ComponentStatusTask()
+	//go ApplyResultTask(accountInfo)
+	//go AllowApplyTask(accountInfo)
+	//if AutoTestCheck {
+	//	AutoTestTask()
+	//	AutoTestCheck = false
+	//}
+	//go MonitorTask(accountInfo)
+	//go PackageStatusTask()
 }
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))

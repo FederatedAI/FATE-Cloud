@@ -394,7 +394,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			for i := 0; i < len(componentVersionList); i++ {
-				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName)
+				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
 				} else if componentVersionList[i].ComponentName == "rollsite" {
