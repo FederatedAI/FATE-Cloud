@@ -13,7 +13,7 @@ import (
 )
 
 // @Summary Connect To Ansible Server
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AnsibleConnectReq true "request param"
@@ -41,7 +41,7 @@ func ConnectAnsible(c *gin.Context) {
 }
 
 // @Summary prepare to deploy ansible
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.PrepareReq true "request param"
@@ -69,7 +69,7 @@ func Prepare(c *gin.Context) {
 }
 
 // @Summary commit package
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.CommitImagePullReq true "request param"
@@ -97,7 +97,7 @@ func CommitPackage(c *gin.Context) {
 }
 
 // @Summary update to deploy ansible
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.PrepareReq true "request param"
@@ -125,13 +125,13 @@ func UpdateMachine(c *gin.Context) {
 }
 
 // @Summary check system to deploy ansible
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/check [post]
-func CheckSystem (c *gin.Context) {
+func CheckSystem(c *gin.Context) {
 	appG := app.Gin{C: c}
 	ret, err := ansible_service.CheckSystem()
 	if err != nil {
@@ -142,14 +142,14 @@ func CheckSystem (c *gin.Context) {
 }
 
 // @Summary get check system list
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.CheckSystemReq true "request param"
 // @Success 200 {object} app.CheckSystemResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/getcheck [post]
-func GetCheck (c *gin.Context) {
+func GetCheck(c *gin.Context) {
 	appG := app.Gin{C: c}
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -170,7 +170,7 @@ func GetCheck (c *gin.Context) {
 }
 
 // @Summary get Ansible list
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} app.AnsibleListResponse
@@ -187,7 +187,7 @@ func GetAnsibleList(c *gin.Context) {
 }
 
 // @Summary start to deploy ansible
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} app.CommResp
@@ -204,7 +204,7 @@ func StartDeployAnsible(c *gin.Context) {
 }
 
 // @Summary local upload package
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.LocalUploadReq true "request param"
@@ -231,9 +231,8 @@ func LocalUpload(c *gin.Context) {
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }
 
-
 // @Summary auto acquire package
-// @Tags AnsibleController
+// @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoAcquireReq true "request param"
@@ -255,6 +254,146 @@ func AutoAcquire(c *gin.Context) {
 	ret, err := ansible_service.AutoAcquire(autoAcquireReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_AUTO_ACQUIRE_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
+}
+
+// @Summary Click page
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.ClickReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/click [post]
+func AnsibleClick(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var clickReq entity.ClickReq
+	if jsonError := json.Unmarshal(body, &clickReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	result := ansible_service.Click(clickReq)
+	if !result {
+		appG.Response(http.StatusOK, e.ERROR_CLICK_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary Install Fate All Component
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.InstallReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/install [post]
+func AnsibleInstall(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var installReq entity.InstallReq
+	if jsonError := json.Unmarshal(body, &installReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.InstallByAnsible(installReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, ret, e.GetMsg(ret))
+}
+
+// @Summary Uprade Site
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.UpgradeReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/upgrade [post]
+func AnsibleUpgrade(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var upgradeReq entity.UpgradeReq
+	if jsonError := json.Unmarshal(body, &upgradeReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.UpgradeByAnsible(upgradeReq)
+	if err != nil || ret != e.SUCCESS {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary Update Component Ip Address
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.UpdateReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/update [post]
+func AnsibleUpdate(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var updateReq entity.UpdateReq
+	if jsonError := json.Unmarshal(body, &updateReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.Update(updateReq)
+	if err != nil || ret != e.SUCCESS {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, ret, nil)
+}
+
+// @Summary Ansible Server Log
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.AnsibleLog true "request param"
+// @Success 200 {object} app.LogResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/log [post]
+func AnsibleLog(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var ansibleLog entity.AnsibleLog
+	if jsonError := json.Unmarshal(body, &ansibleLog); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.GetLog(ansibleLog)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_LOG_FAIL, nil)
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)

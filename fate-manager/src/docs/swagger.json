@@ -23,7 +23,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "auto acquire package",
                 "parameters": [
@@ -62,7 +62,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "check system to deploy ansible",
                 "responses": {
@@ -70,6 +70,45 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/click": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Click page",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ClickReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
                         }
                     },
                     "500": {
@@ -90,7 +129,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "commit package",
                 "parameters": [
@@ -129,7 +168,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "Connect To Ansible Server",
                 "parameters": [
@@ -168,7 +207,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "start to deploy ansible",
                 "responses": {
@@ -196,7 +235,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "get check system list",
                 "parameters": [
@@ -226,6 +265,45 @@
                 }
             }
         },
+        "/fate-manager/api/ansible/install": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Install Fate All Component",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.InstallReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/ansible/list": {
             "get": {
                 "consumes": [
@@ -235,7 +313,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "get Ansible list",
                 "responses": {
@@ -243,6 +321,45 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.AnsibleListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/log": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Ansible Server Log",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AnsibleLog"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.LogResponse"
                         }
                     },
                     "500": {
@@ -263,7 +380,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "prepare to deploy ansible",
                 "parameters": [
@@ -293,6 +410,45 @@
                 }
             }
         },
+        "/fate-manager/api/ansible/update": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Update Component Ip Address",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/ansible/updatemachine": {
             "post": {
                 "consumes": [
@@ -302,7 +458,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "update to deploy ansible",
                 "parameters": [
@@ -332,6 +488,45 @@
                 }
             }
         },
+        "/fate-manager/api/ansible/upgrade": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Uprade Site",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.UpgradeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/ansible/upload": {
             "post": {
                 "consumes": [
@@ -341,7 +536,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "AnsibleController"
+                    "AnsibleDeployController"
                 ],
                 "summary": "local upload package",
                 "parameters": [
@@ -380,7 +575,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Do Auto Test Start",
                 "parameters": [
@@ -419,7 +614,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Click page",
                 "parameters": [
@@ -458,7 +653,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Commit Pull Images",
                 "parameters": [
@@ -497,7 +692,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Fateboard Url",
                 "parameters": [
@@ -536,7 +731,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Install Fate All Component",
                 "parameters": [
@@ -575,7 +770,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Pull Site Component List",
                 "parameters": [
@@ -614,7 +809,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Prepare Details",
                 "responses": {
@@ -642,7 +837,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Pull Fate Series Image",
                 "parameters": [
@@ -681,7 +876,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Pull Site Component List",
                 "parameters": [
@@ -720,7 +915,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Auto Test Site List",
                 "parameters": [
@@ -759,7 +954,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Autotest Log",
                 "parameters": [
@@ -798,7 +993,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Toy Test Result",
                 "parameters": [
@@ -837,7 +1032,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Toy Test Only Read",
                 "parameters": [
@@ -876,7 +1071,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Update Component Ip Address",
                 "parameters": [
@@ -915,7 +1110,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Uprade Site",
                 "parameters": [
@@ -954,7 +1149,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "DeployController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Get Install Version",
                 "parameters": [
@@ -1717,7 +1912,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ServiceController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Connect Exists Kubernetes",
                 "parameters": [
@@ -1834,7 +2029,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "ServiceController"
+                    "KubernetesDeployController"
                 ],
                 "summary": "Component Install Log",
                 "parameters": [
@@ -3910,6 +4105,14 @@
                 "status": {
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
+                }
+            }
+        },
+        "entity.AnsibleLog": {
+            "type": "object",
+            "properties": {
+                "level": {
+                    "type": "string"
                 }
             }
         },

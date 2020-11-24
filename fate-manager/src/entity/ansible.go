@@ -21,9 +21,11 @@ type SubmitResponse struct {
 	Data AnsibleSubmitData `json:"data"`
 }
 type VersionDownload struct {
-	StartTime int64 `json:"start_time"`
-	EndTime   int64 `json:"end_time"`
-	Status    string `json:"status"`
+	Elapsed   int    `json:"elapsed"`
+	StartTime int64  `json:"f_start_time"`
+	EndTime   int64  `json:"f_end_time"`
+	Status    string `json:"f_status"`
+	Version   string `json:"f_version"`
 }
 type VersionDownloadResponse struct {
 	AnsibleCommResp
@@ -59,7 +61,6 @@ type ConnectAnsible struct {
 }
 type AnsibleAutoTestRespItem struct {
 	Status string `json:"status"`
-
 }
 type DeployAnsibleStatus struct {
 	Status string `json:"status"`
@@ -73,8 +74,8 @@ type AnsibleAutoTestResp struct {
 	Data map[string]AnsibleAutoTestRespItem
 }
 type LocalUploadReq struct {
-	Ip       string `json:"ip"`
-	Path     string `json:"path"`
+	Ip   string `json:"ip"`
+	Path string `json:"path"`
 }
 type AutoAcquireReq struct {
 	FateVersion string `json:"fateVersion"`
@@ -92,9 +93,9 @@ type AnsiblePrepareItem struct {
 	List []Prepare `json:"list"`
 }
 type AnsibleList struct {
-	Ip string `json:"ip"`
-	Duration int `json:"duration"`
-	Status IdPair `json:"status"`
+	Ip       string `json:"ip"`
+	Duration int    `json:"duration"`
+	Status   IdPair `json:"status"`
 }
 type AnsiblePrepare struct {
 	IpPrepareList []AnsiblePrepareItem
@@ -139,15 +140,23 @@ type AnsibleConnectResp struct {
 	Data AnsibleConnect `json:"data"`
 }
 type ConnectItem struct {
-	Ips    []string `json:"ips"`
-	Port   int      `json:"port"`
-	HttpPort int    `json:"httpPort"`
-	GrpcPort int 	`json:"grpcPort"`
-	Module string   `json:"name"`
-	Status string   `json:"status"`
+	Ips      []string `json:"ips"`
+	Port     int      `json:"port"`
+	HttpPort int      `json:"httpPort"`
+	GrpcPort int      `json:"grpcPort"`
+	Module   string   `json:"name"`
+	Status   string   `json:"status"`
 }
 type AnsibleConnect struct {
-	PartyId string      `json:"status"`
-	FateVersion string `json:"version"`
-	List    []ConnectItem `json:"list"`
+	PartyId     string        `json:"status"`
+	FateVersion string        `json:"version"`
+	List        []ConnectItem `json:"list"`
+}
+type AnsibleLog struct {
+	Level  string `json:"level"`
+}
+
+type AnsibleLogResponse struct {
+	AnsibleCommResp
+	Data []string `json:"data"`
 }

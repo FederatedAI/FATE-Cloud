@@ -63,6 +63,9 @@ func GetDeployComponent(info DeployComponent) ([]*DeployComponent, error) {
 	if info.DeployStatus > 0 {
 		Db = Db.Where("deploy_status = ?", info.DeployStatus)
 	}
+	if info.DeployType > 0 {
+		Db = Db.Where("deploy_type = ?", info.DeployType)
+	}
 	err := Db.Find(&deployComponentList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
