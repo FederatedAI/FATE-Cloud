@@ -2242,7 +2242,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.UserListItem"
+                            "$ref": "#/definitions/entity.AllowReq"
                         }
                     }
                 ],
@@ -3247,6 +3247,17 @@
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.AllowReq": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "roleName": {
                     "type": "string"
                 }
             }

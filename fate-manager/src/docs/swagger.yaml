@@ -419,6 +419,13 @@ definitions:
       userName:
         type: string
     type: object
+  entity.AllowReq:
+    properties:
+      partyId:
+        type: integer
+      roleName:
+        type: string
+    type: object
   entity.ApplyFateManager:
     properties:
       institutions:
@@ -2685,7 +2692,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.UserListItem'
+          $ref: '#/definitions/entity.AllowReq'
       produces:
       - application/json
       responses:

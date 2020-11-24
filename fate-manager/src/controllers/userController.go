@@ -407,7 +407,7 @@ func GetLoginUserManagerList(c *gin.Context) {
 // @Tags UserController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.UserListItem true "request param"
+// @Param request body entity.AllowReq true "request param"
 // @Success 200 {object} app.OtherFateManagerResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/user/allowpartylist [post]

@@ -123,11 +123,11 @@ func InitRouter() *gin.Engine {
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
 		user.POST("/userpartylist",GetLoginUserManagerList)
-		user.POST("/allowpartylist",GetAllAllowPartyList)
 		user.POST("/sublogin",SubLogin)
 		user.POST("/changelogin",ChangeLogin)
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
+	router.POST("/fate-manager/api/user/allowpartylist",GetAllAllowPartyList)
 
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
