@@ -24,6 +24,7 @@ import (
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/ansible_service"
 	"fate.manager/services/k8s_service"
 	"fmt"
 	"strconv"
@@ -215,6 +216,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	componentVersionList, err := models.GetComponetVersionList(componentVersion)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if commitImagePullReq.DeployType == int(enum.DeployType_ANSIBLE){
+		return ansible_service.CommitPackage(commitImagePullReq)
 	}
 	commitTag := false
 	for i := 0; i < len(componentVersionList); i++ {

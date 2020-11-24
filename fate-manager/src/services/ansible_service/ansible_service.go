@@ -216,7 +216,7 @@ func GetCheck(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
 	return nil, nil
 }
 
-func GetAnsibleList()(*entity.AnsibleList,error){
+func GetAnsibleList() (*entity.AnsibleList, error) {
 
 	return nil, nil
 }
@@ -253,7 +253,7 @@ func StartDeployAnsible() (int, error) {
 	return e.ERROR_DEPLOY_ANSIBLE_FAIL, nil
 }
 
-func LocalUpload(localUploadReq entity.LocalUploadReq) (*entity.AcquireResp, error) {
+func LocalUpload(localUploadReq entity.LocalUploadReq) ([]entity.AcquireRespItem, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
@@ -273,13 +273,34 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) (*entity.AcquireResp, err
 		return nil, err
 	}
 	if ansibleInstallListResponse.Code == e.SUCCESS {
-		UpdatePackage(localUploadReq.PartyId, ansibleInstallListResponse.Data)
-		return &ansibleInstallListResponse.Data, nil
+		componentVersion := models.ComponentVersion{
+			FateVersion: ansibleInstallListResponse.Data.FateVersion,
+		}
+		componentVersionList, err := models.GetComponetVersionList(componentVersion)
+		if err != nil {
+			return nil, err
+		}
+		var acquireRespItemList []entity.AcquireRespItem
+		for i := 0; i < len(componentVersionList); i++ {
+			acquireRespItem := entity.AcquireRespItem{
+				Item:             componentVersionList[i].ComponentName,
+				Description:      componentVersionList[i].ImageDescription,
+				ComponentVersion: componentVersionList[i].ComponentVersion,
+				Size:             componentVersionList[i].ImageSize,
+				Time:             componentVersionList[i].ImageCreateTime.UnixNano() / 1e6,
+				Status: entity.IdPair{
+					Code: componentVersionList[i].PackageStatus,
+					Desc: enum.GetPackageStatusString(enum.PackageStausType(componentVersionList[i].PackageStatus)),
+				},
+			}
+			acquireRespItemList = append(acquireRespItemList, acquireRespItem)
+		}
+		return acquireRespItemList, nil
 	}
 	return nil, nil
 }
 
-func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (*entity.AcquireResp, error) {
+func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) ([]entity.AcquireRespItem, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
@@ -299,44 +320,31 @@ func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (*entity.AcquireResp, err
 		return nil, err
 	}
 	if ansibleInstallListResponse.Code == e.SUCCESS {
-		UpdatePackage(autoAcquireReq.PartyId, ansibleInstallListResponse.Data)
-		return &ansibleInstallListResponse.Data, nil
+		componentVersion := models.ComponentVersion{
+			FateVersion: ansibleInstallListResponse.Data.FateVersion,
+		}
+		componentVersionList, err := models.GetComponetVersionList(componentVersion)
+		if err != nil {
+			return nil, err
+		}
+		var acquireRespItemList []entity.AcquireRespItem
+		for i := 0; i < len(componentVersionList); i++ {
+			acquireRespItem := entity.AcquireRespItem{
+				Item:             componentVersionList[i].ComponentName,
+				Description:      componentVersionList[i].ImageDescription,
+				ComponentVersion: componentVersionList[i].ComponentVersion,
+				Size:             componentVersionList[i].ImageSize,
+				Time:             componentVersionList[i].ImageCreateTime.UnixNano() / 1e6,
+				Status: entity.IdPair{
+					Code: componentVersionList[i].PackageStatus,
+					Desc: enum.GetPackageStatusString(enum.PackageStausType(componentVersionList[i].PackageStatus)),
+				},
+			}
+			acquireRespItemList = append(acquireRespItemList, acquireRespItem)
+		}
+		return acquireRespItemList, nil
 	}
 	return nil, nil
-}
-
-func UpdatePackage(partyId int, Data entity.AcquireResp) {
-	deploySite := models.DeploySite{
-		PartyId:      partyId,
-		ProductType:  int(enum.PRODUCT_TYPE_FATE),
-		FateVersion:  Data.FateVersion,
-		DeployStatus: int(enum.ANSIBLE_DeployStatus_LOADED),
-		IsValid:      int(enum.IS_VALID_YES),
-		DeployType:   int(enum.DeployType_ANSIBLE),
-	}
-	var data = make(map[string]interface{})
-	data["fate_version"] = Data.FateVersion
-	data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
-	data["update_time"] = time.Now()
-	models.UpdateDeploySite(data, deploySite)
-	for i := 0; i < len(Data.AcquireRespItemList); i++ {
-		AcquireRespItem := Data.AcquireRespItemList[i]
-		deployComponent := models.DeployComponent{
-			PartyId:          partyId,
-			ProductType:      int(enum.PRODUCT_TYPE_FATE),
-			FateVersion:      Data.FateVersion,
-			ComponentVersion: AcquireRespItem.ComponentVersion,
-			ComponentName:    AcquireRespItem.Item,
-			Address:          "",
-			VersionIndex:     0,
-			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
-			DeployType:       int(enum.DeployType_ANSIBLE),
-			IsValid:          int(enum.IS_VALID_YES),
-			CreateTime:       time.Now(),
-			UpdateTime:       time.Now(),
-		}
-		models.AddDeployComponent(&deployComponent)
-	}
 }
 
 type IpNode struct {
@@ -554,5 +562,45 @@ func AnsibleAutoTest(autoTestReq entity.AutoTestReq, site models.DeploySite) (in
 
 	}
 
+	return e.SUCCESS, nil
+}
+
+func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
+	var data = make(map[string]interface{})
+	data["fate_version"] = commitImagePullReq.FateVersion
+	data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADING)
+	deploySite := models.DeploySite{
+		PartyId:     commitImagePullReq.PartyId,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		IsValid:     int(enum.IS_VALID_YES),
+		DeployType:  int(enum.DeployType_ANSIBLE),
+	}
+	models.UpdateDeploySite(data, deploySite)
+
+	componentVersion := models.ComponentVersion{
+		FateVersion: commitImagePullReq.FateVersion,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+	}
+	componentVersionList, err := models.GetComponetVersionList(componentVersion)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	for i := 0; i < len(componentVersionList); i++ {
+		deployComponent := models.DeployComponent{
+			PartyId:          commitImagePullReq.PartyId,
+			ProductType:      int(enum.PRODUCT_TYPE_FATE),
+			FateVersion:      commitImagePullReq.FateVersion,
+			ComponentVersion: componentVersionList[i].ComponentVersion,
+			ComponentName:    componentVersionList[i].ComponentName,
+			Address:          "",
+			VersionIndex:     componentVersionList[i].VersionIndex,
+			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
+			DeployType:       int(enum.DeployType_ANSIBLE),
+			IsValid:          int(enum.IS_VALID_YES),
+			CreateTime:       time.Now(),
+			UpdateTime:       time.Now(),
+		}
+		models.AddDeployComponent(&deployComponent)
+	}
 	return e.SUCCESS, nil
 }

@@ -9,6 +9,17 @@ definitions:
       msg:
         type: string
     type: object
+  app.AnsiblePackageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.AcquireRespItem'
+        type: array
+      msg:
+        type: string
+    type: object
   app.ApplyFateManagerResponse:
     properties:
       code:
@@ -439,6 +450,22 @@ definitions:
       userName:
         type: string
     type: object
+  entity.AcquireRespItem:
+    properties:
+      description:
+        type: string
+      module:
+        type: string
+      size:
+        type: string
+      status:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
+      time:
+        type: integer
+      version:
+        type: string
+    type: object
   entity.ActionReq:
     properties:
       action:
@@ -471,6 +498,13 @@ definitions:
       userId:
         type: string
       userName:
+        type: string
+    type: object
+  entity.AllowReq:
+    properties:
+      partyId:
+        type: integer
+      roleName:
         type: string
     type: object
   entity.AnsibleConnectReq:
@@ -1561,7 +1595,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.InstallListResponse'
+            $ref: '#/definitions/app.AnsiblePackageResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -1740,7 +1774,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.InstallListResponse'
+            $ref: '#/definitions/app.AnsiblePackageResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -3267,7 +3301,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.UserListItem'
+          $ref: '#/definitions/entity.AllowReq'
       produces:
       - application/json
       responses:

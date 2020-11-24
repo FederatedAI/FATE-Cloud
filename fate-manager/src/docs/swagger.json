@@ -41,7 +41,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.InstallListResponse"
+                            "$ref": "#/definitions/app.AnsiblePackageResponse"
                         }
                     },
                     "500": {
@@ -320,7 +320,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.InstallListResponse"
+                            "$ref": "#/definitions/app.AnsiblePackageResponse"
                         }
                     },
                     "500": {
@@ -2705,7 +2705,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.UserListItem"
+                            "$ref": "#/definitions/entity.AllowReq"
                         }
                     }
                 ],
@@ -3080,6 +3080,23 @@
                 "data": {
                     "type": "object",
                     "$ref": "#/definitions/entity.AnsibleList"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.AnsiblePackageResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AcquireRespItem"
+                    }
                 },
                 "msg": {
                     "type": "string"
@@ -3744,6 +3761,30 @@
                 }
             }
         },
+        "entity.AcquireRespItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
+                "time": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ActionReq": {
             "type": "object",
             "properties": {
@@ -3792,6 +3833,17 @@
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.AllowReq": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "roleName": {
                     "type": "string"
                 }
             }
