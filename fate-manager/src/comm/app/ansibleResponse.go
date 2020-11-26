@@ -16,5 +16,5 @@ type AnsibleListResponse struct {
 
 type AnsiblePackageResponse struct {
 	CommResp
-	Data []entity.AcquireRespItem `json:"data"`
+	Data entity.AnsibleCommResp `json:"data"`
 }

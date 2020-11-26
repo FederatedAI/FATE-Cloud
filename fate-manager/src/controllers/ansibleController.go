@@ -208,7 +208,7 @@ func StartDeployAnsible(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.LocalUploadReq true "request param"
-// @Success 200 {object} app.AnsiblePackageResponse
+// @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/upload [post]
 func LocalUpload(c *gin.Context) {
@@ -228,7 +228,7 @@ func LocalUpload(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.ERROR_LOACAL_UPLOAD_FAIL, nil)
 		return
 	}
-	appG.Response(http.StatusOK, e.SUCCESS, ret)
+	appG.Response(http.StatusOK, ret, nil)
 }
 
 // @Summary auto acquire package
@@ -236,7 +236,7 @@ func LocalUpload(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoAcquireReq true "request param"
-// @Success 200 {object} app.AnsiblePackageResponse
+// @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/autoacquire [post]
 func AutoAcquire(c *gin.Context) {
@@ -252,6 +252,34 @@ func AutoAcquire(c *gin.Context) {
 		panic("JSONParse Error")
 	}
 	ret, err := ansible_service.AutoAcquire(autoAcquireReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_AUTO_ACQUIRE_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, ret, nil)
+}
+
+// @Summary get component list
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.ConnectAnsible true "request param"
+// @Success 200 {object} app.AnsiblePackageResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/componentlist [post]
+func GetComponentList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var connectAnsible entity.ConnectAnsible
+	if jsonError := json.Unmarshal(body, &connectAnsible); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.GetComponentList(connectAnsible)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_AUTO_ACQUIRE_FAIL, nil)
 		return
@@ -397,4 +425,88 @@ func AnsibleLog(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
+}
+
+// @Summary Get Auto Test Site List
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.AutoTestListReq true "request param"
+// @Success 200 {object} app.AutoTestListResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/testlist [post]
+func GetAnsibleAutoTestList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var autoTestListReq entity.AutoTestListReq
+	if jsonError := json.Unmarshal(body, &autoTestListReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	autoTestListResponse, err := ansible_service.GetAutoTestList(autoTestListReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_AUTO_TEST_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, autoTestListResponse)
+}
+
+// @Summary Do Auto Test Start
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.AutoTestReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/autotest [post]
+func AnsibleAutoTest(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var autoTestReq entity.AnsibleAutoTestReq
+	if jsonError := json.Unmarshal(body, &autoTestReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.AutoTest(autoTestReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary Test Only
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.AutoTestReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/testonly [post]
+func AnsibleTestOnly(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var autoTestReq entity.AnsibleAutoTestReq
+	if jsonError := json.Unmarshal(body, &autoTestReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.ToyTestOnly(autoTestReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }

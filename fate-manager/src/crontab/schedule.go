@@ -47,6 +47,7 @@ func SetUp() {
 	}
 	go MonitorTask(accountInfo)
 	go PackageStatusTask()
+	go AutotestTask()
 }
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))
@@ -142,6 +143,16 @@ func PackageStatusTask(){
 		logging.Debug("PackageStatusTask start...")
 		job_service.PackageStatusTask()
 		logging.Debug("PackageStatusTask end...")
+		<-ticker.C
+	}
+}
+
+func AutotestTask(){
+	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Test))
+	for {
+		logging.Debug("AutotestTask start...")
+		job_service.AutotestTask()
+		logging.Debug("AutotestTask end...")
 		<-ticker.C
 	}
 }
