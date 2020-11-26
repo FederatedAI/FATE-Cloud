@@ -75,6 +75,13 @@ public class WebConfiguration implements WebMvcConfigurer {
 
                 .addPathPatterns("/api/system/**")
                 .excludePathPatterns("/api/system/add")
+                .excludePathPatterns("/api/system/heart")
+
+                .addPathPatterns("/api/job/**")
+                .excludePathPatterns("/api/job/push")
+
+                .addPathPatterns("/api/product/**")
+                .excludePathPatterns("/api/product/page")
         ;
 
 //        registry.addInterceptor(getReferrerInterceptor());

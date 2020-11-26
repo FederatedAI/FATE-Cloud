@@ -188,7 +188,8 @@
             </where>
         </if>
         order by institutions desc LIMIT #{startIndex}, #{institutionQo.pageSize}
-        )  as mu left join (select institutions, count(1) count from t_federated_site_manager where status = 2 group by institutions) as sm on
+        ) as mu left join (select institutions, count(1) count from t_federated_site_manager where status = 2 group by
+        institutions) as sm on
         mu.institutions=sm.institutions
 
     </select>
@@ -275,7 +276,7 @@
         </if>
 
         <if test="condition != null">
-           select count(1) from ( select institutions  from t_federated_site_manager
+            select count(1) from ( select institutions from t_federated_site_manager
             <where>
                 and (party_id like #{condition} or site_name like #{condition})
 
@@ -286,7 +287,7 @@
                         #{institutionsItem}
                     </foreach>
                 </if>
-                 group by institutions
+                group by institutions
 
             </where>
             ) as tmp
@@ -316,7 +317,8 @@
     </select>
 
 
-    <select id="findCountOfSite"  parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo" resultType="long">
+    <select id="findCountOfSite" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo"
+            resultType="long">
         SELECT count(1) FROM t_federated_site_manager s
         <where>
             and institutions !=#{institutions}
@@ -324,12 +326,35 @@
         </where>
     </select>
 
-    <select id="findCountOfSitePeriod"  parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo" resultType="long">
+    <select id="findCountOfSitePeriod" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
+            resultType="long">
         SELECT count(1) FROM t_federated_site_manager s
         <where>
             and institutions !=#{institutions}
             and status=2
         </where>
+    </select>
+
+    <select id="findInstitutionsWithSitesPaged"
+            resultMap="institutionsWithSitesMap">
+        SELECT institutions,site_name FROM t_federated_site_manager
+        <where>
+            and institutions !=#{jobOfSiteDimensionQo.institutions}
+            and status=2
+        </where>
+        order by institutions asc, site_name asc limit #{startIndex},#{jobOfSiteDimensionQo.pageSize}
+
+    </select>
+
+    <select id="findInstitutionsWithSitesPagedPeriod"
+            resultMap="institutionsWithSitesMap">
+        SELECT institutions,site_name FROM t_federated_site_manager
+        <where>
+            and institutions !=#{jobOfSiteDimensionPeriodQo.institutions}
+            and status=2
+        </where>
+        order by institutions asc, site_name asc limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
+
     </select>
 
 </mapper>
