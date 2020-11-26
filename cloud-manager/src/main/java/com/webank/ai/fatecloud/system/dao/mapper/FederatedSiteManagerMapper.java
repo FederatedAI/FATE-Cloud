@@ -38,5 +38,9 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
     long findCountOfSite(JobOfSiteDimensionQo jobOfSiteDimensionQo);
 
     long findCountOfSitePeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo);
+
+    List<InstitutionsWithSites> findInstitutionsWithSitesPaged(@Param("startIndex") long startIndex, @Param("jobOfSiteDimensionQo") JobOfSiteDimensionQo jobOfSiteDimensionQo);
+
+    List<InstitutionsWithSites> findInstitutionsWithSitesPagedPeriod(@Param("startIndex") long startIndex, @Param("jobOfSiteDimensionPeriodQo") JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo);
 }
 
