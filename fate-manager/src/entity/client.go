@@ -274,7 +274,7 @@ type CommitImagePullReq struct {
 	FederatedSite
 	ProductType int    `json:"productType"`
 	FateVersion string `json:"fateVersion"`
-	DeployType int     `json:"deployType"`
+	DeployType  int    `json:"deployType"`
 }
 
 type InstallReq struct {
@@ -351,6 +351,7 @@ type PageStatusReq struct {
 }
 type PageStatusResp struct {
 	PageStatus IdPair `json:"pageStatus"`
+	DeployType IdPair `json:"deployType"`
 }
 type UpdateVersionResp struct {
 	VersionIndex int
@@ -564,6 +565,6 @@ type ComponentVersionDetail struct {
 type MonitorReq struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
-	PageNum   int `json:"pageNum"`
-	PageSize  int `json:"pageSize"`
+	PageNum   int    `json:"pageNum"`
+	PageSize  int    `json:"pageSize"`
 }

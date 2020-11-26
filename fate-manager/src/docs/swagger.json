@@ -41,7 +41,46 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.AnsiblePackageResponse"
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/autotest": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Do Auto Test Start",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AutoTestReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
                         }
                     },
                     "500": {
@@ -148,6 +187,45 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/componentlist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "get component list",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.ConnectAnsible"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.AnsiblePackageResponse"
                         }
                     },
                     "500": {
@@ -410,6 +488,84 @@
                 }
             }
         },
+        "/fate-manager/api/ansible/testlist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Get Auto Test Site List",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AutoTestListReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.AutoTestListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/fate-manager/api/ansible/testonly": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Test Only",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.AutoTestReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.CommResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/ansible/update": {
             "post": {
                 "consumes": [
@@ -554,7 +710,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.AnsiblePackageResponse"
+                            "$ref": "#/definitions/app.Response"
                         }
                     },
                     "500": {
@@ -3327,10 +3483,8 @@
                     "type": "integer"
                 },
                 "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.AcquireRespItem"
-                    }
+                    "type": "object",
+                    "$ref": "#/definitions/entity.AnsibleCommResp"
                 },
                 "msg": {
                     "type": "string"
@@ -3995,30 +4149,6 @@
                 }
             }
         },
-        "entity.AcquireRespItem": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "module": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.IdPair"
-                },
-                "time": {
-                    "type": "integer"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
         "entity.ActionReq": {
             "type": "object",
             "properties": {
@@ -4082,6 +4212,17 @@
                 }
             }
         },
+        "entity.AnsibleCommResp": {
+            "type": "object",
+            "properties": {
+                "retcode": {
+                    "type": "integer"
+                },
+                "retmsg": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.AnsibleConnectReq": {
             "type": "object",
             "properties": {
@@ -4103,8 +4244,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.IdPair"
+                    "type": "string"
                 }
             }
         },
@@ -4175,6 +4315,9 @@
                 },
                 "fateVersion": {
                     "type": "string"
+                },
+                "partyId": {
+                    "type": "integer"
                 }
             }
         },
@@ -4382,6 +4525,14 @@
                 "status": {
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
+                }
+            }
+        },
+        "entity.ConnectAnsible": {
+            "type": "object",
+            "properties": {
+                "party_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -4758,6 +4909,9 @@
                 "ip": {
                     "type": "string"
                 },
+                "partyId": {
+                    "type": "integer"
+                },
                 "path": {
                     "type": "string"
                 }
@@ -4994,6 +5148,10 @@
         "entity.PageStatusResp": {
             "type": "object",
             "properties": {
+                "deployType": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
                 "pageStatus": {
                     "type": "object",
                     "$ref": "#/definitions/entity.IdPair"
