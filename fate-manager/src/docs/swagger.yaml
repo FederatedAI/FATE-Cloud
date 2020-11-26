@@ -14,9 +14,8 @@ definitions:
       code:
         type: integer
       data:
-        items:
-          $ref: '#/definitions/entity.AcquireRespItem'
-        type: array
+        $ref: '#/definitions/entity.AnsibleCommResp'
+        type: object
       msg:
         type: string
     type: object
@@ -450,22 +449,6 @@ definitions:
       userName:
         type: string
     type: object
-  entity.AcquireRespItem:
-    properties:
-      description:
-        type: string
-      module:
-        type: string
-      size:
-        type: string
-      status:
-        $ref: '#/definitions/entity.IdPair'
-        type: object
-      time:
-        type: integer
-      version:
-        type: string
-    type: object
   entity.ActionReq:
     properties:
       action:
@@ -507,6 +490,13 @@ definitions:
       roleName:
         type: string
     type: object
+  entity.AnsibleCommResp:
+    properties:
+      retcode:
+        type: integer
+      retmsg:
+        type: string
+    type: object
   entity.AnsibleConnectReq:
     properties:
       ansbileUrl:
@@ -521,8 +511,7 @@ definitions:
       ip:
         type: string
       status:
-        $ref: '#/definitions/entity.IdPair'
-        type: object
+        type: string
     type: object
   entity.AnsibleLog:
     properties:
@@ -568,6 +557,8 @@ definitions:
         type: string
       fateVersion:
         type: string
+      partyId:
+        type: integer
     type: object
   entity.AutoTestItem:
     properties:
@@ -703,6 +694,11 @@ definitions:
       status:
         $ref: '#/definitions/entity.IdPair'
         type: object
+    type: object
+  entity.ConnectAnsible:
+    properties:
+      party_id:
+        type: integer
     type: object
   entity.DeleteUserReq:
     properties:
@@ -948,6 +944,8 @@ definitions:
     properties:
       ip:
         type: string
+      partyId:
+        type: integer
       path:
         type: string
     type: object
@@ -1102,6 +1100,9 @@ definitions:
     type: object
   entity.PageStatusResp:
     properties:
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       pageStatus:
         $ref: '#/definitions/entity.IdPair'
         type: object
@@ -1594,12 +1595,37 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.AnsiblePackageResponse'
+            $ref: '#/definitions/app.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/app.Response'
       summary: auto acquire package
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/autotest:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoTestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Do Auto Test Start
       tags:
       - AnsibleDeployController
   /fate-manager/api/ansible/check:
@@ -1668,6 +1694,31 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: commit package
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/componentlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ConnectAnsible'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AnsiblePackageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get component list
       tags:
       - AnsibleDeployController
   /fate-manager/api/ansible/connectansible:
@@ -1831,6 +1882,56 @@ paths:
       summary: prepare to deploy ansible
       tags:
       - AnsibleDeployController
+  /fate-manager/api/ansible/testlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoTestListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AutoTestListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Auto Test Site List
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/testonly:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoTestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Test Only
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/ansible/update:
     post:
       consumes:
@@ -1923,7 +2024,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.AnsiblePackageResponse'
+            $ref: '#/definitions/app.Response'
         "500":
           description: Internal Server Error
           schema:

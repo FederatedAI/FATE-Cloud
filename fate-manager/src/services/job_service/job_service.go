@@ -32,6 +32,7 @@ import (
 	"fate.manager/services/k8s_service"
 	"fate.manager/services/user_service"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -1238,6 +1239,143 @@ func PackageStatusTask() {
 				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
 			models.UpdateComponentVersionByCondition(data, &componentVersion)
+
+			deploySite := models.DeploySite{
+				FateVersion: fateVersionList[i].FateVersion,
+				IsValid:     int(enum.IS_VALID_YES),
+				DeployType:  int(enum.DeployType_ANSIBLE),
+			}
+			data = make(map[string]interface{})
+			data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
+			if versionDownloadResponse.Data.Status == "failed" {
+				data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOAD_FAILED)
+			}
+			models.UpdateDeploySite(data, deploySite)
+		}
+	}
+}
+
+func AutotestTask() {
+	deploySite := models.DeploySite{
+		DeployStatus: int(enum.ANSIBLE_DeployStatus_IN_TESTING),
+		IsValid:      int(enum.IS_VALID_YES),
+		DeployType:   int(enum.DeployType_ANSIBLE),
+	}
+	deploySiteList, err := models.GetDeploySite(&deploySite)
+	if err != nil {
+		return
+	}
+
+	for i := 0; i < len(deploySiteList); i++ {
+		deployComponent := models.DeployComponent{
+			PartyId:       deploySiteList[i].PartyId,
+			ComponentName: "fateflow",
+			ProductType:   int(enum.PRODUCT_TYPE_FATE),
+			DeployType:    int(enum.DeployType_ANSIBLE),
+			IsValid:       int(enum.IS_VALID_YES),
+		}
+		deployComponentList, err := models.GetDeployComponent(deployComponent)
+		if err != nil || len(deployComponentList) == 0 {
+			continue
+		}
+		address := strings.Split(deployComponentList[0].Address, ":")
+
+		if deploySiteList[i].SingleTest == int(enum.TEST_STATUS_TESTING) {
+			go DoProcess("single", "toy", deploySiteList[i], address[0])
+		} else if deploySiteList[i].ToyTest == int(enum.TEST_STATUS_TESTING) {
+			go DoProcess("toy", "fast", deploySiteList[i], address[0])
+		} else if deploySiteList[i].MinimizeFastTest == int(enum.TEST_STATUS_TESTING) {
+			go DoProcess("fast", "normal", deploySiteList[i], address[0])
+		} else if deploySiteList[i].MinimizeNormalTest == int(enum.TEST_STATUS_TESTING) {
+			go DoProcess("normal", "normal", deploySiteList[i], address[0])
+		}
+	}
+}
+
+func JudgeResult(partyId int, testType string, testItem string, data []string) bool {
+	var content string
+	result := false
+	for i := 0; i < len(data); i++ {
+		if strings.Contains(data[i], testItem) {
+			result = true
+		}
+		if i == 0 {
+			content = fmt.Sprintf("%s\n", data[i])
+		} else {
+			content = fmt.Sprintf("%s\n%s", content, data[i])
+		}
+	}
+	if len(content) > 0 {
+		path := fmt.Sprintf("./testLog/%s/fate-%d.log", "all", partyId)
+		if ioutil.WriteFile(path, []byte(content), 0644) == nil {
+			logging.Info("WriteFile " + path)
+		} else {
+			logging.Error("No WriteFile " + path)
+		}
+		path = fmt.Sprintf("./testLog/%s/fate-%d.log", testType, partyId)
+		if ioutil.WriteFile(path, []byte(content), 0644) == nil {
+			logging.Info("WriteFile " + path)
+		} else {
+			logging.Error("No WriteFile " + path)
+		}
+	}
+	return result
+}
+
+func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip string) {
+	var sitedata = make(map[string]interface{})
+	var testdata = make(map[string]interface{})
+	ResultReq := entity.AnsibleToyTestResultReq{
+		PartyId: deploySite.PartyId,
+		Ip:      Ip,
+	}
+	TestReq := entity.AnsibleToyTestReq{
+		GuestPartyId: deploySite.PartyId,
+		HostPartyId:  setting.KubenetesSetting.TestPartyId,
+		Ip:           Ip,
+	}
+	autotest := models.AutoTest{
+		PartyId: deploySite.PartyId,
+	}
+
+	ResultReq.TestType = curItem
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleToyTestResultUri), ResultReq, nil)
+	var resultResp entity.AnsibleTestResultResponse
+	err = json.Unmarshal([]byte(result.Body), &resultResp)
+	if err != nil {
+		return
+	}
+	if resultResp.Code == e.SUCCESS {
+		sitedata[curItem+"_test"] = int(enum.TEST_STATUS_NO)
+		if JudgeResult(deploySite.PartyId, curItem, "success to calculate secure_sum", resultResp.Data) {
+			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
+			testdata["status"] = int(enum.TEST_STATUS_YES)
+		}
+		models.UpdateDeploySite(sitedata, deploySite)
+
+		testdata["end_time"] = time.Now()
+		autotest.TestItem = curItem + " Test"
+		models.UpdateAutoTest(testdata, autotest)
+
+		if NextItem != "normal" {
+			TestReq.TestType = NextItem
+			result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleToyTestUri), TestReq, nil)
+			var commresp entity.AnsibleCommResp
+			err = json.Unmarshal([]byte(result.Body), &commresp)
+			if err != nil {
+				return
+			}
+			if commresp.Code == e.SUCCESS {
+				testdata = make(map[string]interface{})
+				testdata["status"] = int(enum.TEST_STATUS_TESTING)
+				testdata["start_time"] = time.Now()
+				autotest.TestItem = NextItem + " Test"
+				models.UpdateAutoTest(testdata, autotest)
+
+				sitedata = make(map[string]interface{})
+				sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+				models.UpdateDeploySite(sitedata, deploySite)
+			}
 		}
 	}
 }

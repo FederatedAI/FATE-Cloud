@@ -27,7 +27,6 @@ import (
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
-	"fate.manager/services/ansible_service"
 	"fate.manager/services/component_deploy_service"
 	"fate.manager/services/k8s_service"
 	"fate.manager/services/version_service"
@@ -116,7 +115,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			Ip:            "mysql",
 			NodeSelector:  entity.NodeSelector{},
 			Password:      "***REMOVED***",
-			Port:          version_service.GetDefaultPort("mysql",enum.DeployType_K8S),
+			Port:          version_service.GetDefaultPort("mysql", enum.DeployType_K8S),
 			Size:          "1Gi",
 			StorageClass:  "mysql",
 			SubPath:       "",
@@ -173,12 +172,14 @@ func Install(installReq entity.InstallReq) (int, error) {
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
-	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
-	}else if len(deploySiteList) == 0{
+	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_PARTY_INSTALLED_FAIL, err
+	} else {
+		if deploySiteList[0].DeployStatus == int(enum.DeployStatus_INSTALLING) ||
+			deploySiteList[0].DeployStatus == int(enum.DeployStatus_UNDER_INSTALLATION) {
+			return e.ERROR_PARTY_IS_INSTALLING_FAIL, err
+		}
 	}
-
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
@@ -410,7 +411,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 			ComponentName:    componentVersionList[i].ComponentName,
 			StartTime:        time.Now(),
 			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)),
+			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			DeployType:       int(enum.DeployType_K8S),
@@ -560,9 +561,6 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_AUTO_TEST_FAIL, err
-	}
-	if deploySiteList[0].DeployType == int(enum.DeployType_ANSIBLE){
-		return ansible_service.AnsibleAutoTest(autoTestReq,deploySiteList[0])
 	}
 	cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
 	if setting.KubenetesSetting.SudoTag {
@@ -1124,6 +1122,7 @@ func GetPageStatus(pageStatusReq entity.PageStatusReq) (*entity.PageStatusResp, 
 	if len(deploySiteList) == 0 {
 		pageStatusResp.PageStatus = entity.IdPair{int(enum.PAGE_STATUS_PREPARE), enum.GetPageStatusString(enum.PAGE_STATUS_PREPARE)}
 	} else {
+		pageStatusResp.DeployType = entity.IdPair{Code: deploySiteList[0].DeployType, Desc: enum.GetDeployTypeString(enum.DeployType(deploySiteList[0].DeployType))}
 		if deploySiteList[0].DeployType == int(enum.DeployType_K8S) {
 			if deploySiteList[0].ClickType == int(enum.ClickType_CONNECT) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.PAGE_STATUS_PAGE), enum.GetPageStatusString(enum.PAGE_STATUS_PAGE)}
@@ -1136,20 +1135,28 @@ func GetPageStatus(pageStatusReq entity.PageStatusReq) (*entity.PageStatusResp, 
 			} else if deploySiteList[0].ClickType == int(enum.ClickType_TEST) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.PAGE_STATUS_SERVICE), enum.GetPageStatusString(enum.PAGE_STATUS_SERVICE)}
 			}
-		}else{
-			if deploySiteList[0].ClickType == int(enum.AnsibleClickType_CONNECT) {
-				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_PACKAGE), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_PACKAGE)}
-			} else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_PREPARE) {
+		} else {
+			site := deploySiteList[0]
+			conf, _ := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+			if conf.ClickType > site.ClickType {
+				site.ClickType = conf.ClickType
+				var data = make(map[string]interface{})
+				data["click_type"] = conf.ClickType
+				models.UpdateDeploySite(data, site)
+			}
+			if site.ClickType == int(enum.AnsibleClickType_CONNECT) {
+				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_PREPARE), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_PREPARE)}
+			} else if site.ClickType == int(enum.AnsibleClickType_PREPARE) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_CHECK), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_CHECK)}
-			} else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) {
+			} else if site.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_INSTALL_ANSIBLE), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_INSTALL_ANSIBLE)}
-			} else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
+			} else if site.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_PACKAGE), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_PACKAGE)}
-			} else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_ACQUISITON) {
+			} else if site.ClickType == int(enum.AnsibleClickType_ACQUISITON) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_INSTALL), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_INSTALL)}
-			}else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_INSTALL) {
+			} else if site.ClickType == int(enum.AnsibleClickType_INSTALL) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_TEST), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_TEST)}
-			}else if deploySiteList[0].ClickType == int(enum.AnsibleClickType_TEST) {
+			} else if site.ClickType == int(enum.AnsibleClickType_TEST) {
 				pageStatusResp.PageStatus = entity.IdPair{int(enum.Ansible_PAGE_STATUS_SERVICE), enum.GetAnsiblePageStatusString(enum.Ansible_PAGE_STATUS_SERVICE)}
 			}
 		}
@@ -1232,7 +1239,6 @@ func Click(req entity.ClickReq) bool {
 
 func ToyResultRead(req entity.ToyResultReadReq) bool {
 	deploySite := models.DeploySite{
-		FederatedId: req.FederatedId,
 		PartyId:     req.PartyId,
 		ProductType: req.ProductType,
 		IsValid:     int(enum.IS_VALID_YES),

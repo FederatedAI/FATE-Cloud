@@ -32,12 +32,14 @@ const (
 
 const (
 	Ansible_PAGE_STATUS_UNKNOWN         AnsiblePageStatus = -1
-	Ansible_PAGE_STATUS_CHECK           AnsiblePageStatus = 1
-	Ansible_PAGE_STATUS_INSTALL_ANSIBLE AnsiblePageStatus = 2
-	Ansible_PAGE_STATUS_PACKAGE         AnsiblePageStatus = 3
-	Ansible_PAGE_STATUS_INSTALL         AnsiblePageStatus = 4
-	Ansible_PAGE_STATUS_TEST            AnsiblePageStatus = 5
-	Ansible_PAGE_STATUS_SERVICE         AnsiblePageStatus = 6
+	Ansible_PAGE_STATUS_CONNECT         AnsiblePageStatus = 0
+	Ansible_PAGE_STATUS_PREPARE         AnsiblePageStatus = 1
+	Ansible_PAGE_STATUS_CHECK           AnsiblePageStatus = 2
+	Ansible_PAGE_STATUS_INSTALL_ANSIBLE AnsiblePageStatus = 3
+	Ansible_PAGE_STATUS_PACKAGE         AnsiblePageStatus = 4
+	Ansible_PAGE_STATUS_INSTALL         AnsiblePageStatus = 5
+	Ansible_PAGE_STATUS_TEST            AnsiblePageStatus = 6
+	Ansible_PAGE_STATUS_SERVICE         AnsiblePageStatus = 7
 )
 
 func GetPageStatusString(p PageStatus) string {
@@ -70,6 +72,10 @@ func GetPageStatusList() []entity.IdPair {
 
 func GetAnsiblePageStatusString(p AnsiblePageStatus) string {
 	switch p {
+	case Ansible_PAGE_STATUS_CONNECT:
+		return "Connect Page"
+	case Ansible_PAGE_STATUS_PREPARE:
+		return "Ansible Prepare"
 	case Ansible_PAGE_STATUS_CHECK:
 		return "Ansible System Check"
 	case Ansible_PAGE_STATUS_INSTALL_ANSIBLE:
@@ -89,7 +95,7 @@ func GetAnsiblePageStatusString(p AnsiblePageStatus) string {
 
 func GetAnsiblePageStatusList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 1; i < 7; i++ {
+	for i := 0; i < 8; i++ {
 		idPair := entity.IdPair{i, GetAnsiblePageStatusString(AnsiblePageStatus(i))}
 		idPairList = append(idPairList, idPair)
 	}

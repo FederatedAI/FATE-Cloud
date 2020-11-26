@@ -60,7 +60,8 @@ type ConnectAnsible struct {
 	PartyId int `json:"party_id"`
 }
 type AnsibleAutoTestRespItem struct {
-	Status string `json:"status"`
+	Status   bool `json:"status"`
+	Duration int  `json:"duration"`
 }
 type DeployAnsibleStatus struct {
 	Status string `json:"status"`
@@ -74,10 +75,12 @@ type AnsibleAutoTestResp struct {
 	Data map[string]AnsibleAutoTestRespItem
 }
 type LocalUploadReq struct {
-	Ip   string `json:"ip"`
-	Path string `json:"path"`
+	PartyId int    `json:"partyId"`
+	Ip      string `json:"ip"`
+	Path    string `json:"path"`
 }
 type AutoAcquireReq struct {
+	PartyId     int    `json:"partyId"`
 	FateVersion string `json:"fateVersion"`
 	DownloadUrl string `json:"downloadUrl"`
 }
@@ -95,7 +98,7 @@ type AnsiblePrepareItem struct {
 type AnsibleList struct {
 	Ip       string `json:"ip"`
 	Duration int    `json:"duration"`
-	Status   IdPair `json:"status"`
+	Status   string `json:"status"`
 }
 type AnsiblePrepare struct {
 	IpPrepareList []AnsiblePrepareItem
@@ -114,6 +117,11 @@ type AcquireRespItem struct {
 	Size             string `json:"size"`
 	Time             int64  `json:"time"`
 	Status           IdPair `json:"status"`
+}
+
+type AcquireResp struct {
+	FateVersion         string            `json:"fateVersion"`
+	AcquireRespItemList []AcquireRespItem `json:"list"`
 }
 
 type AnsibleSubmitData struct {
@@ -153,10 +161,31 @@ type AnsibleConnect struct {
 	List        []ConnectItem `json:"list"`
 }
 type AnsibleLog struct {
-	Level  string `json:"level"`
+	Level string `json:"level"`
 }
 
 type AnsibleLogResponse struct {
 	AnsibleCommResp
 	Data []string `json:"data"`
+}
+type AnsibleAutoTestReq struct {
+	PartyId int  `json:"partyId"`
+	IfOnly  bool `json:"ifOnly"`
+}
+
+type AnsibleToyTestReq struct {
+	GuestPartyId int    `json:"guestPartyId"`
+	HostPartyId  int    `json:"hostPartyId"`
+	Ip           string `json:"ip"`
+	TestType     string `json:"testType"`
+}
+type AnsibleToyTestResultReq struct {
+	PartyId  int    `json:"partyId"`
+	Ip       string `json:"ip"`
+	TestType string `json:"testType"`
+}
+
+type AnsibleTestResultResponse struct {
+	AnsibleCommResp
+	Data []string  `json:"data"`
 }
