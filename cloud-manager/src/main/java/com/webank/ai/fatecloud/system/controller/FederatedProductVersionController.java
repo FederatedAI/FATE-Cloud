@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/product")
 @Api(tags = "FederatedProductVersionController", description = "manager the product version")
@@ -81,5 +83,17 @@ public class FederatedProductVersionController {
     public CommonResponse<ProductVersionDto> findVersion() {
 
         return federatedProductVersionServiceFacade.findVersion();
+    }
+
+
+    //interfaces for fate manager
+    @PostMapping(value = "/page/fatemanager")
+    @ApiOperation(value = "find paged items for fate manager")
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageQo productVersionPageQo, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+        log.info("RequestBody:{}", productVersionPageQo);
+        if (bindingResult.hasErrors()) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageQo,httpServletRequest);
     }
 }
