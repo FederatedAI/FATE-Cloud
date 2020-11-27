@@ -488,7 +488,7 @@ func GetAnsibleAutoTestList(c *gin.Context) {
 // @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.AutoTestReq true "request param"
+// @Param request body entity.ConnectAnsible true "request param"
 // @Success 200 {object} app.CommResp
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/autotest [post]
@@ -499,7 +499,7 @@ func AnsibleAutoTest(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
 		return
 	}
-	var autoTestReq entity.AnsibleAutoTestReq
+	var autoTestReq entity.ConnectAnsible
 	if jsonError := json.Unmarshal(body, &autoTestReq); jsonError != nil {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")

@@ -360,14 +360,12 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				//FateServingVersion: "1.2.1",
 			}
 			models.UpdateSite(&site)
-		} else if queryResponse.Data.Status == "running" {
+		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
 			deployJob.Status = int(enum.JOB_STATUS_RUNNING)
 			deployStatus = enum.DeployStatus_INSTALLING
-		} else if queryResponse.Data.Status == "failed" {
+		} else if queryResponse.Data.Status == "failed" ||queryResponse.Data.Status == "canceled"||queryResponse.Data.Status == "timeout"   ||queryResponse.Data.Status == "skipped" {
 			deployJob.Status = int(enum.JOB_STATUS_FAILED)
 			deployStatus = enum.DeployStatus_INSTALLED_FAILED
-		} else if queryResponse.Data.Status == "ready" {
-			deployStatus = enum.DeployStatus_INSTALLING
 		}
 		var data = make(map[string]interface{})
 		data["status"] = deployJob.Status
@@ -1563,8 +1561,8 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 func VersionUpdateTask(info *models.AccountInfo) {
 	versionProduct := entity.VersionProductReq{
-		PageNum:        1,
-		PageSize:       100,
+		PageNum:  1,
+		PageSize: 100,
 	}
 	versionProductJson, _ := json.Marshal(versionProduct)
 	headInfo := util.UserHeaderInfo{
@@ -1584,12 +1582,56 @@ func VersionUpdateTask(info *models.AccountInfo) {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return
 	}
-	var approveResp entity.ApproveResp
-	err = json.Unmarshal([]byte(result.Body), &approveResp)
+	var resp entity.VersionProductResp
+	err = json.Unmarshal([]byte(result.Body), &resp)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return
 	}
-	if approveResp.Code == e.SUCCESS {
+	if resp.Code == e.SUCCESS {
+		for i := 0; i < len(resp.Data.List); i++ {
+			versionProductItem := resp.Data.List[i]
+			for j := 0; j < len(versionProductItem.FederatedComponentVersionDos); j++ {
+				federatedComponentVersionDos := versionProductItem.FederatedComponentVersionDos[j]
+                versionIndex,_ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6],".",""))
+				componentVersion := models.ComponentVersion{
+					FateVersion:      versionProductItem.ProductVersion,
+					ProductType:      federatedComponentVersionDos.ProductId,
+					ComponentVersion: federatedComponentVersionDos.ComponentVersion,
+					ComponentName:    federatedComponentVersionDos.ComponentName,
+					ImageName:        versionProductItem.ImageName,
+					ImageVersion:     federatedComponentVersionDos.ImageRepository,
+					ImageTag:         federatedComponentVersionDos.ImageTag,
+					ImageCreateTime:  federatedComponentVersionDos.CreateTime,
+					VersionIndex:     versionIndex,
+					PullStatus:       int(enum.PULL_STATUS_NO),
+					PackageStatus:    int(enum.PACKAGE_STATUS_NO),
+					CreateTime:       time.Now(),
+					UpdateTime:       time.Now(),
+				}
+				componentVersionList, err := models.GetComponetVersionList(componentVersion)
+				if err != nil || len(componentVersionList) > 0 {
+					continue
+				}
+				models.AddComponentVersion(&componentVersion)
+			}
+			versionIndex,_ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6],".",""))
+			fateVersion := models.FateVersion{
+				FateVersion:   versionProductItem.ProductVersion,
+				ProductType:   versionProductItem.ProductId,
+				ChartVersion:  versionProductItem.ChartVersion,
+				VersionIndex:  versionIndex,
+				PullStatus:    int(enum.PULL_STATUS_NO),
+				PackageStatus: int(enum.PACKAGE_STATUS_NO),
+				PackageUrl:    versionProductItem.PackageDownloadUrl,
+				CreateTime:    time.Now(),
+				UpdateTime:    time.Now(),
+			}
+			fateVersionList, err := models.GetFateVersionList(&fateVersion)
+			if err != nil || len(fateVersionList) > 0 {
+				continue
+			}
+			models.AddFateVersion(&fateVersion)
+		}
 	}
 }
