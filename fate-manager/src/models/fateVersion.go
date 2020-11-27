@@ -74,3 +74,9 @@ func UpdateFateVersion(condition map[string]interface{}, info *FateVersion) erro
 	}
 	return nil
 }
+func AddFateVersion(fateVersion *FateVersion) error {
+	if err := db.Create(&fateVersion).Error; err != nil {
+		return err
+	}
+	return nil
+}
