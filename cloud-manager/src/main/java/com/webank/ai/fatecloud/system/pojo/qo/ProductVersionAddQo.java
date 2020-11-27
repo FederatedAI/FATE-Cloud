@@ -31,6 +31,8 @@ public class ProductVersionAddQo implements Serializable {
 
     private Integer publicStatus;
 
+    private String kubernetesChart;
+
     @NotNull(message = "component version can't be null")
     private List<ComponentVersionAddQo> componentVersionAddQos;
 

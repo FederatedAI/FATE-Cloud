@@ -51,6 +51,10 @@ public class FederatedProductVersionDo implements Serializable {
     @TableField(value = "package_download_url")
     private String packageDownloadUrl;
 
+    @ApiModelProperty(value = "version for kubernetes")
+    @TableField(value = "kubernetes_chart")
+    private String kubernetesChart;
+
     @ApiModelProperty(value = "public status: 1 public,2 private")
     @TableField(value = "public_status")
     private Integer publicStatus;
@@ -74,6 +78,7 @@ public class FederatedProductVersionDo implements Serializable {
         this.imageDownloadUrl = productVersionAddQo.getImageDownloadUrl();
         this.packageName = productVersionAddQo.getPackageName();
         this.packageDownloadUrl = productVersionAddQo.getPackageDownloadUrl();
+        this.kubernetesChart=productVersionAddQo.getKubernetesChart();
         this.publicStatus = productVersionAddQo.getPublicStatus();
     }
 
@@ -85,6 +90,7 @@ public class FederatedProductVersionDo implements Serializable {
         this.imageDownloadUrl = productVersionUpdateQo.getImageDownloadUrl();
         this.packageName = productVersionUpdateQo.getPackageName();
         this.packageDownloadUrl = productVersionUpdateQo.getPackageDownloadUrl();
+        this.kubernetesChart=productVersionUpdateQo.getKubernetesChart();
         this.publicStatus = productVersionUpdateQo.getPublicStatus();
     }
 }
