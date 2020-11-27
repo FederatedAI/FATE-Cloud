@@ -44,6 +44,7 @@ type PrepareReq struct {
 	ControlNode string   `json:"controlNode"`
 	ManagerNode []string `json:"managerNode"`
 }
+
 type CheckItem struct {
 	TestItem     string `json:"testItem"`
 	TestDuration int    `json:"testDuration"`
@@ -95,7 +96,7 @@ type AnsiblePrepareItem struct {
 	Ip   string    `json:"ip"`
 	List []Prepare `json:"list"`
 }
-type AnsibleList struct {
+type AnsibleListItem struct {
 	Ip       string `json:"ip"`
 	Duration int    `json:"duration"`
 	Status   string `json:"status"`
