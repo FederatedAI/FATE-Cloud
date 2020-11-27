@@ -4,8 +4,9 @@ definitions:
       code:
         type: integer
       data:
-        $ref: '#/definitions/entity.AnsibleList'
-        type: object
+        items:
+          $ref: '#/definitions/entity.AnsibleListItem'
+        type: array
       msg:
         type: string
     type: object
@@ -504,7 +505,7 @@ definitions:
       partyId:
         type: integer
     type: object
-  entity.AnsibleList:
+  entity.AnsibleListItem:
     properties:
       duration:
         type: integer
@@ -1812,6 +1813,31 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Install Fate All Component
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/installlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InstallComponentListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.InstallListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Install Component List
       tags:
       - AnsibleDeployController
   /fate-manager/api/ansible/list:

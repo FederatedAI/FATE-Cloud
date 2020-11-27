@@ -189,6 +189,9 @@ func GetDefaultPort(componentName string,deployType enum.DeployType) int {
 		port = 8080
 	} else if componentName == "fateflow" {
 		port = k8sinfo.PythonPort + 1
+		if k8sinfo.PythonPort ==0 {
+			port = 9380
+		}
 	} else if componentName == "serving-server" {
 		port = 9340
 	} else if componentName == "serving-proxy" {
@@ -199,6 +202,9 @@ func GetDefaultPort(componentName string,deployType enum.DeployType) int {
 		port = 4671
 	} else if componentName == "rollsite" {
 		port = k8sinfo.RollsitePort + 1
+		if k8sinfo.RollsitePort ==0 {
+			port = 4670
+		}
 	}
 	str := fmt.Sprintf("componentName:%smPythonPort:%d,RollsitePort:%d,port:%d", componentName, k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
 	logging.Debug(str)

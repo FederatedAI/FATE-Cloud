@@ -382,6 +382,45 @@
                 }
             }
         },
+        "/fate-manager/api/ansible/installlist": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AnsibleDeployController"
+                ],
+                "summary": "Get Install Component List",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.InstallComponentListReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.InstallListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/ansible/list": {
             "get": {
                 "consumes": [
@@ -3468,8 +3507,10 @@
                     "type": "integer"
                 },
                 "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.AnsibleList"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AnsibleListItem"
+                    }
                 },
                 "msg": {
                     "type": "string"
@@ -4234,7 +4275,7 @@
                 }
             }
         },
-        "entity.AnsibleList": {
+        "entity.AnsibleListItem": {
             "type": "object",
             "properties": {
                 "duration": {

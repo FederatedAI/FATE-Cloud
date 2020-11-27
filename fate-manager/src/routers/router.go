@@ -159,6 +159,7 @@ func InitRouter() *gin.Engine {
 		ansible.POST("/autotest",AnsibleAutoTest)
 		ansible.POST("/testlist",GetAnsibleAutoTestList)
 		ansible.POST("/testonly",AnsibleTestOnly)
+		ansible.POST("/installlist",GetAnsibleInstallComponentList)
 	}
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
