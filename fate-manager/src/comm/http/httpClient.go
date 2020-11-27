@@ -101,7 +101,7 @@ func (r req) do(method string, url Url, param Param, header Header) (ret *result
 	}
 	r.setHeader(reqs, header)
 	defer reqs.Body.Close()
-	client := &http.Client{Timeout: 5 * time.Second}
+	client := &http.Client{Timeout: 20 * time.Second}
 	if setting.ServerSetting.IfProxy {
 		client = GetProxy()
 	}

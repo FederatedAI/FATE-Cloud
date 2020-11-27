@@ -66,7 +66,7 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		}
 
 		if kubenetesConf.ClickType > 0 {
-			deploySite.ClickType = kubenetesConf.ClickType
+			deploySite.ClickType = conf.ClickType
 		}
 		deploySiteList, _ := models.GetDeploySite(&deploySite)
 		if len(deploySiteList) == 0 {
@@ -217,25 +217,26 @@ func GetCheck(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
 	return nil, nil
 }
 
-func GetAnsibleList() (*entity.AnsibleList, error) {
+func GetAnsibleList() ([]entity.AnsibleListItem, error) {
 	var prepareReq entity.PrepareReq
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
 	}
+	var ansiblelist []entity.AnsibleListItem
 	if len(conf.NodeList) > 0 {
 		err := json.Unmarshal([]byte(conf.NodeList), &prepareReq)
 		if err != nil {
 			return nil, err
 		}
-		ansibleList := entity.AnsibleList{
+		ansibleListItem := entity.AnsibleListItem{
 			Ip:       prepareReq.ControlNode,
 			Duration: conf.AnsibleDuration,
 			Status:   conf.AnsibleStatus,
 		}
-		return &ansibleList, nil
+		ansiblelist = append(ansiblelist, ansibleListItem)
 	}
-	return nil, nil
+	return ansiblelist, nil
 }
 
 func StartDeployAnsible() (int, error) {
@@ -404,8 +405,13 @@ func GetComponentList(connectAnsible entity.ConnectAnsible) (*entity.AcquireResp
 }
 
 type IpNode struct {
-	Ip   []string `json:"ips"`
-	Port int      `json:"port"`
+	Enable bool     `json:"enable"`
+	Ip     []string `json:"ips"`
+	Port   int      `json:"port"`
+}
+type Java struct {
+	Enable bool     `json:"enable"`
+	Ip     []string `json:"ips"`
 }
 type AnsibleMysql struct {
 	IpNode
@@ -413,7 +419,7 @@ type AnsibleMysql struct {
 	User     string `json:"dbuser"`
 }
 type AnsibleFlow struct {
-	Ip       []string `json:"nodeSelector"`
+	Ip       []string `json:"ips"`
 	HttpPort int      `json:"httpport"`
 	GrpcPort int      `json:"grpcPort"`
 }
@@ -424,28 +430,55 @@ type Rule struct {
 }
 type Rollsite struct {
 	IpNode
-	Port  int    `json:"port"`
-	Rules []Rule `json:"default_rules"`
+	Port         int    `json:"port"`
+	DefaultRules []Rule `json:"default_rules"`
+	Rules        []Rule `json:"rules"`
+}
+type Eggroll struct {
+	Enable bool   `json:"enable"`
+	Dbname string `json:"dbname"`
+	Egg    int    `json:"egg"`
+}
+type FateFlow struct {
+	Enable bool   `json:"enable"`
+	Dbname string `json:"dbname"`
+	AnsibleFlow
+}
+type Fateboard struct {
+	Dbname string `json:"dbname"`
+	IpNode
 }
 type Modules struct {
 	Mysql          AnsibleMysql `json:"mysql"`
 	Clustermanager IpNode       `json:"clustermanager"`
 	Nodemanager    IpNode       `json:"nodemanager"`
-	Flow           IpNode       `json:"fate_flow"`
-	Fateboard      IpNode       `json:"fateboard"`
-	Java           IpNode       `json:"java"`
-	Python         IpNode       `json:"python"`
-	Eggroll        IpNode       `json:"eggroll"`
+	Flow           FateFlow     `json:"fate_flow"`
+	Fateboard      Fateboard    `json:"fateboard"`
+	Java           Java         `json:"java"`
+	Python         Java         `json:"python"`
+	Eggroll        Eggroll      `json:"eggroll"`
 	Rollsite       Rollsite     `json:"rollsite"`
+	Supervisor     Java         `json:"supervisor"`
 }
 type ClusterInstallByAnsible struct {
-	PartyId     int     `json:"partyId"`
+	PartyId     int     `json:"party_id"`
 	Role        string  `json:"role"`
 	FateVersion string  `json:"version"`
 	Modules     Modules `json:"modules"`
 }
 
 func InstallByAnsible(installReq entity.InstallReq) (int, error) {
+	site := models.SiteInfo{
+		PartyId: installReq.PartyId,
+		Status:  int(enum.SITE_STATUS_JOINED),
+	}
+	siteList, err := models.GetSiteList(&site)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if len(siteList) == 0 {
+		return e.ERROR_GET_SITE_FAIL, nil
+	}
 	deploySite := models.DeploySite{
 		FederatedId: installReq.FederatedId,
 		PartyId:     installReq.PartyId,
@@ -474,7 +507,8 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 	}
 	req := ClusterInstallByAnsible{
 		PartyId:     installReq.PartyId,
-		FateVersion: deploySite.FateVersion,
+		FateVersion: deploySiteList[0].FateVersion,
+		Role:        strings.ToLower(enum.GetRoleString(enum.RoleType(siteList[0].Role))),
 	}
 	var modules []string
 	for i := 0; i < len(deployComponentList); i++ {
@@ -484,8 +518,12 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 		arr := strings.Split(item.Address, ":")
 		port, _ := strconv.Atoi(arr[1])
 		IpNode := IpNode{
-			Ip:   []string{arr[0]},
-			Port: port,
+			Enable: true,
+			Ip:     []string{arr[0]},
+			Port:   port,
+		}
+		Java := Java{
+			Ip: []string{arr[0]},
 		}
 		if item.ComponentName == "mysql" {
 			req.Modules.Mysql.IpNode = IpNode
@@ -493,12 +531,25 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			req.Modules.Mysql.User = "fate_user"
 		} else if item.ComponentName == "clustermanager" {
 			req.Modules.Clustermanager = IpNode
-		} else if item.ComponentName == "nodemanger" {
+		} else if item.ComponentName == "nodemanager" {
 			req.Modules.Nodemanager = IpNode
 		} else if item.ComponentName == "fateflow" {
 			req.Modules.Flow.Ip = []string{arr[0]}
+			req.Modules.Flow.Dbname = "fae_flow"
+			req.Modules.Flow.Enable = true
+			req.Modules.Flow.GrpcPort = 9370
+			req.Modules.Flow.HttpPort = 9380
+			req.Modules.Python.Enable = true
+			req.Modules.Python.Ip = []string{arr[0]}
 		} else if item.ComponentName == "fateboard" {
-			req.Modules.Fateboard = IpNode
+			req.Modules.Fateboard = Fateboard{
+				Dbname: "fate_flow",
+				IpNode: IpNode,
+			}
+			req.Modules.Java.Ip = IpNode.Ip
+			req.Modules.Java = Java
+			req.Modules.Supervisor.Ip = []string{arr[0]}
+			req.Modules.Supervisor.Enable = true
 		} else if item.ComponentName == "rollsite" {
 			req.Modules.Rollsite.IpNode = IpNode
 			req.Modules.Rollsite.Port = port
@@ -507,10 +558,13 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 				Ip:   setting.KubenetesSetting.ExchangeIp,
 				Port: setting.KubenetesSetting.ExchangePort,
 			}
-			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
+			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, rule)
+			req.Modules.Eggroll.Enable = true
+			req.Modules.Eggroll.Dbname = "eggroll_meta"
+			req.Modules.Eggroll.Egg = setting.KubenetesSetting.SessionProcessorsPerNode
 		}
 	}
-
+	reqs,_ := json.Marshal(req)
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleJobSubmitUri), req, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
@@ -527,6 +581,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 		var data = make(map[string]interface{})
 		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION)
 		models.UpdateDeployComponent(data, deployComponent)
+		data["config"] = string(reqs)
 		models.UpdateDeploySite(data, deploySite)
 		deployJob := models.DeployJob{
 			JobId:       submitResponse.Data.JobId,
@@ -650,74 +705,6 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
-func AnsibleJobQuery(DeployJob models.DeployJob) {
-	req := entity.AnsibleSubmitData{JobId: DeployJob.JobId}
-	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleJobQueryUri), req, nil)
-	if err != nil || result == nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return
-	}
-	var queryResponse entity.QueryResponse
-	err = json.Unmarshal([]byte(result.Body), &queryResponse)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return
-	}
-	if queryResponse.Code == e.SUCCESS {
-		var data = make(map[string]interface{})
-		deployStatus := enum.ANSIBLE_DeployStatus_INSTALLED
-		if queryResponse.Data.Status == "success" {
-			data["status"] = int(enum.JOB_STATUS_SUCCESS)
-			data["end_time"] = queryResponse.Data.EndTime
-		} else if queryResponse.Data.Status == "running" {
-			data["status"] = int(enum.JOB_STATUS_RUNNING)
-			deployStatus = enum.ANSIBLE_DeployStatus_INSTALLING
-		} else if queryResponse.Data.Status == "failed" {
-			deployStatus = enum.ANSIBLE_DeployStatus_INSTALLED_FAILED
-			data["status"] = int(enum.JOB_STATUS_FAILED)
-		}
-		data["start_time"] = queryResponse.Data.StartTime
-		data["update_time"] = time.Now()
-		models.UpdateDeployJob(data, &DeployJob)
-
-		data = make(map[string]interface{})
-		data["deploy_status"] = int(deployStatus)
-
-		starttime := queryResponse.Data.StartTime
-		endtime := queryResponse.Data.EndTime
-
-		var duration int64
-		duration = 0
-		if endtime-starttime >= 0 {
-			duration = endtime - starttime
-		}
-		deploySite := models.DeploySite{
-			PartyId:    DeployJob.PartyId,
-			IsValid:    int(enum.IS_VALID_YES),
-			DeployType: int(enum.DeployType_ANSIBLE),
-		}
-		data["duration"] = duration
-		deploySite.JobId = DeployJob.JobId
-		models.UpdateDeploySite(data, deploySite)
-
-		for j := 0; j < len(queryResponse.Data.Plays); j++ {
-			data = make(map[string]interface{})
-			data["deploy_status"] = int(deployStatus)
-			data["duration"] = duration
-			data["start_time"] = queryResponse.Data.StartTime
-			data["end_time"] = queryResponse.Data.EndTime
-
-			deployComponent := models.DeployComponent{
-				PartyId:       DeployJob.PartyId,
-				ComponentName: queryResponse.Data.Plays[j].Module,
-				IsValid:       int(enum.IS_VALID_YES),
-				DeployType:    int(enum.DeployType_ANSIBLE),
-			}
-			models.UpdateDeployComponent(data, deployComponent)
-		}
-
-	}
-}
 func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 	var data = make(map[string]interface{})
 	data["fate_version"] = commitImagePullReq.FateVersion
@@ -748,7 +735,7 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		}
 		componentVersionDetail := entity.ComponentVersionDetail{
 			Version: componentVersionList[i].ComponentVersion,
-			Address: nodelist[1] + ":" + strconv.Itoa(port),
+			Address: nodelist[0] + ":" + strconv.Itoa(port),
 		}
 		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
@@ -761,6 +748,7 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 			VersionIndex:     componentVersionList[i].VersionIndex,
 			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
 			DeployType:       int(enum.DeployType_ANSIBLE),
+			Status:           int(enum.ANSIBLE_DeployStatus_UNKNOWN),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
 			UpdateTime:       time.Now(),

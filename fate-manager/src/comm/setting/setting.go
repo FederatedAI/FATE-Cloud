@@ -43,6 +43,7 @@ const (
 	CheckPartyUri         = "/cloud-manager/api/authority/check/partyId"
 	SystemHeartUri        = "/cloud-manager/api/system/heart"
 	MonitorPushUri        = "/cloud-manager/api/job/push"
+	ProductVersionUri     = "/cloud-manager/api/product/page/fatemanager"
 )
 const (
 	FlowJobQuery = "/v1/job/query"
@@ -102,17 +103,6 @@ type Kubenetes struct {
 
 var KubenetesSetting = &Kubenetes{}
 
-type Schedule struct {
-	IpManager int
-	Heart     int
-	Job       int
-	Test      int
-	Apply     int
-	Monitor   int
-}
-
-var ScheduleSetting = &Schedule{}
-
 var cfg *ini.File
 
 func Setup() {
@@ -124,7 +114,6 @@ func Setup() {
 
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
-	mapTo("schedule", ScheduleSetting)
 	mapTo("kubenetes", KubenetesSetting)
 
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second

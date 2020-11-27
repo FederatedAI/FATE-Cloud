@@ -11,7 +11,7 @@ type CheckSystemResp struct {
 
 type AnsibleListResponse struct {
 	CommResp
-	Data entity.AnsibleList `json:"data"`
+	Data []entity.AnsibleListItem `json:"data"`
 }
 
 type AnsiblePackageResponse struct {

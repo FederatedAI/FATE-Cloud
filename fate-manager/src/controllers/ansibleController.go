@@ -7,6 +7,7 @@ import (
 	"fate.manager/comm/logging"
 	"fate.manager/entity"
 	"fate.manager/services/ansible_service"
+	"fate.manager/services/component_deploy_service"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -313,6 +314,34 @@ func AnsibleClick(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+// @Summary Get Install Component List
+// @Tags AnsibleDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.InstallComponentListReq true "request param"
+// @Success 200 {object} app.InstallListResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/ansible/installlist [post]
+func GetAnsibleInstallComponentList(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var installComponentListReq entity.InstallComponentListReq
+	if jsonError := json.Unmarshal(body, &installComponentListReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	installListResponse, err := component_deploy_service.GetInstallComponentList(installComponentListReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_INSTALL_COMPONENT_LIST_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, installListResponse)
 }
 
 // @Summary Install Fate All Component
