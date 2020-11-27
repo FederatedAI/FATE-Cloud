@@ -5,6 +5,7 @@ import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.CheckVersion;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedProductVersionDo;
 import com.webank.ai.fatecloud.system.pojo.dto.ProductVersionAddDto;
@@ -33,10 +34,17 @@ public class FederatedProductVersionServiceFacade implements Serializable {
     CheckSignature checkSignature;
 
     public CommonResponse<ProductVersionAddDto> add(ProductVersionAddQo productVersionAddQo) {
-         String productVersion = productVersionAddQo.getProductVersion();
-         List<ComponentVersionAddQo> componentVersionAddQos = productVersionAddQo.getComponentVersionAddQos();
-        for (ComponentVersionAddQo componentVersionAddQo : componentVersionAddQos) {
+        String productVersion = productVersionAddQo.getProductVersion();
+        if (!CheckVersion.checkVersion(productVersion)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
 
+        List<ComponentVersionAddQo> componentVersionAddQos = productVersionAddQo.getComponentVersionAddQos();
+        for (ComponentVersionAddQo componentVersionAddQo : componentVersionAddQos) {
+            String componentVersion = componentVersionAddQo.getComponentVersion();
+            if (!CheckVersion.checkVersion(componentVersion)) {
+                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
         }
 
 

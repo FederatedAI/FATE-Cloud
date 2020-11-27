@@ -183,6 +183,7 @@ CREATE TABLE IF NOT EXISTS `t_product_version` (
   `image_download_url` varchar(512) DEFAULT NULL COMMENT 'url for download image',
   `package_name` varchar(128) DEFAULT NULL COMMENT 'package name',
   `package_download_url` varchar(512) DEFAULT NULL COMMENT 'url for download package',
+  `kubernetes_chart` varchar(512) DEFAULT NULL COMMENT 'version for kubernetes',
   `public_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 public, 2 private',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
