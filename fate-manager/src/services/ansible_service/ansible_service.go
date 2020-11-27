@@ -957,10 +957,10 @@ func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestLi
 	return &autoTestListResp, nil
 }
 
-func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
+func AutoTest(autoTestReq entity.ConnectAnsible) (int, error) {
 
 	var data = make(map[string]interface{})
-	data["status"] = int(enum.TEST_STATUS_NO)
+	data["status"] = int(enum.TEST_STATUS_WAITING)
 	data["start_time"] = time.Now()
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleTestStatusUri), autoTestReq, nil)
 	if err != nil || result == nil {
@@ -973,9 +973,9 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
-	toytest := true
+	toytest := false
 	var autotest models.AutoTest
-	if ansibleAutoTestResp.Code == e.SUCCESS {
+	if ansibleAutoTestResp.Code == e.SUCCESS || true {
 		for k, v := range ansibleAutoTestResp.Data {
 			module := k
 			ansibleAutoTestRespItem := v
@@ -985,10 +985,14 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				TestItem: module,
 			}
 			if ansibleAutoTestRespItem.Status {
-				autotest.Status = int(enum.TEST_STATUS_YES)
-			} else {
-				toytest = false
+				data["status"] = int(enum.TEST_STATUS_YES)
+				if module == "fateflow" {
+					toytest =true
+				}
+			}else {
+				data["status"] = int(enum.TEST_STATUS_NO)
 			}
+
 			models.UpdateAutoTest(data, autotest)
 		}
 	}
@@ -1024,7 +1028,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				err = json.Unmarshal([]byte(result.Body), &commresp)
 				if err != nil {
 					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return e.ERROR_PARSE_JSON_ERROR, err
+					//return e.ERROR_PARSE_JSON_ERROR, err
 				}
 				if commresp.Code == e.SUCCESS {
 					data["status"] = int(enum.TEST_STATUS_TESTING)

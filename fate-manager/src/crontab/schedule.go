@@ -38,7 +38,7 @@ var (
 	MonitorTimer    = 1800
 	PageckageTimer  = 30
 	AutotestTimer   = 30
-	VersionTimer    = 3600
+	VersionTimer    = 10
 )
 
 func SetUp() {
@@ -61,6 +61,7 @@ func SetUp() {
 	go MonitorTask(accountInfo)
 	go PackageStatusTask()
 	go AutotestTask()
+	go VersionUpdateTask(accountInfo)
 }
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(SiteStatusTimer))

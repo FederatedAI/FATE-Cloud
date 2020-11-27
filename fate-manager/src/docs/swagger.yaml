@@ -1614,7 +1614,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.AutoTestReq'
+          $ref: '#/definitions/entity.ConnectAnsible'
       produces:
       - application/json
       responses:

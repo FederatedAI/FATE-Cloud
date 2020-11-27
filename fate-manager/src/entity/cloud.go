@@ -189,6 +189,7 @@ type VersionProductItem struct {
 	ProductId                    int                            `json:"productId"`
 	ProductName                  string                         `json:"productName"`
 	ProductVersion               string                         `json:"productVersion"`
+	ChartVersion                 string                         `json:"kubernetesChart"`
 	PublicStatus                 int                            `json:"publicStatus"`
 	UpdateTime                   time.Time                      `json:"updateTime"`
 }
