@@ -33,6 +33,8 @@ public class ProductVersionUpdateQo implements Serializable {
 
     private String packageDownloadUrl;
 
+    private String kubernetesChart;
+
     private Integer publicStatus;
 
     private List<ComponentVersionAddQo> componentVersionAddQos;

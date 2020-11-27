@@ -81,7 +81,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/job/push")
 
                 .addPathPatterns("/api/product/**")
-                .excludePathPatterns("/api/product/page")
+                .excludePathPatterns("/api/product/page/fatemanager")
         ;
 
 //        registry.addInterceptor(getReferrerInterceptor());
