@@ -278,3 +278,20 @@ func GetManagerIp(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
 }
+
+// @Summary Get Manager Ip:port List
+// @Tags DropDownController
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/dropdown/manager [get]
+func GetManagerIpPort(c *gin.Context) {
+	appG := app.Gin{C: c}
+	ret, err := k8s_service.GetManagerIpPort()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_MANAGER_IP_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, ret)
+}

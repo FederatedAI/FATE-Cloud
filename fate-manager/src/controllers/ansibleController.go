@@ -511,31 +511,3 @@ func AnsibleAutoTest(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
-
-// @Summary Test Only
-// @Tags AnsibleDeployController
-// @Accept  json
-// @Produce  json
-// @Param request body entity.AutoTestReq true "request param"
-// @Success 200 {object} app.CommResp
-// @Failure 500 {object} app.Response
-// @Router /fate-manager/api/ansible/testonly [post]
-func AnsibleTestOnly(c *gin.Context) {
-	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var autoTestReq entity.AnsibleAutoTestReq
-	if jsonError := json.Unmarshal(body, &autoTestReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := ansible_service.ToyTestOnly(autoTestReq)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, ret, nil)
-		return
-	}
-	appG.Response(http.StatusOK, e.SUCCESS, nil)
-}
