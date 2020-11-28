@@ -363,7 +363,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
 			deployJob.Status = int(enum.JOB_STATUS_RUNNING)
 			deployStatus = enum.DeployStatus_INSTALLING
-		} else if queryResponse.Data.Status == "failed" ||queryResponse.Data.Status == "canceled"||queryResponse.Data.Status == "timeout"   ||queryResponse.Data.Status == "skipped" {
+		} else if queryResponse.Data.Status == "failed" || queryResponse.Data.Status == "canceled" || queryResponse.Data.Status == "timeout" || queryResponse.Data.Status == "skipped" {
 			deployJob.Status = int(enum.JOB_STATUS_FAILED)
 			deployStatus = enum.DeployStatus_INSTALLED_FAILED
 		}
@@ -1505,20 +1505,28 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	var sitedata = make(map[string]interface{})
 	var testdata = make(map[string]interface{})
 	ResultReq := entity.AnsibleToyTestResultReq{
-		PartyId: deploySite.PartyId,
-		Ip:      Ip,
+		Limit:    500,
+		Ip:       Ip,
+		TestType: curItem,
 	}
 	TestReq := entity.AnsibleToyTestReq{
 		GuestPartyId: deploySite.PartyId,
 		HostPartyId:  setting.KubenetesSetting.TestPartyId,
 		Ip:           Ip,
 	}
+	if NextItem == "toy" {
+		TestReq.TestType = int(enum.TEST_ITEM_TOY)
+	} else if NextItem == "fast" {
+		TestReq.TestType = int(enum.TEST_ITEM_FAST)
+	} else if NextItem == "normal" {
+		TestReq.TestType = int(enum.TEST_ITEM_NORMAL)
+	}
 	autotest := models.AutoTest{
 		PartyId: deploySite.PartyId,
 	}
 
 	ResultReq.TestType = curItem
-	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleToyTestResultUri), ResultReq, nil)
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
 	var resultResp entity.AnsibleTestResultResponse
 	err = json.Unmarshal([]byte(result.Body), &resultResp)
 	if err != nil {
@@ -1526,9 +1534,15 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	}
 	if resultResp.Code == e.SUCCESS {
 		sitedata[curItem+"_test"] = int(enum.TEST_STATUS_NO)
-		if JudgeResult(deploySite.PartyId, curItem, "success to calculate secure_sum", resultResp.Data) {
+		findKey := "success to calculate secure_sum"
+		if curItem == "fast" || curItem == "normal" {
+			findKey = "success"
+		}
+		successTag := false
+		if JudgeResult(deploySite.PartyId, curItem, findKey, resultResp.Data) {
 			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
 			testdata["status"] = int(enum.TEST_STATUS_YES)
+			successTag = true
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
@@ -1536,24 +1550,34 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		autotest.TestItem = curItem + " Test"
 		models.UpdateAutoTest(testdata, autotest)
 
-		if NextItem != "normal" {
-			TestReq.TestType = NextItem
-			result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleToyTestUri), TestReq, nil)
-			var commresp entity.AnsibleCommResp
-			err = json.Unmarshal([]byte(result.Body), &commresp)
-			if err != nil {
-				return
-			}
-			if commresp.Code == e.SUCCESS {
-				testdata = make(map[string]interface{})
-				testdata["status"] = int(enum.TEST_STATUS_TESTING)
-				testdata["start_time"] = time.Now()
-				autotest.TestItem = NextItem + " Test"
-				models.UpdateAutoTest(testdata, autotest)
+		if curItem != "normal" && successTag {
+			if curItem == "fast" {
+				dataUploadReq := entity.DataUploadReq{Ip: Ip}
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/upload"), dataUploadReq, nil)
+				var commresp entity.AnsibleCommResp
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					return
+				}
+				if commresp.Code == e.SUCCESS {
+					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
+					var commresp entity.AnsibleCommResp
+					err = json.Unmarshal([]byte(result.Body), &commresp)
+					if err != nil {
+						return
+					}
+					if commresp.Code == e.SUCCESS {
+						testdata = make(map[string]interface{})
+						testdata["status"] = int(enum.TEST_STATUS_TESTING)
+						testdata["start_time"] = time.Now()
+						autotest.TestItem = NextItem + " Test"
+						models.UpdateAutoTest(testdata, autotest)
 
-				sitedata = make(map[string]interface{})
-				sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
-				models.UpdateDeploySite(sitedata, deploySite)
+						sitedata = make(map[string]interface{})
+						sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+						models.UpdateDeploySite(sitedata, deploySite)
+					}
+				}
 			}
 		}
 	}
@@ -1561,8 +1585,10 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 func VersionUpdateTask(info *models.AccountInfo) {
 	versionProduct := entity.VersionProductReq{
-		PageNum:  1,
-		PageSize: 100,
+		PageNum:        1,
+		PageSize:       100,
+		ProductName:    "",
+		ProductVersion: "",
 	}
 	versionProductJson, _ := json.Marshal(versionProduct)
 	headInfo := util.UserHeaderInfo{
@@ -1593,7 +1619,7 @@ func VersionUpdateTask(info *models.AccountInfo) {
 			versionProductItem := resp.Data.List[i]
 			for j := 0; j < len(versionProductItem.FederatedComponentVersionDos); j++ {
 				federatedComponentVersionDos := versionProductItem.FederatedComponentVersionDos[j]
-                versionIndex,_ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6],".",""))
+				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6], ".", ""))
 				componentVersion := models.ComponentVersion{
 					FateVersion:      versionProductItem.ProductVersion,
 					ProductType:      federatedComponentVersionDos.ProductId,
@@ -1615,7 +1641,7 @@ func VersionUpdateTask(info *models.AccountInfo) {
 				}
 				models.AddComponentVersion(&componentVersion)
 			}
-			versionIndex,_ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6],".",""))
+			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6], ".", ""))
 			fateVersion := models.FateVersion{
 				FateVersion:   versionProductItem.ProductVersion,
 				ProductType:   versionProductItem.ProductId,

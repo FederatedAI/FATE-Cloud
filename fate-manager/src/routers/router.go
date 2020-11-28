@@ -78,6 +78,7 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/fateserving", GetFateServingVersionList)
 		dropDownList.POST("/componentversion",GetComponentVersionList)
 		dropDownList.GET("/managernode",GetManagerIp)
+		dropDownList.GET("/manager",GetManagerIpPort)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service")//.Use(JWT())
@@ -158,7 +159,6 @@ func InitRouter() *gin.Engine {
 		ansible.POST("/log",AnsibleLog)
 		ansible.POST("/autotest",AnsibleAutoTest)
 		ansible.POST("/testlist",GetAnsibleAutoTestList)
-		ansible.POST("/testonly",AnsibleTestOnly)
 		ansible.POST("/installlist",GetAnsibleInstallComponentList)
 	}
 	//Web
