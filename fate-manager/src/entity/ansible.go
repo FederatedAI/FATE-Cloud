@@ -174,19 +174,27 @@ type AnsibleAutoTestReq struct {
 	IfOnly  bool `json:"ifOnly"`
 }
 
+type AnsibleSingleTestReq struct {
+	PartyId int    `json:"party_id"`
+	Ip      string `json:"host"`
+}
+
 type AnsibleToyTestReq struct {
-	GuestPartyId int    `json:"guestPartyId"`
-	HostPartyId  int    `json:"hostPartyId"`
-	Ip           string `json:"ip"`
-	TestType     string `json:"testType"`
+	GuestPartyId int    `json:"guest_party_id"`
+	HostPartyId  int    `json:"host_party_id"`
+	Ip           string `json:"host"`
+	TestType     int    `json:"work_mode"`
 }
 type AnsibleToyTestResultReq struct {
-	PartyId  int    `json:"partyId"`
+	Limit  int    `json:"limit"`
 	Ip       string `json:"ip"`
-	TestType string `json:"testType"`
+	TestType string `json:"test_type"`
 }
 
 type AnsibleTestResultResponse struct {
 	AnsibleCommResp
-	Data []string  `json:"data"`
+	Data []string `json:"data"`
+}
+type DataUploadReq struct {
+	Ip string `json:"host"`
 }

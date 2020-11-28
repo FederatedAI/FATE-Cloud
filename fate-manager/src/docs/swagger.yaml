@@ -1933,31 +1933,6 @@ paths:
       summary: Get Auto Test Site List
       tags:
       - AnsibleDeployController
-  /fate-manager/api/ansible/testonly:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.AutoTestReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/app.CommResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/app.Response'
-      summary: Test Only
-      tags:
-      - AnsibleDeployController
   /fate-manager/api/ansible/update:
     post:
       consumes:
@@ -2603,6 +2578,24 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get Federation List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/manager:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Manager Ip:port List
       tags:
       - DropDownController
   /fate-manager/api/dropdown/managernode:

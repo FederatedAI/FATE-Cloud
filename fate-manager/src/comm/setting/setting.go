@@ -50,18 +50,16 @@ const (
 )
 
 const (
-	AnsibleConnectUri       = "/ansible/v1/server/status"
-	AnsiblePrepareUri       = "/ansible/v1/check/pre"
-	AnsibleInstallUri       = "/ansible/v1/server/status"
-	AnsibleJobSubmitUri     = "/ansible/v1/job/submit"
-	AnsibleJobQueryUri      = "/ansible/v1/job/query"
-	AnsiblePackageQueryUri  = "/ansible/v1/package/remote"
-	AnsiblePackageDownUri   = "/ansible/v1/package/download"
-	AnsibleLocalUploadUri   = "/ansible/v1/package/local"
-	AnsibleLogUri           = "/ansible/v1/server/log"
-	AnsibleTestStatusUri    = "/ansible/v1/test/status"
-	AnsibleToyTestUri       = "/ansible/v1/auto/test"
-	AnsibleToyTestResultUri = "/ansible/v1/test/result"
+	AnsibleConnectUri      = "/ansible/v1/server/status"
+	AnsiblePrepareUri      = "/ansible/v1/check/pre"
+	AnsibleInstallUri      = "/ansible/v1/server/status"
+	AnsibleJobSubmitUri    = "/ansible/v1/job/submit"
+	AnsibleJobQueryUri     = "/ansible/v1/job/query"
+	AnsiblePackageQueryUri = "/ansible/v1/package/remote"
+	AnsiblePackageDownUri  = "/ansible/v1/package/download"
+	AnsibleLocalUploadUri  = "/ansible/v1/package/local"
+	AnsibleLogUri          = "/ansible/v1/server/log"
+	AnsibleAutoTestUri     = "/ansible/v1/test"
 )
 
 type Server struct {

@@ -52,7 +52,7 @@ func GetNodeIp(deployType enum.DeployType) []string {
 			if err != nil {
 				return nil
 			}
-            list = prepareReq.ManagerNode
+			list = prepareReq.ManagerNode
 		}
 	}
 	return list
@@ -118,7 +118,7 @@ func GetManagerIp() ([]entity.IpStatus, error) {
 		}
 		status := "success"
 		if len(conf.AnsibleCheck) == 0 {
-
+			return nil, nil
 		}
 		var ansiblePrepare []entity.AnsiblePrepareItem
 		err = json.Unmarshal([]byte(conf.AnsibleCheck), &ansiblePrepare)
@@ -148,4 +148,32 @@ func GetManagerIp() ([]entity.IpStatus, error) {
 		return IpStatusList, nil
 	}
 	return nil, nil
+}
+
+type ManagerNode struct {
+	Ip   string `json:"ip"`
+	Port int    `json:"port"`
+}
+
+func GetManagerIpPort() ([]ManagerNode, error) {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return nil, err
+	}
+	var nodelist []ManagerNode
+	if len(conf.NodeList) > 0 {
+		var prepareReq entity.PrepareReq
+		err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
+		if err != nil {
+			return nil, err
+		}
+		for i := 0; i < len(prepareReq.ManagerNode); i++ {
+			node := ManagerNode{
+				Ip:   prepareReq.ManagerNode[i],
+				Port: 8080,
+			}
+			nodelist = append(nodelist, node)
+		}
+	}
+	return nodelist, nil
 }
