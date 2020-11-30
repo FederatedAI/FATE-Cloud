@@ -75,12 +75,12 @@ public class FederatedProductVersionServiceFacade implements Serializable {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, productVersionDto);
     }
 
-    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(ProductVersionPageQo productVersionPageQo, HttpServletRequest httpServletRequest) {
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(productVersionPageQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) {
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(productVersionPageForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-        PageBean<FederatedProductVersionDo> page = federatedProductVersionService.page(productVersionPageQo);
+        PageBean<FederatedProductVersionDo> page = federatedProductVersionService.page(new ProductVersionPageQo(productVersionPageForFateManagerQo));
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, page);
     }
 }
