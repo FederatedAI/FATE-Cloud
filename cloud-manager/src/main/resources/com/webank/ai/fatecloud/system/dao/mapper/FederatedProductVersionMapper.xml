@@ -61,9 +61,9 @@
                     and product_version=#{productVersionPageQo.productVersion}
                 </if>
             </where>
-            order by product_name,product_version limit #{startIndex}, #{productVersionPageQo.pageSize}
+            order by product_name ,product_version limit #{startIndex}, #{productVersionPageQo.pageSize}
             ) tmp
-            )
+            ) order by product_name ,product_version
         </where>
 
     </select>
