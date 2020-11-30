@@ -10,6 +10,7 @@
         <result property="imageDownloadUrl" column="image_download_url"></result>
         <result property="packageName" column="package_name"></result>
         <result property="packageDownloadUrl" column="package_download_url"></result>
+        <result property="kubernetesChart" column="kubernetes_chart"></result>
         <result property="publicStatus" column="public_status"></result>
         <result property="createTime" column="create_time"></result>
         <result property="updateTime" column="update_time"></result>
