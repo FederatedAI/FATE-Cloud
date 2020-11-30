@@ -131,8 +131,8 @@ public class CheckSignature {
                 String httpURI = httpServletRequest.getRequestURI();
                 Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, fateManagerUserId, fateManagerUserAppKey, timestamp, nonce, httpURI));
                 log.info(
-                        "Head Information | signature:{},fateManagerUserId:{},fateManagerUserAppKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}",
-                        signature, fateManagerUserId, fateManagerUserAppKey, timestamp, nonce, httpURI, httpBody
+                        "Head Information | fateManagerUserId:{},fateManagerUserAppKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                        fateManagerUserId, fateManagerUserAppKey, timestamp, nonce, httpURI, httpBody, signature
                 );
 
                 if (fateManagerUserStatus == null || 0 == fateManagerUserStatus.length) {
@@ -169,10 +169,9 @@ public class CheckSignature {
 
                 String trueSignature = EncryptUtil.generateSignature(fateManagerUserSecret, fateManagerUserId, fateManagerUserKey, timestamp, nonce, httpURI, httpBody);
 
-                log.info("Request Signature: {}", signature);
                 log.info(
-                        "True Signature:    {} | fateManagerUserSecret:{},fateManagerUserId:{},fateManagerUserAppKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}",
-                        trueSignature, fateManagerUserSecret, fateManagerUserId, fateManagerUserAppKey, timestamp, nonce, httpURI, httpBody
+                        "True Information | fateManagerUserId:{},fateManagerUserAppKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{},signature:{},fateManagerUserSecret:{}",
+                        fateManagerUserId, fateManagerUserAppKey, timestamp, nonce, httpURI, httpBody, trueSignature, fateManagerUserSecret
                 );
 
 
@@ -192,8 +191,8 @@ public class CheckSignature {
                     String httpURI = httpServletRequest.getRequestURI();
 
                     log.info(
-                            "Head Information | signature:{},fateManagerUserId:{},fateManagerUserAppKey:{},partyId:{},role:{},appKey:{},timestamp:{},nonce:{},httpURI{},httpBody{}",
-                            signature, fateManagerUserId, fateManagerUserAppKey, partyId, role, appKey, timestamp, nonce, httpURI, httpBody
+                            "Head Information | fateManagerUserId:{},fateManagerUserAppKey:{},partyId:{},role:{},appKey:{},timestamp:{},nonce:{},httpURI{},httpBody{},signature:{}",
+                            fateManagerUserId, fateManagerUserAppKey, partyId, role, appKey, timestamp, nonce, httpURI, httpBody, signature
                     );
                     Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, fateManagerUserId, fateManagerUserAppKey, partyId, role, appKey, timestamp, nonce, httpURI));
 
@@ -258,9 +257,9 @@ public class CheckSignature {
                     String trueSignature = EncryptUtil.generateSignature(fateManagerUserSecret + siteSecret,
                             fateManagerUserId, fateManagerUserAppKey, partyId, Integer.toString(site.getRole()), appKey, timestamp, nonce, httpURI, httpBody);
 
-                    log.info("Request Signature: {}", signature);
-                    log.info("True Signature:    {} | fateManagerUserSecret:{},siteSecret:{},fateManagerUserId:{},fateManagerUserAppKey:{},partyId:{},role:{},appKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}",
-                            trueSignature, fateManagerUserSecret, siteSecret, fateManagerUserId, fateManagerUserAppKey, partyId, site.getRole(), appKey, timestamp, nonce, httpURI, httpBody);
+                    log.info(
+                            "True Information | fateManagerUserId:{},fateManagerUserAppKey:{},partyId:{},role:{},appKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{},fateManagerUserSecret:{},siteSecret:{},signature:{}",
+                            fateManagerUserId, fateManagerUserAppKey, partyId, site.getRole(), appKey, timestamp, nonce, httpURI, httpBody, fateManagerUserSecret, siteSecret, trueSignature);
 
                     return StringUtils.equals(signature, trueSignature);
                 } else {
