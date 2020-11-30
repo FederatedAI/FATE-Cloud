@@ -8,10 +8,7 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedProductVersionDo;
 import com.webank.ai.fatecloud.system.pojo.dto.ProductVersionAddDto;
 import com.webank.ai.fatecloud.system.pojo.dto.ProductVersionDto;
 import com.webank.ai.fatecloud.system.pojo.dto.ProductVersionPageDto;
-import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionDeleteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ProductVersionUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedProductVersionServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -69,11 +66,9 @@ public class FederatedProductVersionController {
 
     @PostMapping(value = "/page")
     @ApiOperation(value = "find paged items")
-    public CommonResponse<PageBean<FederatedProductVersionDo>> page(@RequestBody ProductVersionPageQo productVersionPageQo, BindingResult bindingResult) {
+    public CommonResponse<PageBean<FederatedProductVersionDo>> page(@RequestBody ProductVersionPageQo productVersionPageQo) {
         log.info("RequestBody:{}", productVersionPageQo);
-        if (bindingResult.hasErrors()) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
+
         return federatedProductVersionServiceFacade.page(productVersionPageQo);
     }
 
@@ -89,11 +84,8 @@ public class FederatedProductVersionController {
     //interfaces for fate manager
     @PostMapping(value = "/page/fatemanager")
     @ApiOperation(value = "find paged items for fate manager")
-    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageQo productVersionPageQo, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", productVersionPageQo);
-        if (bindingResult.hasErrors()) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
-        return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageQo,httpServletRequest);
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo  , HttpServletRequest httpServletRequest) {
+        log.info("RequestBody:{}", productVersionPageForFateManagerQo);
+        return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageForFateManagerQo,httpServletRequest);
     }
 }

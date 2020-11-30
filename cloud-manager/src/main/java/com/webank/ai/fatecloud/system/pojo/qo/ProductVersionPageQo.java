@@ -21,4 +21,9 @@ public class ProductVersionPageQo implements Serializable {
     private Integer pageNum = 1;
 
     private Integer pageSize = 10;
+
+    public ProductVersionPageQo(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo) {
+        this.pageNum = productVersionPageForFateManagerQo.getPageNum();
+        this.pageSize = productVersionPageForFateManagerQo.getPageSize();
+    }
 }
