@@ -349,6 +349,14 @@ func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (int, error) {
 	if conf.Id == 0 {
 		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
 	}
+	fateVersion := models.FateVersion{
+		FateVersion:   autoAcquireReq.FateVersion,
+	}
+	fateVersionList,err := models.GetFateVersionList(&fateVersion)
+	if err != nil || len(fateVersionList) == 0{
+		return e.ERROR_AUTO_ACQUIRE_FAIL,err
+	}
+	autoAcquireReq.DownloadUrl = fateVersionList[0].PackageUrl
 	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageDownUri), autoAcquireReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))

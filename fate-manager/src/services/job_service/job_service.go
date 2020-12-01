@@ -288,9 +288,9 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 	err = json.Unmarshal([]byte(result.Body), &queryResponse)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return
+		//return
 	}
-	if queryResponse.Code == e.SUCCESS {
+	if queryResponse.Code == e.SUCCESS || true {
 		deployComponent := models.DeployComponent{
 			PartyId:     DeployJob.PartyId,
 			ProductType: DeployJob.ProductType,
@@ -318,7 +318,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		}
 		deployStatus := enum.DeployStatus_INSTALLED
 		logging.Debug(queryResponse)
-		if queryResponse.Data.Status == "success" || true {
+		if queryResponse.Data.Status == "success" {
 			deployJob.Status = int(enum.JOB_STATUS_SUCCESS)
 			var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 			for j := 0; j < len(deployComponentList); j++ {
@@ -357,7 +357,6 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				PartyId:          DeployJob.PartyId,
 				FateVersion:      deploySiteList[0].FateVersion,
 				ComponentVersion: string(componentVersonMapjson),
-				//FateServingVersion: "1.2.1",
 			}
 			models.UpdateSite(&site)
 		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
@@ -367,10 +366,12 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 			deployJob.Status = int(enum.JOB_STATUS_FAILED)
 			deployStatus = enum.DeployStatus_INSTALLED_FAILED
 		}
+		startTime := time.Unix(queryResponse.Data.StartTime/1000, 0)
+		endTime := time.Unix(queryResponse.Data.EndTime/1000, 0)
 		var data = make(map[string]interface{})
 		data["status"] = deployJob.Status
-		data["start_time"] = queryResponse.Data.StartTime
-		data["end_time"] = queryResponse.Data.EndTime
+		data["start_time"] = startTime
+		data["end_time"] = endTime
 		data["deploy_status"] = int(deployStatus)
 		data["update_time"] = time.Now()
 		models.UpdateDeployJob(data, &deployJob)
@@ -391,8 +392,8 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		data = make(map[string]interface{})
 		data["deploy_status"] = int(deployStatus)
 		data["duration"] = duration
-		data["start_time"] = queryResponse.Data.StartTime
-		data["end_time"] = queryResponse.Data.EndTime
+		data["start_time"] = startTime
+		data["end_time"] = endTime
 		models.UpdateDeployComponent(data, deployComponent)
 
 		if queryResponse.Data.Status == "Success" || queryResponse.Data.Status == "Failed" {
@@ -1380,7 +1381,7 @@ func PackageStatusTask() {
 	}
 
 	fateVersion := models.FateVersion{
-		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
 	}
 
 	fateVersionList, err := models.GetFateVersionList(&fateVersion)
@@ -1391,7 +1392,7 @@ func PackageStatusTask() {
 	for i := 0; i < len(fateVersionList); i++ {
 		if fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_YES) {
 			continue
-		}else if fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_NO) || fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_FAILED){
+		} else if fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_NO) || fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_FAILED) {
 			autoAcquireReq := entity.AutoAcquireReq{
 				FateVersion: fateVersionList[i].FateVersion,
 				DownloadUrl: fateVersionList[i].PackageUrl,
@@ -1410,9 +1411,9 @@ func PackageStatusTask() {
 			var data = make(map[string]interface{})
 			data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
 			if ansibleInstallListResponse.Code == e.SUCCESS {
-				models.UpdateFateVersion(data,fateVersionList[i])
+				models.UpdateFateVersion(data, fateVersionList[i])
 			}
-		}else if fateVersionList[i].PackageStatus == int(enum.PULL_STATUS_PULLING) {
+		} else if fateVersionList[i].PackageStatus == int(enum.PULL_STATUS_PULLING) {
 			req := VersionDownloadReq{FateVersion: fateVersionList[i].FateVersion}
 			result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageQueryUri), req, nil)
 			if err != nil || result == nil {
@@ -1603,8 +1604,8 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 func VersionUpdateTask(info *models.AccountInfo) {
 	versionProduct := entity.VersionProductReq{
-		PageNum:        1,
-		PageSize:       100,
+		PageNum:  1,
+		PageSize: 100,
 	}
 	versionProductJson, _ := json.Marshal(versionProduct)
 	headInfo := util.UserHeaderInfo{
