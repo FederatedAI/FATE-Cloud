@@ -46,7 +46,7 @@ type PrepareReq struct {
 }
 type CheckSystem struct {
 	ManagerNode []string `json:"managerNode"`
-	CheckName string `json:"check_name"`
+	CheckName   string   `json:"check_name"`
 }
 type CheckItem struct {
 	TestItem     string `json:"testItem"`
@@ -132,12 +132,12 @@ type AnsibleSubmitData struct {
 	JobId string `json:"job_id"`
 }
 type Play struct {
-	CreateTime int64  `json:"create_time"`
-	Elapsed    int    `json:"elapsed"`
-	StartTime  int64  `json:"start_time"`
-	Status     string `json:"status"`
-	EndTime    int64  `json:"end_time"`
-	JobId      string `json:"job_id"`
+	CreateTime int64  `json:"f_create_time"`
+	Elapsed    int    `json:"f_elapsed"`
+	StartTime  int64  `json:"f_start_time"`
+	Status     string `json:"f_status"`
+	EndTime    int64  `json:"f_end_time"`
+	JobId      string `json:"f_job_id"`
 }
 type PlayItem struct {
 	Play
