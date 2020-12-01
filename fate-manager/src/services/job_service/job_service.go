@@ -1381,7 +1381,6 @@ func PackageStatusTask() {
 
 	fateVersion := models.FateVersion{
 		ProductType:   int(enum.PRODUCT_TYPE_FATE),
-		PackageStatus: int(enum.PACKAGE_STATUS_NO),
 	}
 
 	fateVersionList, err := models.GetFateVersionList(&fateVersion)
@@ -1390,46 +1389,71 @@ func PackageStatusTask() {
 	}
 
 	for i := 0; i < len(fateVersionList); i++ {
-		req := VersionDownloadReq{FateVersion: fateVersionList[i].FateVersion}
-		result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageQueryUri), req, nil)
-		if err != nil || result == nil {
-			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-			return
-		}
-		var versionDownloadResponse entity.VersionDownloadResponse
-		err = json.Unmarshal([]byte(result.Body), &versionDownloadResponse)
-		if err != nil {
-			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return
-		}
-		if versionDownloadResponse.Code == e.SUCCESS {
+		if fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_YES) {
+			continue
+		}else if fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_NO) || fateVersionList[i].PackageStatus == int(enum.PACKAGE_STATUS_FAILED){
+			autoAcquireReq := entity.AutoAcquireReq{
+				FateVersion: fateVersionList[i].FateVersion,
+				DownloadUrl: fateVersionList[i].PackageUrl,
+			}
+			result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageDownUri), autoAcquireReq, nil)
+			if err != nil || result == nil {
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+				continue
+			}
+			var ansibleInstallListResponse entity.AnsibleInstallListResponse
+			err = json.Unmarshal([]byte(result.Body), &ansibleInstallListResponse)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				continue
+			}
 			var data = make(map[string]interface{})
-			data["package_status"] = int(enum.PACKAGE_STATUS_NO)
-			if versionDownloadResponse.Data.Status == "success" {
-				data["package_status"] = int(enum.PACKAGE_STATUS_YES)
-			} else if versionDownloadResponse.Data.Status == "running" {
-				data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
+			data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
+			if ansibleInstallListResponse.Code == e.SUCCESS {
+				models.UpdateFateVersion(data,fateVersionList[i])
 			}
-			fateVersion.FateVersion = fateVersionList[i].FateVersion
-			models.UpdateFateVersion(data, &fateVersion)
+		}else if fateVersionList[i].PackageStatus == int(enum.PULL_STATUS_PULLING) {
+			req := VersionDownloadReq{FateVersion: fateVersionList[i].FateVersion}
+			result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePackageQueryUri), req, nil)
+			if err != nil || result == nil {
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+				return
+			}
+			var versionDownloadResponse entity.VersionDownloadResponse
+			err = json.Unmarshal([]byte(result.Body), &versionDownloadResponse)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if versionDownloadResponse.Code == e.SUCCESS {
+				var data = make(map[string]interface{})
+				data["package_status"] = int(enum.PACKAGE_STATUS_NO)
+				if versionDownloadResponse.Data.Status == "success" {
+					data["package_status"] = int(enum.PACKAGE_STATUS_YES)
+				} else if versionDownloadResponse.Data.Status == "running" {
+					data["package_status"] = int(enum.PACKAGE_STATUS_PULLING)
+				}
+				fateVersion.FateVersion = fateVersionList[i].FateVersion
+				models.UpdateFateVersion(data, &fateVersion)
 
-			componentVersion := models.ComponentVersion{
-				FateVersion: fateVersionList[i].FateVersion,
-				ProductType: int(enum.PRODUCT_TYPE_FATE),
-			}
-			models.UpdateComponentVersionByCondition(data, &componentVersion)
+				componentVersion := models.ComponentVersion{
+					FateVersion: fateVersionList[i].FateVersion,
+					ProductType: int(enum.PRODUCT_TYPE_FATE),
+				}
+				models.UpdateComponentVersionByCondition(data, &componentVersion)
 
-			deploySite := models.DeploySite{
-				FateVersion: fateVersionList[i].FateVersion,
-				IsValid:     int(enum.IS_VALID_YES),
-				DeployType:  int(enum.DeployType_ANSIBLE),
+				deploySite := models.DeploySite{
+					FateVersion: fateVersionList[i].FateVersion,
+					IsValid:     int(enum.IS_VALID_YES),
+					DeployType:  int(enum.DeployType_ANSIBLE),
+				}
+				data = make(map[string]interface{})
+				data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
+				if versionDownloadResponse.Data.Status == "failed" {
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOAD_FAILED)
+				}
+				models.UpdateDeploySite(data, deploySite)
 			}
-			data = make(map[string]interface{})
-			data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
-			if versionDownloadResponse.Data.Status == "failed" {
-				data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOAD_FAILED)
-			}
-			models.UpdateDeploySite(data, deploySite)
 		}
 	}
 }
@@ -1513,13 +1537,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		GuestPartyId: deploySite.PartyId,
 		HostPartyId:  setting.KubenetesSetting.TestPartyId,
 		Ip:           Ip,
-	}
-	if NextItem == "toy" {
-		TestReq.TestType = int(enum.TEST_ITEM_TOY)
-	} else if NextItem == "fast" {
-		TestReq.TestType = int(enum.TEST_ITEM_FAST)
-	} else if NextItem == "normal" {
-		TestReq.TestType = int(enum.TEST_ITEM_NORMAL)
+		WorkMode:     setting.KubenetesSetting.WorkMode,
 	}
 	autotest := models.AutoTest{
 		PartyId: deploySite.PartyId,
@@ -1587,8 +1605,6 @@ func VersionUpdateTask(info *models.AccountInfo) {
 	versionProduct := entity.VersionProductReq{
 		PageNum:        1,
 		PageSize:       100,
-		ProductName:    "",
-		ProductVersion: "",
 	}
 	versionProductJson, _ := json.Marshal(versionProduct)
 	headInfo := util.UserHeaderInfo{
