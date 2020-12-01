@@ -143,7 +143,7 @@ func Prepare(prepareReq entity.PrepareReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
-func CheckSystem() (int, error) {
+func CheckSystem(checkSystem entity.CheckSystem) (int, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
@@ -156,8 +156,9 @@ func CheckSystem() (int, error) {
 	if err != nil {
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
+	checkSystem.ManagerNode = prepareReq.ManagerNode
 	startTime := time.Now().UnixNano()
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), prepareReq, nil)
+	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), checkSystem, nil)
 	endTime := time.Now().UnixNano()
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
@@ -170,12 +171,34 @@ func CheckSystem() (int, error) {
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
 	if ansiblePrepareResp.Code == e.SUCCESS {
-		for i := 0; i < len(ansiblePrepareResp.Data); {
+
+		for i := 0; i < len(ansiblePrepareResp.Data); i++{
 			ansiblePrepareItem := &ansiblePrepareResp.Data[i]
-			for j := 0; j < len(ansiblePrepareItem.List); j++ {
-				ansiblePrepareItem.List[j].Duration = (endTime - startTime) / 1e6
+			if len(checkSystem.CheckName) > 0 {
+				var list []entity.AnsiblePrepareItem
+				err = json.Unmarshal([]byte(conf.AnsibleCheck), &list)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return e.ERROR_PARSE_JSON_ERROR, err
+				}
+				for j := 0; j < len(list); j++ {
+					if list[j].Ip == ansiblePrepareItem.Ip {
+						for k := 0; k < len(list[j].List); k++ {
+							if list[j].List[j].Name == ansiblePrepareItem.List[0].Name {
+								list[i].List[j].Status = ansiblePrepareItem.List[0].Status
+								list[i].List[j].Duration = (endTime - startTime) / 1e6
+								list[i].List[j].Details = ansiblePrepareItem.List[0].Details
+								break
+							}
+						}
+						break
+					}
+				}
+			} else {
+				for j := 0; j < len(ansiblePrepareItem.List); j++ {
+					ansiblePrepareItem.List[j].Duration = (endTime - startTime) / 1e6
+				}
 			}
-			break
 		}
 		ansiblePrepareItemJson, _ := json.Marshal(ansiblePrepareResp.Data)
 		kubenetesConf := models.KubenetesConf{
@@ -184,11 +207,11 @@ func CheckSystem() (int, error) {
 		var data = make(map[string]interface{})
 		data["ansible_check"] = string(ansiblePrepareItemJson)
 		models.UpdateKubenetesConf(data, &kubenetesConf)
+
 		return e.SUCCESS, nil
 	}
 	return e.GET_CHECK_SYSYTEM_LIST_FAIL, nil
 }
-
 func GetCheck(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
@@ -765,11 +788,11 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 }
 
 func Click(req entity.ClickReq) bool {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return false
+	}
 	if req.ClickType == int(enum.AnsibleClickType_PREPARE) || req.ClickType == int(enum.AnsibleClickType_SYSTEM_CHECK) || req.ClickType == int(enum.AnsibleClickType_ANSIBLE_INSTALL) {
-		conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-		if err != nil {
-			return false
-		}
 		if conf.ClickType < req.ClickType {
 			var data = make(map[string]interface{})
 			data["click_type"] = req.ClickType
@@ -797,8 +820,37 @@ func Click(req entity.ClickReq) bool {
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
-	if err != nil || len(deploySiteList) == 0 {
+	if err != nil {
 		return false
+	}
+	if len(deploySiteList) == 0 && conf.AnsibleStatus == "success" {
+		deploySite := models.DeploySite{
+			PartyId:            req.PartyId,
+			ProductType:        int(enum.PRODUCT_TYPE_FATE),
+			Status:             int(enum.SITE_RUN_STATUS_UNKNOWN),
+			ClickType:          int(enum.AnsibleClickType_CONNECT),
+			KubenetesId:        conf.Id,
+			DeployStatus:       int(enum.ANSIBLE_DeployStatus_UNKNOWN),
+			SingleTest:         int(enum.TEST_STATUS_WAITING),
+			ToyTest:            int(enum.TEST_STATUS_WAITING),
+			MinimizeNormalTest: int(enum.TEST_STATUS_WAITING),
+			MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
+			ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
+			ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
+			DeployType:         int(enum.DeployType_ANSIBLE),
+			IsValid:            int(enum.IS_VALID_YES),
+			CreateTime:         time.Now(),
+			UpdateTime:         time.Now(),
+		}
+
+		if conf.ClickType > 0 {
+			deploySite.ClickType = conf.ClickType
+		}
+		deploySiteList, _ := models.GetDeploySite(&deploySite)
+		if len(deploySiteList) == 0 {
+			models.AddDeploySite(&deploySite)
+		}
+		return true
 	}
 	if deploySiteList[0].ClickType <= req.ClickType {
 		var data = make(map[string]interface{})

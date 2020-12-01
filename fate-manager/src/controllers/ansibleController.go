@@ -129,12 +129,23 @@ func UpdateMachine(c *gin.Context) {
 // @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
+// @Param request body entity.CheckSystem true "request param"
 // @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/check [post]
 func CheckSystem(c *gin.Context) {
 	appG := app.Gin{C: c}
-	ret, err := ansible_service.CheckSystem()
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var checkSystem entity.CheckSystem
+	if jsonError := json.Unmarshal(body, &checkSystem); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := ansible_service.CheckSystem(checkSystem)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.GET_CHECK_SYSYTEM_LIST_FAIL, nil)
 		return

@@ -554,12 +554,12 @@ definitions:
     type: object
   entity.AutoAcquireReq:
     properties:
-      downloadUrl:
-        type: string
-      fateVersion:
-        type: string
       partyId:
         type: integer
+      url:
+        type: string
+      version:
+        type: string
     type: object
   entity.AutoTestItem:
     properties:
@@ -643,6 +643,15 @@ definitions:
         type: string
       srcPartyId:
         type: integer
+    type: object
+  entity.CheckSystem:
+    properties:
+      check_name:
+        type: string
+      managerNode:
+        items:
+          type: string
+        type: array
     type: object
   entity.CheckSystemReq:
     properties:
@@ -1070,6 +1079,11 @@ definitions:
     type: object
   entity.OverViewRspItem:
     properties:
+      deployTag:
+        type: boolean
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       fateVersion:
         type: string
       federatedId:
@@ -1633,6 +1647,13 @@ paths:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CheckSystem'
       produces:
       - application/json
       responses:
