@@ -323,6 +323,8 @@ type OverViewRspItem struct {
 	FateVersion  string        `json:"fateVersion"`
 	Role         IdPair        `json:"role"`
 	InstallInfo  []InstallItem `json:"installInfo"`
+	DeployTag    bool          `json:"deployTag"`
+	DeployType   IdPair        `json:"deployType"`
 }
 
 type Operation struct {

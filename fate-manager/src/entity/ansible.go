@@ -44,7 +44,10 @@ type PrepareReq struct {
 	ControlNode string   `json:"controlNode"`
 	ManagerNode []string `json:"managerNode"`
 }
-
+type CheckSystem struct {
+	ManagerNode []string `json:"managerNode"`
+	CheckName string `json:"check_name"`
+}
 type CheckItem struct {
 	TestItem     string `json:"testItem"`
 	TestDuration int    `json:"testDuration"`
@@ -82,8 +85,8 @@ type LocalUploadReq struct {
 }
 type AutoAcquireReq struct {
 	PartyId     int    `json:"partyId"`
-	FateVersion string `json:"fateVersion"`
-	DownloadUrl string `json:"downloadUrl"`
+	FateVersion string `json:"version"`
+	DownloadUrl string `json:"url"`
 }
 
 type Prepare struct {
@@ -183,10 +186,10 @@ type AnsibleToyTestReq struct {
 	GuestPartyId int    `json:"guest_party_id"`
 	HostPartyId  int    `json:"host_party_id"`
 	Ip           string `json:"host"`
-	TestType     int    `json:"work_mode"`
+	WorkMode     int    `json:"work_mode"`
 }
 type AnsibleToyTestResultReq struct {
-	Limit  int    `json:"limit"`
+	Limit    int    `json:"limit"`
 	Ip       string `json:"ip"`
 	TestType string `json:"test_type"`
 }

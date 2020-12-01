@@ -104,6 +104,17 @@
                     "AnsibleDeployController"
                 ],
                 "summary": "check system to deploy ansible",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.CheckSystem"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4340,14 +4351,14 @@
         "entity.AutoAcquireReq": {
             "type": "object",
             "properties": {
-                "downloadUrl": {
-                    "type": "string"
-                },
-                "fateVersion": {
-                    "type": "string"
-                },
                 "partyId": {
                     "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
@@ -4476,6 +4487,20 @@
                 },
                 "srcPartyId": {
                     "type": "integer"
+                }
+            }
+        },
+        "entity.CheckSystem": {
+            "type": "object",
+            "properties": {
+                "check_name": {
+                    "type": "string"
+                },
+                "managerNode": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -5131,6 +5156,13 @@
         "entity.OverViewRspItem": {
             "type": "object",
             "properties": {
+                "deployTag": {
+                    "type": "boolean"
+                },
+                "deployType": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.IdPair"
+                },
                 "fateVersion": {
                     "type": "string"
                 },

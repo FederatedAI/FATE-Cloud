@@ -166,8 +166,6 @@ type CheckPartyIdResp struct {
 type VersionProductReq struct {
 	PageNum        int    `json:"pageNum"`
 	PageSize       int    `json:"pageSize"`
-	ProductName    string `json:"productName"`
-	ProductVersion string `json:"productVevrsion"`
 }
 type FederatedComponentVersionDos struct {
 	ComponentId      string    `json:"componentId"`

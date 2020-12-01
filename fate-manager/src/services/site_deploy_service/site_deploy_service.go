@@ -975,6 +975,18 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 		overViewRspItem.FederatedId = siteList[i].FederatedId
 		overViewRspItem.FederatedOrganization = siteList[i].FederatedOrganization
 		overViewRspItem.FateVersion = siteList[i].FateVersion
+		overViewRspItem.DeployTag= true
+
+		deploySite := models.DeploySite{
+			PartyId:            siteList[i].PartyId,
+			ProductType:        int(enum.PRODUCT_TYPE_FATE),
+			IsValid:            int(enum.IS_VALID_YES),
+		}
+		deploySiteList,_ := models.GetDeploySite(&deploySite)
+		if len(deploySiteList) >0 {
+			overViewRspItem.DeployTag = false
+			overViewRspItem.DeployType = entity.IdPair{deploySiteList[0].DeployType,enum.GetDeployTypeString(enum.DeployType(deploySiteList[0].DeployType))}
+		}
 
 		deployComponent := models.DeployComponent{
 			//FederatedId: siteList[i].FederatedId,

@@ -97,6 +97,7 @@ type Kubenetes struct {
 	SessionProcessorsPerNode int
 	TestPartyId              int
 	ModeAlone                bool
+	WorkMode                 int
 }
 
 var KubenetesSetting = &Kubenetes{}
@@ -112,7 +113,7 @@ func Setup() {
 
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
-	mapTo("kubenetes", KubenetesSetting)
+	mapTo("deploy", KubenetesSetting)
 
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
 	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
