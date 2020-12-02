@@ -63,9 +63,15 @@ type DeployAnsibleReq struct {
 type ConnectAnsible struct {
 	PartyId int `json:"party_id"`
 }
-type AnsibleAutoTestRespItem struct {
-	Status   bool `json:"status"`
-	Duration int  `json:"duration"`
+type AnsibleAutoTestItem struct {
+	Name    string `json:"name"`
+	Status  string   `json:"status"`
+	Uptime  string `json:"uptime"`
+	Version string `json:"version"`
+}
+type AnsibleAutoTest struct {
+	Ip   string                `json:"ip"`
+	List []AnsibleAutoTestItem `json:"list"`
 }
 type DeployAnsibleStatus struct {
 	Status string `json:"status"`
@@ -76,7 +82,7 @@ type DeployAnsibleResp struct {
 }
 type AnsibleAutoTestResp struct {
 	AnsibleCommResp
-	Data map[string]AnsibleAutoTestRespItem
+	Data AnsibleAutoTest `json:"data"`
 }
 type LocalUploadReq struct {
 	PartyId int    `json:"partyId"`
@@ -85,6 +91,10 @@ type LocalUploadReq struct {
 }
 type AutoAcquireReq struct {
 	PartyId     int    `json:"partyId"`
+	FateVersion string `json:"fateVersion"`
+	DownloadUrl string `json:"url"`
+}
+type DownloadPackageReq struct {
 	FateVersion string `json:"version"`
 	DownloadUrl string `json:"url"`
 }
@@ -173,8 +183,8 @@ type AnsibleLogResponse struct {
 	Data []string `json:"data"`
 }
 type AnsibleAutoTestReq struct {
-	PartyId int  `json:"partyId"`
-	IfOnly  bool `json:"ifOnly"`
+	PartyId     int `json:"partyId"`
+	ProductType int `json:"productType"`
 }
 
 type AnsibleSingleTestReq struct {

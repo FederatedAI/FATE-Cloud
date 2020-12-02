@@ -54,7 +54,7 @@ const (
 	AnsiblePrepareUri      = "/ansible/v1/check/pre"
 	AnsibleInstallUri      = "/ansible/v1/server/status"
 	AnsibleJobSubmitUri    = "/ansible/v1/job/submit"
-	AnsibleJobQueryUri     = "/ansible/v1/job/query/job"
+	AnsibleJobQueryUri     = "/ansible/v1/job/query"
 	AnsiblePackageQueryUri = "/ansible/v1/package/remote"
 	AnsiblePackageDownUri  = "/ansible/v1/package/download"
 	AnsibleLocalUploadUri  = "/ansible/v1/package/local"

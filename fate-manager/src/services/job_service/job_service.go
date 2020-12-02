@@ -288,7 +288,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 	err = json.Unmarshal([]byte(result.Body), &queryResponse)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		//return
+		return
 	}
 	if queryResponse.Code == e.SUCCESS || true {
 		deployComponent := models.DeployComponent{
@@ -386,7 +386,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		}
 		data["duration"] = duration
 		deploySite.JobId = DeployJob.JobId
-		data["click_type"] = int(enum.ClickType_PULL)
+		data["click_type"] = int(enum.AnsibleClickType_ACQUISITON)
 		models.UpdateDeploySite(data, deploySite)
 
 		data = make(map[string]interface{})
