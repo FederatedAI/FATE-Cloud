@@ -4351,13 +4351,13 @@
         "entity.AutoAcquireReq": {
             "type": "object",
             "properties": {
+                "fateVersion": {
+                    "type": "string"
+                },
                 "partyId": {
                     "type": "integer"
                 },
                 "url": {
-                    "type": "string"
-                },
-                "version": {
                     "type": "string"
                 }
             }

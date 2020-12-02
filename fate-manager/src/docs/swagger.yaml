@@ -554,11 +554,11 @@ definitions:
     type: object
   entity.AutoAcquireReq:
     properties:
+      fateVersion:
+        type: string
       partyId:
         type: integer
       url:
-        type: string
-      version:
         type: string
     type: object
   entity.AutoTestItem:

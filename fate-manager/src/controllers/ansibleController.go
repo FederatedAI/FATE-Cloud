@@ -510,7 +510,7 @@ func AnsibleAutoTest(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
 		return
 	}
-	var autoTestReq entity.ConnectAnsible
+	var autoTestReq entity.AnsibleAutoTestReq
 	if jsonError := json.Unmarshal(body, &autoTestReq); jsonError != nil {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")
