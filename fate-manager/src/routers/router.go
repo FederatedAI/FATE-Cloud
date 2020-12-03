@@ -37,7 +37,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Site Manager
-	sites := router.Group("/fate-manager/api/site")//.Use(JWT())
+	sites := router.Group("/fate-manager/api/site").Use(JWT())
 	{
 		sites.GET("", GetHomeSiteList)
 		sites.GET("/other", GetOtherSiteList)
@@ -62,7 +62,7 @@ func InitRouter() *gin.Engine {
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
@@ -81,7 +81,7 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/manager",GetManagerIpPort)
 	}
 	//Manager,Service Managment
-	services := router.Group("/fate-manager/api/service")//.Use(JWT())
+	services := router.Group("/fate-manager/api/service").Use(JWT())
 	{
 		services.POST("/info", GetService)
 		services.POST("/action", DoAcation)
@@ -93,7 +93,7 @@ func InitRouter() *gin.Engine {
 		services.POST("/pagestatus", GetPageStatus)
 	}
 	//FATE Deploy
-	deploys := router.Group("/fate-manager/api/deploy")//.Use(JWT())
+	deploys := router.Group("/fate-manager/api/deploy").Use(JWT())
 	{
 		deploys.GET("/prepare", GetPrepare)
 		deploys.POST("/pulllist", GetPullComponentList)
@@ -114,7 +114,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//User
-	user := router.Group("/fate-manager/api/user")//.Use(JWT())
+	user := router.Group("/fate-manager/api/user").Use(JWT())
 	{
 		user.GET("/info", GetUserInfo)
 		user.POST("/list", GetUserList)
@@ -132,14 +132,14 @@ func InitRouter() *gin.Engine {
 	router.POST("/fate-manager/api/user/allowpartylist",GetAllAllowPartyList)
 
 	//monitor
-	monitor := router.Group("/fate-manager/api/monitor")//.Use(JWT())
+	monitor := router.Group("/fate-manager/api/monitor").Use(JWT())
 	{
 		monitor.POST("/total",GetMonitorTotal)
 		monitor.POST("/institution",GetInstitutionBaseStatics)
 		monitor.POST("/site",GetSiteBaseStatistics)
 	}
 	//ansible
-	ansible := router.Group("/fate-manager/api/ansible")//.Use(JWT())
+	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
 	{
 		ansible.POST("/connectansible",ConnectAnsible)
 		ansible.POST("/prepare",Prepare)

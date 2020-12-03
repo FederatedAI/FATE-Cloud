@@ -10,6 +10,16 @@ definitions:
       msg:
         type: string
     type: object
+  app.AnsibleLogResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.AnsibleLogResp'
+        type: object
+      msg:
+        type: string
+    type: object
   app.AnsiblePackageResponse:
     properties:
       code:
@@ -518,6 +528,15 @@ definitions:
     properties:
       level:
         type: string
+    type: object
+  entity.AnsibleLogResp:
+    properties:
+      content:
+        items:
+          type: string
+        type: array
+      total:
+        type: integer
     type: object
   entity.ApplyFateManager:
     properties:
@@ -1896,7 +1915,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/app.LogResponse'
+            $ref: '#/definitions/app.AnsibleLogResponse'
         "500":
           description: Internal Server Error
           schema:

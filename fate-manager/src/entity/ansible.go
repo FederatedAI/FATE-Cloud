@@ -177,7 +177,10 @@ type AnsibleConnect struct {
 type AnsibleLog struct {
 	Level string `json:"level"`
 }
-
+type AnsibleLogResp struct {
+	Content []string `json:"content"`
+	Total int `json:"total"`
+}
 type AnsibleLogResponse struct {
 	AnsibleCommResp
 	Data []string `json:"data"`

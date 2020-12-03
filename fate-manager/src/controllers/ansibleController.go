@@ -444,7 +444,7 @@ func AnsibleUpdate(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AnsibleLog true "request param"
-// @Success 200 {object} app.LogResponse
+// @Success 200 {object} app.AnsibleLogResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/log [post]
 func AnsibleLog(c *gin.Context) {

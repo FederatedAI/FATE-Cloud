@@ -74,7 +74,7 @@ func JobTask() {
 			authorization := fmt.Sprintf("Bearer %s", token)
 			head := make(map[string]interface{})
 			head["Authorization"] = authorization
-			result, err := http.GET(http.Url(kubefateUrl+"/v1/job/"+deployJobList[0].JobId), nil, head)
+			result, err := http.GET(http.Url(kubefateUrl+"/v1/job/"+deployJobList[i].JobId), nil, head)
 			if err != nil || result == nil {
 				continue
 			}
