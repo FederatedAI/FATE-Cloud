@@ -33,3 +33,7 @@ type AnsiblePackageResponse struct {
 	CommResp
 	Data entity.AnsibleCommResp `json:"data"`
 }
+type AnsibleLogResponse struct {
+	CommResp
+	Data entity.AnsibleLogResp `json:"data"`
+}

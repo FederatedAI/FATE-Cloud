@@ -487,7 +487,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/app.LogResponse"
+                            "$ref": "#/definitions/app.AnsibleLogResponse"
                         }
                     },
                     "500": {
@@ -3517,6 +3517,21 @@
                 }
             }
         },
+        "app.AnsibleLogResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/entity.AnsibleLogResp"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "app.AnsiblePackageResponse": {
             "type": "object",
             "properties": {
@@ -4294,6 +4309,20 @@
             "properties": {
                 "level": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.AnsibleLogResp": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
