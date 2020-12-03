@@ -189,7 +189,7 @@ func CheckSystem(checkSystem entity.CheckSystem) (int, error) {
 						for k := 0; k < len(list[j].List); k++ {
 							if list[j].List[j].Name == ansiblePrepareItem.List[0].Name {
 								list[i].List[j].Status = ansiblePrepareItem.List[0].Status
-								if ansiblePrepareItem.List[0].Status == "warning" {
+								if ansiblePrepareItem.List[0].Status == "warning" || ansiblePrepareItem.List[0].Status == "waring" {
 									list[i].List[j].Status = "success"
 								}
 								list[i].List[j].Duration = (endTime - startTime) / 1e6
@@ -202,7 +202,7 @@ func CheckSystem(checkSystem entity.CheckSystem) (int, error) {
 				}
 			} else {
 				for j := 0; j < len(ansiblePrepareItem.List); j++ {
-					if ansiblePrepareItem.List[j].Status == "warning" {
+					if ansiblePrepareItem.List[j].Status == "warning" || ansiblePrepareItem.List[j].Status == "waring" {
 						ansiblePrepareItem.List[j].Status = "success"
 					}
 					ansiblePrepareItem.List[j].Duration = (endTime - startTime) / 1e6
@@ -863,34 +863,36 @@ func Click(req entity.ClickReq) bool {
 	if err != nil {
 		return false
 	}
-	if len(deploySiteList) == 0 && conf.AnsibleStatus == "success" {
-		deploySite := models.DeploySite{
-			PartyId:            req.PartyId,
-			ProductType:        int(enum.PRODUCT_TYPE_FATE),
-			Status:             int(enum.SITE_RUN_STATUS_UNKNOWN),
-			ClickType:          int(enum.AnsibleClickType_CONNECT),
-			KubenetesId:        conf.Id,
-			DeployStatus:       int(enum.ANSIBLE_DeployStatus_UNKNOWN),
-			SingleTest:         int(enum.TEST_STATUS_WAITING),
-			ToyTest:            int(enum.TEST_STATUS_WAITING),
-			MinimizeNormalTest: int(enum.TEST_STATUS_WAITING),
-			MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
-			ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
-			ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
-			DeployType:         int(enum.DeployType_ANSIBLE),
-			IsValid:            int(enum.IS_VALID_YES),
-			CreateTime:         time.Now(),
-			UpdateTime:         time.Now(),
+	if len(deploySiteList) == 0 {
+		if conf.Id >0 {
+			deploySite := models.DeploySite{
+				PartyId:            req.PartyId,
+				ProductType:        int(enum.PRODUCT_TYPE_FATE),
+				Status:             int(enum.SITE_RUN_STATUS_UNKNOWN),
+				ClickType:          int(enum.AnsibleClickType_CONNECT),
+				KubenetesId:        conf.Id,
+				DeployStatus:       int(enum.ANSIBLE_DeployStatus_UNKNOWN),
+				SingleTest:         int(enum.TEST_STATUS_WAITING),
+				ToyTest:            int(enum.TEST_STATUS_WAITING),
+				MinimizeNormalTest: int(enum.TEST_STATUS_WAITING),
+				MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
+				ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
+				ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
+				DeployType:         int(enum.DeployType_ANSIBLE),
+				IsValid:            int(enum.IS_VALID_YES),
+				CreateTime:         time.Now(),
+				UpdateTime:         time.Now(),
+			}
+			if conf.ClickType > 0 {
+				deploySite.ClickType = conf.ClickType
+			}
+			deploySiteList, _ := models.GetDeploySite(&deploySite)
+			if len(deploySiteList) == 0 {
+				models.AddDeploySite(&deploySite)
+			}
+			return true
 		}
-
-		if conf.ClickType > 0 {
-			deploySite.ClickType = conf.ClickType
-		}
-		deploySiteList, _ := models.GetDeploySite(&deploySite)
-		if len(deploySiteList) == 0 {
-			models.AddDeploySite(&deploySite)
-		}
-		return true
+		return false
 	}
 	if deploySiteList[0].ClickType <= req.ClickType {
 		var data = make(map[string]interface{})
@@ -983,7 +985,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
-func GetLog(ansibleLog entity.AnsibleLog) ([]string, error) {
+func GetLog(ansibleLog entity.AnsibleLog) (*entity.AnsibleLogResp, error) {
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleLogUri), ansibleLog, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
@@ -995,11 +997,13 @@ func GetLog(ansibleLog entity.AnsibleLog) ([]string, error) {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return nil, err
 	}
+	var resp entity.AnsibleLogResp
 	if ansibleLogResp.Code == e.SUCCESS {
-		return ansibleLogResp.Data, nil
+		resp.Content = ansibleLogResp.Data
+		resp.Total = len(ansibleLogResp.Data)
 	}
 
-	return nil, nil
+	return &resp, nil
 }
 
 func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestListRespItem, error) {
@@ -1060,7 +1064,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 	var data = make(map[string]interface{})
 	data["status"] = int(enum.TEST_STATUS_WAITING)
 	data["start_time"] = time.Now()
-	req := entity.ConnectAnsible{PartyId:autoTestReq.PartyId}
+	req := entity.ConnectAnsible{PartyId: autoTestReq.PartyId}
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/status"), req, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
@@ -1075,7 +1079,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 	toytest := false
 	var autotest models.AutoTest
 	if ansibleAutoTestResp.Code == e.SUCCESS {
-		for i :=0;i< len(ansibleAutoTestResp.Data.List);i++ {
+		for i := 0; i < len(ansibleAutoTestResp.Data.List); i++ {
 			ansibleAutoTestRespItem := ansibleAutoTestResp.Data.List[i]
 			data["end_time"] = time.Now()
 			autotest = models.AutoTest{

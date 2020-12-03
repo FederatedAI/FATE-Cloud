@@ -302,6 +302,7 @@ func Install(installReq entity.InstallReq) (int, error) {
 		deployJob := models.DeployJob{
 			JobId:       clusterInstallResp.Data.JobId,
 			JobType:     int(enum.JOB_TYPE_INSTALL),
+			DeployType:  int(enum.DeployType_K8S),
 			Creator:     clusterInstallResp.Data.Creator,
 			StartTime:   time.Now(),
 			FederatedId: installReq.FederatedId,
