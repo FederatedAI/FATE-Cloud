@@ -15,8 +15,6 @@
  */
 package entity
 
-import "time"
-
 type CloudCommResp struct {
 	Code    int    `json:"code"`
 	Message string `json:"msg"`
@@ -164,21 +162,21 @@ type CheckPartyIdResp struct {
 }
 
 type VersionProductReq struct {
-	PageNum        int    `json:"pageNum"`
-	PageSize       int    `json:"pageSize"`
+	PageNum  int `json:"pageNum"`
+	PageSize int `json:"pageSize"`
 }
 type FederatedComponentVersionDos struct {
-	ComponentId      string    `json:"componentId"`
-	ComponentName    string    `json:"componentName"`
-	ComponentVersion string    `json:"componentVersion"`
-	CreateTime       time.Time `json:"createTime"`
-	ImageRepository  string    `json:"imageRepository"`
-	ImageTag         string    `json:"imageTag"`
-	ProductId        int       `json:"productId"`
-	UpdateTime       time.Time `json:"updateTime"`
+	ComponentId      string `json:"componentId"`
+	ComponentName    string `json:"componentName"`
+	ComponentVersion string `json:"componentVersion"`
+	CreateTime       string `json:"createTime"`
+	ImageRepository  string `json:"imageRepository"`
+	ImageTag         string `json:"imageTag"`
+	ProductId        int    `json:"productId"`
+	UpdateTime       string `json:"updateTime"`
 }
 type VersionProductItem struct {
-	CreateTime                   time.Time                      `json:"createTime"`
+	CreateTime                   string                         `json:"createTime"`
 	FederatedComponentVersionDos []FederatedComponentVersionDos `json:"federatedComponentVersionDos"`
 	ImageDownloadUrl             string                         `json:"imageDownloadUrl"`
 	ImageName                    string                         `json:"imageName"`
@@ -189,7 +187,7 @@ type VersionProductItem struct {
 	ProductVersion               string                         `json:"productVersion"`
 	ChartVersion                 string                         `json:"kubernetesChart"`
 	PublicStatus                 int                            `json:"publicStatus"`
-	UpdateTime                   time.Time                      `json:"updateTime"`
+	UpdateTime                   string                         `json:"updateTime"`
 }
 type VersionProduct struct {
 	TotalRecord int                  `json:"totalRecord"`
