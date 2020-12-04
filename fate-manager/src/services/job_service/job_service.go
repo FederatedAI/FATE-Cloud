@@ -1645,7 +1645,6 @@ func VersionUpdateTask(info *models.AccountInfo) {
 					ImageName:        versionProductItem.ImageName,
 					ImageVersion:     federatedComponentVersionDos.ImageRepository,
 					ImageTag:         federatedComponentVersionDos.ImageTag,
-					ImageCreateTime:  federatedComponentVersionDos.CreateTime,
 					VersionIndex:     versionIndex,
 					PullStatus:       int(enum.PULL_STATUS_NO),
 					PackageStatus:    int(enum.PACKAGE_STATUS_NO),
