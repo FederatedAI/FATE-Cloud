@@ -275,7 +275,7 @@ func AutoAcquire(c *gin.Context) {
 // @Tags AnsibleDeployController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.ConnectAnsible true "request param"
+// @Param request body entity.AnsibleAutoTestReq true "request param"
 // @Success 200 {object} app.AnsiblePackageResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/ansible/componentlist [post]
@@ -286,7 +286,7 @@ func GetComponentList(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
 		return
 	}
-	var connectAnsible entity.ConnectAnsible
+	var connectAnsible entity.AnsibleAutoTestReq
 	if jsonError := json.Unmarshal(body, &connectAnsible); jsonError != nil {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")

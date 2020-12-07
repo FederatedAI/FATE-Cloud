@@ -87,7 +87,7 @@ type AnsibleAutoTestResp struct {
 type LocalUploadReq struct {
 	PartyId int    `json:"partyId"`
 	Ip      string `json:"ip"`
-	Path    string `json:"path"`
+	Path    string `json:"dir"`
 }
 type AutoAcquireReq struct {
 	PartyId     int    `json:"partyId"`
@@ -203,7 +203,7 @@ type AnsibleToyTestReq struct {
 }
 type AnsibleToyTestResultReq struct {
 	Limit    int    `json:"limit"`
-	Ip       string `json:"ip"`
+	Ip       string `json:"host"`
 	TestType string `json:"test_type"`
 }
 

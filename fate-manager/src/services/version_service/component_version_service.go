@@ -203,7 +203,7 @@ func GetDefaultPort(componentName string,deployType enum.DeployType) int {
 	} else if componentName == "rollsite" {
 		port = k8sinfo.RollsitePort + 1
 		if k8sinfo.RollsitePort ==0 {
-			port = 4670
+			port = 9370
 		}
 	}
 	str := fmt.Sprintf("componentName:%smPythonPort:%d,RollsitePort:%d,port:%d", componentName, k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
