@@ -51,6 +51,8 @@ export default {
                 this.path = ['Federated Site', 'IP Manage']
             } else if (name === 'Service Manage') {
                 this.path = ['Federated Site', 'Service Manage']
+            } else if (name === 'Site Monitor') {
+                this.path = ['Federated Site', 'Site Monitor']
             } else if (name === 'Party ID' || name === 'partyuser') {
                 this.path = ['Setting', 'Party ID']
             } else if (name === 'Repository') {

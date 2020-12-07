@@ -82,6 +82,10 @@ export const constantRouterMap = [
                 name: 'Service Manage', //
                 path: 'sys',
                 component: () => import('@/views/federated/system')
+            }, {
+                name: 'Site Monitor', //
+                path: 'monitor',
+                component: () => import('@/views/federated/monitor')
             }
 
         ]
