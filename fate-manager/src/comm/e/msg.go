@@ -107,6 +107,19 @@ var MsgFlags = map[int]string{
 	ERROR_PERMISSION_AUTH_FAIL:               "Permission Auth Fail",
 	ERROR_NO_PARTY_PRIVILEGE_FAIL:            "No Party Privilege Fail",
 	ERROR_GET_ALLOW_PARTY_LIST_FAIL:          "Get Allow Party List Fail",
+	ERROR_GET_MONITOR_TOTAL_FAIL:            "Get Monitor Total Faild",
+	ERROR_GET_INSTITUTION_BASE_STATITCS_FAIL:"Get Institution Based Statistics Fail",
+	ERROR_GET_SITE_BASE_STTITCS_FAIL:        "Get Site Base Statistics Fail",
+	ERROR_CONNECT_ANSIBLE_FAIL:              "Connect To Ansible Server Fail",
+	ERROR_CHECK_SYSTEM_FAIL:                 "Check System Fail",
+	GET_CHECK_SYSYTEM_LIST_FAIL:             "Get Chck Sytem List Fail",
+	ERROR_GET_DEPLOY_ANSIBLE_LIST_FAIL:      "Get Deploy Ansible List Fail",
+	ERROR_ANSIBLE_CONNECT_FIRST:             "Ansible Not Connect Fail",
+	ERROR_GET_MANAGER_IP_FAIL:               "Get Manager Ip List Fail",
+	ERROR_DEPLOY_ANSIBLE_FAIL:               "Deploy Ansible Fail",
+	ERROR_LOACAL_UPLOAD_FAIL:                "Upload Local Fail",
+	ERROR_AUTO_ACQUIRE_FAIL:                 "Auto Acquire Fail",
+	GET_ANSIBLE_LIST_FAIL:                   "Get Ansible List Fail",
 }
 
 func GetMsg(code int) string {

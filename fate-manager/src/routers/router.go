@@ -62,7 +62,7 @@ func InitRouter() *gin.Engine {
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
@@ -77,6 +77,8 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/fateboard", GetFateBoardVersionList)
 		dropDownList.GET("/fateserving", GetFateServingVersionList)
 		dropDownList.POST("/componentversion",GetComponentVersionList)
+		dropDownList.GET("/managernode",GetManagerIp)
+		dropDownList.GET("/manager",GetManagerIpPort)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service").Use(JWT())
@@ -123,11 +125,42 @@ func InitRouter() *gin.Engine {
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
 		user.POST("/userpartylist",GetLoginUserManagerList)
-		user.POST("/allowpartylist",GetAllAllowPartyList)
 		user.POST("/sublogin",SubLogin)
+		user.POST("/changelogin",ChangeLogin)
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
+	router.POST("/fate-manager/api/user/allowpartylist",GetAllAllowPartyList)
 
+	//monitor
+	monitor := router.Group("/fate-manager/api/monitor").Use(JWT())
+	{
+		monitor.POST("/total",GetMonitorTotal)
+		monitor.POST("/institution",GetInstitutionBaseStatics)
+		monitor.POST("/site",GetSiteBaseStatistics)
+	}
+	//ansible
+	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
+	{
+		ansible.POST("/connectansible",ConnectAnsible)
+		ansible.POST("/prepare",Prepare)
+		ansible.POST("/updatemachine",UpdateMachine)
+		ansible.POST("/check",CheckSystem)
+		ansible.POST("/getcheck",GetCheck)
+		ansible.GET("/list",GetAnsibleList)
+		ansible.POST("/deployansible",StartDeployAnsible)
+		ansible.POST("/upload",LocalUpload)
+		ansible.POST("/autoacquire",AutoAcquire)
+		ansible.POST("/componentlist",GetComponentList)
+		ansible.POST("/commit",CommitPackage)
+		ansible.POST("/click",AnsibleClick)
+		ansible.POST("/install",AnsibleInstall)
+		ansible.POST("/upgrade",AnsibleUpgrade)
+		ansible.POST("/update",AnsibleUpdate)
+		ansible.POST("/log",AnsibleLog)
+		ansible.POST("/autotest",AnsibleAutoTest)
+		ansible.POST("/testlist",GetAnsibleAutoTestList)
+		ansible.POST("/installlist",GetAnsibleInstallComponentList)
+	}
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
 	router.LoadHTMLFiles("./fate-manager/static/*/*")

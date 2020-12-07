@@ -38,6 +38,7 @@ type DeployComponent struct {
 	VersionIndex     int
 	DeployStatus     int
 	Status           int
+	DeployType       int
 	IsValid          int
 	FinishTime       time.Time
 	CreateTime       time.Time
@@ -53,7 +54,7 @@ func GetDeployComponent(info DeployComponent) ([]*DeployComponent, error) {
 	if len(info.ComponentName) > 0 {
 		Db = Db.Where("component_name = ?", info.ComponentName)
 	}
-	if info.ProductType >= 0 {
+	if info.ProductType > 0 {
 		Db = Db.Where("product_type = ?", info.ProductType)
 	}
 	if info.IsValid > 0 {
@@ -61,6 +62,9 @@ func GetDeployComponent(info DeployComponent) ([]*DeployComponent, error) {
 	}
 	if info.DeployStatus > 0 {
 		Db = Db.Where("deploy_status = ?", info.DeployStatus)
+	}
+	if info.DeployType > 0 {
+		Db = Db.Where("deploy_type = ?", info.DeployType)
 	}
 	err := Db.Find(&deployComponentList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

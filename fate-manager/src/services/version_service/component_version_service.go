@@ -167,9 +167,9 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	return
 }
 
-func GetDefaultPort(componentName string) int {
+func GetDefaultPort(componentName string,deployType enum.DeployType) int {
 	var port int
-	k8sinfo, err := models.GetKubenetesConf()
+	k8sinfo, err := models.GetKubenetesConf(deployType)
 	if err != nil || k8sinfo.Id == 0 {
 		return 0
 	}
@@ -189,6 +189,9 @@ func GetDefaultPort(componentName string) int {
 		port = 8080
 	} else if componentName == "fateflow" {
 		port = k8sinfo.PythonPort + 1
+		if k8sinfo.PythonPort ==0 {
+			port = 9380
+		}
 	} else if componentName == "serving-server" {
 		port = 9340
 	} else if componentName == "serving-proxy" {
@@ -199,6 +202,9 @@ func GetDefaultPort(componentName string) int {
 		port = 4671
 	} else if componentName == "rollsite" {
 		port = k8sinfo.RollsitePort + 1
+		if k8sinfo.RollsitePort ==0 {
+			port = 9370
+		}
 	}
 	str := fmt.Sprintf("componentName:%smPythonPort:%d,RollsitePort:%d,port:%d", componentName, k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
 	logging.Debug(str)
@@ -233,14 +239,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	var pythonPort int
 	var proxyPort int
 	updatePortTag := false
-	var componentVersonMap = make(map[string]interface{})
+	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 	for i := 0; i < len(componentVersionList); i++ {
-		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
-		port := GetDefaultPort(componentVersionList[i].ComponentName)
-		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
+		port := GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
+		nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
 		if len(nodelist)==0{
 			continue
 		}
+		componentVersionDetail := entity.ComponentVersionDetail{
+			Version: componentVersionList[i].ComponentVersion,
+			Address: nodelist[1] + ":" + strconv.Itoa(port),
+		}
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
 			FederatedId:      commitImagePullReq.FederatedId,
 			PartyId:          commitImagePullReq.PartyId,
@@ -254,6 +264,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			Address:          nodelist[1] + ":" + strconv.Itoa(port),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
+			DeployType:       int(enum.DeployType_K8S),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
 			UpdateTime:       time.Now(),
@@ -335,7 +346,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["click_type"] = int(enum.ClickType_PULL)
 		models.UpdateDeploySite(data, deploySite)
 	}
-	kubefateConf, _ := models.GetKubenetesConf()
+	kubefateConf, _ := models.GetKubenetesConf(enum.DeployType_K8S)
 	kubenetesConf := models.KubenetesConf{
 		KubenetesUrl: kubefateConf.KubenetesUrl,
 	}
@@ -345,7 +356,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		kubeconf["python_port"] = pythonPort
 		kubeconf["rollsite_port"] = proxyPort
 
-		models.UpdateKubenetesConf(kubeconf, kubenetesConf)
+		models.UpdateKubenetesConf(kubeconf, &kubenetesConf)
 	}
 	info := models.SiteInfo{
 		FederatedId: commitImagePullReq.FederatedId,
@@ -356,6 +367,148 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 	data["fate_version"] = commitImagePullReq.FateVersion
 	data["component_version"] = string(componentVersonMapjson)
+	data["deploy_type"] = int(enum.DeployType_K8S)
 	models.UpdateSiteByCondition(data, info)
 	return e.SUCCESS, nil
 }
+
+//func CommitPackage(commitImagePullReq entity.CommitImagePullReq)(int, error) {
+//	if commitImagePullReq.FateVersion == "" {
+//		return e.INVALID_PARAMS, nil
+//	}
+//	siteInfo, err := models.GetSiteInfo(commitImagePullReq.PartyId, commitImagePullReq.FederatedId)
+//	if err != nil {
+//		return e.ERROR_SELECT_DB_FAIL, err
+//	}
+//	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
+//	for i := 0; i < len(componentVersionList); i++ {
+//		port := GetDefaultPort(componentVersionList[i].ComponentName)
+//		nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
+//		if len(nodelist)==0{
+//			continue
+//		}
+//		componentVersionDetail := entity.ComponentVersionDetail{
+//			Version: componentVersionList[i].ComponentVersion,
+//			Address: nodelist[1] + ":" + strconv.Itoa(port),
+//		}
+//		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
+//		deployComponent := models.DeployComponent{
+//			FederatedId:      commitImagePullReq.FederatedId,
+//			PartyId:          commitImagePullReq.PartyId,
+//			SiteName:         siteInfo.SiteName,
+//			ProductType:      commitImagePullReq.ProductType,
+//			FateVersion:      commitImagePullReq.FateVersion,
+//			ComponentVersion: componentVersionList[i].ComponentVersion,
+//			ComponentName:    componentVersionList[i].ComponentName,
+//			VersionIndex:     componentVersionList[i].VersionIndex,
+//			StartTime:        time.Now(),
+//			Address:          nodelist[1] + ":" + strconv.Itoa(port),
+//			Label:            nodelist[0],
+//			DeployStatus:     int(enum.DeployStatus_PULLED),
+//			DeployType:       int(enum.DeployType_K8S),
+//			IsValid:          int(enum.IS_VALID_YES),
+//			CreateTime:       time.Now(),
+//			UpdateTime:       time.Now(),
+//		}
+//		deployComponentList, err := models.GetDeployComponent(deployComponent)
+//		if len(deployComponentList) > 0 {
+//			deployComponent = models.DeployComponent{
+//				FederatedId:      commitImagePullReq.FederatedId,
+//				PartyId:          commitImagePullReq.PartyId,
+//				ProductType:      commitImagePullReq.ProductType,
+//				ComponentName:    componentVersionList[i].ComponentName,
+//				IsValid:          int(enum.IS_VALID_YES),
+//			}
+//			var data =make(map[string]interface{})
+//			data["fate_version"] = commitImagePullReq.FateVersion
+//			data["component_version"] = componentVersionList[i].ComponentVersion
+//			data["version_index"] = componentVersionList[i].VersionIndex
+//			models.UpdateDeployComponent(data,deployComponent)
+//			updatePortTag = true
+//			continue
+//		}
+//		err = models.AddDeployComponent(&deployComponent)
+//		if err != nil {
+//			logging.Error("Add Deploy Component Filed")
+//		}
+//		if componentVersionList[i].ComponentName == "fateflow" {
+//			pythonPort = port
+//		} else if componentVersionList[i].ComponentName == "rollsite" {
+//			proxyPort = port
+//		}
+//		str := fmt.Sprintf("componentName:%s,PythonPort:%d,RollsitePort:%d,port:%d", componentVersionList[i].ComponentName, pythonPort, proxyPort, port)
+//		logging.Debug(str)
+//	}
+//	fateVersion := models.FateVersion{
+//		FateVersion: commitImagePullReq.FateVersion,
+//		ProductType: commitImagePullReq.ProductType,
+//	}
+//	fateVersionList, err := models.GetFateVersionList(&fateVersion)
+//	if err != nil || len(fateVersionList) == 0 {
+//		return e.ERROR_SELECT_DB_FAIL, err
+//	}
+//	deploySite := models.DeploySite{
+//		FederatedId: commitImagePullReq.FederatedId,
+//		PartyId:     commitImagePullReq.PartyId,
+//		ProductType: commitImagePullReq.ProductType,
+//		IsValid:     int(enum.IS_VALID_YES),
+//	}
+//	deploySiteList, err := models.GetDeploySite(&deploySite)
+//	if len(deploySiteList) == 0 {
+//		deploySite.FateVersion = commitImagePullReq.FateVersion
+//		deploySite.DeployStatus = int(enum.DeployStatus_PULLED)
+//		deploySite.ChartVersion = fateVersionList[0].ChartVersion
+//		deploySite.VersionIndex = fateVersionList[0].VersionIndex
+//		deploySite.CreateTime = time.Now()
+//		deploySite.UpdateTime = time.Now()
+//
+//		if !updatePortTag {
+//			deploySite.PythonPort = pythonPort
+//			deploySite.RollsitePort = proxyPort
+//		}
+//		deploySite.ClickType = int(enum.ClickType_PULL)
+//		err = models.AddDeploySite(&deploySite)
+//		if err != nil {
+//			logging.Error("Add Deploy Site Filed")
+//			return e.ERROR_UPDATE_DB_FAIL, err
+//		}
+//	} else {
+//		var data = make(map[string]interface{})
+//		data["fate_version"] = commitImagePullReq.FateVersion
+//		data["deploy_status"] = int(enum.DeployStatus_PULLED)
+//		data["chart_version"] = fateVersionList[0].ChartVersion
+//		data["version_index"] = fateVersionList[0].VersionIndex
+//		if !updatePortTag {
+//			data["python_port"] = pythonPort
+//			data["rollsite_port"] = proxyPort
+//		}
+//		data["create_time"] = time.Now()
+//		data["update_time"] = time.Now()
+//		data["click_type"] = int(enum.ClickType_PULL)
+//		models.UpdateDeploySite(data, deploySite)
+//	}
+//	kubefateConf, _ := models.GetKubenetesConf(int(enum.DeployType_K8S))
+//	kubenetesConf := models.KubenetesConf{
+//		KubenetesUrl: kubefateConf.KubenetesUrl,
+//	}
+//	if !updatePortTag {
+//		var kubeconf = make(map[string]interface{})
+//
+//		kubeconf["python_port"] = pythonPort
+//		kubeconf["rollsite_port"] = proxyPort
+//
+//		models.UpdateKubenetesConf(kubeconf, &kubenetesConf)
+//	}
+//	info := models.SiteInfo{
+//		FederatedId: commitImagePullReq.FederatedId,
+//		PartyId:     commitImagePullReq.PartyId,
+//		Status:      int(enum.SITE_STATUS_JOINED),
+//	}
+//	var data = make(map[string]interface{})
+//	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
+//	data["fate_version"] = commitImagePullReq.FateVersion
+//	data["component_version"] = string(componentVersonMapjson)
+//	data["deploy_type"] = int(enum.DeployType_K8S)
+//	models.UpdateSiteByCondition(data, info)
+//	return e.SUCCESS, nil
+//}

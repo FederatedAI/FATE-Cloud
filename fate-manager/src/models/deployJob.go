@@ -32,6 +32,7 @@ type DeployJob struct {
 	FederatedId int
 	PartyId     int
 	Result      string
+	DeployType  int
 	ProductType int
 	CreateTime  time.Time
 	UpdateTime  time.Time

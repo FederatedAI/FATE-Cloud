@@ -15,14 +15,49 @@
  */
 package entity
 
-type FateFlowData struct {
-	Eggroll string `json:"eggroll"`
-	Fate    string `json:"fate"`
-	Serving string `json:"serving"`
-}
+type FlowCommResp struct {
 
-type FateFlowResp struct {
 	Code int          `json:"retcode"`
 	Msg  string       `json:"retmsg"`
-	Data FateFlowData `json:"data"`
+}
+
+type CurrentSteps struct {
+
+}
+type Roles struct {
+	Guest []int `json:"guest"`
+	Host  []int `json:"host"`
+	Arbiter []int `json:"arbiter"`
+}
+type TrainRuntimeConf struct {
+
+}
+type FlowJobQuery struct {
+	CreateTime     int64    `json:"f_create_time"`
+	CurrentSteps   CurrentSteps   `json:"f_current_steps"`
+	CurrentTasks   []string `json:"f_current_tasks"`
+	Description    string   `json:"f_description"`
+	Elapsed        int      `json:"f_elapsed"`
+	EndTime        int64    `json:"f_end_time"`
+	InitiatorPartyId string `json:"f_initiator_party_id"`
+	IsInitiator    bool     `json:"f_is_initiator"`
+	JobId          string   `json:"f_job_id"`
+	Name           string   `json:"f_name"`
+	PartyId        string   `json:"f_party_id"`
+	Progress       int      `json:"f_progress"`
+	Role           string   `json:"f_role"`
+	Roles          Roles    `json:"f_roles"`
+	RunIp          string   `json:"f_run_ip"`
+	StartTime      int64    `json:"f_start_time"`
+	Status         string   `json:"f_status"`
+	Tage           string   `json:"f_tag"`
+	TrainRuntimeConf TrainRuntimeConf  `json:"f_train_runtime_conf"`
+	UpdateTime     int64    `json:"f_update_time"`
+	WorkMode       int      `json:"f_work_mode"`
+
+}
+type FlowJobQueryResp struct {
+	Code int          `json:"retcode"`
+	Msg  string       `json:"retmsg"`
+	Data []FlowJobQuery `json:"data"`
 }
