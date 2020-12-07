@@ -228,7 +228,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.ConnectAnsible"
+                            "$ref": "#/definitions/entity.AnsibleAutoTestReq"
                         }
                     }
                 ],
@@ -4268,6 +4268,17 @@
                 }
             }
         },
+        "entity.AnsibleAutoTestReq": {
+            "type": "object",
+            "properties": {
+                "partyId": {
+                    "type": "integer"
+                },
+                "productType": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.AnsibleCommResp": {
             "type": "object",
             "properties": {
@@ -4990,14 +5001,14 @@
         "entity.LocalUploadReq": {
             "type": "object",
             "properties": {
+                "dir": {
+                    "type": "string"
+                },
                 "ip": {
                     "type": "string"
                 },
                 "partyId": {
                     "type": "integer"
-                },
-                "path": {
-                    "type": "string"
                 }
             }
         },

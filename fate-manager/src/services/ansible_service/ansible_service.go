@@ -406,7 +406,7 @@ func AutoAcquire(autoAcquireReq entity.AutoAcquireReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
-func GetComponentList(connectAnsible entity.ConnectAnsible) (*entity.AcquireResp, error) {
+func GetComponentList(connectAnsible entity.AnsibleAutoTestReq) (*entity.AcquireResp, error) {
 	deploySite := models.DeploySite{
 		PartyId:     connectAnsible.PartyId,
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
@@ -605,7 +605,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			req.Modules.Flow.Ip = address
 			req.Modules.Flow.Dbname = "fae_flow"
 			req.Modules.Flow.Enable = true
-			req.Modules.Flow.GrpcPort = 9370
+			req.Modules.Flow.GrpcPort = 9360
 			req.Modules.Flow.HttpPort = 9380
 			req.Modules.Python.Enable = true
 			req.Modules.Python.Ip = address
@@ -959,7 +959,6 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_IN_TESTING) ||
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
-
 		ret := k8s_service.CheckNodeIp(updateReq.Address, enum.DeployType_ANSIBLE)
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
@@ -1152,7 +1151,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				err = json.Unmarshal([]byte(result.Body), &commresp)
 				if err != nil {
 					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					//return e.ERROR_PARSE_JSON_ERROR, err
+					return e.ERROR_PARSE_JSON_ERROR, err
 				}
 				if commresp.Code == e.SUCCESS {
 					data["status"] = int(enum.TEST_STATUS_TESTING)
@@ -1160,8 +1159,21 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 					autotest.TestItem = "Single Test"
 					models.UpdateAutoTest(data, autotest)
 
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
 					data = make(map[string]interface{})
 					data["single_test"] = int(enum.TEST_STATUS_TESTING)
+					data["toy_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 					models.UpdateDeploySite(data, deploySite)
 				}
 			}
