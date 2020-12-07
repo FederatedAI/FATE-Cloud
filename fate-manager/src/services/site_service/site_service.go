@@ -154,6 +154,7 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 			siteItem.AcativationTime = federatedSiteItem.AcativationTime.UnixNano() / 1e6
 			siteItem.PartyId = federatedSiteItem.PartyId
 			siteItem.SiteName = federatedSiteItem.SiteName
+			siteItem.ServiceStatus = entity.IdPair{Code: federatedSiteItem.ServiceStatus, Desc: enum.GetServiceStatusString(enum.ServiceStatusType(federatedSiteItem.ServiceStatus))}
 
 			if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
 				headInfo.Uri = setting.SiteQueryUri
@@ -172,14 +173,14 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				if findOneSiteResp.Code == int(e.SUCCESS) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
-
+					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus,enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
 					var siteInfo models.SiteInfo
-					siteInfo.Status = siteItem.Status.Code
-					siteInfo.PartyId = federatedSiteItem.PartyId
-					siteInfo.FederatedId = federatedSiteItem.FederatedId
-					siteInfo.CreateTime = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
+					siteInfo.Status          = siteItem.Status.Code
+					siteInfo.PartyId         = federatedSiteItem.PartyId
+					siteInfo.FederatedId     = federatedSiteItem.FederatedId
+					siteInfo.CreateTime      = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
 					siteInfo.AcativationTime = time.Unix(findOneSiteResp.Data.ActivationTime/1000, 0)
-					siteInfo.SiteId = findOneSiteResp.Data.Id
+					siteInfo.SiteId          = findOneSiteResp.Data.Id
 					models.UpdateSite(&siteInfo)
 
 					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0 {
@@ -271,6 +272,12 @@ func UpdateSite(updateSiteReq *entity.UpdateSiteReq) (int, error) {
 	return e.SUCCESS, nil
 }
 
+type CloudSystemHeart struct {
+	DetectiveStatus  int    `json:"detectiveStatus"`
+	SiteId           int64  `json:"id"`
+	ComponentName    string `json:"installItems"`
+	ComponentVersion string `json:"version"`
+}
 func HeartTask() {
 	federatedSiteList, err := federated_service.GetHomeSiteList()
 	if err != nil {
@@ -300,8 +307,55 @@ func HeartTask() {
 					return
 				}
 				if updateResp.Code == e.SUCCESS {
-					msg, _ := fmt.Scanf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
+					msg := fmt.Sprintf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
 					logging.Debug(msg)
+				}
+			}
+			deployComponent := models.DeployComponent{
+				PartyId:          federatedSiteItem.PartyId,
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			deployComponentList,_ := models.GetDeployComponent(deployComponent)
+			var cloudSystemHeartList []CloudSystemHeart
+			for j :=0 ;j<len(deployComponentList) ;j++  {
+				cloudSystemHeart := CloudSystemHeart{
+					DetectiveStatus:  1,
+					SiteId:           federatedSiteItem.SiteId,
+					ComponentName:    deployComponentList[j].ComponentName,
+					ComponentVersion: deployComponentList[j].ComponentVersion,
+				}
+				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING){
+					cloudSystemHeart.DetectiveStatus =2
+				}
+				cloudSystemHeartList = append(cloudSystemHeartList,cloudSystemHeart)
+			}
+			if len(cloudSystemHeartList) > 0 {
+				cloudSystemAddJson, _ := json.Marshal(cloudSystemHeartList)
+				headInfo := util.HeaderInfo{
+					AppKey:    federatedSiteItem.AppKey,
+					AppSecret: federatedSiteItem.AppSecret,
+					PartyId:   federatedSiteItem.PartyId,
+					Body:      string(cloudSystemAddJson),
+					Role:      federatedSiteItem.Role,
+					Uri:       setting.SystemHeartUri,
+				}
+				headerInfoMap := util.GetHeaderInfo(headInfo)
+				result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.SystemHeartUri), cloudSystemHeartList, headerInfoMap)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+					continue
+				}
+				if len(result.Body) > 0 {
+					var updateResp entity.CloudCommResp
+					err = json.Unmarshal([]byte(result.Body), &updateResp)
+					if err != nil {
+						logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+						return
+					}
+					if updateResp.Code == e.SUCCESS {
+						msg := fmt.Sprintf("partyid:%d system heart success! content:%s",federatedSiteItem.PartyId,string(cloudSystemAddJson))
+						logging.Debug(msg)
+					}
 				}
 			}
 		}
@@ -928,6 +982,10 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 						Status: entity.IdPair{
 							Code: item.Status,
 							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
+						},
+						ServiceStatus:entity.IdPair{
+							Code: item.ServiceStatus,
+							Desc: enum.GetServiceStatusString(enum.ServiceStatusType(item.ServiceStatus)),
 						},
 						AcativationTime: item.ActivationTime,
 					}

@@ -231,13 +231,14 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		}
 		kubeReq.FederatedId = federatedInfoList[0].Id
 	}
-	item, err := models.GetKubenetesConf()
+	item, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	if item.Id == 0 {
 		kubenetesConf := models.KubenetesConf{
 			KubenetesUrl: kubeReq.Url,
+			DeployType:   int(enum.DeployType_K8S),
 			PythonPort:   30001,
 			RollsitePort: 31000,
 			NodeList:     "",
@@ -245,7 +246,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			UpdateTime:   time.Now(),
 		}
 		models.AddKubenetesConf(&kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		//item, _ = models.GetKubenetesConf(int(enum.DeployType_K8S))
+		item = &kubenetesConf
 	} else if item.KubenetesUrl != kubeReq.Url {
 		var data = make(map[string]interface{})
 		data["kubenetes_url"] = kubeReq.Url
@@ -255,8 +257,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		kubenetesConf := models.KubenetesConf{
 			Id: item.Id,
 		}
-		models.UpdateKubenetesConf(data, kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		item, _ = models.GetKubenetesConf(enum.DeployType_K8S)
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
@@ -291,7 +293,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				Id:           item.Id,
 				KubenetesUrl: item.KubenetesUrl,
 			}
-			models.UpdateKubenetesConf(data, kubenetesConf)
+			models.UpdateKubenetesConf(data, &kubenetesConf)
 		}
 	}
 
@@ -364,6 +366,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
 				ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
 				ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
+				DeployType:         int(enum.DeployType_K8S),
 				IsValid:            int(enum.IS_VALID_YES),
 				CreateTime:         time.Now(),
 				UpdateTime:         time.Now(),
@@ -391,14 +394,14 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			for i := 0; i < len(componentVersionList); i++ {
-				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName)
+				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
 				} else if componentVersionList[i].ComponentName == "rollsite" {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
+				nodelist :=k8s_service.GetNodeIp(enum.DeployType_K8S)
 				if len(nodelist)==0{
 					continue
 				}
@@ -455,6 +458,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			deploySite.ClickType = int(enum.ClickType_CONNECT)
 			deploySite.ToyTestOnlyRead = int(enum.ToyTestOnlyTypeRead_YES)
 			deploySite.ToyTestOnly = int(enum.ToyTestOnly_NO_TEST)
+			deploySite.DeployType = int(enum.DeployType_K8S)
 			deploySite.CreateTime = time.Now()
 			deploySite.UpdateTime = time.Now()
 			models.AddDeploySite(&deploySite)
@@ -466,6 +470,15 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_YES)
 		models.UpdateDeploySite(data, deploySite)
 	}
+	var data = make(map[string]interface{})
+	data["deploy_type"]=int(enum.DeployType_K8S)
+	data["update_time"] = time.Now()
+	siteInfo := models.SiteInfo{
+		FederatedId:            kubeReq.FederatedId,
+		PartyId:                kubeReq.PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	models.UpdateSiteByCondition(data,siteInfo)
 	return e.SUCCESS, nil
 }
 

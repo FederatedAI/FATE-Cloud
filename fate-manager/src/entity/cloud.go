@@ -86,6 +86,7 @@ type FindOneSiteData struct {
 	ComponentVersion       string     `json:"componentVersion"`
 	CreateTime             int64      `json:"createTime"`
 	Status                 int        `json:"status"`
+	ServiceStatus          int        `json:"detectiveStatus"`
 	ActivationTime         int64      `json:"activationTime"`
 	UpdateTime             int64      `json:"updateTime"`
 	GroupId                int        `json:"groupId"`
@@ -150,4 +151,55 @@ type ApproveData struct {
 type ApproveResp struct {
 	CloudCommResp
 	Data ApproveData `json:"data"`
+}
+type CheckPartyId struct {
+	Institutions string `json:"institutions"`
+	PartyId      int    `json:"partyId"`
+}
+type CheckPartyIdResp struct {
+	CloudCommResp
+	Data bool `json:"data"`
+}
+
+type VersionProductReq struct {
+	PageNum  int `json:"pageNum"`
+	PageSize int `json:"pageSize"`
+}
+type FederatedComponentVersionDos struct {
+	ComponentId      int    `json:"componentId"`
+	ComponentName    string `json:"componentName"`
+	ComponentVersion string `json:"componentVersion"`
+	CreateTime       string `json:"createTime"`
+	ImageRepository  string `json:"imageRepository"`
+	ImageTag         string `json:"imageTag"`
+	ProductId        int    `json:"productId"`
+	UpdateTime       string `json:"updateTime"`
+}
+type VersionProductItem struct {
+	CreateTime                   string                         `json:"createTime"`
+	FederatedComponentVersionDos []FederatedComponentVersionDos `json:"federatedComponentVersionDos"`
+	ImageDownloadUrl             string                         `json:"imageDownloadUrl"`
+	ImageName                    string                         `json:"imageName"`
+	PackageDownloadUrl           string                         `json:"packageDownloadUrl"`
+	PackageName                  string                         `json:"packageName"`
+	ProductId                    int                            `json:"productId"`
+	ProductName                  string                         `json:"productName"`
+	ProductVersion               string                         `json:"productVersion"`
+	ChartVersion                 string                         `json:"kubernetesChart"`
+	PublicStatus                 int                            `json:"publicStatus"`
+	UpdateTime                   string                         `json:"updateTime"`
+}
+type VersionProduct struct {
+	TotalRecord int                  `json:"totalRecord"`
+	TotalPage   int                  `json:"totalPage"`
+	StartIndex  int                  `json:"startIndex"`
+	Start       int                  `json:"start"`
+	End         int                  `json:"end"`
+	PageNum     int                  `json:"pageNum"`
+	PageSize    int                  `json:"pageSize"`
+	List        []VersionProductItem `json:"list"`
+}
+type VersionProductResp struct {
+	CloudCommResp
+	Data VersionProduct `json:"data"`
 }

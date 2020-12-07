@@ -163,7 +163,7 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 	}
 	if len(accountInfoList) > 0 {
 		logging.Debug("The site was activated,do not actvivate again!")
-		return e.ERROR_ACCOUNT_ACTIVATE_FAIL, nil
+		//return e.ERROR_ACCOUNT_ACTIVATE_FAIL, nil
 	}
 	if len(accountActivateReq.AccountName) == 0 || len(accountActivateReq.Password) == 0 {
 		return e.ERROR_USERNAME_OR_PASSWORD_FAIL, nil
