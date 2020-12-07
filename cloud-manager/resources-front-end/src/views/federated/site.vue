@@ -2,7 +2,10 @@
   <div class="site-box">
     <div class="site" >
         <div class="site-header">
-            <el-button class="add" type="primary" @click="addsite">Add</el-button>
+            <el-button class="add" type="text" @click="addsite">
+                <img src="@/assets/add_site.png">
+                <span>add</span>
+            </el-button>
             <el-input class="input input-placeholder" v-model.trim="data.condition" placeholder="Search for Site Name or Party ID" clearable>
             <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
             </el-input>

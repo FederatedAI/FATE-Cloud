@@ -32,9 +32,38 @@
                 }
             }
         }
+        
+      
+      
+    }
+    .row-add{
+        background-color: #fff;
+        width: 100%;
+        .btn-add{
+            height: 42px;
+            width: calc(100% - 72px);
+            margin: 0 36px;
+            border-bottom: 2px solid #E6EBF0;
+        }
+        .access-add{
+            height: 42px;
+            font-size: 16px;
+            color: #217AD9;
+            text-align: center;
+            line-height: 42px;
+            cursor: pointer;
+            span{
+                margin-left: 3px;
+                vertical-align: 5px;
+            }
+        }
+        .access-add:hover{
+            opacity: 0.85;
+        }
         .input {
+            margin-top: 3px;
             width: 250px;
-            margin-left: 16px;
+            float: right;
             .el-input__inner{
                 padding-left: 40px
             }
@@ -52,23 +81,19 @@
                 cursor: pointer;
             }
         }
-        .go{
-            width: 126px;
-            font-size: 18px;
-        }
-      
     }
 
     .system-body {
         background-color: #fff;
         position: absolute;
         width: calc(100% - 72px);
-        height: calc(100% - 114px);
+        height: calc(100% - 158px);
         .table {
-            height: calc(100% - 104px);
+            height: calc(100% - 82px);
             .el-table {
                 width: calc(100% - 72px);
                 height:100% !important;
+                margin: 0px 36px;
                 .el-button{
                     padding:0;
                     height: initial;
@@ -121,6 +146,7 @@
                     border-bottom: 2px solid #FF9D00;
                 }
                 .el-input__inner {
+                     border: 0px;
                     background-color: #fff;
                     height: 32px;
                     font-size: 18px;

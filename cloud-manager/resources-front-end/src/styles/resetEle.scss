@@ -11,9 +11,9 @@ button, input {
     line-height: 36px;
 }
 .el-input__inner {
-    background-color: #E6EBF0;
+    // background-color: #E6EBF0;
     color: #848C99;
-    border: 0px;
+    // border: 0px;
     outline: none;
     height: 36px;
     line-height: 36px;
@@ -38,11 +38,9 @@ button, input {
 .tableHead {
     color: #4E5766;
 }
-.tableHeadCell {
-    border: 0!important;
-}
-.tableCell {
-    border-bottom: 2px solid #E6EBF0!important;
+
+.tableHeadCell,.tableCell {
+    border-bottom: 2px solid #F5F7FA!important;
 }
 .add {
     float: left;
