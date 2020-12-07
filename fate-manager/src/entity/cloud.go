@@ -166,7 +166,7 @@ type VersionProductReq struct {
 	PageSize int `json:"pageSize"`
 }
 type FederatedComponentVersionDos struct {
-	ComponentId      string `json:"componentId"`
+	ComponentId      int    `json:"componentId"`
 	ComponentName    string `json:"componentName"`
 	ComponentVersion string `json:"componentVersion"`
 	CreateTime       string `json:"createTime"`

@@ -501,6 +501,13 @@ definitions:
       roleName:
         type: string
     type: object
+  entity.AnsibleAutoTestReq:
+    properties:
+      partyId:
+        type: integer
+      productType:
+        type: integer
+    type: object
   entity.AnsibleCommResp:
     properties:
       retcode:
@@ -971,12 +978,12 @@ definitions:
     type: object
   entity.LocalUploadReq:
     properties:
+      dir:
+        type: string
       ip:
         type: string
       partyId:
         type: integer
-      path:
-        type: string
     type: object
   entity.LogReq:
     properties:
@@ -1747,7 +1754,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.ConnectAnsible'
+          $ref: '#/definitions/entity.AnsibleAutoTestReq'
       produces:
       - application/json
       responses:
