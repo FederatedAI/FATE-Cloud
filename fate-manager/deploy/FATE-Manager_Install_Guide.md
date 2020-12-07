@@ -406,6 +406,7 @@ Registry=                                      #镜像地址配置，可以配�
 SudoTag=false                                  #kubectl是否需要sudo权限，默认不需要
 SessionProcessorsPerNode=4                     #process个数
 TestPartyId=10000                              #跑toy及最小化验证的另一侧partyid
+ModeAlone=false                                #单点部署，true为单点，false为集群
 ```
 
 - **执行部署**
