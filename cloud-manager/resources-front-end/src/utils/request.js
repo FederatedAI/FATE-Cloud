@@ -82,6 +82,14 @@ service.interceptors.response.use(
             type: 'error',
             duration: 5 * 1000
         })
+        // 服务端发生错误退出
+        store.dispatch('setloginname', '').then(r => {
+            localStorage.setItem('name', r)
+            router.push({
+                path: '/home/welcome'
+            })
+            location.reload() // 为了重新实例化vue-router对象 避免bug
+        })
         return Promise.reject(error)
     }
 )

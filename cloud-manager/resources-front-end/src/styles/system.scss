@@ -4,14 +4,12 @@
         .system-header {
             height: 34px;
             margin-bottom: 24px;
-            text-align: right;
             .radio{
                 float: left;
-               
+
                 .el-radio-button__inner{
                     padding: 8px 0px;
                     font-size: 18px;
-                    width: 125px;
                     height: 36px;
                     border-left: 0px solid #DCDFE6;
                     border-radius:0;
@@ -22,6 +20,7 @@
                 .el-radio-button{
                     
                     .el-radio-button__inner{
+                        width: 220px;
                         color: #217AD9;
                         background-color: #E6EBF0 !important;
                     }
@@ -33,24 +32,8 @@
                     }
                 }
             }
-            .input {
-                width: 250px;
-                margin-left: 16px;
-                .search {
-                    cursor: pointer;
-                    margin-right: 0px
-                }
-            }
-            .sel-role {
-                width: 85px;
-                margin-left: 16px;
-            }
-            .sel-version {
-                width: 125px;
-                margin-left: 16px;
-            }
+         
         }
-
         .system-body {
             background-color: #fff;
             position: absolute;
@@ -58,10 +41,63 @@
             height: calc(100% - 114px);
 
             .table {
-                height: calc(100% - 104px);
+                height: calc(100% - 128px);
+                .table-head{
+                    width: 100%;
+                    height: 42px;
+                    border-bottom:2px #e6ebf0 solid;
+                    text-align: right;
+                    .route-add{
+                        float: left;
+                        color: #217AD9;
+                        height: 42px;
+                        vertical-align: middle;
+                        font-size: 14px;
+                        margin-left: 36px;
+                        img{
+                            margin-right: 2px;
+                            vertical-align: -7px
+                        }
+                    }
+                    .route-add:hover{
+                        opacity: 0.85;
+                    }
+                    .input {
+                        width: 250px;
+                        margin-left: 16px;
+                        margin-top: 3px;
+                        .search {
+                            cursor: pointer;
+                            margin-right: 0px
+                        }
+                    }
+                    .go{
+                        margin-top: 3px;
+                        margin-right: 36px;
+                    }
+                    .sel-role {
+                        margin-top: 3px;
+                        width: 85px;
+                        margin-left: 16px;
+                    }
+                    .product{
+                        width: 165px;
+                        margin-right: 16px;
+                    }
+                    .version{
+                        margin-top: 3px;
+                        width: 125px;
+                    }
+                    .sel-version {
+                        width: 180px;
+                        margin-left: 16px;
+                    }
+                }
                 .el-table {
                     width: calc(100% - 72px);
                     height:100% !important;
+                    margin: 0px 36px;
+                   
                     .el-button{
                         padding:0;
                         height: initial;
@@ -72,12 +108,272 @@
                         top:12px;
                         display: inline-block;
                     }
+                    td{
+                        border-right: 0px solid #fff
+                    }
+                    .el-table_2_column_24 {
+                        border-right: 1px solid #fff
+                    }
+                    
+                   
                 }
-
+                .el-table::before{
+                    height:0
+                }
+                .el-table--border, .el-table--group{
+                    border: 1px solid #fff !important
+                }
+                .el-table--border::after, .el-table--group::after, .el-table::before{
+                    background-color:#fff
+                }
+                .el-table thead.is-group th{
+                    background-color: #fff;
+                }
+                .sys-edit-dialog{
+                    .el-dialog__body{
+                        padding: 40px;
+                    }
+                    .el-dialog__header {
+                        display: none;
+                    }
+                    .dialog-title {
+                        font-size: 24px;
+                        color: #217AD9;
+                        margin-bottom: 20px;
+                        font-weight: bold;
+                    }
+                    .dialog-body{
+                        .el-form-item{
+                            line-height: 32px;
+                            height: 32px;
+                            margin-bottom:15px;
+                            .el-form-item__label,
+                            .el-form-item__content{
+                                line-height: 32px;
+                                height: 32px;
+                            }
+                            .el-input__inner{
+                                line-height: 32px;
+                                height: 32px;
+                            }
+                           
+                        }
+                        .title-body{
+                            font-size: 18px;
+                            color: #217AD9;
+                            margin-bottom: 12px;
+                            
+                            .el-button{
+                                float: right;
+                                font-size: 18px
+                            }
+                        }
+                        .content-body{
+                            width: 100%;
+                            height: 146px;
+                            overflow: auto;
+                            
+                            background-color: #FAFBFC;
+                            
+                            .el-table{
+                                margin: 0;
+                                width: 100%;
+                            }
+                            .tableHeadCell{
+                                padding: 3px 0;
+                                background-color: #FAFBFC;
+                                border-bottom: 2px solid #E6EBF0!important;
+                            }
+                            .tableCell{
+                                padding: 3px 0;
+                                background-color: #FAFBFC;
+                                border-bottom: 0px solid #F5F7FA!important;
+                            }
+                            .el-table__body-wrapper{
+                                background-color: #FAFBFC;
+                            }
+                           
+                        }
+                        .checked-box{
+                            margin: 25px 0 10px 0;
+                            .el-checkbox__inner::after {
+                                transition: none!important;
+                            }
+                            .el-checkbox__inner{
+                                font-size: 18px;
+                                border: 1px solid #217AD9
+                            }
+                            .el-checkbox__label{
+                                vertical-align: -1px;
+                                color: #217AD9;
+                                font-size: 18px;
+                            }
+                        }
+                        .componentWarn{
+                            height: 14px;
+                            color: #FF9D00;
+                            font-size: 12px;
+                        }
+                        .el-form-item__label:before{
+                           display: none;
+                            color: #fff;
+                        }
+                        .el-form-item__label{
+                            font-size: 14px;
+                            color: #848c99;
+                        }
+                        .el-select{
+                            width: 100%;
+                        }
+                        input{
+                            box-shadow: inset 0 0 0 1000px #fff!important;
+                            color: #2D3642;
+                            font-weight: bold;
+                            font-size: 14px;
+                            padding: 0;
+                            height: 36px;
+                        }
+                        input::-webkit-input-placeholder {
+                            color: #848C99;
+                            font-weight: normal;
+                            font-size: 16px;
+                        }
+                        .el-input__inner{
+                            border-top: 0px;
+                            border-right: 0px;
+                            border-left: 0px;
+                            // border-bottom: 2px solid #E6EBF0;
+                        }
+                        .is-error .el-input__inner{
+                            border-color:#FF9D00 !important;
+                        }
+                       
+                        .el-form-item__error{
+                            top:92%;
+                            color: #FF9D00;
+                            font-size: 12px;
+                        }
+                        
+                       
+                    }
+                    .dialog-footer {
+                       
+                        margin-top: 30px;
+                        
+                        text-align: center;
+                        .el-button{
+                            width: 180px;
+                            font-size: 18px;
+                            padding: 0;
+                            height: 36px;
+                            line-height: 36px;
+                        }
+                    }
+                }
+                .sys-delete{
+                    .el-dialog__body{
+                        padding: 40px;
+                    }
+                    .el-dialog__header {
+                        display: none;
+                    }
+                    .title{
+                        font-size: 18px;
+                        color: #2D3642;
+                        text-align: center;
+                    }
+                    .dialog-footer {           
+                        margin-top: 30px;
+                        text-align: center;
+                        .el-button{
+                            width: 180px;
+                            font-size: 18px;
+                            padding: 0;
+                            height: 36px;
+                            line-height: 36px;
+                        }
+                    }
+                }
             }
         }
     }
 
+}
+.sys-edit-inner{
+    .el-dialog__body{
+        padding: 40px;
+    }
+    .el-dialog__header {
+        display: none;
+    }
+    .el-form-item{
+        line-height: 32px;
+        height: 32px;
+        margin-bottom:15px;
+        .el-form-item__label{
+            color: #848C99
+        }
+        .el-form-item__label,
+        .el-form-item__content{
+            line-height: 32px;
+            height: 32px;
+        }
+        .el-input__inner{
+            line-height: 32px;
+            height: 32px;
+        }
+       
+    }
+    .el-form-item__label:before{
+        display: none;
+        color: #fff;
+    }
+    .inner-form{
+        .title-body{
+            font-size: 18px;
+            color: #217AD9;
+            margin-bottom: 15px;
+        }
+        input{
+            box-shadow: inset 0 0 0 1000px #fff!important;
+            color: #2D3642;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 0;
+            height: 36px;
+        }
+        input::-webkit-input-placeholder {
+            color: #848C99;
+            font-weight: normal;
+            font-size: 16px;
+        }
+        .el-input__inner{
+            border-top: 0px;
+            border-right: 0px;
+            border-left: 0px;
+            // border-bottom: 2px solid #E6EBF0;
+        }
+        .is-error .el-input__inner{
+            border-color:#FF9D00 !important;
+        }
+       
+        .el-form-item__error{
+            top:92%;
+            color: #FF9D00;
+            font-size: 12px;
+        }
+    }
+    .dialog-footer {           
+        margin-top: 30px;
+        text-align: center;
+        .el-button{
+            width: 180px;
+            font-size: 18px;
+            padding: 0;
+            height: 36px;
+            line-height: 36px;
+        }
+    }
 }
 
 // .el-select-dropdown__item {

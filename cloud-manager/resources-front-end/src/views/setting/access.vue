@@ -6,33 +6,42 @@
         <el-radio-button label="Cloud Manager"></el-radio-button>
         <el-radio-button label="FATE Manager"></el-radio-button>
       </el-radio-group>
-      <el-input v-if="radio==='Cloud Manager'" class="input input-placeholder" clearable v-model.trim="data.name" placeholder="Search for Name">
-        <i slot="prefix" @click="initList" class="el-icon-search search" />
-      </el-input>
-      <el-input v-else class="input input-placeholder" clearable v-model.trim="data.institutions" placeholder="Search for Institution">
-        <i slot="prefix" @click="initList" class="el-icon-search search" />
-      </el-input>
-      <el-button class="go" type="primary" @click="toAdd">Add</el-button>
+
+    </div>
+     <div class="row-add">
+        <div class="btn-add">
+            <el-button type="text" class="access-add" @click="toAdd"  >
+                <img src="@/assets/add_admin.png">
+                <span>add</span>
+            </el-button>
+            <el-input v-if="radio==='Cloud Manager'" class="input" clearable v-model.trim="data.name" placeholder="Search for Name">
+                <i slot="prefix" @click="initList" class="el-icon-search search" />
+            </el-input>
+            <el-input v-else class="input" clearable v-model.trim="data.institutions" placeholder="Search for Institution">
+                <i slot="prefix" @click="initList" class="el-icon-search search" />
+            </el-input>
+        </div>
+
     </div>
     <div class="system-body">
         <div v-if="radio==='Cloud Manager'" class="table">
             <el-table :data="cloudtableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
-            <el-table-column prop="name" label="Name" ></el-table-column>
-            <el-table-column prop="adminLevel" label="Admin-level"   align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="creator" label="Creator"  align="center"></el-table-column>
-            <el-table-column prop="createTime" label="Create Time"  align="center">
-                <template slot-scope="scope">
-                <span>{{scope.row.createTime | dateFormat}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="status" label="Action" align="right" >
-                <template slot-scope="scope">
-                    <span >
-                        <el-button v-if="scope.row.name===loginName" type="text" disabled="" icon="el-icon-delete-solid"></el-button>
-                        <el-button v-else type="text" @click="todDelete(scope.row)" icon="el-icon-delete-solid"></el-button>
-                    </span>
-                </template>
-            </el-table-column>
+                <el-table-column prop="name" label="Name" ></el-table-column>
+                <el-table-column prop="adminLevel" label="Admin-level"   align="center" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="creator" label="Creator"  align="center"></el-table-column>
+                <el-table-column prop="createTime" label="Create Time"  align="center">
+                    <template slot-scope="scope">
+                    <span>{{scope.row.createTime | dateFormat}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="status" label="Action" align="right" >
+                    <template slot-scope="scope">
+                        <span >
+                            <el-button v-if="scope.row.name===loginName" type="text" disabled="" icon="el-icon-delete-solid"></el-button>
+                            <el-button v-else type="text" @click="todDelete(scope.row)" icon="el-icon-delete-solid"></el-button>
+                        </span>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
         <div v-else class="table">

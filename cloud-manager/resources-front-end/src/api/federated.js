@@ -268,3 +268,83 @@ export function getversion(data) {
         data
     })
 }
+
+// ip-change列表
+export function getIpchangeList(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/page',
+        method: 'post',
+        data
+    })
+}
+
+// ip-change列表添加
+export function addIpchange(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/add',
+        method: 'post',
+        data
+    })
+}
+
+// ip-change列表编辑
+export function editIpchange(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/update',
+        method: 'post',
+        data
+    })
+}
+// ip-change 列表 删除
+export function deleteIpchange(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/delete',
+        method: 'post',
+        data
+    })
+}
+
+// Service Manage 列表
+export function serviceManageList(data) {
+    return request({
+        url: '/cloud-manager/api/product/page',
+        method: 'post',
+        data
+    })
+}
+
+// 添加列表
+export function addManageList(data) {
+    return request({
+        url: '/cloud-manager/api/product/add',
+        method: 'post',
+        data
+    })
+}
+
+// 添加列表
+export function updateManageList(data) {
+    return request({
+        url: '/cloud-manager/api/product/update',
+        method: 'post',
+        data
+    })
+}
+
+// 删除列表项
+export function deleteManageList(data) {
+    return request({
+        url: '/cloud-manager/api/product/delete',
+        method: 'post',
+        data
+    })
+}
+
+// 获取下拉选框
+export function getSelect(data) {
+    return request({
+        url: '/cloud-manager/api/product/version',
+        method: 'post',
+        data
+    })
+}

@@ -26,6 +26,20 @@
                 width: 115px;
                 margin-left: 16px;
             }
+            .add{
+                width: initial;
+                color: #217AD9;
+                height: 36px;
+                vertical-align: middle;
+                font-size: 14px;
+                img{
+                    margin-right: 2px;
+                    vertical-align: -7px
+                }
+            }
+            .add:hover{
+                opacity: 0.85;
+            }
         }
 
         .partyid-body {

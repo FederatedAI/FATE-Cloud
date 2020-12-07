@@ -2,8 +2,11 @@
   <div class="ip-box">
     <div class="ip">
       <div class="ip-header">
-        <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID">
-          <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
+        <el-radio-group class="radio" v-model="radio">
+            <el-radio-button label="IP manage"></el-radio-button>
+            <el-radio-button label="Exchange info."></el-radio-button>
+        </el-radio-group>
+        <!-- <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID">
         </el-input>
         <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
           <el-option
@@ -13,10 +16,12 @@
             :value="item.value"
           ></el-option>
         </el-select>
-        <el-button class="go" @click="toSearch" type="primary">GO</el-button>
+        <el-button class="go" @click="toSearch" type="primary">GO</el-button> -->
       </div>
       <div class="ip-body">
-        <div class="table">
+        <div class="table" v-if="radio==='IP manage'">
+            <div class="table-head">
+            </div>
           <el-table
             :data="tableData"
             ref="table"
@@ -58,111 +63,120 @@
                 <template slot-scope="scope">
                     <span>{{scope.row.updateTime | dateFormat}}</span>
                 </template>
-            </el-table-column>
-            <el-table-column prop="" align="left" label="Action" class-name="cell-td-td" min-width="70">
-                <template slot-scope="scope">
-                    <el-badge is-dot v-if="scope.row.status===0" type="warning" style="margin-right:10px;">
-                        <el-button type="text" >
-                            <i class="el-icon-refresh-right" @click="upDate(scope.row)"></i>
+                </el-table-column>
+                <el-table-column prop="updateTime" show-overflow-tooltip label="Update Time" class-name="cell-td-td" min-width="100px">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.updateTime | dateFormat}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="" align="left" label="Action" class-name="cell-td-td" min-width="70">
+                    <template slot-scope="scope">
+                        <el-badge is-dot v-if="scope.row.status===0" type="warning" style="margin-right:10px;">
+                            <el-button type="text" >
+                                <i class="el-icon-refresh-right" @click="upDate(scope.row)"></i>
+                            </el-button>
+                        </el-badge>
+                        <el-button v-else type="text" :disabled="true" style="margin-right:10px;" class="delete">
+                            <i class="el-icon-refresh-right" ></i>
                         </el-button>
-                    </el-badge>
-                    <el-button v-else type="text" :disabled="true" style="margin-right:10px;" class="delete">
-                        <i class="el-icon-refresh-right" ></i>
-                    </el-button>
-                    <el-popover
-                        v-if="scope.row.history"
-                        v-model="scope.row.visible"
-                        placement="left"
-                        popper-class="ip-history"
-                        width="650"
-                        trigger="click"
-                        :visible-arrow="false"
-                        :offset="-300">
-                        <div class="content">
-                            <div class="tiltle">
-                                <div class="tiltle-time">Time</div>
-                                <div class="tiltle-history">History</div>
-                            </div>
-                            <div class="content-loop">
-                                <div class="loop" v-for="(item, index) in scope.row.historylist" :key="index">
-                                    <div class="time">
-                                        <div class="time-text">{{item.updateTime | dateFormat}}</div>
-                                    </div>
-                                    <div class="history">
-                                        <!-- status===1同意 -->
-                                        <div v-if="item.status===1 && item.networkAccessEntrances !== item.networkAccessEntrancesOld" class="line">
-                                            Agreed to change the Network Access Entrances
+                        <el-popover
+                            v-if="scope.row.history"
+                            v-model="scope.row.visible"
+                            placement="left"
+                            popper-class="ip-history"
+                            width="650"
+                            trigger="click"
+                            :visible-arrow="false"
+                            :offset="-300">
+                            <div class="content">
+                                <div class="tiltle">
+                                    <div class="tiltle-time">Time</div>
+                                    <div class="tiltle-history">History</div>
+                                </div>
+                                <div class="content-loop">
+                                    <div class="loop" v-for="(item, index) in scope.row.historylist" :key="index">
+                                        <div class="time">
+                                            <div class="time-text">{{item.updateTime | dateFormat}}</div>
                                         </div>
-                                        <!-- status===2拒绝 -->
-                                        <div v-if="item.status===2 && item.networkAccessEntrances !== item.networkAccessEntrancesOld"  class="line">
-                                            Rejected to change the Network Acess Exits
-                                        </div>
-                                        <!-- 入口 -->
-                                        <div v-if="item.networkAccessEntrances !==item.networkAccessEntrancesOld" class="content-box">
-                                            <div class="from-tiltle">From</div>
-                                            <div class="from-text">
-                                                <div v-for="(item,index) in item.networkAccessEntrancesOld.split(';')" :key="index">
-                                                    {{item}}
+                                        <div class="history">
+                                            <!-- status===1同意 -->
+                                            <div v-if="item.status===1 && item.networkAccessEntrances !== item.networkAccessEntrancesOld" class="line">
+                                                Agreed to change the Network Access Entrances
+                                            </div>
+                                            <!-- status===2拒绝 -->
+                                            <div v-if="item.status===2 && item.networkAccessEntrances !== item.networkAccessEntrancesOld"  class="line">
+                                                Rejected to change the Network Acess Exits
+                                            </div>
+                                            <!-- 入口 -->
+                                            <div v-if="item.networkAccessEntrances !==item.networkAccessEntrancesOld" class="content-box">
+                                                <div class="from-tiltle">From</div>
+                                                <div class="from-text">
+                                                    <div v-for="(item,index) in item.networkAccessEntrancesOld.split(';')" :key="index">
+                                                        {{item}}
+                                                    </div>
+                                                </div>
+                                                <div style="margin-left: 50px;" class="from-tiltle" >to</div>
+                                                <div class="from-text">
+                                                    <div v-for="(item,index) in item.networkAccessEntrances.split(';')" :key="index">
+                                                        {{item}}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div style="margin-left: 50px;" class="from-tiltle" >to</div>
-                                            <div class="from-text">
-                                                <div v-for="(item,index) in item.networkAccessEntrances.split(';')" :key="index">
-                                                    {{item}}
-                                                </div>
+                                            <!-- status===1同意 -->
+                                            <div v-if="item.status===1 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
+                                                <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> and </span>
+                                                Agreed to change the Network Access Exits
                                             </div>
-                                        </div>
-                                        <!-- status===1同意 -->
-                                        <div v-if="item.status===1 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
-                                            <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> and </span>
-                                            Agreed to change the Network Access Exits
-                                        </div>
-                                        <!-- status===2拒绝 -->
-                                        <div v-if="item.status===2 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
-                                            <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> and </span>
-                                            Rejected to change the Network Access Exits
-                                        </div>
-                                         <!-- 出口 -->
-                                        <div v-if="item.networkAccessExitsOld !==item.networkAccessExits" class="content-box">
-                                            <div class="from-tiltle">From</div>
-                                            <div class="from-text">
-                                                <div v-for="(item,index) in item.networkAccessExitsOld.split(';')" :key="index">
-                                                    {{item}}
-                                                </div>
+                                            <!-- status===2拒绝 -->
+                                            <div v-if="item.status===2 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
+                                                <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> and </span>
+                                                Rejected to change the Network Access Exits
                                             </div>
-                                            <div style="margin-left: 50px;" class="from-tiltle" >to</div>
-                                            <div class="from-text">
-                                                <div v-for="(item,index) in item.networkAccessExits.split(';')" :key="index">
-                                                    {{item}}
+                                            <!-- 出口 -->
+                                            <div v-if="item.networkAccessExitsOld !==item.networkAccessExits" class="content-box">
+                                                <div class="from-tiltle">From</div>
+                                                <div class="from-text">
+                                                    <div v-for="(item,index) in item.networkAccessExitsOld.split(';')" :key="index">
+                                                        {{item}}
+                                                    </div>
+                                                </div>
+                                                <div style="margin-left: 50px;" class="from-tiltle" >to</div>
+                                                <div class="from-text">
+                                                    <div v-for="(item,index) in item.networkAccessExits.split(';')" :key="index">
+                                                        {{item}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <el-button slot="reference" type="text" >
+                            <el-button slot="reference" type="text" >
+                                <i class="el-icon-tickets"></i>
+                            </el-button>
+                        </el-popover>
+                        <el-button v-if="!scope.row.history" slot="reference" disabled style="margin-left:0" type="text" >
                             <i class="el-icon-tickets"></i>
                         </el-button>
-                    </el-popover>
-                    <el-button v-if="!scope.row.history" slot="reference" disabled style="margin-left:0" type="text" >
-                        <i class="el-icon-tickets"></i>
-                    </el-button>
-                </template>
-            </el-table-column>
-          </el-table>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page.sync="currentPage1"
+                    :page-size="data.pageSize"
+                    layout="total, prev, pager, next, jumper"
+                    :total="total"
+                ></el-pagination>
+            </div>
         </div>
-        <div class="pagination">
-          <el-pagination
-            background
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page.sync="currentPage1"
-            :page-size="data.pageSize"
-            layout="total, prev, pager, next, jumper"
-            :total="total"
-          ></el-pagination>
-        </div>
+        <span  v-else>
+            <ipexchange/>
+        </span>
+
       </div>
       <el-dialog :visible.sync="dialogVisible" class="ip-delete-dialog" width="700px">
         <div class="line-text-one">Federated Site
@@ -217,10 +231,10 @@
 
 import { ipList, telnet, deal, iphistory } from '@/api/federated'
 import moment from 'moment'
-
+import ipexchange from './ipexchange'
 export default {
     name: 'Ip',
-    components: {},
+    components: { ipexchange },
     filters: {
         dateFormat(vaule) {
             return moment(vaule).format('YYYY-MM-DD HH:mm:ss')
@@ -229,8 +243,8 @@ export default {
     data() {
         return {
             dialogVisible: false,
+            radio: 'IP manage',
             currentPage1: 1, // 当前页
-            hide: true,
             total: 0,
             isdot: false,
             historylist: [], // 历史数据
