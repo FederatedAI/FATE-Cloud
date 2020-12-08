@@ -1553,6 +1553,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	}
 	if resultResp.Code == e.SUCCESS {
 		sitedata[curItem+"_test"] = int(enum.TEST_STATUS_NO)
+		testdata["status"] = int(enum.TEST_STATUS_NO)
 		findKey := "success to calculate secure_sum"
 		if curItem == "fast" || curItem == "normal" {
 			findKey = "success"
@@ -1566,11 +1567,12 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		models.UpdateDeploySite(sitedata, deploySite)
 
 		testdata["end_time"] = time.Now()
+
 		autotest.TestItem = curItem + " Test"
 		models.UpdateAutoTest(testdata, autotest)
 
 		if curItem != "normal" && successTag {
-			if curItem == "toy"{
+			if curItem =="single" || curItem == "toy" {
 				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
 				var commresp entity.AnsibleCommResp
 				err = json.Unmarshal([]byte(result.Body), &commresp)

@@ -621,12 +621,17 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 		} else if item.ComponentName == "rollsite" {
 			req.Modules.Rollsite.IpNode = IpNode
 			req.Modules.Rollsite.Port = port
-			rule := Rule{
+			defaultrule := Rule{
 				Name: "default",
 				Ip:   setting.KubenetesSetting.ExchangeIp,
 				Port: setting.KubenetesSetting.ExchangePort,
 			}
-			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, rule)
+			rule := Rule{
+				Name: "default",
+				Ip:   address[0],
+				Port: 9370,
+			}
+			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, defaultrule)
 			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
 			req.Modules.Eggroll.Ip = address
 			req.Modules.Eggroll.Dbname = "eggroll_meta"
@@ -1159,6 +1164,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 					autotest.TestItem = "Single Test"
 					models.UpdateAutoTest(data, autotest)
 
+					data["status"] = int(enum.TEST_STATUS_WAITING)
 					autotest.TestItem = "Toy Test"
 					models.UpdateAutoTest(data, autotest)
 
