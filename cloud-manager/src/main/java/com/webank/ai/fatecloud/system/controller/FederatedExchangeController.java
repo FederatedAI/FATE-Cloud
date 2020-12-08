@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -54,5 +55,12 @@ public class FederatedExchangeController {
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(@RequestBody ExchangePageQo exchangePageQo) {
         log.info("url:find paged exchange, requestBody:{}", exchangePageQo);
         return federatedExchangeServiceFacade.findExchangePage(exchangePageQo);
+    }
+
+    @PostMapping(value = "/page/fatemanager")
+    @ApiOperation(value = "find exchange page for fate manager")
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageQo exchangePageQo, HttpServletRequest httpServletRequest) {
+        log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageQo);
+        return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageQo, httpServletRequest);
     }
 }
