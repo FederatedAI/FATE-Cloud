@@ -445,7 +445,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Toy Test"
 					models.AddAutoTest(autoTest)
-					autoTest.TestItem = "Mininmize Fast Test"
+					autoTest.TestItem = "Minimize Fast Test"
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Minimize Normal Test"
 					models.AddAutoTest(autoTest)

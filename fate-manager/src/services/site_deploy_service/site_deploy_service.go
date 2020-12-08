@@ -774,7 +774,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	siteTest = make(map[string]interface{})
 
 	//test fast
-	autoTest.TestItem = "Mininmize Fast Test"
+	autoTest.TestItem = "Minimize Fast Test"
 	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./testLog/fast/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
