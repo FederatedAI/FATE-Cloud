@@ -1623,7 +1623,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 }
 
 func VersionUpdateTask(info *models.AccountInfo) {
-	versionProduct := entity.VersionProductReq{
+	versionProduct := entity.PageReq{
 		PageNum:  1,
 		PageSize: 100,
 	}

@@ -2541,6 +2541,45 @@
                 }
             }
         },
+        "/fate-manager/api/site/exchange": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SiteController"
+                ],
+                "summary": "Get Exchange Info",
+                "parameters": [
+                    {
+                        "description": "request param",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.PageReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/app.ExchangeResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/fate-manager/api/site/fatemanager": {
             "get": {
                 "produces": [
@@ -3648,6 +3687,23 @@
                 }
             }
         },
+        "app.ExchangeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ExchangeItem"
+                    }
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "app.FateVersionResponse": {
             "type": "object",
             "properties": {
@@ -3871,7 +3927,7 @@
         "app.OtherFateManagerResponse": {
             "type": "object",
             "properties": {
-                "siteItemMap": {
+                "data": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.FederatedItem"
@@ -4683,6 +4739,26 @@
                 }
             }
         },
+        "entity.ExchangeItem": {
+            "type": "object",
+            "properties": {
+                "exchangeId": {
+                    "type": "integer"
+                },
+                "exchangeName": {
+                    "type": "string"
+                },
+                "networkAccessEntrances": {
+                    "type": "string"
+                },
+                "networkAccessExits": {
+                    "type": "string"
+                },
+                "updateTime": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.FederatedItem": {
             "type": "object",
             "properties": {
@@ -5230,6 +5306,17 @@
                 },
                 "siteName": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.PageReq": {
+            "type": "object",
+            "properties": {
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
                 }
             }
         },
