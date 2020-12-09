@@ -57,6 +57,7 @@ func InitRouter() *gin.Engine {
 		sites.POST("/readapplysite", ReadApplySites)
 		sites.POST("/updateVersion", UpdateComponentVersion)
 		sites.GET("applylog", GetApplyLog)
+		sites.POST("/exchange",GetExchangeInfo)
 	}
 	router.POST("/fate-manager/api/site/function", GetFunction)
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)

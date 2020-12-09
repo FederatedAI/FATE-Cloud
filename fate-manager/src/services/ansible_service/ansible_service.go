@@ -621,17 +621,17 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 		} else if item.ComponentName == "rollsite" {
 			req.Modules.Rollsite.IpNode = IpNode
 			req.Modules.Rollsite.Port = port
-			defaultrule := Rule{
+			rule := Rule{
 				Name: "default",
 				Ip:   setting.KubenetesSetting.ExchangeIp,
 				Port: setting.KubenetesSetting.ExchangePort,
 			}
-			rule := Rule{
-				Name: "default",
-				Ip:   address[0],
-				Port: 9370,
-			}
-			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, defaultrule)
+			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, rule)
+			rule.Ip = address[0]
+			rule.Port = 9370
+			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
+			rule.Name = "fateflow"
+			rule.Port = 9360
 			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
 			req.Modules.Eggroll.Ip = address
 			req.Modules.Eggroll.Dbname = "eggroll_meta"
@@ -869,7 +869,7 @@ func Click(req entity.ClickReq) bool {
 		return false
 	}
 	if len(deploySiteList) == 0 {
-		if conf.Id >0 {
+		if conf.Id > 0 {
 			deploySite := models.DeploySite{
 				PartyId:            req.PartyId,
 				ProductType:        int(enum.PRODUCT_TYPE_FATE),

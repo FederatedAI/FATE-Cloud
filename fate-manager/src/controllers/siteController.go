@@ -479,12 +479,40 @@ func UpdateComponentVersion(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/site/applylog [GET]
+// @Router /fate-manager/api/site/applylog [get]
 func GetApplyLog(c *gin.Context) {
 	appG := app.Gin{C: c}
 	result, err := site_service.GetApplyLog()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_APPLY_LOG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary Get Exchange Info
+// @Tags SiteController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.PageReq true "request param"
+// @Success 200 {object} app.ExchangeResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/site/exchange [post]
+func GetExchangeInfo(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var pageReq entity.PageReq
+	if jsonError := json.Unmarshal(body, &pageReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	result, err := site_service.GetExchangeInfo(pageReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_EXCHANGE_INFO_FAIL, nil)
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)
