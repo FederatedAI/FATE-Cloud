@@ -96,6 +96,17 @@ definitions:
       msg:
         type: string
     type: object
+  app.ExchangeResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.ExchangeItem'
+        type: array
+      msg:
+        type: string
+    type: object
   app.FateVersionResponse:
     properties:
       code:
@@ -242,7 +253,7 @@ definitions:
     type: object
   app.OtherFateManagerResponse:
     properties:
-      siteItemMap:
+      data:
         items:
           $ref: '#/definitions/entity.FederatedItem'
         type: array
@@ -770,6 +781,19 @@ definitions:
       userName:
         type: string
     type: object
+  entity.ExchangeItem:
+    properties:
+      exchangeId:
+        type: integer
+      exchangeName:
+        type: string
+      networkAccessEntrances:
+        type: string
+      networkAccessExits:
+        type: string
+      updateTime:
+        type: string
+    type: object
   entity.FederatedItem:
     properties:
       createTime:
@@ -1129,6 +1153,13 @@ definitions:
         type: object
       siteName:
         type: string
+    type: object
+  entity.PageReq:
+    properties:
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
     type: object
   entity.PageStatusReq:
     properties:
@@ -3237,6 +3268,31 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: check site status
+      tags:
+      - SiteController
+  /fate-manager/api/site/exchange:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.PageReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ExchangeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Exchange Info
       tags:
       - SiteController
   /fate-manager/api/site/fatemanager:

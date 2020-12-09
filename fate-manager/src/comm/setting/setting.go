@@ -44,6 +44,7 @@ const (
 	SystemHeartUri        = "/cloud-manager/api/system/heart"
 	MonitorPushUri        = "/cloud-manager/api/job/push"
 	ProductVersionUri     = "/cloud-manager/api/product/page/fatemanager"
+	ExchangeUri           = "/cloud-manager/api/exchange/page/fatemanager"
 )
 const (
 	FlowJobQuery = "/v1/job/query"
