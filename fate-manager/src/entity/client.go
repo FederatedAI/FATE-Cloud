@@ -572,9 +572,12 @@ type MonitorReq struct {
 }
 
 type ExchangeItem struct {
-	ExchangeId             int    `json:"exchangeId"`
-	ExchangeName           string `json:"exchangeName"`
-	NetworkAccessEntrances string `json:"networkAccessEntrances"`
-	NetworkAccessExits     string `json:"networkAccessExits"`
-	UpdateTime             string `json:"updateTime"`
+	ExchangeId   int    `json:"exchangeId"`
+	ExchangeName string `json:"exchangeName"`
+	Address      string `json:"address"`
+	UpdateTime   string `json:"updateTime"`
+}
+type ExchangeResponse struct {
+	ExchangeVip   []ExchangeItem `json:"exchangeVip"`
+	ExchangeExits []ExchangeItem `json:"exchangeExits"`
 }

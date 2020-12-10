@@ -2553,17 +2553,6 @@
                     "SiteController"
                 ],
                 "summary": "Get Exchange Info",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.PageReq"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3694,10 +3683,8 @@
                     "type": "integer"
                 },
                 "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.ExchangeItem"
-                    }
+                    "type": "object",
+                    "$ref": "#/definitions/entity.ExchangeResponse"
                 },
                 "msg": {
                     "type": "string"
@@ -4742,20 +4729,34 @@
         "entity.ExchangeItem": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "exchangeId": {
                     "type": "integer"
                 },
                 "exchangeName": {
                     "type": "string"
                 },
-                "networkAccessEntrances": {
-                    "type": "string"
-                },
-                "networkAccessExits": {
-                    "type": "string"
-                },
                 "updateTime": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.ExchangeResponse": {
+            "type": "object",
+            "properties": {
+                "exchangeExits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ExchangeItem"
+                    }
+                },
+                "exchangeVip": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ExchangeItem"
+                    }
                 }
             }
         },
@@ -5306,17 +5307,6 @@
                 },
                 "siteName": {
                     "type": "string"
-                }
-            }
-        },
-        "entity.PageReq": {
-            "type": "object",
-            "properties": {
-                "pageNum": {
-                    "type": "integer"
-                },
-                "pageSize": {
-                    "type": "integer"
                 }
             }
         },

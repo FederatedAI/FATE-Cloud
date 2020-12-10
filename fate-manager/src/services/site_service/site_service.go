@@ -1071,11 +1071,12 @@ func GetApplyLog() ([]entity.ApplyLog, error) {
 	return applyLogList, nil
 }
 
-func GetExchangeInfo(pageReq entity.PageReq) ([]entity.ExchangeItem, error) {
+func GetExchangeInfo() (*entity.ExchangeResponse, error) {
 	accountInfo, err := user_service.GetAdminInfo()
 	if err != nil {
 		return nil, err
 	}
+	pageReq := entity.PageReq{PageSize: 100, PageNum: 1}
 	pageReqJson, _ := json.Marshal(pageReq)
 	headInfo := util.UserHeaderInfo{
 		UserAppKey:    accountInfo.AppKey,
@@ -1100,18 +1101,26 @@ func GetExchangeInfo(pageReq entity.PageReq) ([]entity.ExchangeItem, error) {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return nil, err
 	}
-	var data []entity.ExchangeItem
 	if resp.Code == e.SUCCESS {
+		var vip []entity.ExchangeItem
+		var exits []entity.ExchangeItem
 		for i := 0; i < len(resp.Data.List); i++ {
+			exchangeDataItem := resp.Data.List[i]
 			ExchangeItem := entity.ExchangeItem{
-				ExchangeId:             resp.Data.List[i].ExchangeId,
-				ExchangeName:           resp.Data.List[i].ExchangeName,
-				NetworkAccessEntrances: resp.Data.List[i].NetworkAccessEntrances,
-				NetworkAccessExits:     resp.Data.List[i].NetworkAccessExits,
-				UpdateTime:             resp.Data.List[i].UpdateTime,
+				ExchangeId:   exchangeDataItem.ExchangeId,
+				ExchangeName: exchangeDataItem.ExchangeName,
+				Address:      exchangeDataItem.NetworkAccessEntrances,
+				UpdateTime:   exchangeDataItem.UpdateTime,
 			}
-			data = append(data, ExchangeItem)
+			vip = append(vip, ExchangeItem)
+			ExchangeItem.Address = exchangeDataItem.NetworkAccessExits
+			exits = append(exits, ExchangeItem)
 		}
+		ExchangeResponse := entity.ExchangeResponse{
+			ExchangeVip:   vip,
+			ExchangeExits: exits,
+		}
+		return &ExchangeResponse, nil
 	}
-	return data, nil
+	return nil, nil
 }

@@ -494,23 +494,12 @@ func GetApplyLog(c *gin.Context) {
 // @Tags SiteController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.PageReq true "request param"
 // @Success 200 {object} app.ExchangeResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/site/exchange [post]
 func GetExchangeInfo(c *gin.Context) {
 	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var pageReq entity.PageReq
-	if jsonError := json.Unmarshal(body, &pageReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	result, err := site_service.GetExchangeInfo(pageReq)
+	result, err := site_service.GetExchangeInfo()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_EXCHANGE_INFO_FAIL, nil)
 		return

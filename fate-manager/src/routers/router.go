@@ -46,8 +46,6 @@ func InitRouter() *gin.Engine {
 		sites.POST("/info", GetSiteDetail)
 		sites.POST("/update", UpdateSite)
 		sites.POST("/checkUrl", CheckRegisterUrl)
-		sites.POST("/checksite", CheckSite)
-		sites.POST("/secretinfo", GetSecretInfo)
 		sites.POST("/telnet", TelnetSiteIp)
 		sites.POST("/readmsg", ReadChangeMsg)
 		sites.POST("/getmsg", GetChangeMsg)
@@ -61,6 +59,8 @@ func InitRouter() *gin.Engine {
 	}
 	router.POST("/fate-manager/api/site/function", GetFunction)
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)
+	router.POST("/checksite", CheckSite)
+	router.POST("/secretinfo", GetSecretInfo)
 
 	//All DropDown List
 	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
