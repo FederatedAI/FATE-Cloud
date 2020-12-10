@@ -101,9 +101,8 @@ definitions:
       code:
         type: integer
       data:
-        items:
-          $ref: '#/definitions/entity.ExchangeItem'
-        type: array
+        $ref: '#/definitions/entity.ExchangeResponse'
+        type: object
       msg:
         type: string
     type: object
@@ -783,16 +782,25 @@ definitions:
     type: object
   entity.ExchangeItem:
     properties:
+      address:
+        type: string
       exchangeId:
         type: integer
       exchangeName:
         type: string
-      networkAccessEntrances:
-        type: string
-      networkAccessExits:
-        type: string
       updateTime:
         type: string
+    type: object
+  entity.ExchangeResponse:
+    properties:
+      exchangeExits:
+        items:
+          $ref: '#/definitions/entity.ExchangeItem'
+        type: array
+      exchangeVip:
+        items:
+          $ref: '#/definitions/entity.ExchangeItem'
+        type: array
     type: object
   entity.FederatedItem:
     properties:
@@ -1153,13 +1161,6 @@ definitions:
         type: object
       siteName:
         type: string
-    type: object
-  entity.PageReq:
-    properties:
-      pageNum:
-        type: integer
-      pageSize:
-        type: integer
     type: object
   entity.PageStatusReq:
     properties:
@@ -3274,13 +3275,6 @@ paths:
     post:
       consumes:
       - application/json
-      parameters:
-      - description: request param
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/entity.PageReq'
       produces:
       - application/json
       responses:

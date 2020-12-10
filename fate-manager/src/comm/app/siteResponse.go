@@ -58,5 +58,5 @@ type OtherFateManagerResponse struct {
 }
 type ExchangeResponse struct {
 	CommResp
-	Data []entity.ExchangeItem `json:"data"`
+	Data entity.ExchangeResponse `json:"data"`
 }
