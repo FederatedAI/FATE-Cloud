@@ -351,7 +351,8 @@ public class FederatedSiteManagerService {
 
         FederatedSiteManagerDo siteByPartyId = federatedSiteManagerMapper.findSiteByPartyId(Long.parseLong(partyId), appKey, 2);
 
-        if (siteByPartyId == null || 2 != siteByPartyId.getDetectiveStatus()) {
+        if (1 != siteByPartyId.getDetectiveStatus()) {
+            log.info("detectiveStatus:{}", siteByPartyId.getDetectiveStatus());
             return new CommonResponse(ReturnCodeEnum.SITE_STATUS_ERROR);
         }
 
@@ -393,8 +394,8 @@ public class FederatedSiteManagerService {
 
 
     /*
-    * update the survive status of site
-    * */
+     * update the survive status of site
+     * */
 //    @Scheduled(cron = "0 0/1 * * * ? ")
 //    public void updateSiteStatus() {
 //        log.info("start detective");
@@ -468,8 +469,7 @@ public class FederatedSiteManagerService {
 //        long startIndex = institutionsDtoPageBean.getStartIndex();
 
 
-
-        if (StringUtils.isNotBlank(institutionQo.getCondition())){
+        if (StringUtils.isNotBlank(institutionQo.getCondition())) {
             institutionQo.setCondition("%" + institutionQo.getCondition() + "%");
         }
         long count = federatedSiteManagerMapper.countForInstitutions(institutionQo);
