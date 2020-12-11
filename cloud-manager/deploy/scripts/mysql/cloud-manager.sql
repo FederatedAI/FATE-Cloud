@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_model` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Update Time',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'version status 1:current, 2:old',
   `update_status` tinyint(4) NOT NULL  COMMENT 'version update status 1:success, 2:failed',
-  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'model status when detect：1：survive，2：not survive',
+  `detective_status` tinyint(4) DEFAULT '2' COMMENT 'model status when detect：1：survive，2：not survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `type` varchar(128) DEFAULT NULL COMMENT 'system type',
   `id` bigint(20) NOT NULL COMMENT 'site id',
