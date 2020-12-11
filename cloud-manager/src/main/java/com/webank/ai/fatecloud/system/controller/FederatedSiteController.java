@@ -154,12 +154,12 @@ public class FederatedSiteController {
         return federatedSiteManagerServiceFacade.checkSiteAuthority(siteInfo, httpServletRequest);
     }
 
-    @PostMapping(value = "/heart/fateManager")
-    @ApiOperation(value = "heart check for fate manager")
-    public CommonResponse heart(HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", httpServletRequest);
-        return federatedSiteManagerServiceFacade.heart(httpServletRequest);
-    }
+//    @PostMapping(value = "/heart/fateManager")
+//    @ApiOperation(value = "heart check for fate manager")
+//    public CommonResponse heart(HttpServletRequest httpServletRequest) {
+//        log.info("RequestBody:{}", httpServletRequest);
+//        return federatedSiteManagerServiceFacade.heart(httpServletRequest);
+//    }
 
     @PostMapping(value = "/ip/list")
     @ApiOperation(value = "Ip Manager")

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
   `activation_time` timestamp NULL DEFAULT NULL COMMENT 'activation_time',
-  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：survie，2：not survive',
+  `detective_status` tinyint(4) DEFAULT '2' COMMENT 'site status when detect：1：survie，2：not survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
