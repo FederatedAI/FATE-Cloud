@@ -181,7 +181,7 @@ func CheckSite(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, ret, nil)
 		return
 	}
-	appG.Response(http.StatusOK, ret, true)
+	appG.Response(http.StatusOK, ret, nil)
 }
 
 // @Summary get site secret info
