@@ -35,10 +35,10 @@ var (
 	ComponentTimer  = 10
 	ApplyTimer      = 10
 	AllowApplyTimer = 30
-	MonitorTimer    = 1800
+	MonitorTimer    = 300
 	PageckageTimer  = 30
 	AutotestTimer   = 30
-	VersionTimer    = 10
+	VersionTimer    = 600
 )
 
 func SetUp() {
