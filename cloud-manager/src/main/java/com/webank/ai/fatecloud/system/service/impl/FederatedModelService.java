@@ -56,7 +56,7 @@ public class FederatedModelService {
             }
         }
 
-        int detectiveStatus = 1;
+        int detectiveStatus = 2;
         for (ModelAddQo modelAddQo : modelAddQos) {
             FederatedSiteModelDo modelDo = new FederatedSiteModelDo(modelAddQo);
 
@@ -76,8 +76,8 @@ public class FederatedModelService {
             modelDo.setUpdateTime(modelAddQo.getUpdateTime());
             modelDo.setLastDetectiveTime(new Date());
             federatedModelMapper.insert(modelDo);
-            if (modelAddQo.getDetectiveStatus() == 2) {
-                detectiveStatus = 2;
+            if (modelAddQo.getDetectiveStatus() == 1) {
+                detectiveStatus = 1;
             }
         }
 
@@ -93,7 +93,7 @@ public class FederatedModelService {
     @Transactional
     public void modelHeart(ArrayList<ModelHeartQo> modelHeartQos) {
         Date date = new Date();
-        int detectiveStatus = 1;
+        int detectiveStatus = 2;
 
         for (ModelHeartQo modelHeartQo : modelHeartQos) {
             QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion = new QueryWrapper<>();
@@ -102,8 +102,8 @@ public class FederatedModelService {
             modelDo.setDetectiveStatus(modelHeartQo.getDetectiveStatus());
             modelDo.setLastDetectiveTime(date);
             federatedModelMapper.update(modelDo, federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion);
-            if (modelHeartQo.getDetectiveStatus() == 2) {
-                detectiveStatus = 2;
+            if (modelHeartQo.getDetectiveStatus() == 1) {
+                detectiveStatus = 1;
             }
         }
 

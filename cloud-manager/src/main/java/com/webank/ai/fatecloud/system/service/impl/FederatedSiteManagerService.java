@@ -351,7 +351,7 @@ public class FederatedSiteManagerService {
 
         FederatedSiteManagerDo siteByPartyId = federatedSiteManagerMapper.findSiteByPartyId(Long.parseLong(partyId), appKey, 2);
 
-        if (1 != siteByPartyId.getDetectiveStatus()) {
+        if (2 != siteByPartyId.getDetectiveStatus()) {
             log.info("detectiveStatus:{}", siteByPartyId.getDetectiveStatus());
             return new CommonResponse(ReturnCodeEnum.SITE_STATUS_ERROR);
         }
