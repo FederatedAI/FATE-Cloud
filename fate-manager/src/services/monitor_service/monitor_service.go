@@ -1,6 +1,7 @@
 package monitor_service
 
 import (
+	"fate.manager/comm/enum"
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fmt"
@@ -21,7 +22,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 		monitorBySite := monitorBySiteList[i]
 		siteInfo := models.SiteInfo{
 			PartyId: monitorBySite.GuestPartyId,
-			//Status:  int(enum.SITE_STATUS_JOINED),
+			Status:  int(enum.SITE_STATUS_JOINED),
 		}
 		siteInfoList, err := models.GetSiteList(&siteInfo)
 		if err != nil {

@@ -163,6 +163,7 @@ func JobTask() {
 						PartyId:          deployJobList[i].PartyId,
 						FateVersion:      deploySiteList[0].FateVersion,
 						ComponentVersion: string(componentVersonMapjson),
+						ServiceStatus:    int(enum.SERVICE_STATUS_AVAILABLE),
 						//FateServingVersion: "1.2.1",
 					}
 					models.UpdateSite(&site)
@@ -357,6 +358,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				PartyId:          DeployJob.PartyId,
 				FateVersion:      deploySiteList[0].FateVersion,
 				ComponentVersion: string(componentVersonMapjson),
+				ServiceStatus:    int(enum.SERVICE_STATUS_AVAILABLE),
 			}
 			models.UpdateSite(&site)
 		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
@@ -925,31 +927,41 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				ds, _ := strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000, 0).Format("20060102"))
 				monitorDetail := models.MonitorDetail{
 					Ds:         ds,
-					StartTime:  flowJobQuery.StartTime,
-					EndTime:    flowJobQuery.EndTime,
 					JobId:      flowJobQuery.JobId,
 					Status:     flowJobQuery.Status,
 					CreateTime: flowJobQuery.CreateTime,
 					UpdateTime: flowJobQuery.UpdateTime,
 				}
-				if len(flowJobQuery.Roles.Guest) > 0 {
-					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
+				if flowJobQuery.StartTime != nil {
+					monitorDetail.StartTime = flowJobQuery.StartTime.(float64)
+				}
+				if flowJobQuery.EndTime != nil {
+					monitorDetail.EndTime = flowJobQuery.EndTime.(float64)
+				}
+				var roles entity.Roles
+				err = json.Unmarshal([]byte(flowJobQuery.Roles), &roles)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					continue
+				}
+				if len(roles.Guest) > 0 {
+					monitorDetail.GuestPartyId = roles.Guest[0]
 					_, ok := SiteNameMap[monitorDetail.GuestPartyId]
 					if ok {
 						monitorDetail.GuestSiteName = SiteNameMap[monitorDetail.GuestPartyId].SiteName
 						monitorDetail.GuestInstitution = SiteNameMap[monitorDetail.GuestPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Host) > 0 {
-					monitorDetail.HostPartyId = flowJobQuery.Roles.Host[0]
+				if len(roles.Host) > 0 {
+					monitorDetail.HostPartyId = roles.Host[0]
 					_, ok := SiteNameMap[monitorDetail.HostPartyId]
 					if ok {
 						monitorDetail.HostSiteName = SiteNameMap[monitorDetail.HostPartyId].SiteName
 						monitorDetail.HostInstitution = SiteNameMap[monitorDetail.HostPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Arbiter) > 0 {
-					monitorDetail.ArbiterPartyId = flowJobQuery.Roles.Arbiter[0]
+				if len(roles.Arbiter) > 0 {
+					monitorDetail.ArbiterPartyId = roles.Arbiter[0]
 					_, ok := SiteNameMap[monitorDetail.ArbiterPartyId]
 					if ok {
 						monitorDetail.ArbiterSiteName = SiteNameMap[monitorDetail.ArbiterPartyId].SiteName
@@ -965,8 +977,8 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	for i:= -9;i<=0;i++{
-		curTime := time.Now().AddDate(0,0,i).Format("20060102")
+	for i := -9; i <= 0; i++ {
+		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
 			StartDate: curTime,
 			EndDate:   curTime,
@@ -993,11 +1005,12 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			continue
 		}
 		itemBase := models.MonitorBase{
-			Total:   monitorByHis.Total,
-			Success: monitorByHis.Success,
-			Running: monitorByHis.Running,
-			Timeout: monitorByHis.Timeout,
-			Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+			Total:    monitorByHis.Total,
+			Success:  monitorByHis.Success,
+			Running:  monitorByHis.Running,
+			Timeout:  monitorByHis.Timeout,
+			Canceled: monitorByHis.Canceled,
+			Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
 		}
 		if len(siteInfoList) == 0 {
 			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
@@ -1008,6 +1021,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 				itemBaseTmp.Running += itemBase.Running
 				itemBaseTmp.Failed += itemBase.Failed
 				itemBaseTmp.Timeout += itemBase.Timeout
+				itemBaseTmp.Canceled += itemBase.Canceled
 				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
 			} else {
 				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
@@ -1028,6 +1042,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 					itemBaseTmp.Running += itemBase.Running
 					itemBaseTmp.Failed += itemBase.Failed
 					itemBaseTmp.Timeout += itemBase.Timeout
+					itemBaseTmp.Canceled += itemBase.Canceled
 					monitorBaseMap[monitorByHis.HostInstitution] = itemBaseTmp
 				} else {
 					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
@@ -1047,6 +1062,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			data["running"] = v.Running
 			data["timeout"] = v.Timeout
 			data["failed"] = v.Failed
+			data["canceled"] = v.Canceled
 			data["update_time"] = time.Now()
 			models.UpdateReportInstitution(data, reportInstitution)
 		} else {
@@ -1055,6 +1071,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			reportInstitution.Running = v.Running
 			reportInstitution.Timeout = v.Timeout
 			reportInstitution.Failed = v.Failed
+			reportInstitution.Canceled = v.Canceled
 			reportInstitution.CreateTime = time.Now()
 			reportInstitution.UpdateTime = time.Now()
 			models.AddReportInstitution(&reportInstitution)
@@ -1092,11 +1109,12 @@ func SiteReport(monitorReq entity.MonitorReq) {
 					Institution: monitorByHis.HostInstitution,
 				},
 				MonitorBase: models.MonitorBase{
-					Total:   monitorByHis.Total,
-					Success: monitorByHis.Success,
-					Running: monitorByHis.Running,
-					Timeout: monitorByHis.Timeout,
-					Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+					Total:    monitorByHis.Total,
+					Success:  monitorByHis.Success,
+					Running:  monitorByHis.Running,
+					Timeout:  monitorByHis.Timeout,
+					Canceled: monitorByHis.Canceled,
+					Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
 				},
 			}
 			sitePair := entity.SitePair{
@@ -1183,6 +1201,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				data["running"] = siteSiteMonitor.Running
 				data["timeout"] = siteSiteMonitor.Timeout
 				data["failed"] = siteSiteMonitor.Failed
+				data["canceled"] = siteSiteMonitor.Canceled
 				data["update_time"] = time.Now()
 				models.UpdateReportSite(data, reportSite)
 			} else {
@@ -1191,6 +1210,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				reportSite.Running = siteSiteMonitor.Running
 				reportSite.Timeout = siteSiteMonitor.Timeout
 				reportSite.Failed = siteSiteMonitor.Failed
+				reportSite.Canceled = siteSiteMonitor.Canceled
 				reportSite.CreateTime = time.Now()
 				reportSite.UpdateTime = time.Now()
 				models.AddReportSite(&reportSite)
@@ -1326,7 +1346,7 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) 
 	for i := 0; i < len(pushSiteList); i++ {
 		pushSite := pushSiteList[i]
 		monitorPushSite := MonitorPushSite{
-			Failed:     pushSite.Failed + pushSite.Timeout,
+			Failed:     pushSite.Failed + pushSite.Timeout + pushSite.Canceled,
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
 			FinishDate: monitorReq.EndDate,
@@ -1574,7 +1594,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		models.UpdateAutoTest(testdata, autotest)
 
 		if curItem != "normal" && successTag {
-			if curItem =="single" || curItem == "toy" {
+			if curItem == "single" || curItem == "toy" {
 				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), TestReq, nil)
 				var commresp entity.AnsibleCommResp
 				err = json.Unmarshal([]byte(result.Body), &commresp)
@@ -1658,7 +1678,7 @@ func VersionUpdateTask(info *models.AccountInfo) {
 			versionProductItem := resp.Data.List[i]
 			for j := 0; j < len(versionProductItem.FederatedComponentVersionDos); j++ {
 				federatedComponentVersionDos := versionProductItem.FederatedComponentVersionDos[j]
-				if len(federatedComponentVersionDos.ComponentVersion) < 6{
+				if len(federatedComponentVersionDos.ComponentVersion) < 6 {
 					continue
 				}
 				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6], ".", ""))
@@ -1682,7 +1702,7 @@ func VersionUpdateTask(info *models.AccountInfo) {
 				}
 				models.AddComponentVersion(&componentVersion)
 			}
-			if len(versionProductItem.ProductVersion) < 6{
+			if len(versionProductItem.ProductVersion) < 6 {
 				continue
 			}
 			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6], ".", ""))
