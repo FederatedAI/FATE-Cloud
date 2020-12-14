@@ -429,7 +429,7 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 		Role:      enum.GetRoleValue(checkSiteReq.Role),
 		Uri:       setting.CheckAuthorityUri,
 	}
-	headerInfoMap := util.GetHeaderInfo(headInfo)
+	headerInfoMap := util.GetHeadInfoOld(headInfo)
 	httpHeader := HttpHeader{
 		AppKey:    headerInfoMap["APP_KEY"].(string),
 		TimeStamp: headerInfoMap["TIMESTAMP"].(string),

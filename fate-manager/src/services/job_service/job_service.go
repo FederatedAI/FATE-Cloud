@@ -965,14 +965,16 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	curTime := time.Now().Format("20060102")
-	monitorReq := entity.MonitorReq{
-		StartDate: curTime,
-		EndDate:   curTime,
+	for i:= -9;i<=0;i++{
+		curTime := time.Now().AddDate(0,0,i).Format("20060102")
+		monitorReq := entity.MonitorReq{
+			StartDate: curTime,
+			EndDate:   curTime,
+		}
+		InstitutionReport(monitorReq)
+		SiteReport(monitorReq)
+		MonitorPush(monitorReq, accountInfo)
 	}
-	InstitutionReport(monitorReq)
-	SiteReport(monitorReq)
-	MonitorPush(monitorReq, accountInfo)
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -1573,7 +1575,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 		if curItem != "normal" && successTag {
 			if curItem =="single" || curItem == "toy" {
-				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), TestReq, nil)
 				var commresp entity.AnsibleCommResp
 				err = json.Unmarshal([]byte(result.Body), &commresp)
 				if err != nil {
