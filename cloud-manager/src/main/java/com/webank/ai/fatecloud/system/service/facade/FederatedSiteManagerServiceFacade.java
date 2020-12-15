@@ -277,11 +277,18 @@ public class FederatedSiteManagerServiceFacade {
 
     public CommonResponse updateVersion(VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) {
         //check authority
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(versionUpdateQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(versionUpdateQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(versionUpdateQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(versionUpdateQo), 2);
+        }
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
+
+
         result = federatedSiteManagerService.updateVersion(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest.getHeader(Dict.APP_KEY), versionUpdateQo);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.UPDATE_VERSION_ERROR);
