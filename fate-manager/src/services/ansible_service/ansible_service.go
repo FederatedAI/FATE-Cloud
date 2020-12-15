@@ -1163,57 +1163,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 			IsValid:     int(enum.IS_VALID_YES),
 		}
 		if toytest {
-			deployComponent := models.DeployComponent{
-				PartyId:       autoTestReq.PartyId,
-				ComponentName: "fateflow",
-				ProductType:   int(enum.PRODUCT_TYPE_FATE),
-				DeployType:    int(enum.DeployType_ANSIBLE),
-				IsValid:       int(enum.IS_VALID_YES),
-			}
-			deployComponentList, err := models.GetDeployComponent(deployComponent)
-			if err != nil {
-				return e.ERROR_SELECT_DB_FAIL, nil
-			}
-			if len(deployComponentList) > 0 {
-				address := strings.Split(deployComponentList[0].Address, ":")
-				if len(address) == 2 {
-					ansibleSingleTestReq := entity.AnsibleSingleTestReq{
-						PartyId: autoTestReq.PartyId,
-						Ip:      address[0],
-					}
-					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/single"), ansibleSingleTestReq, nil)
-					var commresp entity.AnsibleCommResp
-					err = json.Unmarshal([]byte(result.Body), &commresp)
-					if err != nil {
-						logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-						return e.ERROR_PARSE_JSON_ERROR, err
-					}
-					if commresp.Code == e.SUCCESS {
-						data["status"] = int(enum.TEST_STATUS_TESTING)
-						data["start_time"] = time.Now()
-						autotest.TestItem = "Single Test"
-						models.UpdateAutoTest(data, autotest)
-
-						data["status"] = int(enum.TEST_STATUS_WAITING)
-						autotest.TestItem = "Toy Test"
-						models.UpdateAutoTest(data, autotest)
-
-						autotest.TestItem = "Minimize Fast Test"
-						models.UpdateAutoTest(data, autotest)
-
-						autotest.TestItem = "Minimize Normal Test"
-						models.UpdateAutoTest(data, autotest)
-
-						data = make(map[string]interface{})
-						data["single_test"] = int(enum.TEST_STATUS_TESTING)
-						data["toy_test"] = int(enum.TEST_STATUS_WAITING)
-						data["minimize_fast_test"] = int(enum.TEST_STATUS_WAITING)
-						data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
-						data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
-						models.UpdateDeploySite(data, deploySite)
-					}
-				}
-			}
+			DoTest(autotest, "single")
 		} else {
 			data = make(map[string]interface{})
 			data["single_test"] = int(enum.TEST_STATUS_NO)
@@ -1229,6 +1179,175 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 			data["status"] = int(enum.TEST_STATUS_NO)
 			models.UpdateAutoTest(data, autotest)
 		}
+	} else if !testValueMap["Single Test"] {
+		DoTest(test, "single")
+	} else if !testValueMap["Toy Test"] {
+		DoTest(test, "toy")
+	} else if !testValueMap["Minimize Fast Test"] {
+		DoTest(test, "fast")
+	} else if !testValueMap["Minimize Normal Test"] {
+		DoTest(test, "normal")
 	}
 	return e.SUCCESS, nil
+}
+
+func DoTest(autotest models.AutoTest, testitem string) {
+	deploySite := models.DeploySite{
+		PartyId:     autotest.PartyId,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+
+	deployComponent := models.DeployComponent{
+		PartyId:       autotest.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil {
+		return
+	}
+	var data = make(map[string]interface{})
+	if len(deployComponentList) > 0 {
+		address := strings.Split(deployComponentList[0].Address, ":")
+		if len(address) == 2 {
+			ansibleSingleTestReq := entity.AnsibleSingleTestReq{
+				PartyId: autotest.PartyId,
+				Ip:      address[0],
+			}
+			result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), ansibleSingleTestReq, nil)
+			if testitem != "single" {
+				TestReq := entity.AnsibleToyTestReq{
+					GuestPartyId: autotest.PartyId,
+					HostPartyId:  setting.KubenetesSetting.TestPartyId,
+					Ip:           address[0],
+					WorkMode:     setting.KubenetesSetting.WorkMode,
+				}
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), TestReq, nil)
+			}
+			var commresp entity.AnsibleCommResp
+			err = json.Unmarshal([]byte(result.Body), &commresp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+
+			if commresp.Code == e.SUCCESS {
+				if testitem == "single" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					data["start_time"] = time.Now()
+					autotest.TestItem = "Single Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["single_test"] = int(enum.TEST_STATUS_TESTING)
+					data["toy_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "toy" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["toy_test"] = int(enum.TEST_STATUS_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "fast" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "normal" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				}
+			} else {
+				if testitem == "single" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					data["start_time"] = time.Now()
+					autotest.TestItem = "Single Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["single_test"] = int(enum.TEST_STATUS_NO)
+					data["toy_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "toy" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["toy_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "fast" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "normal" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				}
+			}
+		}
+	}
 }

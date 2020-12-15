@@ -1593,8 +1593,35 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		autotest.TestItem = curItem + " Test"
 		models.UpdateAutoTest(testdata, autotest)
 
-		if curItem != "normal" && successTag {
-			if curItem == "single" || curItem == "toy" {
+		if successTag {
+			if NextItem == "fast" {
+				dataUploadReq := entity.DataUploadReq{Ip: Ip}
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/upload"), dataUploadReq, nil)
+				var commresp entity.AnsibleCommResp
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					return
+				}
+				if commresp.Code == e.SUCCESS {
+					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), TestReq, nil)
+					var commresp entity.AnsibleCommResp
+					err = json.Unmarshal([]byte(result.Body), &commresp)
+					if err != nil {
+						return
+					}
+					if commresp.Code == e.SUCCESS {
+						testdata = make(map[string]interface{})
+						testdata["status"] = int(enum.TEST_STATUS_TESTING)
+						testdata["start_time"] = time.Now()
+						autotest.TestItem = "Minimize Fast Test"
+						models.UpdateAutoTest(testdata, autotest)
+
+						sitedata = make(map[string]interface{})
+						sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+						models.UpdateDeploySite(sitedata, deploySite)
+					}
+				}
+			} else if (NextItem == "normal" && curItem != "normal") || NextItem == "toy" {
 				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), TestReq, nil)
 				var commresp entity.AnsibleCommResp
 				err = json.Unmarshal([]byte(result.Body), &commresp)
@@ -1605,39 +1632,15 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 					testdata = make(map[string]interface{})
 					testdata["status"] = int(enum.TEST_STATUS_TESTING)
 					testdata["start_time"] = time.Now()
-					autotest.TestItem = NextItem + " Test"
+					autotest.TestItem = "Toy Test"
+					if NextItem == "normal"{
+						autotest.TestItem = "Minimize Normal Test"
+					}
 					models.UpdateAutoTest(testdata, autotest)
 
 					sitedata = make(map[string]interface{})
 					sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
 					models.UpdateDeploySite(sitedata, deploySite)
-				}
-			} else if curItem == "fast" {
-				dataUploadReq := entity.DataUploadReq{Ip: Ip}
-				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/upload"), dataUploadReq, nil)
-				var commresp entity.AnsibleCommResp
-				err = json.Unmarshal([]byte(result.Body), &commresp)
-				if err != nil {
-					return
-				}
-				if commresp.Code == e.SUCCESS {
-					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
-					var commresp entity.AnsibleCommResp
-					err = json.Unmarshal([]byte(result.Body), &commresp)
-					if err != nil {
-						return
-					}
-					if commresp.Code == e.SUCCESS {
-						testdata = make(map[string]interface{})
-						testdata["status"] = int(enum.TEST_STATUS_TESTING)
-						testdata["start_time"] = time.Now()
-						autotest.TestItem = NextItem + " Test"
-						models.UpdateAutoTest(testdata, autotest)
-
-						sitedata = make(map[string]interface{})
-						sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
-						models.UpdateDeploySite(sitedata, deploySite)
-					}
 				}
 			}
 		}
