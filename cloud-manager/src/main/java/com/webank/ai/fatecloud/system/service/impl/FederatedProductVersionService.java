@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -93,12 +95,19 @@ public class FederatedProductVersionService implements Serializable {
 
     }
 
-    public ProductVersionDto findVersion() {
-        List<String> productNames = federatedProductVersionMapper.getProductNames();
-        List<String> productVersions = federatedProductVersionMapper.getProductVersions();
+    public ProductVersionDto findVersion() throws Exception {
+
+        Class<Enum> clz = (Class<Enum>) Class.forName("com.webank.ai.fatecloud.common.Enum.ProductVersionEnum");
+
+        Object[] objects = clz.getEnumConstants();
+        Method getName = clz.getMethod("getName");
+        List<String> productNames = new ArrayList<>();
+        for (Object obj : objects) {
+            productNames.add((String)getName.invoke(obj));
+        }
+
         ProductVersionDto productVersionDto = new ProductVersionDto();
         productVersionDto.setProductNameList(productNames);
-        productVersionDto.setProductVersionList(productVersions);
         return productVersionDto;
     }
 }

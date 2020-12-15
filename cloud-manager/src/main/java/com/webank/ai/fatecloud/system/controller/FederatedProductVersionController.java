@@ -75,7 +75,7 @@ public class FederatedProductVersionController {
 
     @PostMapping(value = "/version")
     @ApiOperation(value = "find version items")
-    public CommonResponse<ProductVersionDto> findVersion() {
+    public CommonResponse<ProductVersionDto> findVersion() throws Exception {
 
         return federatedProductVersionServiceFacade.findVersion();
     }

@@ -12,7 +12,11 @@ public enum FateServingVersionEnum  {
     V_1_3_1("1.3.1"),
     V_1_3_2("1.3.2"),
     V_1_3_3("1.3.3"),
-    V_2_0_0("2.0.0");
+    V_2_0_0("2.0.0"),
+    V_2_0_1("2.0.1"),
+    V_2_0_2("2.0.2"),
+    V_2_0_3("2.0.3"),
+    ;
 
     public String getVersion() {
         return version;
