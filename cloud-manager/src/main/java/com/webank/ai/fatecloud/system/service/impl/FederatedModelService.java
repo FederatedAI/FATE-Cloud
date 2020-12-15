@@ -143,18 +143,18 @@ public class FederatedModelService {
         log.info("start detective");
         long time = new Date().getTime();
         QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteModelDoQueryWrapper.eq("status", 1).eq("detective_status", 1);
+        federatedSiteModelDoQueryWrapper.eq("status", 1).eq("detective_status", 2);
         List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
         for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
             if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 1800000) {
                 //update model status
-                federatedSiteModelDo.setDetectiveStatus(2);
+                federatedSiteModelDo.setDetectiveStatus(1);
                 federatedModelMapper.updateById(federatedSiteModelDo);
 
                 //update site status
                 FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectById(federatedSiteModelDo.getId());
-                if (federatedSiteManagerDo.getDetectiveStatus() == 1) {
-                    federatedSiteManagerDo.setDetectiveStatus(2);
+                if (federatedSiteManagerDo.getDetectiveStatus() == 2) {
+                    federatedSiteManagerDo.setDetectiveStatus(1);
                     federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
                 }
 
