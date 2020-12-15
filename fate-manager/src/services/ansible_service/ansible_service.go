@@ -1218,21 +1218,41 @@ func DoTest(autotest models.AutoTest, testitem string) {
 				PartyId: autotest.PartyId,
 				Ip:      address[0],
 			}
-			result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), ansibleSingleTestReq, nil)
-			if testitem != "single" {
-				TestReq := entity.AnsibleToyTestReq{
-					GuestPartyId: autotest.PartyId,
-					HostPartyId:  setting.KubenetesSetting.TestPartyId,
-					Ip:           address[0],
-					WorkMode:     setting.KubenetesSetting.WorkMode,
-				}
-				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), TestReq, nil)
+			TestReq := entity.AnsibleToyTestReq{
+				GuestPartyId: autotest.PartyId,
+				HostPartyId:  setting.KubenetesSetting.TestPartyId,
+				Ip:           address[0],
+				WorkMode:     setting.KubenetesSetting.WorkMode,
+			}
+			MinReq := entity.AnsibleMinTestReq{
+				ArbiterPartyId:    setting.KubenetesSetting.TestPartyId,
+				GuestPartyId: deploySite.PartyId,
+				HostPartyId:  setting.KubenetesSetting.TestPartyId,
+				Ip:           address[0],
 			}
 			var commresp entity.AnsibleCommResp
-			err = json.Unmarshal([]byte(result.Body), &commresp)
-			if err != nil {
-				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-				return
+			if testitem == "single" {
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), ansibleSingleTestReq, nil)
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return
+				}
+			} else if testitem == "toy" {
+
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), TestReq, nil)
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return
+				}
+			} else if testitem == "fast" || testitem == "normal" {
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), MinReq, nil)
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return
+				}
 			}
 
 			if commresp.Code == e.SUCCESS {
@@ -1264,16 +1284,31 @@ func DoTest(autotest models.AutoTest, testitem string) {
 					autotest.TestItem = "Toy Test"
 					models.UpdateAutoTest(data, autotest)
 
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
 					data = make(map[string]interface{})
 					data["toy_test"] = int(enum.TEST_STATUS_TESTING)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 					models.UpdateDeploySite(data, deploySite)
 				} else if testitem == "fast" {
 					data["status"] = int(enum.TEST_STATUS_TESTING)
 					autotest.TestItem = "Minimize Fast Test"
 					models.UpdateAutoTest(data, autotest)
 
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
 					data = make(map[string]interface{})
 					data["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 					models.UpdateDeploySite(data, deploySite)
 				} else if testitem == "normal" {
 					data["status"] = int(enum.TEST_STATUS_TESTING)
@@ -1282,6 +1317,7 @@ func DoTest(autotest models.AutoTest, testitem string) {
 
 					data = make(map[string]interface{})
 					data["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 					models.UpdateDeploySite(data, deploySite)
 				}
 			} else {
