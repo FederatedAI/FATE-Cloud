@@ -1563,10 +1563,10 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		WorkMode:     setting.KubenetesSetting.WorkMode,
 	}
 	MinReq := entity.AnsibleMinTestReq{
-		ArbiterPartyId:    setting.KubenetesSetting.TestPartyId,
-		GuestPartyId: deploySite.PartyId,
-		HostPartyId:  setting.KubenetesSetting.TestPartyId,
-		Ip:           Ip,
+		ArbiterPartyId: setting.KubenetesSetting.TestPartyId,
+		GuestPartyId:   deploySite.PartyId,
+		HostPartyId:    setting.KubenetesSetting.TestPartyId,
+		Ip:             Ip,
 	}
 	autotest := models.AutoTest{
 		PartyId: deploySite.PartyId,
@@ -1702,50 +1702,62 @@ func VersionUpdateTask(info *models.AccountInfo) {
 			versionProductItem := resp.Data.List[i]
 			for j := 0; j < len(versionProductItem.FederatedComponentVersionDos); j++ {
 				federatedComponentVersionDos := versionProductItem.FederatedComponentVersionDos[j]
-				if len(federatedComponentVersionDos.ComponentVersion) < 6 {
+				if len(federatedComponentVersionDos.ComponentVersion) < 5 {
 					continue
 				}
-				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6], ".", ""))
+				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[0:5], ".", ""))
 				componentVersion := models.ComponentVersion{
-					FateVersion:      versionProductItem.ProductVersion,
-					ProductType:      federatedComponentVersionDos.ProductId,
-					ComponentVersion: federatedComponentVersionDos.ComponentVersion,
-					ComponentName:    federatedComponentVersionDos.ComponentName,
-					ImageName:        versionProductItem.ImageName,
-					ImageVersion:     federatedComponentVersionDos.ImageRepository,
-					ImageTag:         federatedComponentVersionDos.ImageTag,
-					VersionIndex:     versionIndex,
-					PullStatus:       int(enum.PULL_STATUS_NO),
-					PackageStatus:    int(enum.PACKAGE_STATUS_NO),
-					CreateTime:       time.Now(),
-					UpdateTime:       time.Now(),
+					FateVersion:   versionProductItem.ProductVersion,
+					ProductType:   int(enum.PRODUCT_TYPE_FATE),
+					ComponentName: federatedComponentVersionDos.ComponentName,
 				}
 				componentVersionList, err := models.GetComponetVersionList(componentVersion)
 				if err != nil || len(componentVersionList) > 0 {
-					continue
+					var data = make(map[string]interface{})
+					data["component_version"] = federatedComponentVersionDos.ComponentVersion
+					data["image_name"] = federatedComponentVersionDos.ImageRepository
+					data["image_version"] = federatedComponentVersionDos.ComponentVersion
+					data["image_tag"] = federatedComponentVersionDos.ImageTag
+					data["version_index"] = versionIndex
+					models.UpdateComponentVersionByCondition(data, &componentVersion)
+				} else {
+					componentVersion.ComponentVersion = federatedComponentVersionDos.ComponentVersion
+					componentVersion.ImageName = federatedComponentVersionDos.ImageRepository
+					componentVersion.ImageVersion = federatedComponentVersionDos.ComponentVersion
+					componentVersion.ImageTag = federatedComponentVersionDos.ImageTag
+					componentVersion.VersionIndex = versionIndex
+					componentVersion.PullStatus = int(enum.PULL_STATUS_NO)
+					componentVersion.PackageStatus = int(enum.PACKAGE_STATUS_NO)
+					componentVersion.CreateTime = time.Now()
+					componentVersion.UpdateTime = time.Now()
+					models.AddComponentVersion(&componentVersion)
 				}
-				models.AddComponentVersion(&componentVersion)
 			}
-			if len(versionProductItem.ProductVersion) < 6 {
+			if len(versionProductItem.ProductVersion) < 5 {
 				continue
 			}
-			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6], ".", ""))
+			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[0:5], ".", ""))
 			fateVersion := models.FateVersion{
-				FateVersion:   versionProductItem.ProductVersion,
-				ProductType:   versionProductItem.ProductId,
-				ChartVersion:  versionProductItem.ChartVersion,
-				VersionIndex:  versionIndex,
-				PullStatus:    int(enum.PULL_STATUS_NO),
-				PackageStatus: int(enum.PACKAGE_STATUS_NO),
-				PackageUrl:    versionProductItem.PackageDownloadUrl,
-				CreateTime:    time.Now(),
-				UpdateTime:    time.Now(),
+				FateVersion: versionProductItem.ProductVersion,
+				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
 			fateVersionList, err := models.GetFateVersionList(&fateVersion)
 			if err != nil || len(fateVersionList) > 0 {
-				continue
+				var data = make(map[string]interface{})
+				data["chart_version"] = "v" + versionProductItem.ChartVersion
+				data["version_index"] = versionIndex
+				data["package_url"] = versionProductItem.PackageDownloadUrl
+				models.UpdateFateVersion(data, &fateVersion)
+			} else {
+				fateVersion.ChartVersion = "v" + versionProductItem.ChartVersion
+				fateVersion.VersionIndex = versionIndex
+				fateVersion.PullStatus = int(enum.PULL_STATUS_NO)
+				fateVersion.PackageStatus = int(enum.PACKAGE_STATUS_NO)
+				fateVersion.PackageUrl = versionProductItem.PackageDownloadUrl
+				fateVersion.CreateTime = time.Now()
+				fateVersion.UpdateTime = time.Now()
+				models.AddFateVersion(&fateVersion)
 			}
-			models.AddFateVersion(&fateVersion)
 		}
 	}
 }
