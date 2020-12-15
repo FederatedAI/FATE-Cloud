@@ -418,7 +418,7 @@ public class FederatedSiteManagerService {
 
     public Boolean updateVersion(Long partyId, String appKey, VersionUpdateQo versionUpdateQo) {
 
-        Preconditions.checkArgument(!StringUtils.isAllBlank(versionUpdateQo.getFateServingVersion(), versionUpdateQo.getFateVersion(), versionUpdateQo.getComponentVersion()));
+        Preconditions.checkArgument(!StringUtils.isAllBlank(versionUpdateQo.getFateServingVersion(), versionUpdateQo.getFateVersion()));
 
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
         ew.eq("party_id", partyId);
