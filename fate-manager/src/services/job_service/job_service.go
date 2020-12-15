@@ -1720,9 +1720,9 @@ func VersionUpdateTask(info *models.AccountInfo) {
 					data["image_tag"] = federatedComponentVersionDos.ImageTag
 					data["image_description"] = federatedComponentVersionDos.ImageTag
 					data["version_index"] = versionIndex
-					if federatedComponentVersionDos.ComponentName == "mysql"{
+					if federatedComponentVersionDos.ComponentName == "mysql" {
 						data["component_version"] = federatedComponentVersionDos.ImageTag
-						data["version_index"] = federatedComponentVersionDos.ImageTag
+						data["version_index"], _ = strconv.Atoi(federatedComponentVersionDos.ImageTag)
 					}
 					models.UpdateComponentVersionByCondition(data, &componentVersion)
 				} else {
@@ -1730,15 +1730,15 @@ func VersionUpdateTask(info *models.AccountInfo) {
 					componentVersion.ImageName = federatedComponentVersionDos.ImageRepository
 					componentVersion.ImageVersion = federatedComponentVersionDos.ImageTag
 					componentVersion.ImageTag = federatedComponentVersionDos.ImageTag
-					componentVersion.ImageDescription =federatedComponentVersionDos.ImageTag
+					componentVersion.ImageDescription = federatedComponentVersionDos.ImageTag
 					componentVersion.VersionIndex = versionIndex
 					componentVersion.PullStatus = int(enum.PULL_STATUS_NO)
 					componentVersion.PackageStatus = int(enum.PACKAGE_STATUS_NO)
 					componentVersion.CreateTime = time.Now()
 					componentVersion.UpdateTime = time.Now()
-					if federatedComponentVersionDos.ComponentName =="mysql"{
+					if federatedComponentVersionDos.ComponentName == "mysql" {
 						componentVersion.ComponentVersion = componentVersion.ImageTag
-						componentVersion.VersionIndex,_= strconv.Atoi(componentVersion.ImageTag)
+						componentVersion.VersionIndex, _ = strconv.Atoi(componentVersion.ImageTag)
 					}
 					models.AddComponentVersion(&componentVersion)
 				}
