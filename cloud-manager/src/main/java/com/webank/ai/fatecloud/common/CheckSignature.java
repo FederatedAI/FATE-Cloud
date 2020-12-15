@@ -70,51 +70,6 @@ public class CheckSignature {
         return true;
     }
 
-
-//    public boolean checkFateManagerUserActivateAuthority(HttpServletRequest httpServletRequest, String httpBody, int... status) {
-//        if (checksignature) {
-//            String signature = httpServletRequest.getHeader(Dict.SIGNATURE);
-//            String fateManagerId = httpServletRequest.getHeader(Dict.FATE_MANAGER_ID);
-//            String appKey = httpServletRequest.getHeader(Dict.APP_KEY);
-//            String timestamp = httpServletRequest.getHeader(Dict.TIMESTAMP);
-//            String nonce = httpServletRequest.getHeader(Dict.NONCE);
-//            String httpURI = httpServletRequest.getRequestURI();
-//            Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, fateManagerId, appKey, timestamp, nonce, httpURI));
-//
-//            FederatedFateManagerUserDo fateManagerUser = federatedFateManagerUserService.findFateManagerUser(fateManagerId);
-//            if (fateManagerUser == null) {
-//                return false;
-//            }
-//
-//            boolean statusResult = false;
-//            for (int i : status) {
-//                if (i == fateManagerUser.getStatus()) {
-//                    statusResult = true;
-//                    break;
-//                }
-//            }
-//            if (!statusResult) {
-//                return false;
-//            }
-//
-//            String secretInfoString = fateManagerUser.getSecretInfo();
-//            SecretInfo secretInfo = JSON.parseObject(secretInfoString, new TypeReference<SecretInfo>() {
-//            });
-//            String key = secretInfo.getKey();
-//            String secret = secretInfo.getSecret();
-//
-//            String headSignature = EncryptUtil.generateSignature(secret, fateManagerId, appKey, timestamp, nonce, httpURI, httpBody);
-//            String trueSignature = EncryptUtil.generateSignature(secret, fateManagerId, key, timestamp, nonce, httpURI, httpBody);
-//
-//            log.info("Request Signature: {}", signature);
-//            log.info("Head Signature:    {} | secret:{},fateManagerId:{},appKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}", headSignature, secret, fateManagerId, appKey, timestamp, nonce, httpURI, httpBody);
-//            log.info("True Signature:    {} | secret:{},fateManagerId:{},   key:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}", trueSignature, secret, fateManagerId, key, timestamp, nonce, httpURI, httpBody);
-//
-//            return StringUtils.equals(signature, trueSignature) && StringUtils.equals(headSignature, trueSignature);
-//        }
-//        return true;
-//    }
-
     public boolean checkSignatureNew(HttpServletRequest httpServletRequest, String httpBody, String type, int[] fateManagerUserStatus, Object... siteStatus) {
         //check whether need to verify the signature
         if (checksignature) {
