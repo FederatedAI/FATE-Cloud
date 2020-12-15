@@ -35,7 +35,7 @@ var (
 	ComponentTimer  = 10
 	ApplyTimer      = 10
 	AllowApplyTimer = 30
-	MonitorTimer    = 300
+	MonitorTimer    = 120
 	PageckageTimer  = 30
 	AutotestTimer   = 30
 	VersionTimer    = 600
@@ -55,7 +55,7 @@ func SetUp() {
 	go ApplyResultTask(accountInfo)
 	go AllowApplyTask(accountInfo)
 	if AutoTestCheck {
-		AutoTestTask()
+		AutoTestTaskOne()
 		AutoTestCheck = false
 	}
 	go MonitorTask(accountInfo)
@@ -135,7 +135,7 @@ func ComponentStatusTask() {
 		<-ticker.C
 	}
 }
-func AutoTestTask() {
+func AutoTestTaskOne() {
 	logging.Debug("AutoTestTask start...")
 	job_service.AutoTestTask()
 	logging.Debug("AutoTestTask end...")
