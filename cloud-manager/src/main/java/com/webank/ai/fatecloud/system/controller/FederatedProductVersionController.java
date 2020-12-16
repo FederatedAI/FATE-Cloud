@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product")
@@ -75,11 +76,17 @@ public class FederatedProductVersionController {
 
     @PostMapping(value = "/version")
     @ApiOperation(value = "find version items")
-    public CommonResponse<ProductVersionDto> findVersion() throws Exception {
+    public CommonResponse<ProductVersionDto> findVersion()  {
 
         return federatedProductVersionServiceFacade.findVersion();
     }
 
+    @PostMapping(value = "/name")
+    @ApiOperation(value = "find product name")
+    public CommonResponse<List<String>> findName() throws Exception {
+
+        return federatedProductVersionServiceFacade.findName();
+    }
 
     //interfaces for fate manager
     @PostMapping(value = "/page/fatemanager")

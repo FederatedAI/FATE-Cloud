@@ -70,9 +70,14 @@ public class FederatedProductVersionServiceFacade implements Serializable {
 
     }
 
-    public CommonResponse<ProductVersionDto> findVersion() throws Exception {
+    public CommonResponse<ProductVersionDto> findVersion()   {
         ProductVersionDto productVersionDto = federatedProductVersionService.findVersion();
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, productVersionDto);
+    }
+
+    public CommonResponse<List<String>> findName() throws Exception {
+        List productNames = federatedProductVersionService.findName();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, productNames);
     }
 
     public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) {
