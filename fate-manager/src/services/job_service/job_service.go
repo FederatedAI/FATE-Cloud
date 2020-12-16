@@ -977,7 +977,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	for i := -9; i <= 0; i++ {
+	for i := -5; i <= 0; i++ {
 		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
 			StartDate: curTime,
@@ -1190,9 +1190,9 @@ func SiteReport(monitorReq entity.MonitorReq) {
 			siteSiteMonitor := siteSiteMonitorList[j]
 			reportSite := models.ReportSite{
 				Ds:                  monitorReq.StartDate,
-				Institution:         k.Institution,
-				InstitutionSiteName: k.SiteName,
-				SiteName:            siteSiteMonitor.SiteName,
+				Institution:         siteSiteMonitor.Institution,
+				InstitutionSiteName: siteSiteMonitor.SiteName,
+				SiteName:            k.SiteName,
 			}
 			list, _ := models.GetReportSite(&reportSite)
 			if len(list) > 0 {
