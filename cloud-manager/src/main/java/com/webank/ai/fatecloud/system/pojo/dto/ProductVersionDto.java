@@ -15,5 +15,5 @@ public class ProductVersionDto implements Serializable {
 
     private List<String> productNameList;
 
-//    private List<String> productVersionList;
+    private List<String> productVersionList;
 }
