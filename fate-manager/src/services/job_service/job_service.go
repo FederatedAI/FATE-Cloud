@@ -29,6 +29,7 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/k8s_service"
+	"fate.manager/services/site_deploy_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"io/ioutil"
@@ -38,16 +39,6 @@ import (
 	"strings"
 	"time"
 )
-
-type CloudSystemAdd struct {
-	DetectiveStatus  int    `json:"detectiveStatus"`
-	SiteId           int64  `json:"id"`
-	ComponentName    string `json:"installItems"`
-	JobType          string `json:"type"`
-	JobStatus        int    `json:"updateStatus"`
-	UpdateTime       int64  `json:"updateTime"`
-	ComponentVersion string `json:"version"`
-}
 
 func JobTask() {
 
@@ -224,21 +215,17 @@ func JobTask() {
 						continue
 					}
 					models.GetFederatedUrlById(deploySiteList[0].FederatedId)
-					var cloudSystemAddList []CloudSystemAdd
+					var cloudSystemAddList []entity.CloudSystemAdd
 					for k := 0; k < len(deployComponentList); k++ {
 						if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) || deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-							cloudSystemAdd := CloudSystemAdd{
+							cloudSystemAdd := entity.CloudSystemAdd{
 								DetectiveStatus:  1,
 								SiteId:           siteInfo.SiteId,
 								ComponentName:    deployComponentList[k].ComponentName,
 								JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[i].JobType)),
-								JobStatus:        1,
+								JobStatus:        2,
 								UpdateTime:       jobQueryResp.Data.EndTime.UnixNano() / 1e6,
 								ComponentVersion: deployComponentList[k].ComponentVersion,
-							}
-							if deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-								cloudSystemAdd.JobStatus = 2
-								cloudSystemAdd.JobStatus = 2
 							}
 							cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
 						}
@@ -408,21 +395,17 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				return
 			}
 			models.GetFederatedUrlById(deploySiteList[0].FederatedId)
-			var cloudSystemAddList []CloudSystemAdd
+			var cloudSystemAddList []entity.CloudSystemAdd
 			for k := 0; k < len(deployComponentList); k++ {
 				if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) || deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-					cloudSystemAdd := CloudSystemAdd{
+					cloudSystemAdd := entity.CloudSystemAdd{
 						DetectiveStatus:  1,
 						SiteId:           siteInfo.SiteId,
 						ComponentName:    deployComponentList[k].ComponentName,
 						JobType:          enum.GetJobTypeString(enum.JobType(DeployJob.JobType)),
-						JobStatus:        1,
+						JobStatus:        2,
 						UpdateTime:       queryResponse.Data.EndTime,
 						ComponentVersion: deployComponentList[k].ComponentVersion,
-					}
-					if deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-						cloudSystemAdd.JobStatus = 2
-						cloudSystemAdd.JobStatus = 2
 					}
 					cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
 				}
@@ -1591,6 +1574,9 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
 			testdata["status"] = int(enum.TEST_STATUS_YES)
 			successTag = true
+			if curItem == "normal"{
+				site_deploy_service.UploadStatusToCloud(deploySite.PartyId,0,enum.DeployType_ANSIBLE)
+			}
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
