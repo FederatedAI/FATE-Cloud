@@ -226,3 +226,12 @@ type ExchangeResp struct {
 	CloudCommResp
 	Data ExchangeData `json:"data"`
 }
+type CloudSystemAdd struct {
+	DetectiveStatus  int    `json:"detectiveStatus"`
+	SiteId           int64  `json:"id"`
+	ComponentName    string `json:"installItems"`
+	JobType          string `json:"type"`
+	JobStatus        int    `json:"updateStatus"`
+	UpdateTime       int64  `json:"updateTime"`
+	ComponentVersion string `json:"version"`
+}
