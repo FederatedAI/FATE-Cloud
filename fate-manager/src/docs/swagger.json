@@ -92,45 +92,6 @@
                 }
             }
         },
-        "/fate-manager/api/ansible/check": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "check system to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CheckSystem"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/fate-manager/api/ansible/click": {
             "post": {
                 "consumes": [
@@ -287,73 +248,6 @@
                 }
             }
         },
-        "/fate-manager/api/ansible/deployansible": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "start to deploy ansible",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CommResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/fate-manager/api/ansible/getcheck": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "get check system list",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CheckSystemReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CheckSystemResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/fate-manager/api/ansible/install": {
             "post": {
                 "consumes": [
@@ -432,34 +326,6 @@
                 }
             }
         },
-        "/fate-manager/api/ansible/list": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "get Ansible list",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.AnsibleListResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/fate-manager/api/ansible/log": {
             "post": {
                 "consumes": [
@@ -488,45 +354,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/app.AnsibleLogResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/fate-manager/api/ansible/prepare": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "prepare to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.PrepareReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CommResp"
                         }
                     },
                     "500": {
@@ -597,45 +424,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/entity.UpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/app.CommResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/fate-manager/api/ansible/updatemachine": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "AnsibleDeployController"
-                ],
-                "summary": "update to deploy ansible",
-                "parameters": [
-                    {
-                        "description": "request param",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.PrepareReq"
                         }
                     }
                 ],
@@ -3528,23 +3316,6 @@
         }
     },
     "definitions": {
-        "app.AnsibleListResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.AnsibleListItem"
-                    }
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
         "app.AnsibleLogResponse": {
             "type": "object",
             "properties": {
@@ -3628,23 +3399,6 @@
                 "data": {
                     "type": "object",
                     "$ref": "#/definitions/entity.CheckJwtResp"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.CheckSystemResp": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Prepare"
-                    }
                 },
                 "msg": {
                     "type": "string"
@@ -4344,20 +4098,6 @@
                 }
             }
         },
-        "entity.AnsibleListItem": {
-            "type": "object",
-            "properties": {
-                "duration": {
-                    "type": "integer"
-                },
-                "ip": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "entity.AnsibleLog": {
             "type": "object",
             "properties": {
@@ -4570,28 +4310,6 @@
                 },
                 "srcPartyId": {
                     "type": "integer"
-                }
-            }
-        },
-        "entity.CheckSystem": {
-            "type": "object",
-            "properties": {
-                "check_name": {
-                    "type": "string"
-                },
-                "managerNode": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "entity.CheckSystemReq": {
-            "type": "object",
-            "properties": {
-                "ip": {
-                    "type": "string"
                 }
             }
         },
@@ -5356,23 +5074,6 @@
                 }
             }
         },
-        "entity.Prepare": {
-            "type": "object",
-            "properties": {
-                "details": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "entity.PrepareItem": {
             "type": "object",
             "properties": {
@@ -5381,20 +5082,6 @@
                 },
                 "procName": {
                     "type": "string"
-                }
-            }
-        },
-        "entity.PrepareReq": {
-            "type": "object",
-            "properties": {
-                "controlNode": {
-                    "type": "string"
-                },
-                "managerNode": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

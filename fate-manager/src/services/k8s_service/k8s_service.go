@@ -16,7 +16,6 @@
 package k8s_service
 
 import (
-	"encoding/json"
 	"fate.manager/comm/enum"
 	"fate.manager/entity"
 	"fate.manager/models"
@@ -47,12 +46,7 @@ func GetNodeIp(deployType enum.DeployType) []string {
 			}
 			list = strings.Split(node, ":")
 		} else {
-			var prepareReq entity.PrepareReq
-			err := json.Unmarshal([]byte(kubenetsConf.NodeList), &prepareReq)
-			if err != nil {
-				return nil
-			}
-			list = prepareReq.ManagerNode
+			list = strings.Split(kubenetsConf.NodeList, ",")
 		}
 	}
 	return list
@@ -111,38 +105,13 @@ func GetManagerIp() ([]entity.IpStatus, error) {
 		return nil, err
 	}
 	if len(conf.NodeList) > 0 {
-		var prepareReq entity.PrepareReq
-		err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
-		if err != nil {
-			return nil, err
-		}
-		status := "success"
-		if len(conf.AnsibleCheck) == 0 {
-			return nil, nil
-		}
-		var ansiblePrepare []entity.AnsiblePrepareItem
-		err = json.Unmarshal([]byte(conf.AnsibleCheck), &ansiblePrepare)
-		if err != nil {
-			return nil, err
-		}
+		arr := strings.Split(conf.NodeList, ",")
 		var IpStatusList []entity.IpStatus
-		for i := 0; i < len(prepareReq.ManagerNode); i++ {
+		for i := 0; i < len(arr); i++ {
 			ipStatus := entity.IpStatus{
-				Ip:     prepareReq.ManagerNode[i],
-				Status: status,
+				Ip:     arr[i],
+				Status: "success",
 			}
-			for j := 0; j < len(ansiblePrepare); j++ {
-				if prepareReq.ManagerNode[i] == ansiblePrepare[j].Ip {
-					for k := 0; k < len(ansiblePrepare[j].List); k++ {
-						if ansiblePrepare[j].List[k].Status != "success" {
-							status = "failed"
-							break
-						}
-					}
-					break
-				}
-			}
-			ipStatus.Status = status
 			IpStatusList = append(IpStatusList, ipStatus)
 		}
 		return IpStatusList, nil
@@ -162,14 +131,10 @@ func GetManagerIpPort() ([]ManagerNode, error) {
 	}
 	var nodelist []ManagerNode
 	if len(conf.NodeList) > 0 {
-		var prepareReq entity.PrepareReq
-		err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
-		if err != nil {
-			return nil, err
-		}
-		for i := 0; i < len(prepareReq.ManagerNode); i++ {
+		arr := strings.Split(conf.NodeList, ",")
+		for i := 0; i < len(arr); i++ {
 			node := ManagerNode{
-				Ip:   prepareReq.ManagerNode[i],
+				Ip:   arr[i],
 				Port: 8080,
 			}
 			nodelist = append(nodelist, node)
