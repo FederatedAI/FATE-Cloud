@@ -1558,14 +1558,14 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	}
 	TestReq := entity.AnsibleToyTestReq{
 		GuestPartyId: deploySite.PartyId,
-		HostPartyId:  setting.KubenetesSetting.TestPartyId,
+		HostPartyId:  setting.DeploySetting.TestPartyId,
 		Ip:           Ip,
-		WorkMode:     setting.KubenetesSetting.WorkMode,
+		WorkMode:     setting.DeploySetting.WorkMode,
 	}
 	MinReq := entity.AnsibleMinTestReq{
-		ArbiterPartyId: setting.KubenetesSetting.TestPartyId,
+		ArbiterPartyId: setting.DeploySetting.TestPartyId,
 		GuestPartyId:   deploySite.PartyId,
-		HostPartyId:    setting.KubenetesSetting.TestPartyId,
+		HostPartyId:    setting.DeploySetting.TestPartyId,
 		Ip:             Ip,
 	}
 	autotest := models.AutoTest{

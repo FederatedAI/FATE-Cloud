@@ -84,8 +84,8 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		SrcPartyId: site.PartyId,
 		Proxy: entity.Proxy{
 			Exchange: entity.Exchange{
-				ExchangeIp:   setting.KubenetesSetting.ExchangeIp,
-				ExchangePort: setting.KubenetesSetting.ExchangePort,
+				ExchangeIp:   setting.DeploySetting.ExchangeIp,
+				ExchangePort: setting.DeploySetting.ExchangePort,
 			},
 			NodePort: proxyPort,
 			Type:     "NodePort",
@@ -96,7 +96,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		ExistingClaim:            "",
 		Name:                     "nodemanager",
 		NodeSelector:             entity.NodeSelector{},
-		SessionProcessorsPerNode: setting.KubenetesSetting.SessionProcessorsPerNode,
+		SessionProcessorsPerNode: setting.DeploySetting.SessionProcessorsPerNode,
 		Size:                     "1Gi",
 		StorageClass:             "nodemanager",
 		SubPath:                  "nodemanager",
@@ -124,9 +124,9 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		Name:      name,
 		NameSpace: nameSpace,
 		NodeManager: entity.NodeManager{
-			Count:                    setting.KubenetesSetting.NodeManager,
+			Count:                    setting.DeploySetting.NodeManager,
 			List:                     nodeList,
-			SessionProcessorsPerNode: setting.KubenetesSetting.SessionProcessorsPerNode,
+			SessionProcessorsPerNode: setting.DeploySetting.SessionProcessorsPerNode,
 		},
 		SrcPartyId:  site.PartyId,
 		Persistence: false,
@@ -136,11 +136,11 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			FateFlowType:     "NodePort",
 			NodeSelector:     entity.NodeSelector{},
 		},
-		Registry: setting.KubenetesSetting.Registry,
+		Registry: setting.DeploySetting.Registry,
 		Rollsite: entity.Rollsite{
 			Exchange: entity.Exchange{
-				ExchangeIp:   setting.KubenetesSetting.ExchangeIp,
-				ExchangePort: setting.KubenetesSetting.ExchangePort,
+				ExchangeIp:   setting.DeploySetting.ExchangeIp,
+				ExchangePort: setting.DeploySetting.ExchangePort,
 			},
 			Proxy: entity.Proxy{
 				NodePort: proxyPort,
@@ -183,14 +183,14 @@ func Install(installReq entity.InstallReq) (int, error) {
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	value, _ := util.ExecCommand(cmd)
 	logging.Debug(value)
 	if value[0:1] != "1" {
 		cmd = fmt.Sprintf("kubectl create namespace %s", nameSpace)
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = fmt.Sprintf("sudo %s", cmd)
 		}
 		value, _ := util.ExecCommand(cmd)
@@ -564,7 +564,7 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
 	cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ := util.ExecCommand(cmd)

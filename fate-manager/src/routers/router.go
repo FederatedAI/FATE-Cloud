@@ -63,7 +63,7 @@ func InitRouter() *gin.Engine {
 	router.POST("/fate-manager/api/site/secretinfo", GetSecretInfo)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
@@ -143,12 +143,6 @@ func InitRouter() *gin.Engine {
 	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
 	{
 		ansible.POST("/connectansible", ConnectAnsible)
-		ansible.POST("/prepare", Prepare)
-		ansible.POST("/updatemachine", UpdateMachine)
-		ansible.POST("/check", CheckSystem)
-		ansible.POST("/getcheck", GetCheck)
-		ansible.GET("/list", GetAnsibleList)
-		ansible.POST("/deployansible", StartDeployAnsible)
 		ansible.POST("/upload", LocalUpload)
 		ansible.POST("/autoacquire", AutoAcquire)
 		ansible.POST("/componentlist", GetComponentList)
