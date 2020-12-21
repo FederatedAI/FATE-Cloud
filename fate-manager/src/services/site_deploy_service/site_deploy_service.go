@@ -923,12 +923,86 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 						IsValid:     int(enum.IS_VALID_YES),
 					}
 					models.UpdateDeployComponent(deployData, deployComponent)
+					UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S)
 				}
 			}
 		}
 	}
 }
 
+func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType){
+	siteInfo, err := models.GetSiteInfo(partyId,federatedId)
+	if err != nil {
+		return
+	}
+	federatedInfo, err := models.GetFederatedUrlById(federatedId)
+	if err != nil {
+		return
+	}
+	models.GetFederatedUrlById(siteInfo.FederatedId)
+	deployComponent:= models.DeployComponent{
+		FederatedId:      federatedId,
+		PartyId:          partyId,
+		ProductType:      int(enum.PRODUCT_TYPE_FATE),
+		DeployType:       int(deployType),
+		IsValid:          int(enum.IS_VALID_YES),
+	}
+	deployComponentList,_ := models.GetDeployComponent(deployComponent)
+	deploySite := models.DeploySite{
+		FederatedId:        federatedId,
+		PartyId:            partyId,
+		IsValid:            int(enum.IS_VALID_YES),
+		DeployType:         int(deployType),
+	}
+	deploySiteList,_:= models.GetDeploySite(&deploySite)
+	deployJob := models.DeployJob{JobId:       deploySiteList[0].JobId}
+	deployJobList,_ := models.GetDeployJob(deployJob,true)
+	if len(deployJobList) == 0 || len(deployComponentList) ==0 || len(deploySiteList) ==0 {
+		return
+	}
+	var cloudSystemAddList []entity.CloudSystemAdd
+	for k := 0; k < len(deployComponentList); k++ {
+			cloudSystemAdd := entity.CloudSystemAdd{
+				DetectiveStatus:  1,
+				SiteId:           siteInfo.SiteId,
+				ComponentName:    deployComponentList[k].ComponentName,
+				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
+				JobStatus:        1,
+				UpdateTime:      time.Now().UnixNano() / 1e6,
+				ComponentVersion: deployComponentList[k].ComponentVersion,
+			}
+			cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
+	}
+	if len(cloudSystemAddList) > 0 {
+		cloudSystemAddJson, _ := json.Marshal(cloudSystemAddList)
+		headInfo := util.HeaderInfo{
+			AppKey:    siteInfo.AppKey,
+			AppSecret: siteInfo.AppSecret,
+			PartyId:   siteInfo.PartyId,
+			Body:      string(cloudSystemAddJson),
+			Role:      siteInfo.Role,
+			Uri:       setting.SystemAddUri,
+		}
+		headerInfoMap := util.GetHeaderInfo(headInfo)
+		result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.SystemAddUri), cloudSystemAddList, headerInfoMap)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			return
+		}
+		if len(result.Body) > 0 {
+			var updateResp entity.CloudCommResp
+			err = json.Unmarshal([]byte(result.Body), &updateResp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if updateResp.Code == e.SUCCESS {
+				msg := "federatedId:" + strconv.Itoa(siteInfo.FederatedId) + ",partyId:" + strconv.Itoa(siteInfo.PartyId) + ",status:system add success"
+				logging.Debug(msg)
+			}
+		}
+	}
+}
 func ToyTestOnly(autoTestReq entity.AutoTestReq) {
 	//test toy
 	deploySite := models.DeploySite{
