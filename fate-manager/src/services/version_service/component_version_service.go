@@ -94,10 +94,10 @@ func Pull(pullReq entity.PullReq) {
 					continue
 				}
 				cmd := fmt.Sprintf("docker pull %s:%s", componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
-				if len(setting.KubenetesSetting.Registry) > 0 {
-					cmd = fmt.Sprintf("docker pull %s/%s:%s", setting.KubenetesSetting.Registry, componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
+				if len(setting.DeploySetting.Registry) > 0 {
+					cmd = fmt.Sprintf("docker pull %s/%s:%s", setting.DeploySetting.Registry, componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
 				}
-				if setting.KubenetesSetting.SudoTag {
+				if setting.DeploySetting.SudoTag {
 					cmd = fmt.Sprintf("sudo %s", cmd)
 				}
 				logging.Debug(cmd)
@@ -127,11 +127,11 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	imageName := fmt.Sprintf("docker.io/%s",info.ImageName)
-	if len(setting.KubenetesSetting.Registry) >0 {
-		imageName =fmt.Sprintf("%s/%s",setting.KubenetesSetting.Registry,info.ImageName)
+	if len(setting.DeploySetting.Registry) >0 {
+		imageName =fmt.Sprintf("%s/%s",setting.DeploySetting.Registry,info.ImageName)
 	}
 	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)
@@ -143,7 +143,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'",imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)
@@ -152,7 +152,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)

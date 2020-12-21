@@ -184,6 +184,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 				FailedPercent:  FailedPercent,
 			},
 			InstitutionModeling: data,
+			Total:len(data),
 		}
 		return &monitorTotalResp, nil
 	}
