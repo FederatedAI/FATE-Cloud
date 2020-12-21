@@ -790,6 +790,9 @@ func ComponentStatusTask() {
 			testname = "python"
 		}
 		cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
+		if setting.DeploySetting.SudoTag {
+			cmdSub = fmt.Sprintf("sudo kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
+		}
 		result, _ := util.ExecCommand(cmdSub)
 		cnt, _ := strconv.Atoi(result[0:1])
 		var data = make(map[string]interface{})
@@ -1321,6 +1324,18 @@ type MonitorPushSite struct {
 }
 
 func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) {
+	siteInfo := models.SiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
+	siteInfoList, _ := models.GetSiteList(&siteInfo)
+	otherSiteInfo := models.OtherSiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
+	otherSiteInfoList, _ := models.GetOtherSiteInfoList(&otherSiteInfo)
+	var partyIdSiteId = make(map[int]int64)
+	for i := 0; i < len(siteInfoList); i++ {
+		partyIdSiteId[siteInfoList[i].PartyId] = siteInfoList[i].SiteId
+	}
+	for i := 0; i < len(otherSiteInfoList); i++ {
+		partyIdSiteId[otherSiteInfoList[i].PartyId] = otherSiteInfoList[i].SiteId
+	}
+
 	pushSiteList, err := models.GetPushSiteMonitorList(monitorReq)
 	if err != nil {
 		return
@@ -1328,13 +1343,24 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) 
 	var data []MonitorPushSite
 	for i := 0; i < len(pushSiteList); i++ {
 		pushSite := pushSiteList[i]
+		guestPartyId, _ := strconv.Atoi(pushSite.GuestPartyId)
+		hostPartyId, _ := strconv.Atoi(pushSite.HostPartyId)
+		gsite, ok := partyIdSiteId[guestPartyId]
+		if !ok {
+			continue
+		}
+		hsite, ok := partyIdSiteId[hostPartyId]
+		if !ok {
+			continue
+		}
+
 		monitorPushSite := MonitorPushSite{
 			Failed:     pushSite.Failed + pushSite.Timeout + pushSite.Canceled,
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
 			FinishDate: monitorReq.EndDate,
-			GuestId:    pushSite.GuestPartyId,
-			HostId:     pushSite.HostPartyId,
+			GuestId:    strconv.FormatInt(gsite, 10),
+			HostId:     strconv.FormatInt(hsite, 10),
 		}
 		data = append(data, monitorPushSite)
 	}
@@ -1574,9 +1600,16 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
 			testdata["status"] = int(enum.TEST_STATUS_YES)
 			successTag = true
-			if curItem == "normal"{
-				site_deploy_service.UploadStatusToCloud(deploySite.PartyId,0,enum.DeployType_ANSIBLE)
+			if curItem == "normal" {
+				site_deploy_service.UploadStatusToCloud(deploySite.PartyId, 0, enum.DeployType_ANSIBLE)
 			}
+		}
+		if len(resultResp.Data) == 0 {
+			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+			testdata["status"] = int(enum.TEST_STATUS_TESTING)
+		} else if len(resultResp.Data[0]) == 0 {
+			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+			testdata["status"] = int(enum.TEST_STATUS_TESTING)
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
