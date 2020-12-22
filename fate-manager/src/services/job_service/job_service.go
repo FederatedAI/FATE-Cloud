@@ -154,7 +154,7 @@ func JobTask() {
 						PartyId:          deployJobList[i].PartyId,
 						FateVersion:      deploySiteList[0].FateVersion,
 						ComponentVersion: string(componentVersonMapjson),
-						ServiceStatus:    int(enum.SERVICE_STATUS_AVAILABLE),
+						ServiceStatus:    int(enum.SERVICE_STATUS_UNAVAILABLE),
 						//FateServingVersion: "1.2.1",
 					}
 					models.UpdateSite(&site)
@@ -345,7 +345,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				PartyId:          DeployJob.PartyId,
 				FateVersion:      deploySiteList[0].FateVersion,
 				ComponentVersion: string(componentVersonMapjson),
-				ServiceStatus:    int(enum.SERVICE_STATUS_AVAILABLE),
+				ServiceStatus:    int(enum.SERVICE_STATUS_UNAVAILABLE),
 			}
 			models.UpdateSite(&site)
 		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
@@ -876,8 +876,7 @@ type SiteInstitution struct {
 
 func MonitorTask(accountInfo *models.AccountInfo) {
 	siteInfo := models.SiteInfo{
-		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
-		Status:        int(enum.SITE_STATUS_JOINED),
+		Status: int(enum.SITE_STATUS_JOINED),
 	}
 	flowAddressList, err := models.GetFlowAddressList(&siteInfo)
 	if err != nil {
@@ -899,13 +898,13 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		result, err := http.POST(http.Url("http://"+flowAddressList[i].Address+setting.FlowJobQuery), flowJobQuery, nil)
 		if err != nil {
 			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-			return
+			continue
 		}
 		var flowJobQueryResp entity.FlowJobQueryResp
 		err = json.Unmarshal([]byte(result.Body), &flowJobQueryResp)
 		if err != nil {
 			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return
+			continue
 		}
 		if flowJobQueryResp.Code == e.SUCCESS {
 			for j := 0; j < len(flowJobQueryResp.Data); j++ {
@@ -964,6 +963,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		}
 	}
 	for i := -5; i <= 0; i++ {
+		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
 		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
 			StartDate: curTime,
@@ -971,7 +971,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		}
 		InstitutionReport(monitorReq)
 		SiteReport(monitorReq)
-		MonitorPush(monitorReq, accountInfo)
+		MonitorPush(monitorReq, accountInfo, timeunix)
 	}
 }
 
@@ -1323,7 +1323,7 @@ type MonitorPushSite struct {
 	HostId     string `json:"siteHostId"`
 }
 
-func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) {
+func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo, timeunix int64) {
 	siteInfo := models.SiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
 	siteInfoList, _ := models.GetSiteList(&siteInfo)
 	otherSiteInfo := models.OtherSiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
@@ -1338,6 +1338,10 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) 
 
 	pushSiteList, err := models.GetPushSiteMonitorList(monitorReq)
 	if err != nil {
+		return
+	}
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
 		return
 	}
 	var data []MonitorPushSite
@@ -1356,44 +1360,40 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) 
 
 		monitorPushSite := MonitorPushSite{
 			Failed:     pushSite.Failed + pushSite.Timeout + pushSite.Canceled,
+			FinishDate: strconv.FormatInt(timeunix, 10),
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
-			FinishDate: monitorReq.EndDate,
 			GuestId:    strconv.FormatInt(gsite, 10),
 			HostId:     strconv.FormatInt(hsite, 10),
 		}
 		data = append(data, monitorPushSite)
 	}
-
-	dataJson, _ := json.Marshal(data)
-	headInfo := util.HeaderInfo{
-		AppKey:    accountInfo.AppKey,
-		AppSecret: accountInfo.AppSecret,
-		PartyId:   accountInfo.PartyId,
-		Body:      string(dataJson),
-		Role:      accountInfo.Role,
-		Uri:       setting.MonitorPushUri,
-	}
-	headerInfoMap := util.GetHeaderInfo(headInfo)
-	federationList, err := federated_service.GetFederationInfo()
-	if err != nil || len(federationList) == 0 {
-		return
-	}
-	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.MonitorPushUri), data, headerInfoMap)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return
-	}
-	if len(result.Body) > 0 {
-		var updateResp entity.CloudCommResp
-		err = json.Unmarshal([]byte(result.Body), &updateResp)
+	if len(data) > 0 {
+		dataJson, _ := json.Marshal(data)
+		headInfo := util.UserHeaderInfo{
+			UserAppKey:    accountInfo.AppKey,
+			UserAppSecret: accountInfo.AppSecret,
+			FateManagerId: accountInfo.CloudUserId,
+			Body:          string(dataJson),
+			Uri:           setting.MonitorPushUri,
+		}
+		headerInfoMap := util.GetUserHeadInfo(headInfo)
+		result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.MonitorPushUri), data, headerInfoMap)
 		if err != nil {
-			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			return
 		}
-		if updateResp.Code == e.SUCCESS {
-			msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
-			logging.Debug(msg)
+		if len(result.Body) > 0 {
+			var updateResp entity.CloudCommResp
+			err = json.Unmarshal([]byte(result.Body), &updateResp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if updateResp.Code == e.SUCCESS {
+				msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
+				logging.Debug(msg)
+			}
 		}
 	}
 }
