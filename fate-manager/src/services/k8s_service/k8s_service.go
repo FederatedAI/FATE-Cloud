@@ -87,15 +87,25 @@ func CheckNodeIp(address string, deployType enum.DeployType) bool {
 	}
 	var tag = false
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	for i := 0; i < len(nodeList); i++ {
-		lablist := strings.Split(nodeList[i], ":")
-		if len(lablist) == 2 {
-			if lablist[1] == ipList[0] {
-				tag = true
+	if deployType == enum.DeployType_K8S {
+		for i := 0; i < len(nodeList); i++ {
+			lablist := strings.Split(nodeList[i], ":")
+			if len(lablist) == 2 {
+				if lablist[1] == ipList[0] {
+					tag = true
+					break
+				}
+			}
+		}
+	}else{
+		for i :=0;i<len(nodeList) ;i++  {
+			if nodeList[i] == ipList[0] {
+				tag=true
 				break
 			}
 		}
 	}
+
 	return tag
 }
 
