@@ -1318,9 +1318,9 @@ type MonitorPushSite struct {
 	Failed     int    `json:"jobFailedCount"`
 	Running    int    `json:"jobRunningCount"`
 	Success    int    `json:"jobSuccessCount"`
-	FinishDate string `json:"jobFinishDate"`
-	GuestId    string `json:"siteGuestId"`
-	HostId     string `json:"siteHostId"`
+	FinishDate int64 `json:"jobFinishDate"`
+	GuestId    int64 `json:"siteGuestId"`
+	HostId     int64 `json:"siteHostId"`
 }
 
 func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo, timeunix int64) {
@@ -1360,11 +1360,11 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo, 
 
 		monitorPushSite := MonitorPushSite{
 			Failed:     pushSite.Failed + pushSite.Timeout + pushSite.Canceled,
-			FinishDate: strconv.FormatInt(timeunix, 10),
+			FinishDate: timeunix,
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
-			GuestId:    strconv.FormatInt(gsite, 10),
-			HostId:     strconv.FormatInt(hsite, 10),
+			GuestId:    gsite,
+			HostId:     hsite,
 		}
 		data = append(data, monitorPushSite)
 	}

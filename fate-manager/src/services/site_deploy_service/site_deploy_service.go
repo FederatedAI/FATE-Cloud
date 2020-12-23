@@ -1388,17 +1388,32 @@ func GetFateBoardUrl(federatedSite entity.FederatedSite) (string, error) {
 	if len(deploySiteList) == 0 {
 		return "", nil
 	}
-
-	kubefateConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
-	if err != nil {
-		return "", err
-	}
-	fateboard := fmt.Sprintf("%d.fateboard.kubefate.net", federatedSite.PartyId)
-	urlList := strings.Split(kubefateConf.KubenetesUrl, ":")
-	if len(urlList) == 3 {
-		fateboard = fmt.Sprintf("%d.fateboard.kubefate.net:%s", federatedSite.PartyId, urlList[2])
-	} else {
-		return "", nil
+	fateboard := ""
+    if deploySiteList[0].DeployType == int(enum.DeployType_K8S) {
+		kubefateConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
+		if err != nil {
+			return "", err
+		}
+		fateboard = fmt.Sprintf("%d.fateboard.kubefate.net", federatedSite.PartyId)
+		urlList := strings.Split(kubefateConf.KubenetesUrl, ":")
+		if len(urlList) == 3 {
+			fateboard = fmt.Sprintf("%d.fateboard.kubefate.net:%s", federatedSite.PartyId, urlList[2])
+		} else {
+			return "", nil
+		}
+	}else{
+		deployComponent := models.DeployComponent{
+			PartyId:          federatedSite.PartyId,
+			ComponentName:    "fateboard",
+			IsValid:          int(enum.IS_VALID_YES),
+		}
+		deployComponentList,err := models.GetDeployComponent(deployComponent)
+		if err != nil {
+			return "",err
+		}
+		if len(deployComponentList) >0{
+			fateboard = deployComponentList[0].Address
+		}
 	}
 	return fateboard, nil
 }
