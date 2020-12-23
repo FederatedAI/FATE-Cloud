@@ -1583,13 +1583,30 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 	ResultReq.TestType = curItem
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
+	if result == nil || err != nil{
+		return
+	}
 	var resultResp entity.AnsibleTestResultResponse
 	err = json.Unmarshal([]byte(result.Body), &resultResp)
 	if err != nil {
 		return
 	}
 	if resultResp.Code == e.SUCCESS {
-		sitedata[curItem+"_test"] = int(enum.TEST_STATUS_NO)
+        deployKey,testKey := "",""
+		if curItem == "single"{
+			deployKey = "single_fast"
+			testKey="Single Test"
+		}else if curItem == "toy"{
+			deployKey ="toy_fast"
+			testKey="Toy Test"
+		}else if curItem == "fast"{
+			deployKey = "minimize_fast"
+			testKey="Minimize Fast Test"
+		}else if curItem == "normal"{
+			deployKey ="minimize_normal"
+			testKey="Minimize Normal Test"
+		}
+		sitedata[deployKey] = int(enum.TEST_STATUS_NO)
 		testdata["status"] = int(enum.TEST_STATUS_NO)
 		findKey := "success to calculate secure_sum"
 		if curItem == "fast" || curItem == "normal" {
@@ -1597,25 +1614,22 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		}
 		successTag := false
 		if JudgeResult(deploySite.PartyId, curItem, findKey, resultResp.Data) {
-			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
+			sitedata[deployKey] = int(enum.TEST_STATUS_YES)
 			testdata["status"] = int(enum.TEST_STATUS_YES)
 			successTag = true
 			if curItem == "normal" {
 				site_deploy_service.UploadStatusToCloud(deploySite.PartyId, 0, enum.DeployType_ANSIBLE)
 			}
 		}
-		if len(resultResp.Data) == 0 {
-			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_TESTING)
-			testdata["status"] = int(enum.TEST_STATUS_TESTING)
-		} else if len(resultResp.Data[0]) == 0 {
-			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+		if len(resultResp.Data) <= 1 {
+			sitedata[deployKey] = int(enum.TEST_STATUS_TESTING)
 			testdata["status"] = int(enum.TEST_STATUS_TESTING)
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
 		testdata["end_time"] = time.Now()
 
-		autotest.TestItem = curItem + " Test"
+		autotest.TestItem = testKey
 		models.UpdateAutoTest(testdata, autotest)
 
 		if successTag {
@@ -1660,7 +1674,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 						models.UpdateAutoTest(testdata, autotest)
 
 						sitedata = make(map[string]interface{})
-						sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+						sitedata["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
 						models.UpdateDeploySite(sitedata, deploySite)
 					}
 				}
@@ -1679,7 +1693,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 					models.UpdateAutoTest(testdata, autotest)
 
 					sitedata = make(map[string]interface{})
-					sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+					sitedata["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
 					models.UpdateDeploySite(sitedata, deploySite)
 				}
 			}
