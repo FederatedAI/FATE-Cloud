@@ -18,11 +18,11 @@ public class JobStatistics implements Serializable {
     private String siteHostName;
 
     @ApiModelProperty(value = "success count")
-    private String jobSuccessCount;
+    private Long jobSuccessCount;
 
     @ApiModelProperty(value = "running count")
-    private String jobRunningCount;
+    private Long jobRunningCount;
 
     @ApiModelProperty(value = "failed count")
-    private String jobFailedCount;
+    private Long jobFailedCount;
 }

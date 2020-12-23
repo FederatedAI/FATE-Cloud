@@ -15,7 +15,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -31,13 +33,13 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/push")
     @ApiOperation(value = "push job statistics of site")
-    public CommonResponse pushJosStatistics(@Valid @RequestBody List<JobStatisticsQo> jobStatisticsQos, BindingResult bindingResult) {
+    public CommonResponse pushJosStatistics(@Valid @RequestBody ArrayList<JobStatisticsQo> jobStatisticsQos, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
         log.info("RequestBody:{}", jobStatisticsQos);
         if (bindingResult.hasErrors()) {
             FieldError errors = bindingResult.getFieldError();
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR, errors.getDefaultMessage());
         }
-        return federatedJobStatisticsServiceFacade.pushJosStatistics(jobStatisticsQos);
+        return federatedJobStatisticsServiceFacade.pushJosStatistics(jobStatisticsQos,httpServletRequest);
     }
 
     @PostMapping(value = "/site/today")
