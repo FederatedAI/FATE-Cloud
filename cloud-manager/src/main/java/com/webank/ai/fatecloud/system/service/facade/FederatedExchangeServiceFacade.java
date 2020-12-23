@@ -31,9 +31,17 @@ public class FederatedExchangeServiceFacade implements Serializable {
     CheckSignature checkSignature;
 
     public CommonResponse addExchange(ExchangeAddQo exchangeAddQo) {
+
+        //check duplicate name
+        if(this.checkExchangeName(exchangeAddQo)){
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS,federatedExchangeDo);
 
+    }
+    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo){
+        return federatedExchangeService.checkExchangeName(exchangeAddQo);
     }
 
     public CommonResponse deleteExchange(ExchangeDeleteQo exchangeDeleteQo) {
