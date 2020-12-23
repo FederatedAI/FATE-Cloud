@@ -58,4 +58,11 @@ public class FederatedExchangeService implements Serializable {
         return siteDetailDtoPageBean;
 
     }
+
+    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
+        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        federatedExchangeDoQueryWrapper.eq("exchange_name",exchangeAddQo.getExchangeName());
+        Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
+        return count > 0;
+    }
 }

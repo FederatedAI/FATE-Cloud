@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotNull;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -32,8 +35,13 @@ public class FederatedJobStatisticsService {
             //find the job info whether exist or not. if exist,update! if not,insert!
             FederatedJobStatisticsDo federatedJobStatisticsDo = new FederatedJobStatisticsDo(jobStatisticsQo);
 
+            Date date = new Date(jobStatisticsQo.getJobFinishDate());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String format = sdf.format(date);
+
             QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
-            federatedJobStatisticsDoQueryWrapper.eq("site_guest_id", jobStatisticsQo.getSiteGuestId()).eq("site_host_id", jobStatisticsQo.getSiteHostId()).eq("job_finish_date", jobStatisticsQo.getJobFinishDate());
+            federatedJobStatisticsDoQueryWrapper.eq("site_guest_id", jobStatisticsQo.getSiteGuestId()).eq("site_host_id", jobStatisticsQo.getSiteHostId()).eq("job_finish_date", format);
+
             Integer count = federatedJobStatisticsMapper.selectCount(federatedJobStatisticsDoQueryWrapper);
             if (count > 0) {
                 federatedJobStatisticsMapper.update(federatedJobStatisticsDo, federatedJobStatisticsDoQueryWrapper);
@@ -55,15 +63,15 @@ public class FederatedJobStatisticsService {
         }
 
         //get paged job statistics
-        long count =federatedJobStatisticsMapper.findCountOfSite(jobOfSiteDimensionQo);
+        long count = federatedJobStatisticsMapper.findCountOfSite(jobOfSiteDimensionQo);
         PageBean<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionQo.getPageNum(), jobOfSiteDimensionQo.getPageSize(), count);
         long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
-        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionDynamicRow(startIndex,jobOfSiteDimensionQo);
+        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionDynamicRow(startIndex, jobOfSiteDimensionQo);
         jobStatisticsOfSiteDimensionPageBean.setList(jobStatisticsOfSiteDimensionList);
 
 
         //get table site rows
-        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPaged(startIndex,jobOfSiteDimensionQo);
+        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPaged(startIndex, jobOfSiteDimensionQo);
 
         JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = new JobStatisticsOfSiteDimensionDto();
         jobStatisticsOfSiteDimensionDto.setJobStatisticsOfSiteDimensions(jobStatisticsOfSiteDimensionPageBean);
@@ -81,7 +89,7 @@ public class FederatedJobStatisticsService {
         PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtoPageBean = new PageBean<>(jobOfSiteDimensionQo.getPageNum(), jobOfSiteDimensionQo.getPageSize(), count);
         long startIndex = jobStatisticOfInstitutionsDimensionDtoPageBean.getStartIndex();
 
-        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getPagedJobStatisticsODimension(startIndex,jobOfSiteDimensionQo);
+        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getPagedJobStatisticsODimension(startIndex, jobOfSiteDimensionQo);
         jobStatisticOfInstitutionsDimensionDtoPageBean.setList(jobStatisticOfInstitutionsDimensionDtos);
 
         return jobStatisticOfInstitutionsDimensionDtoPageBean;
@@ -97,7 +105,7 @@ public class FederatedJobStatisticsService {
         long count = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEachCount(jobStatisticsSummaryTodayQo);
         PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtoPageBean = new PageBean<>(jobStatisticsSummaryTodayQo.getPageNum(), jobStatisticsSummaryTodayQo.getPageSize(), count);
         long startIndex = jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.getStartIndex();
-        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(startIndex,jobStatisticsSummaryTodayQo);
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsEach(startIndex, jobStatisticsSummaryTodayQo);
 
         jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.setList(jobStatisticsSummaryTodayInstitutionsEachDtos);
         return jobStatisticsSummaryTodayInstitutionsEachDtoPageBean;
@@ -118,7 +126,7 @@ public class FederatedJobStatisticsService {
         long count = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEachCount(jobStatisticsSummaryTodaySiteAllQo);
         PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtoPageBean = new PageBean<>(jobStatisticsSummaryTodaySiteAllQo.getPageNum(), jobStatisticsSummaryTodaySiteAllQo.getPageSize(), count);
         long startIndex = jobStatisticsSummaryTodaySiteEachDtoPageBean.getStartIndex();
-        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(startIndex,jobStatisticsSummaryTodaySiteAllQo);
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(startIndex, jobStatisticsSummaryTodaySiteAllQo);
 
         jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
         return jobStatisticsSummaryTodaySiteEachDtoPageBean;
@@ -137,14 +145,14 @@ public class FederatedJobStatisticsService {
         }
 
         //get paged job statistics
-        long count =federatedJobStatisticsMapper.findCountOfSitePeriod(jobOfSiteDimensionPeriodQo);
+        long count = federatedJobStatisticsMapper.findCountOfSitePeriod(jobOfSiteDimensionPeriodQo);
         PageBean<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionPeriodQo.getPageNum(), jobOfSiteDimensionPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
-        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex,jobOfSiteDimensionPeriodQo);
+        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex, jobOfSiteDimensionPeriodQo);
         jobStatisticsOfSiteDimensionPageBean.setList(jobStatisticsOfSiteDimensionList);
 
         //get table site rows
-        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPagedPeriod(startIndex,jobOfSiteDimensionPeriodQo);
+        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPagedPeriod(startIndex, jobOfSiteDimensionPeriodQo);
 
         JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = new JobStatisticsOfSiteDimensionDto();
         jobStatisticsOfSiteDimensionDto.setJobStatisticsOfSiteDimensions(jobStatisticsOfSiteDimensionPageBean);
@@ -161,7 +169,7 @@ public class FederatedJobStatisticsService {
         PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtoPageBean = new PageBean<>(jobOfSiteDimensionPeriodQo.getPageNum(), jobOfSiteDimensionPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticOfInstitutionsDimensionDtoPageBean.getStartIndex();
 
-        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getPagedJobStatisticsODimensionForPeriod(startIndex,jobOfSiteDimensionPeriodQo);
+        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getPagedJobStatisticsODimensionForPeriod(startIndex, jobOfSiteDimensionPeriodQo);
         jobStatisticOfInstitutionsDimensionDtoPageBean.setList(jobStatisticOfInstitutionsDimensionDtos);
 
         return jobStatisticOfInstitutionsDimensionDtoPageBean;
@@ -177,7 +185,7 @@ public class FederatedJobStatisticsService {
         long count = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriodCount(jobStatisticsSummaryForPeriodQo);
         PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtoPageBean = new PageBean<>(jobStatisticsSummaryForPeriodQo.getPageNum(), jobStatisticsSummaryForPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.getStartIndex();
-        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriod(startIndex,jobStatisticsSummaryForPeriodQo);
+        List<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsEachForPeriod(startIndex, jobStatisticsSummaryForPeriodQo);
 
         jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
         return jobStatisticsSummaryTodayInstitutionsEachDtoPageBean;
@@ -194,7 +202,7 @@ public class FederatedJobStatisticsService {
         long count = federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriodCount(jobStatisticsSummarySiteAllForPeriodQo);
         PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtoPageBean = new PageBean<>(jobStatisticsSummarySiteAllForPeriodQo.getPageNum(), jobStatisticsSummarySiteAllForPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsSummaryTodaySiteEachDtoPageBean.getStartIndex();
-        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriod(startIndex,jobStatisticsSummarySiteAllForPeriodQo);
+        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummarySiteEachForPeriod(startIndex, jobStatisticsSummarySiteAllForPeriodQo);
 
         jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
         return jobStatisticsSummaryTodaySiteEachDtoPageBean;

@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,23 +25,23 @@ public class FederatedJobStatisticsDo implements Serializable {
 
     @ApiModelProperty(value = "guest id")
     @TableField(value = "site_guest_id")
-    private String siteGuestId;
+    private Long siteGuestId;
 
     @ApiModelProperty(value = "host id")
     @TableField(value = "site_host_id")
-    private String siteHostId;
+    private Long siteHostId;
 
     @ApiModelProperty(value = "success count")
     @TableField(value = "job_success_count")
-    private Integer jobSuccessCount;
+    private Long jobSuccessCount;
 
     @ApiModelProperty(value = "failed count")
     @TableField(value = "job_failed_count")
-    private Integer jobFailedCount;
+    private Long jobFailedCount;
 
     @ApiModelProperty(value = "running count")
     @TableField(value = "job_running_count")
-    private Integer jobRunningCount;
+    private Long jobRunningCount;
 
     @ApiModelProperty(value = "finish date")
     @TableField(value = "job_finish_date")
@@ -59,7 +60,7 @@ public class FederatedJobStatisticsDo implements Serializable {
         this.siteHostId = jobStatisticsQo.getSiteHostId();
         this.jobSuccessCount = jobStatisticsQo.getJobSuccessCount();
         this.jobFailedCount = jobStatisticsQo.getJobFailedCount();
-        this.jobRunningCount=jobStatisticsQo.getJobRunningCount();
-        this.jobFinishDate = jobStatisticsQo.getJobFinishDate();
+        this.jobRunningCount = jobStatisticsQo.getJobRunningCount();
+        this.jobFinishDate = new Date(jobStatisticsQo.getJobFinishDate());
     }
 }
