@@ -491,6 +491,8 @@ definitions:
     type: object
   entity.AnsibleAutoTestReq:
     properties:
+      ifOnly:
+        type: boolean
       partyId:
         type: integer
       productType:

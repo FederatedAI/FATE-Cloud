@@ -462,42 +462,91 @@ func TestOnlyTask() {
 		return
 	}
 	for i := 0; i < len(deploySiteList); i++ {
-		logdir := fmt.Sprintf("./testLog/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
-		if !util.FileExists(logdir) {
-			continue
-		}
-		file, err := os.Open(logdir)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-		scanner := bufio.NewScanner(file)
-		testtag := false
-		existfile := false
-		for scanner.Scan() {
-			existfile = true
-			lineText := scanner.Text()
-			ret := strings.Index(lineText, "success to calculate secure_sum")
-			if ret > 0 {
-				testtag = true
-				break
+		if deploySiteList[i].DeployType == int(enum.DeployType_ANSIBLE) {
+			go AnsibleTestOnly(deploySiteList[i])
+		} else {
+			logdir := fmt.Sprintf("./testLog/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
+			if !util.FileExists(logdir) {
+				continue
+			}
+			file, err := os.Open(logdir)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+			scanner := bufio.NewScanner(file)
+			testtag := false
+			existfile := false
+			for scanner.Scan() {
+				existfile = true
+				lineText := scanner.Text()
+				ret := strings.Index(lineText, "success to calculate secure_sum")
+				if ret > 0 {
+					testtag = true
+					break
+				}
+			}
+			if existfile {
+				var data = make(map[string]interface{})
+				data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
+				data["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
+				if testtag {
+					data["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
+				}
+				deploySite := models.DeploySite{
+					FederatedId: deploySiteList[i].FederatedId,
+					PartyId:     deploySiteList[i].PartyId,
+					ProductType: deploySiteList[i].ProductType,
+					IsValid:     int(enum.IS_VALID_YES),
+				}
+				models.UpdateDeploySite(data, deploySite)
 			}
 		}
-		if existfile {
-			var data = make(map[string]interface{})
-			data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
-			data["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
-			if testtag {
-				data["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
-			}
-			deploySite := models.DeploySite{
-				FederatedId: deploySiteList[i].FederatedId,
-				PartyId:     deploySiteList[i].PartyId,
-				ProductType: deploySiteList[i].ProductType,
-				IsValid:     int(enum.IS_VALID_YES),
-			}
-			models.UpdateDeploySite(data, deploySite)
+	}
+}
+
+func AnsibleTestOnly(deploySite models.DeploySite) {
+
+	deployComponent := models.DeployComponent{
+		PartyId:       deploySite.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil || len(deployComponentList) == 0 {
+		return
+	}
+	address := strings.Split(deployComponentList[0].Address, ":")
+
+	ResultReq := entity.AnsibleToyTestResultReq{
+		Limit:    500,
+		Ip:       address[0],
+		TestType: "toy",
+	}
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
+	if result == nil || err != nil {
+		return
+	}
+	var resultResp entity.AnsibleTestResultResponse
+	err = json.Unmarshal([]byte(result.Body), &resultResp)
+	if err != nil {
+		return
+	}
+	if resultResp.Code == e.SUCCESS {
+		var sitedata = make(map[string]interface{})
+		findKey := "success to calculate secure_sum"
+		if JudgeResult(deploySite.PartyId, "toy", findKey, resultResp.Data) {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
+			sitedata["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
+		}else if len(resultResp.Data) <= 1 {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_TESTING)
+		}else if len(resultResp.Data) > 1 {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
+			sitedata["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
 		}
+		models.UpdateDeploySite(sitedata, deploySite)
 	}
 }
 
@@ -772,7 +821,7 @@ func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
-		DeployType: int(enum.DeployType_K8S),
+		DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
@@ -1316,9 +1365,9 @@ func GetOtherPartyIdInstitution() (map[int]SiteInstitution, error) {
 }
 
 type MonitorPushSite struct {
-	Failed     int    `json:"jobFailedCount"`
-	Running    int    `json:"jobRunningCount"`
-	Success    int    `json:"jobSuccessCount"`
+	Failed     int   `json:"jobFailedCount"`
+	Running    int   `json:"jobRunningCount"`
+	Success    int   `json:"jobSuccessCount"`
 	FinishDate int64 `json:"jobFinishDate"`
 	GuestId    int64 `json:"siteGuestId"`
 	HostId     int64 `json:"siteHostId"`
@@ -1584,7 +1633,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 	ResultReq.TestType = curItem
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
-	if result == nil || err != nil{
+	if result == nil || err != nil {
 		return
 	}
 	var resultResp entity.AnsibleTestResultResponse
@@ -1593,19 +1642,19 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		return
 	}
 	if resultResp.Code == e.SUCCESS {
-        deployKey,testKey := "",""
-		if curItem == "single"{
+		deployKey, testKey := "", ""
+		if curItem == "single" {
 			deployKey = "single_test"
-			testKey="Single Test"
-		}else if curItem == "toy"{
-			deployKey ="toy_test"
-			testKey="Toy Test"
-		}else if curItem == "fast"{
+			testKey = "Single Test"
+		} else if curItem == "toy" {
+			deployKey = "toy_test"
+			testKey = "Toy Test"
+		} else if curItem == "fast" {
 			deployKey = "minimize_fast_test"
-			testKey="Minimize Fast Test"
-		}else if curItem == "normal"{
-			deployKey ="minimize_normal_test"
-			testKey="Minimize Normal Test"
+			testKey = "Minimize Fast Test"
+		} else if curItem == "normal" {
+			deployKey = "minimize_normal_test"
+			testKey = "Minimize Normal Test"
 		}
 		sitedata[deployKey] = int(enum.TEST_STATUS_NO)
 		testdata["status"] = int(enum.TEST_STATUS_NO)

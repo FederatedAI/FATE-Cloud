@@ -4068,6 +4068,9 @@
         "entity.AnsibleAutoTestReq": {
             "type": "object",
             "properties": {
+                "ifOnly": {
+                    "type": "boolean"
+                },
                 "partyId": {
                     "type": "integer"
                 },
