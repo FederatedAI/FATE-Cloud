@@ -37,7 +37,7 @@ var (
 	AllowApplyTimer = 30
 	MonitorTimer    = 120
 	PageckageTimer  = 30
-	AutotestTimer   = 30
+	AutotestTimer   = 60
 	VersionTimer    = 600
 )
 
