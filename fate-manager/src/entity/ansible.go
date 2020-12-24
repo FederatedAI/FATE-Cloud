@@ -188,6 +188,7 @@ type AnsibleLogResponse struct {
 type AnsibleAutoTestReq struct {
 	PartyId     int `json:"partyId"`
 	ProductType int `json:"productType"`
+	IfOnly      bool `json:"ifOnly"`
 }
 
 type AnsibleSingleTestReq struct {

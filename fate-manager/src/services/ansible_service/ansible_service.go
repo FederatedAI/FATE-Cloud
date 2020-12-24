@@ -915,9 +915,10 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 			testValueMap[key] = testValue
 		}
 	}
-
 	value, ok := testValueMap["fate"]
-	if !ok || !value {
+	if ok && autoTestReq.IfOnly {
+		DoTestOnly(test)
+	} else if !ok || !value {
 		var data = make(map[string]interface{})
 		data["status"] = int(enum.TEST_STATUS_WAITING)
 		data["start_time"] = time.Now()
@@ -933,7 +934,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 			return e.ERROR_PARSE_JSON_ERROR, err
 		}
-		toytest := false
+		toytest := true
 		var autotest models.AutoTest
 		if ansibleAutoTestResp.Code == e.SUCCESS {
 			for i := 0; i < len(ansibleAutoTestResp.Data.List); i++ {
@@ -946,13 +947,11 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				var deployData = make(map[string]interface{})
 				if ansibleAutoTestRespItem.Status == "running" {
 					data["status"] = int(enum.TEST_STATUS_YES)
-					if ansibleAutoTestRespItem.Name == "fateflow" {
-						toytest = true
-					}
 					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
 				} else {
 					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
 					data["status"] = int(enum.TEST_STATUS_NO)
+					toytest = false
 				}
 				deployComponent := models.DeployComponent{
 					PartyId:       autoTestReq.PartyId,
@@ -1206,6 +1205,52 @@ func DoTest(autotest models.AutoTest, testitem string) {
 					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
 					models.UpdateDeploySite(data, deploySite)
 				}
+			}
+		}
+	}
+}
+
+func DoTestOnly(autotest models.AutoTest) {
+	deploySite := models.DeploySite{
+		PartyId:     autotest.PartyId,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+
+	deployComponent := models.DeployComponent{
+		PartyId:       autotest.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil {
+		return
+	}
+	var data = make(map[string]interface{})
+	if len(deployComponentList) > 0 {
+		address := strings.Split(deployComponentList[0].Address, ":")
+		if len(address) == 2 {
+			TestReq := entity.AnsibleToyTestReq{
+				GuestPartyId: autotest.PartyId,
+				HostPartyId:  setting.DeploySetting.TestPartyId,
+				Ip:           address[0],
+				WorkMode:     setting.DeploySetting.WorkMode,
+			}
+
+			var commresp entity.AnsibleCommResp
+			result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/toy"), TestReq, nil)
+			err = json.Unmarshal([]byte(result.Body), &commresp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if commresp.Code == e.SUCCESS {
+				data = make(map[string]interface{})
+				data["toy_test_only"] = int(enum.TEST_STATUS_TESTING)
+				models.UpdateDeploySite(data, deploySite)
 			}
 		}
 	}
