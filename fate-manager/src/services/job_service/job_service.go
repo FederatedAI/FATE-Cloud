@@ -772,6 +772,7 @@ func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		DeployType: int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
@@ -1594,16 +1595,16 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	if resultResp.Code == e.SUCCESS {
         deployKey,testKey := "",""
 		if curItem == "single"{
-			deployKey = "single_fast"
+			deployKey = "single_test"
 			testKey="Single Test"
 		}else if curItem == "toy"{
-			deployKey ="toy_fast"
+			deployKey ="toy_test"
 			testKey="Toy Test"
 		}else if curItem == "fast"{
-			deployKey = "minimize_fast"
+			deployKey = "minimize_fast_test"
 			testKey="Minimize Fast Test"
 		}else if curItem == "normal"{
-			deployKey ="minimize_normal"
+			deployKey ="minimize_normal_test"
 			testKey="Minimize Normal Test"
 		}
 		sitedata[deployKey] = int(enum.TEST_STATUS_NO)

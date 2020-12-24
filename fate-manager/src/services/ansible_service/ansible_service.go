@@ -76,9 +76,11 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		if len(deploySiteList) == 0 {
 			models.AddDeploySite(&deploySite)
 		}
+		nodeploytag := false
 		for i := 0; i < len(connectResp.Data.List); i++ {
 			connectItem := connectResp.Data.List[i]
-			if connectItem.Port == 0 {
+			if connectItem.Port == 0 || nodeploytag {
+				nodeploytag = true
 				continue
 			}
 			address := ""
