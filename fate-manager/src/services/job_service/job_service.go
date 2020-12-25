@@ -1675,6 +1675,21 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 			sitedata[deployKey] = int(enum.TEST_STATUS_TESTING)
 			testdata["status"] = int(enum.TEST_STATUS_TESTING)
 		}
+		if curItem == "normal" {
+			if successTag{
+				sitedata["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+			}else if sitedata[deployKey] == int(enum.TEST_STATUS_NO){
+				sitedata["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+			}
+			deployComponent := models.DeployComponent{
+				PartyId:          deploySite.PartyId,
+				DeployType:       int(enum.DeployType_ANSIBLE),
+				IsValid:          int(enum.IS_VALID_YES),
+			}
+			var componentData = make(map[string]interface{})
+			componentData["status"] = sitedata["status"]
+			models.UpdateDeployComponent(componentData,deployComponent)
+		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
 		testdata["end_time"] = time.Now()
