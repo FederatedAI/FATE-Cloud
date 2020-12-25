@@ -1165,7 +1165,6 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 
 func UpgradeFateList(upgradeFateReq entity.UpgradeFateReq) ([]entity.UpdateVersionResp, error) {
 	deploySite := models.DeploySite{
-		FederatedId: upgradeFateReq.FederatedId,
 		PartyId:     upgradeFateReq.PartyId,
 		ProductType: upgradeFateReq.ProductType,
 		IsValid:     int(enum.PRODUCT_TYPE_FATE),

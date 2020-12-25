@@ -747,6 +747,7 @@ func Click(req entity.ClickReq) bool {
 		data["duration"] = time.Now().UnixNano()/1e6 - deploySiteList[0].CreateTime.UnixNano()/1e6
 		data["finish_time"] = time.Now()
 		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_SUCCESS)
+		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		models.UpdateDeployComponent(data, deployComponent)
 
 		deploySite := models.DeploySite{
