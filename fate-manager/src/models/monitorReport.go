@@ -30,6 +30,7 @@ type ReportInstitution struct {
 	Running     int
 	Timeout     int
 	Failed      int
+	Canceled    int
 	CreateTime  time.Time
 	UpdateTime  time.Time
 }
@@ -45,6 +46,7 @@ type ReportSite struct {
 	Running             int
 	Timeout             int
 	Failed              int
+	Canceled            int
 	CreateTime          time.Time
 	UpdateTime          time.Time
 }
@@ -81,9 +83,11 @@ func GetReportInstitutionRegion(monitorReq entity.MonitorReq) ([]*InstitutionMon
 	}
 	return MonitorByInstitutionList, nil
 }
+
 type OtherSiteName struct {
 	InstitutionSiteName string
 }
+
 func GetInstitutionSiteList(monitorReq entity.MonitorReq) ([]string, error) {
 	var InstitutionSiteNameList []OtherSiteName
 	Db := db
@@ -100,12 +104,12 @@ func GetInstitutionSiteList(monitorReq entity.MonitorReq) ([]string, error) {
 		return nil, err
 	}
 	var list []string
-	for i :=0 ;i< len(InstitutionSiteNameList);i++{
-		list = append(list,InstitutionSiteNameList[i].InstitutionSiteName)
+	for i := 0; i < len(InstitutionSiteNameList); i++ {
+		list = append(list, InstitutionSiteNameList[i].InstitutionSiteName)
 	}
 	return list, nil
 }
-func GetReportSiteRegion(monitorReq entity.MonitorReq,list []string) ([]*SiteMonitorByRegion, error) {
+func GetReportSiteRegion(monitorReq entity.MonitorReq, list []string) ([]*SiteMonitorByRegion, error) {
 	var monitorByHisList []*SiteMonitorByRegion
 	Db := db
 	if monitorReq.PageNum > 0 && monitorReq.PageSize > 0 {
@@ -118,7 +122,7 @@ func GetReportSiteRegion(monitorReq entity.MonitorReq,list []string) ([]*SiteMon
 			"SUM(running) running,"+
 			"SUM(timeout) timeout,"+
 			"SUM(failed) failed").
-		Where("ds >= ? and ds <= ? and institution_site_name in (?)", monitorReq.StartDate, monitorReq.EndDate,list).
+		Where("ds >= ? and ds <= ? and institution_site_name in (?)", monitorReq.StartDate, monitorReq.EndDate, list).
 		Group("institution,institution_site_name,site_name").
 		Find(&monitorByHisList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

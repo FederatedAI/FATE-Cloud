@@ -127,8 +127,8 @@ type Node struct {
 	SubPath                  string       `json:"subPath"`
 }
 type Python struct {
-	FateFlowNodePort int          `json:"fateFlowNodePort"`
-	FateFlowType     string       `json:"fateFlowType"`
+	FateFlowNodePort int          `json:"fateflowNodePort"`
+	FateFlowType     string       `json:"fateflowType"`
 	NodeSelector     NodeSelector `json:"nodeSelector"`
 }
 type NodeManager struct {

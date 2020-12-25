@@ -44,6 +44,7 @@ const (
 	SystemHeartUri        = "/cloud-manager/api/system/heart"
 	MonitorPushUri        = "/cloud-manager/api/job/push"
 	ProductVersionUri     = "/cloud-manager/api/product/page/fatemanager"
+	ExchangeUri           = "/cloud-manager/api/exchange/page/fatemanager"
 )
 const (
 	FlowJobQuery = "/v1/job/query"
@@ -51,8 +52,6 @@ const (
 
 const (
 	AnsibleConnectUri      = "/ansible/v1/server/status"
-	AnsiblePrepareUri      = "/ansible/v1/check/pre"
-	AnsibleInstallUri      = "/ansible/v1/server/status"
 	AnsibleJobSubmitUri    = "/ansible/v1/job/submit"
 	AnsibleJobQueryUri     = "/ansible/v1/job/query"
 	AnsiblePackageQueryUri = "/ansible/v1/package/remote"
@@ -87,7 +86,7 @@ type Database struct {
 
 var DatabaseSetting = &Database{}
 
-type Kubenetes struct {
+type Deploy struct {
 	KubeFateUrl              string
 	ExchangeIp               string
 	ExchangePort             int
@@ -98,9 +97,10 @@ type Kubenetes struct {
 	TestPartyId              int
 	ModeAlone                bool
 	WorkMode                 int
+	AnsibleNode              string
 }
 
-var KubenetesSetting = &Kubenetes{}
+var DeploySetting = &Deploy{}
 
 var cfg *ini.File
 
@@ -113,7 +113,7 @@ func Setup() {
 
 	mapTo("server", ServerSetting)
 	mapTo("database", DatabaseSetting)
-	mapTo("deploy", KubenetesSetting)
+	mapTo("deploy", DeploySetting)
 
 	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
 	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
