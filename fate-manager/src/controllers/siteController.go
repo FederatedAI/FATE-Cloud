@@ -181,7 +181,7 @@ func CheckSite(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, ret, nil)
 		return
 	}
-	appG.Response(http.StatusOK, ret, true)
+	appG.Response(http.StatusOK, ret, nil)
 }
 
 // @Summary get site secret info
@@ -479,12 +479,29 @@ func UpdateComponentVersion(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
-// @Router /fate-manager/api/site/applylog [GET]
+// @Router /fate-manager/api/site/applylog [get]
 func GetApplyLog(c *gin.Context) {
 	appG := app.Gin{C: c}
 	result, err := site_service.GetApplyLog()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_APPLY_LOG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary Get Exchange Info
+// @Tags SiteController
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} app.ExchangeResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/site/exchange [post]
+func GetExchangeInfo(c *gin.Context) {
+	appG := app.Gin{C: c}
+	result, err := site_service.GetExchangeInfo()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_EXCHANGE_INFO_FAIL, nil)
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)

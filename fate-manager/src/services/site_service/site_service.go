@@ -66,16 +66,16 @@ func GetSiteDetail(siteDetailReq entity.SiteDetailReq) (*entity.SiteDetailResp, 
 	}
 
 	depolySite := models.DeploySite{
-		FederatedId:        siteDetailReq.FederatedId,
-		PartyId:            siteDetailReq.PartyId,
-		ProductType:        int(enum.PRODUCT_TYPE_FATE),
-		IsValid:            int(enum.IS_VALID_YES),
+		FederatedId: siteDetailReq.FederatedId,
+		PartyId:     siteDetailReq.PartyId,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		IsValid:     int(enum.IS_VALID_YES),
 	}
-	deploySiteList,err := models.GetDeploySite(&depolySite)
+	deploySiteList, err := models.GetDeploySite(&depolySite)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	if len(deploySiteList) >0 {
+	if len(deploySiteList) > 0 {
 		siteDetail.VersionEditStatus = entity.IdPair{int(enum.EDIT_NO), enum.GetEditString(enum.EDIT_NO)}
 	}
 	return &siteDetail, nil
@@ -173,14 +173,14 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				if findOneSiteResp.Code == int(e.SUCCESS) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
-					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus,enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
+					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus, enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
 					var siteInfo models.SiteInfo
-					siteInfo.Status          = siteItem.Status.Code
-					siteInfo.PartyId         = federatedSiteItem.PartyId
-					siteInfo.FederatedId     = federatedSiteItem.FederatedId
-					siteInfo.CreateTime      = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
+					siteInfo.Status = siteItem.Status.Code
+					siteInfo.PartyId = federatedSiteItem.PartyId
+					siteInfo.FederatedId = federatedSiteItem.FederatedId
+					siteInfo.CreateTime = time.Unix(findOneSiteResp.Data.CreateTime/1000, 0)
 					siteInfo.AcativationTime = time.Unix(findOneSiteResp.Data.ActivationTime/1000, 0)
-					siteInfo.SiteId          = findOneSiteResp.Data.Id
+					siteInfo.SiteId = findOneSiteResp.Data.Id
 					models.UpdateSite(&siteInfo)
 
 					if len(federatedSiteItem.FateVersion) > 0 || len(federatedSiteItem.FateServingVersion) > 0 {
@@ -278,6 +278,7 @@ type CloudSystemHeart struct {
 	ComponentName    string `json:"installItems"`
 	ComponentVersion string `json:"version"`
 }
+
 func HeartTask() {
 	federatedSiteList, err := federated_service.GetHomeSiteList()
 	if err != nil {
@@ -312,22 +313,22 @@ func HeartTask() {
 				}
 			}
 			deployComponent := models.DeployComponent{
-				PartyId:          federatedSiteItem.PartyId,
-				IsValid:          int(enum.IS_VALID_YES),
+				PartyId: federatedSiteItem.PartyId,
+				IsValid: int(enum.IS_VALID_YES),
 			}
-			deployComponentList,_ := models.GetDeployComponent(deployComponent)
+			deployComponentList, _ := models.GetDeployComponent(deployComponent)
 			var cloudSystemHeartList []CloudSystemHeart
-			for j :=0 ;j<len(deployComponentList) ;j++  {
+			for j := 0; j < len(deployComponentList); j++ {
 				cloudSystemHeart := CloudSystemHeart{
 					DetectiveStatus:  1,
 					SiteId:           federatedSiteItem.SiteId,
 					ComponentName:    deployComponentList[j].ComponentName,
 					ComponentVersion: deployComponentList[j].ComponentVersion,
 				}
-				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING){
-					cloudSystemHeart.DetectiveStatus =2
+				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING) {
+					cloudSystemHeart.DetectiveStatus = 2
 				}
-				cloudSystemHeartList = append(cloudSystemHeartList,cloudSystemHeart)
+				cloudSystemHeartList = append(cloudSystemHeartList, cloudSystemHeart)
 			}
 			if len(cloudSystemHeartList) > 0 {
 				cloudSystemAddJson, _ := json.Marshal(cloudSystemHeartList)
@@ -353,7 +354,7 @@ func HeartTask() {
 						return
 					}
 					if updateResp.Code == e.SUCCESS {
-						msg := fmt.Sprintf("partyid:%d system heart success! content:%s",federatedSiteItem.PartyId,string(cloudSystemAddJson))
+						msg := fmt.Sprintf("partyid:%d system heart success! content:%s", federatedSiteItem.PartyId, string(cloudSystemAddJson))
 						logging.Debug(msg)
 					}
 				}
@@ -428,7 +429,7 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 		Role:      enum.GetRoleValue(checkSiteReq.Role),
 		Uri:       setting.CheckAuthorityUri,
 	}
-	headerInfoMap := util.GetHeaderInfo(headInfo)
+	headerInfoMap := util.GetHeadInfoOld(headInfo)
 	httpHeader := HttpHeader{
 		AppKey:    headerInfoMap["APP_KEY"].(string),
 		TimeStamp: headerInfoMap["TIMESTAMP"].(string),
@@ -983,7 +984,7 @@ func GetOtherSiteList() ([]entity.FederatedItem, error) {
 							Code: item.Status,
 							Desc: enum.GetSiteString(enum.SiteStatusType(item.Status)),
 						},
-						ServiceStatus:entity.IdPair{
+						ServiceStatus: entity.IdPair{
 							Code: item.ServiceStatus,
 							Desc: enum.GetServiceStatusString(enum.ServiceStatusType(item.ServiceStatus)),
 						},
@@ -1041,13 +1042,13 @@ func UpdateComponentVersion(updateVersionReq entity.UpdateComponentVersionReq) (
 		return e.ERROR_UPDATE_COMPONENT_VERSION_FAIL, err
 	}
 	federatedInfo, err := federated_service.GetPartyIdInfo(updateVersionReq.PartyId, updateVersionReq.FederatedId)
-	if err !=nil{
-		return e.ERROR_SELECT_DB_FAIL,err
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, err
 	}
-	if len(federatedInfo) >0 {
-		tempItem :=federatedInfo[0]
+	if len(federatedInfo) > 0 {
+		tempItem := federatedInfo[0]
 		tempItem.ComponentVersion = updateVersionReq.ComponentVersion
-		tempItem.FateServingVersion ="1.3.0"
+		tempItem.FateServingVersion = "1.3.0"
 		go updateVersionToCloudManager(tempItem)
 	}
 	return e.SUCCESS, nil
@@ -1068,4 +1069,58 @@ func GetApplyLog() ([]entity.ApplyLog, error) {
 		applyLogList = append(applyLogList, applyLog)
 	}
 	return applyLogList, nil
+}
+
+func GetExchangeInfo() (*entity.ExchangeResponse, error) {
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil {
+		return nil, err
+	}
+	pageReq := entity.PageReq{PageSize: 100, PageNum: 1}
+	pageReqJson, _ := json.Marshal(pageReq)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    accountInfo.AppKey,
+		UserAppSecret: accountInfo.AppSecret,
+		FateManagerId: accountInfo.CloudUserId,
+		Body:          string(pageReqJson),
+		Uri:           setting.ExchangeUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return nil, err
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.ExchangeUri), pageReq, headerInfoMap)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return nil, err
+	}
+	var resp entity.ExchangeResp
+	err = json.Unmarshal([]byte(result.Body), &resp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return nil, err
+	}
+	if resp.Code == e.SUCCESS {
+		var vip []entity.ExchangeItem
+		var exits []entity.ExchangeItem
+		for i := 0; i < len(resp.Data.List); i++ {
+			exchangeDataItem := resp.Data.List[i]
+			ExchangeItem := entity.ExchangeItem{
+				ExchangeId:   exchangeDataItem.ExchangeId,
+				ExchangeName: exchangeDataItem.ExchangeName,
+				Address:      exchangeDataItem.NetworkAccessEntrances,
+				UpdateTime:   exchangeDataItem.UpdateTime,
+			}
+			vip = append(vip, ExchangeItem)
+			ExchangeItem.Address = exchangeDataItem.NetworkAccessExits
+			exits = append(exits, ExchangeItem)
+		}
+		ExchangeResponse := entity.ExchangeResponse{
+			ExchangeVip:   vip,
+			ExchangeExits: exits,
+		}
+		return &ExchangeResponse, nil
+	}
+	return nil, nil
 }

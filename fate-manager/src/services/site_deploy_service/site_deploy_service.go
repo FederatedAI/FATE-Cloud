@@ -84,8 +84,8 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		SrcPartyId: site.PartyId,
 		Proxy: entity.Proxy{
 			Exchange: entity.Exchange{
-				ExchangeIp:   setting.KubenetesSetting.ExchangeIp,
-				ExchangePort: setting.KubenetesSetting.ExchangePort,
+				ExchangeIp:   setting.DeploySetting.ExchangeIp,
+				ExchangePort: setting.DeploySetting.ExchangePort,
 			},
 			NodePort: proxyPort,
 			Type:     "NodePort",
@@ -96,7 +96,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		ExistingClaim:            "",
 		Name:                     "nodemanager",
 		NodeSelector:             entity.NodeSelector{},
-		SessionProcessorsPerNode: setting.KubenetesSetting.SessionProcessorsPerNode,
+		SessionProcessorsPerNode: setting.DeploySetting.SessionProcessorsPerNode,
 		Size:                     "1Gi",
 		StorageClass:             "nodemanager",
 		SubPath:                  "nodemanager",
@@ -124,9 +124,9 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 		Name:      name,
 		NameSpace: nameSpace,
 		NodeManager: entity.NodeManager{
-			Count:                    setting.KubenetesSetting.NodeManager,
+			Count:                    setting.DeploySetting.NodeManager,
 			List:                     nodeList,
-			SessionProcessorsPerNode: setting.KubenetesSetting.SessionProcessorsPerNode,
+			SessionProcessorsPerNode: setting.DeploySetting.SessionProcessorsPerNode,
 		},
 		SrcPartyId:  site.PartyId,
 		Persistence: false,
@@ -136,11 +136,11 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			FateFlowType:     "NodePort",
 			NodeSelector:     entity.NodeSelector{},
 		},
-		Registry: setting.KubenetesSetting.Registry,
+		Registry: setting.DeploySetting.Registry,
 		Rollsite: entity.Rollsite{
 			Exchange: entity.Exchange{
-				ExchangeIp:   setting.KubenetesSetting.ExchangeIp,
-				ExchangePort: setting.KubenetesSetting.ExchangePort,
+				ExchangeIp:   setting.DeploySetting.ExchangeIp,
+				ExchangePort: setting.DeploySetting.ExchangePort,
 			},
 			Proxy: entity.Proxy{
 				NodePort: proxyPort,
@@ -183,14 +183,14 @@ func Install(installReq entity.InstallReq) (int, error) {
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	value, _ := util.ExecCommand(cmd)
 	logging.Debug(value)
 	if value[0:1] != "1" {
 		cmd = fmt.Sprintf("kubectl create namespace %s", nameSpace)
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = fmt.Sprintf("sudo %s", cmd)
 		}
 		value, _ := util.ExecCommand(cmd)
@@ -564,7 +564,7 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
 	cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ := util.ExecCommand(cmd)
@@ -774,7 +774,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 	siteTest = make(map[string]interface{})
 
 	//test fast
-	autoTest.TestItem = "Mininmize Fast Test"
+	autoTest.TestItem = "Minimize Fast Test"
 	autoTestList, _ = models.GetAutoTest(autoTest)
 	if len(autoTestList) > 0 && autoTestList[0].Status == int(enum.TEST_STATUS_YES) {
 		cmd := fmt.Sprintf("cat ./testLog/fast/fate-%d.log >> ./testLog/all/fate-%d.log", autoTestReq.PartyId, autoTestReq.PartyId)
@@ -923,12 +923,86 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 						IsValid:     int(enum.IS_VALID_YES),
 					}
 					models.UpdateDeployComponent(deployData, deployComponent)
+					UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S)
 				}
 			}
 		}
 	}
 }
 
+func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType){
+	siteInfo, err := models.GetSiteInfo(partyId,federatedId)
+	if err != nil {
+		return
+	}
+	federatedInfo, err := models.GetFederatedUrlById(federatedId)
+	if err != nil {
+		return
+	}
+	models.GetFederatedUrlById(siteInfo.FederatedId)
+	deployComponent:= models.DeployComponent{
+		FederatedId:      federatedId,
+		PartyId:          partyId,
+		ProductType:      int(enum.PRODUCT_TYPE_FATE),
+		DeployType:       int(deployType),
+		IsValid:          int(enum.IS_VALID_YES),
+	}
+	deployComponentList,_ := models.GetDeployComponent(deployComponent)
+	deploySite := models.DeploySite{
+		FederatedId:        federatedId,
+		PartyId:            partyId,
+		IsValid:            int(enum.IS_VALID_YES),
+		DeployType:         int(deployType),
+	}
+	deploySiteList,_:= models.GetDeploySite(&deploySite)
+	deployJob := models.DeployJob{JobId:       deploySiteList[0].JobId}
+	deployJobList,_ := models.GetDeployJob(deployJob,true)
+	if len(deployJobList) == 0 || len(deployComponentList) ==0 || len(deploySiteList) ==0 {
+		return
+	}
+	var cloudSystemAddList []entity.CloudSystemAdd
+	for k := 0; k < len(deployComponentList); k++ {
+			cloudSystemAdd := entity.CloudSystemAdd{
+				DetectiveStatus:  1,
+				SiteId:           siteInfo.SiteId,
+				ComponentName:    deployComponentList[k].ComponentName,
+				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
+				JobStatus:        1,
+				UpdateTime:      time.Now().UnixNano() / 1e6,
+				ComponentVersion: deployComponentList[k].ComponentVersion,
+			}
+			cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
+	}
+	if len(cloudSystemAddList) > 0 {
+		cloudSystemAddJson, _ := json.Marshal(cloudSystemAddList)
+		headInfo := util.HeaderInfo{
+			AppKey:    siteInfo.AppKey,
+			AppSecret: siteInfo.AppSecret,
+			PartyId:   siteInfo.PartyId,
+			Body:      string(cloudSystemAddJson),
+			Role:      siteInfo.Role,
+			Uri:       setting.SystemAddUri,
+		}
+		headerInfoMap := util.GetHeaderInfo(headInfo)
+		result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.SystemAddUri), cloudSystemAddList, headerInfoMap)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			return
+		}
+		if len(result.Body) > 0 {
+			var updateResp entity.CloudCommResp
+			err = json.Unmarshal([]byte(result.Body), &updateResp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if updateResp.Code == e.SUCCESS {
+				msg := "federatedId:" + strconv.Itoa(siteInfo.FederatedId) + ",partyId:" + strconv.Itoa(siteInfo.PartyId) + ",status:system add success"
+				logging.Debug(msg)
+			}
+		}
+	}
+}
 func ToyTestOnly(autoTestReq entity.AutoTestReq) {
 	//test toy
 	deploySite := models.DeploySite{
@@ -1314,17 +1388,32 @@ func GetFateBoardUrl(federatedSite entity.FederatedSite) (string, error) {
 	if len(deploySiteList) == 0 {
 		return "", nil
 	}
-
-	kubefateConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
-	if err != nil {
-		return "", err
-	}
-	fateboard := fmt.Sprintf("%d.fateboard.kubefate.net", federatedSite.PartyId)
-	urlList := strings.Split(kubefateConf.KubenetesUrl, ":")
-	if len(urlList) == 3 {
-		fateboard = fmt.Sprintf("%d.fateboard.kubefate.net:%s", federatedSite.PartyId, urlList[2])
-	} else {
-		return "", nil
+	fateboard := ""
+    if deploySiteList[0].DeployType == int(enum.DeployType_K8S) {
+		kubefateConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
+		if err != nil {
+			return "", err
+		}
+		fateboard = fmt.Sprintf("%d.fateboard.kubefate.net", federatedSite.PartyId)
+		urlList := strings.Split(kubefateConf.KubenetesUrl, ":")
+		if len(urlList) == 3 {
+			fateboard = fmt.Sprintf("%d.fateboard.kubefate.net:%s", federatedSite.PartyId, urlList[2])
+		} else {
+			return "", nil
+		}
+	}else{
+		deployComponent := models.DeployComponent{
+			PartyId:          federatedSite.PartyId,
+			ComponentName:    "fateboard",
+			IsValid:          int(enum.IS_VALID_YES),
+		}
+		deployComponentList,err := models.GetDeployComponent(deployComponent)
+		if err != nil {
+			return "",err
+		}
+		if len(deployComponentList) >0{
+			fateboard = deployComponentList[0].Address
+		}
 	}
 	return fateboard, nil
 }

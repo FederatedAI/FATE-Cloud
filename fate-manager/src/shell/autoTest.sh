@@ -38,7 +38,7 @@ valueIte=""
 if [ $testItem == "Toy" ] ; then
 	valueItem="Toy Test"
 elif [ $testItem == "Fast" ] ; then
-	valueItem="Mininmize Fast Test"
+	valueItem="Minimize Fast Test"
 elif [ $testItem == "Normal" ]; then
 	valueItem= "Minimize Normal Test"
 else
