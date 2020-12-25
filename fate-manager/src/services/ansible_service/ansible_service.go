@@ -10,7 +10,6 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
-	"fate.manager/services/version_service"
 	"fmt"
 	"strconv"
 	"strings"
@@ -146,7 +145,12 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) (int, error) {
 	if conf.Id == 0 {
 		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
 	}
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUploadUri), localUploadReq, nil)
+	uploadReq := entity.UploadReq{
+		PartyId: localUploadReq.PartyId,
+		Ip:      localUploadReq.Ip,
+		Path:    localUploadReq.Path,
+	}
+	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleLocalUploadUri), uploadReq, nil)
 	if err != nil || result == nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_HTTP_FAIL, err
@@ -165,6 +169,7 @@ func LocalUpload(localUploadReq entity.LocalUploadReq) (int, error) {
 	}
 	if ansibleInstallListResponse.Code == e.SUCCESS {
 		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
+		data["fate_version"] = ansibleInstallListResponse.Data.FateVersion
 		models.UpdateDeploySite(data, deploySite)
 		return e.SUCCESS, nil
 	}
@@ -581,7 +586,7 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 			ComponentName:    componentVersionList[i].ComponentName,
 			StartTime:        time.Now(),
 			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          nodelist[0] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
+			Address:          nodelist[0] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
 			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
 			DeployType:       int(enum.DeployType_ANSIBLE),
 			IsValid:          int(enum.IS_VALID_YES),
@@ -625,7 +630,7 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	for i := 0; i < len(componentVersionList); i++ {
-		port := version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)
+		port := models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)
 		nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
 		if len(nodelist) == 0 {
 			continue

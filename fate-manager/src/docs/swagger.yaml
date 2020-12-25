@@ -967,12 +967,14 @@ definitions:
     type: object
   entity.LocalUploadReq:
     properties:
-      dir:
-        type: string
       ip:
         type: string
       partyId:
         type: integer
+      path:
+        type: string
+      siteName:
+        type: string
     type: object
   entity.LogReq:
     properties:
@@ -2464,6 +2466,11 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: string valid,componentName
+        in: query
+        name: componentName
+        type: string
       produces:
       - application/json
       responses:
