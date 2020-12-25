@@ -84,6 +84,8 @@ func CheckNodeIp(address string, deployType enum.DeployType) bool {
 	ipList := strings.Split(address, ":")
 	if len(ipList) != 2 {
 		return false
+	}else if len(ipList[1])==0{
+		return false
 	}
 	var tag = false
 	nodeList := strings.Split(kubenetsConf.NodeList, ",")
