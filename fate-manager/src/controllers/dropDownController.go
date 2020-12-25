@@ -283,12 +283,14 @@ func GetManagerIp(c *gin.Context) {
 // @Tags DropDownController
 // @Accept  json
 // @Produce  json
+// @Param componentName query string false "string valid,componentName"
 // @Success 200 {object} app.Response
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/dropdown/manager [get]
 func GetManagerIpPort(c *gin.Context) {
 	appG := app.Gin{C: c}
-	ret, err := k8s_service.GetManagerIpPort()
+	componentName := c.Request.FormValue("componentName")
+	ret, err := k8s_service.GetManagerIpPort(componentName)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_MANAGER_IP_FAIL, nil)
 		return

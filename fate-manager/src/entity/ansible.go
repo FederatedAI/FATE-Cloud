@@ -9,8 +9,16 @@ type AnsibleCheckResp struct {
 	AnsibleCommResp
 	Data []AnsiblePrepareItem `json:"data"`
 }
+type UploadItem struct {
+	Description string      `json:"description"`
+	Module      string      `json:"module"`
+	Size        string      `json:"size"`
+	Time        string      `json:"time"`
+	Version     interface{} `json:"version"`
+}
 type LocalUpload struct {
-	FateVersion string `json:"fateVersion"`
+	FateVersion string       `json:"version"`
+	List        []UploadItem `json:"list"`
 }
 type AnsibleInstallListResponse struct {
 	AnsibleCommResp
@@ -85,6 +93,12 @@ type AnsibleAutoTestResp struct {
 	Data AnsibleAutoTest `json:"data"`
 }
 type LocalUploadReq struct {
+	PartyId  int    `json:"partyId"`
+	Ip       string `json:"ip"`
+	Path     string `json:"path"`
+	SiteName string `json:"siteName"`
+}
+type UploadReq struct {
 	PartyId int    `json:"partyId"`
 	Ip      string `json:"ip"`
 	Path    string `json:"dir"`
@@ -186,8 +200,8 @@ type AnsibleLogResponse struct {
 	Data []string `json:"data"`
 }
 type AnsibleAutoTestReq struct {
-	PartyId     int `json:"partyId"`
-	ProductType int `json:"productType"`
+	PartyId     int  `json:"partyId"`
+	ProductType int  `json:"productType"`
 	IfOnly      bool `json:"ifOnly"`
 }
 
@@ -203,10 +217,10 @@ type AnsibleToyTestReq struct {
 	WorkMode     int    `json:"work_mode"`
 }
 type AnsibleMinTestReq struct {
-	ArbiterPartyId int `json:"arbiter_party_id"`
-	GuestPartyId int    `json:"guest_party_id"`
-	HostPartyId  int    `json:"host_party_id"`
-	Ip           string `json:"host"`
+	ArbiterPartyId int    `json:"arbiter_party_id"`
+	GuestPartyId   int    `json:"guest_party_id"`
+	HostPartyId    int    `json:"host_party_id"`
+	Ip             string `json:"host"`
 }
 type AnsibleToyTestResultReq struct {
 	Limit    int    `json:"limit"`

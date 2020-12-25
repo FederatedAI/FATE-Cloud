@@ -63,7 +63,7 @@ func InitRouter() *gin.Engine {
 	router.POST("/fate-manager/api/site/secretinfo", GetSecretInfo)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
