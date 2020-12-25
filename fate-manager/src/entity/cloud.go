@@ -161,7 +161,7 @@ type CheckPartyIdResp struct {
 	Data bool `json:"data"`
 }
 
-type VersionProductReq struct {
+type PageReq struct {
 	PageNum  int `json:"pageNum"`
 	PageSize int `json:"pageSize"`
 }
@@ -202,4 +202,36 @@ type VersionProduct struct {
 type VersionProductResp struct {
 	CloudCommResp
 	Data VersionProduct `json:"data"`
+}
+type ExchangeDataItem struct {
+	CreateTime             string `json:"createTime"`
+	ExchangeId             int    `json:"exchangeId"`
+	ExchangeName           string `json:"exchangeName"`
+	NetworkAccessEntrances string `json:"networkAccessEntrances"`
+	NetworkAccessExits     string `json:"networkAccessExits"`
+	UpdateTime             string `json:"updateTime"`
+}
+type ExchangeData struct {
+	TotalRecord int                `json:"totalRecord"`
+	TotalPage   int                `json:"totalPage"`
+	StartIndex  int                `json:"startIndex"`
+	Start       int                `json:"start"`
+	End         int                `json:"end"`
+	PageNum     int                `json:"pageNum"`
+	PageSize    int                `json:"pageSize"`
+	List        []ExchangeDataItem `json:"list"`
+}
+
+type ExchangeResp struct {
+	CloudCommResp
+	Data ExchangeData `json:"data"`
+}
+type CloudSystemAdd struct {
+	DetectiveStatus  int    `json:"detectiveStatus"`
+	SiteId           int64  `json:"id"`
+	ComponentName    string `json:"installItems"`
+	JobType          string `json:"type"`
+	JobStatus        int    `json:"updateStatus"`
+	UpdateTime       int64  `json:"updateTime"`
+	ComponentVersion string `json:"version"`
 }

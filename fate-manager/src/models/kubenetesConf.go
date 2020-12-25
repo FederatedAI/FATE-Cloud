@@ -29,9 +29,6 @@ type KubenetesConf struct {
 	NodeList        string
 	DeployType      int
 	ClickType       int
-	AnsibleCheck    string
-	AnsibleStatus   string
-	AnsibleDuration int
 	CreateTime      time.Time
 	UpdateTime      time.Time
 }

@@ -65,7 +65,7 @@ type ConnectAnsible struct {
 }
 type AnsibleAutoTestItem struct {
 	Name    string `json:"name"`
-	Status  string   `json:"status"`
+	Status  string `json:"status"`
 	Uptime  string `json:"uptime"`
 	Version string `json:"version"`
 }
@@ -179,7 +179,7 @@ type AnsibleLog struct {
 }
 type AnsibleLogResp struct {
 	Content []string `json:"content"`
-	Total int `json:"total"`
+	Total   int      `json:"total"`
 }
 type AnsibleLogResponse struct {
 	AnsibleCommResp
@@ -188,6 +188,7 @@ type AnsibleLogResponse struct {
 type AnsibleAutoTestReq struct {
 	PartyId     int `json:"partyId"`
 	ProductType int `json:"productType"`
+	IfOnly      bool `json:"ifOnly"`
 }
 
 type AnsibleSingleTestReq struct {
@@ -200,6 +201,12 @@ type AnsibleToyTestReq struct {
 	HostPartyId  int    `json:"host_party_id"`
 	Ip           string `json:"host"`
 	WorkMode     int    `json:"work_mode"`
+}
+type AnsibleMinTestReq struct {
+	ArbiterPartyId int `json:"arbiter_party_id"`
+	GuestPartyId int    `json:"guest_party_id"`
+	HostPartyId  int    `json:"host_party_id"`
+	Ip           string `json:"host"`
 }
 type AnsibleToyTestResultReq struct {
 	Limit    int    `json:"limit"`

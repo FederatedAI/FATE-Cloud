@@ -29,6 +29,7 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/k8s_service"
+	"fate.manager/services/site_deploy_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"io/ioutil"
@@ -38,16 +39,6 @@ import (
 	"strings"
 	"time"
 )
-
-type CloudSystemAdd struct {
-	DetectiveStatus  int    `json:"detectiveStatus"`
-	SiteId           int64  `json:"id"`
-	ComponentName    string `json:"installItems"`
-	JobType          string `json:"type"`
-	JobStatus        int    `json:"updateStatus"`
-	UpdateTime       int64  `json:"updateTime"`
-	ComponentVersion string `json:"version"`
-}
 
 func JobTask() {
 
@@ -163,6 +154,7 @@ func JobTask() {
 						PartyId:          deployJobList[i].PartyId,
 						FateVersion:      deploySiteList[0].FateVersion,
 						ComponentVersion: string(componentVersonMapjson),
+						ServiceStatus:    int(enum.SERVICE_STATUS_UNAVAILABLE),
 						//FateServingVersion: "1.2.1",
 					}
 					models.UpdateSite(&site)
@@ -223,21 +215,17 @@ func JobTask() {
 						continue
 					}
 					models.GetFederatedUrlById(deploySiteList[0].FederatedId)
-					var cloudSystemAddList []CloudSystemAdd
+					var cloudSystemAddList []entity.CloudSystemAdd
 					for k := 0; k < len(deployComponentList); k++ {
 						if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) || deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-							cloudSystemAdd := CloudSystemAdd{
+							cloudSystemAdd := entity.CloudSystemAdd{
 								DetectiveStatus:  1,
 								SiteId:           siteInfo.SiteId,
 								ComponentName:    deployComponentList[k].ComponentName,
 								JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[i].JobType)),
-								JobStatus:        1,
+								JobStatus:        2,
 								UpdateTime:       jobQueryResp.Data.EndTime.UnixNano() / 1e6,
 								ComponentVersion: deployComponentList[k].ComponentVersion,
-							}
-							if deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-								cloudSystemAdd.JobStatus = 2
-								cloudSystemAdd.JobStatus = 2
 							}
 							cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
 						}
@@ -357,6 +345,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				PartyId:          DeployJob.PartyId,
 				FateVersion:      deploySiteList[0].FateVersion,
 				ComponentVersion: string(componentVersonMapjson),
+				ServiceStatus:    int(enum.SERVICE_STATUS_UNAVAILABLE),
 			}
 			models.UpdateSite(&site)
 		} else if queryResponse.Data.Status == "running" || queryResponse.Data.Status == "ready" {
@@ -406,21 +395,17 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 				return
 			}
 			models.GetFederatedUrlById(deploySiteList[0].FederatedId)
-			var cloudSystemAddList []CloudSystemAdd
+			var cloudSystemAddList []entity.CloudSystemAdd
 			for k := 0; k < len(deployComponentList); k++ {
 				if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) || deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-					cloudSystemAdd := CloudSystemAdd{
+					cloudSystemAdd := entity.CloudSystemAdd{
 						DetectiveStatus:  1,
 						SiteId:           siteInfo.SiteId,
 						ComponentName:    deployComponentList[k].ComponentName,
 						JobType:          enum.GetJobTypeString(enum.JobType(DeployJob.JobType)),
-						JobStatus:        1,
+						JobStatus:        2,
 						UpdateTime:       queryResponse.Data.EndTime,
 						ComponentVersion: deployComponentList[k].ComponentVersion,
-					}
-					if deployJob.Status == int(enum.JOB_STATUS_FAILED) {
-						cloudSystemAdd.JobStatus = 2
-						cloudSystemAdd.JobStatus = 2
 					}
 					cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
 				}
@@ -477,42 +462,91 @@ func TestOnlyTask() {
 		return
 	}
 	for i := 0; i < len(deploySiteList); i++ {
-		logdir := fmt.Sprintf("./testLog/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
-		if !util.FileExists(logdir) {
-			continue
-		}
-		file, err := os.Open(logdir)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-		scanner := bufio.NewScanner(file)
-		testtag := false
-		existfile := false
-		for scanner.Scan() {
-			existfile = true
-			lineText := scanner.Text()
-			ret := strings.Index(lineText, "success to calculate secure_sum")
-			if ret > 0 {
-				testtag = true
-				break
+		if deploySiteList[i].DeployType == int(enum.DeployType_ANSIBLE) {
+			go AnsibleTestOnly(deploySiteList[i])
+		} else {
+			logdir := fmt.Sprintf("./testLog/toy/fate-%d.log", deploySiteList[i].FederatedId, deploySiteList[i].PartyId)
+			if !util.FileExists(logdir) {
+				continue
+			}
+			file, err := os.Open(logdir)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer file.Close()
+			scanner := bufio.NewScanner(file)
+			testtag := false
+			existfile := false
+			for scanner.Scan() {
+				existfile = true
+				lineText := scanner.Text()
+				ret := strings.Index(lineText, "success to calculate secure_sum")
+				if ret > 0 {
+					testtag = true
+					break
+				}
+			}
+			if existfile {
+				var data = make(map[string]interface{})
+				data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
+				data["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
+				if testtag {
+					data["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
+				}
+				deploySite := models.DeploySite{
+					FederatedId: deploySiteList[i].FederatedId,
+					PartyId:     deploySiteList[i].PartyId,
+					ProductType: deploySiteList[i].ProductType,
+					IsValid:     int(enum.IS_VALID_YES),
+				}
+				models.UpdateDeploySite(data, deploySite)
 			}
 		}
-		if existfile {
-			var data = make(map[string]interface{})
-			data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
-			data["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
-			if testtag {
-				data["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
-			}
-			deploySite := models.DeploySite{
-				FederatedId: deploySiteList[i].FederatedId,
-				PartyId:     deploySiteList[i].PartyId,
-				ProductType: deploySiteList[i].ProductType,
-				IsValid:     int(enum.IS_VALID_YES),
-			}
-			models.UpdateDeploySite(data, deploySite)
+	}
+}
+
+func AnsibleTestOnly(deploySite models.DeploySite) {
+
+	deployComponent := models.DeployComponent{
+		PartyId:       deploySite.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil || len(deployComponentList) == 0 {
+		return
+	}
+	address := strings.Split(deployComponentList[0].Address, ":")
+
+	ResultReq := entity.AnsibleToyTestResultReq{
+		Limit:    500,
+		Ip:       address[0],
+		TestType: "toy",
+	}
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
+	if result == nil || err != nil {
+		return
+	}
+	var resultResp entity.AnsibleTestResultResponse
+	err = json.Unmarshal([]byte(result.Body), &resultResp)
+	if err != nil {
+		return
+	}
+	if resultResp.Code == e.SUCCESS {
+		var sitedata = make(map[string]interface{})
+		findKey := "success to calculate secure_sum"
+		if JudgeResult(deploySite.PartyId, "toy", findKey, resultResp.Data) {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_SUCCESS)
+			sitedata["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
+		}else if len(resultResp.Data) <= 1 {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_TESTING)
+		}else if len(resultResp.Data) > 1 {
+			sitedata["toy_test_only"] = int(enum.ToyTestOnly_FAILED)
+			sitedata["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
 		}
+		models.UpdateDeploySite(sitedata, deploySite)
 	}
 }
 
@@ -787,6 +821,7 @@ func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
@@ -805,6 +840,9 @@ func ComponentStatusTask() {
 			testname = "python"
 		}
 		cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
+		if setting.DeploySetting.SudoTag {
+			cmdSub = fmt.Sprintf("sudo kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
+		}
 		result, _ := util.ExecCommand(cmdSub)
 		cnt, _ := strconv.Atoi(result[0:1])
 		var data = make(map[string]interface{})
@@ -888,8 +926,7 @@ type SiteInstitution struct {
 
 func MonitorTask(accountInfo *models.AccountInfo) {
 	siteInfo := models.SiteInfo{
-		ServiceStatus: int(enum.SERVICE_STATUS_AVAILABLE),
-		Status:        int(enum.SITE_STATUS_JOINED),
+		Status: int(enum.SITE_STATUS_JOINED),
 	}
 	flowAddressList, err := models.GetFlowAddressList(&siteInfo)
 	if err != nil {
@@ -911,13 +948,13 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 		result, err := http.POST(http.Url("http://"+flowAddressList[i].Address+setting.FlowJobQuery), flowJobQuery, nil)
 		if err != nil {
 			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-			return
+			continue
 		}
 		var flowJobQueryResp entity.FlowJobQueryResp
 		err = json.Unmarshal([]byte(result.Body), &flowJobQueryResp)
 		if err != nil {
 			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return
+			continue
 		}
 		if flowJobQueryResp.Code == e.SUCCESS {
 			for j := 0; j < len(flowJobQueryResp.Data); j++ {
@@ -925,31 +962,41 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				ds, _ := strconv.Atoi(time.Unix(flowJobQuery.CreateTime/1000, 0).Format("20060102"))
 				monitorDetail := models.MonitorDetail{
 					Ds:         ds,
-					StartTime:  flowJobQuery.StartTime,
-					EndTime:    flowJobQuery.EndTime,
 					JobId:      flowJobQuery.JobId,
 					Status:     flowJobQuery.Status,
 					CreateTime: flowJobQuery.CreateTime,
 					UpdateTime: flowJobQuery.UpdateTime,
 				}
-				if len(flowJobQuery.Roles.Guest) > 0 {
-					monitorDetail.GuestPartyId = flowJobQuery.Roles.Guest[0]
+				if flowJobQuery.StartTime != nil {
+					monitorDetail.StartTime = flowJobQuery.StartTime.(float64)
+				}
+				if flowJobQuery.EndTime != nil {
+					monitorDetail.EndTime = flowJobQuery.EndTime.(float64)
+				}
+				var roles entity.Roles
+				err = json.Unmarshal([]byte(flowJobQuery.Roles), &roles)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					continue
+				}
+				if len(roles.Guest) > 0 {
+					monitorDetail.GuestPartyId = roles.Guest[0]
 					_, ok := SiteNameMap[monitorDetail.GuestPartyId]
 					if ok {
 						monitorDetail.GuestSiteName = SiteNameMap[monitorDetail.GuestPartyId].SiteName
 						monitorDetail.GuestInstitution = SiteNameMap[monitorDetail.GuestPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Host) > 0 {
-					monitorDetail.HostPartyId = flowJobQuery.Roles.Host[0]
+				if len(roles.Host) > 0 {
+					monitorDetail.HostPartyId = roles.Host[0]
 					_, ok := SiteNameMap[monitorDetail.HostPartyId]
 					if ok {
 						monitorDetail.HostSiteName = SiteNameMap[monitorDetail.HostPartyId].SiteName
 						monitorDetail.HostInstitution = SiteNameMap[monitorDetail.HostPartyId].Institution
 					}
 				}
-				if len(flowJobQuery.Roles.Arbiter) > 0 {
-					monitorDetail.ArbiterPartyId = flowJobQuery.Roles.Arbiter[0]
+				if len(roles.Arbiter) > 0 {
+					monitorDetail.ArbiterPartyId = roles.Arbiter[0]
 					_, ok := SiteNameMap[monitorDetail.ArbiterPartyId]
 					if ok {
 						monitorDetail.ArbiterSiteName = SiteNameMap[monitorDetail.ArbiterPartyId].SiteName
@@ -965,14 +1012,17 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	curTime := time.Now().Format("20060102")
-	monitorReq := entity.MonitorReq{
-		StartDate: curTime,
-		EndDate:   curTime,
+	for i := -5; i <= 0; i++ {
+		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
+		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
+		monitorReq := entity.MonitorReq{
+			StartDate: curTime,
+			EndDate:   curTime,
+		}
+		InstitutionReport(monitorReq)
+		SiteReport(monitorReq)
+		MonitorPush(monitorReq, accountInfo, timeunix)
 	}
-	InstitutionReport(monitorReq)
-	SiteReport(monitorReq)
-	MonitorPush(monitorReq, accountInfo)
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -991,11 +1041,12 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			continue
 		}
 		itemBase := models.MonitorBase{
-			Total:   monitorByHis.Total,
-			Success: monitorByHis.Success,
-			Running: monitorByHis.Running,
-			Timeout: monitorByHis.Timeout,
-			Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+			Total:    monitorByHis.Total,
+			Success:  monitorByHis.Success,
+			Running:  monitorByHis.Running,
+			Timeout:  monitorByHis.Timeout,
+			Canceled: monitorByHis.Canceled,
+			Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
 		}
 		if len(siteInfoList) == 0 {
 			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
@@ -1006,6 +1057,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 				itemBaseTmp.Running += itemBase.Running
 				itemBaseTmp.Failed += itemBase.Failed
 				itemBaseTmp.Timeout += itemBase.Timeout
+				itemBaseTmp.Canceled += itemBase.Canceled
 				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
 			} else {
 				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
@@ -1026,6 +1078,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 					itemBaseTmp.Running += itemBase.Running
 					itemBaseTmp.Failed += itemBase.Failed
 					itemBaseTmp.Timeout += itemBase.Timeout
+					itemBaseTmp.Canceled += itemBase.Canceled
 					monitorBaseMap[monitorByHis.HostInstitution] = itemBaseTmp
 				} else {
 					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
@@ -1045,6 +1098,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			data["running"] = v.Running
 			data["timeout"] = v.Timeout
 			data["failed"] = v.Failed
+			data["canceled"] = v.Canceled
 			data["update_time"] = time.Now()
 			models.UpdateReportInstitution(data, reportInstitution)
 		} else {
@@ -1053,6 +1107,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			reportInstitution.Running = v.Running
 			reportInstitution.Timeout = v.Timeout
 			reportInstitution.Failed = v.Failed
+			reportInstitution.Canceled = v.Canceled
 			reportInstitution.CreateTime = time.Now()
 			reportInstitution.UpdateTime = time.Now()
 			models.AddReportInstitution(&reportInstitution)
@@ -1090,11 +1145,12 @@ func SiteReport(monitorReq entity.MonitorReq) {
 					Institution: monitorByHis.HostInstitution,
 				},
 				MonitorBase: models.MonitorBase{
-					Total:   monitorByHis.Total,
-					Success: monitorByHis.Success,
-					Running: monitorByHis.Running,
-					Timeout: monitorByHis.Timeout,
-					Failed:  monitorByHis.Failed + monitorByHis.Timeout,
+					Total:    monitorByHis.Total,
+					Success:  monitorByHis.Success,
+					Running:  monitorByHis.Running,
+					Timeout:  monitorByHis.Timeout,
+					Canceled: monitorByHis.Canceled,
+					Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
 				},
 			}
 			sitePair := entity.SitePair{
@@ -1170,9 +1226,9 @@ func SiteReport(monitorReq entity.MonitorReq) {
 			siteSiteMonitor := siteSiteMonitorList[j]
 			reportSite := models.ReportSite{
 				Ds:                  monitorReq.StartDate,
-				Institution:         k.Institution,
-				InstitutionSiteName: k.SiteName,
-				SiteName:            siteSiteMonitor.SiteName,
+				Institution:         siteSiteMonitor.Institution,
+				InstitutionSiteName: siteSiteMonitor.SiteName,
+				SiteName:            k.SiteName,
 			}
 			list, _ := models.GetReportSite(&reportSite)
 			if len(list) > 0 {
@@ -1181,6 +1237,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				data["running"] = siteSiteMonitor.Running
 				data["timeout"] = siteSiteMonitor.Timeout
 				data["failed"] = siteSiteMonitor.Failed
+				data["canceled"] = siteSiteMonitor.Canceled
 				data["update_time"] = time.Now()
 				models.UpdateReportSite(data, reportSite)
 			} else {
@@ -1189,6 +1246,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				reportSite.Running = siteSiteMonitor.Running
 				reportSite.Timeout = siteSiteMonitor.Timeout
 				reportSite.Failed = siteSiteMonitor.Failed
+				reportSite.Canceled = siteSiteMonitor.Canceled
 				reportSite.CreateTime = time.Now()
 				reportSite.UpdateTime = time.Now()
 				models.AddReportSite(&reportSite)
@@ -1307,62 +1365,85 @@ func GetOtherPartyIdInstitution() (map[int]SiteInstitution, error) {
 }
 
 type MonitorPushSite struct {
-	Failed     int    `json:"jobFailedCount"`
-	Running    int    `json:"jobRunningCount"`
-	Success    int    `json:"jobSuccessCount"`
-	FinishDate string `json:"jobFinishDate"`
-	GuestId    string `json:"siteGuestId"`
-	HostId     string `json:"siteHostId"`
+	Failed     int   `json:"jobFailedCount"`
+	Running    int   `json:"jobRunningCount"`
+	Success    int   `json:"jobSuccessCount"`
+	FinishDate int64 `json:"jobFinishDate"`
+	GuestId    int64 `json:"siteGuestId"`
+	HostId     int64 `json:"siteHostId"`
 }
 
-func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo) {
+func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo, timeunix int64) {
+	siteInfo := models.SiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
+	siteInfoList, _ := models.GetSiteList(&siteInfo)
+	otherSiteInfo := models.OtherSiteInfo{Status: int(enum.SITE_STATUS_JOINED)}
+	otherSiteInfoList, _ := models.GetOtherSiteInfoList(&otherSiteInfo)
+	var partyIdSiteId = make(map[int]int64)
+	for i := 0; i < len(siteInfoList); i++ {
+		partyIdSiteId[siteInfoList[i].PartyId] = siteInfoList[i].SiteId
+	}
+	for i := 0; i < len(otherSiteInfoList); i++ {
+		partyIdSiteId[otherSiteInfoList[i].PartyId] = otherSiteInfoList[i].SiteId
+	}
+
 	pushSiteList, err := models.GetPushSiteMonitorList(monitorReq)
 	if err != nil {
+		return
+	}
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
 		return
 	}
 	var data []MonitorPushSite
 	for i := 0; i < len(pushSiteList); i++ {
 		pushSite := pushSiteList[i]
+		guestPartyId, _ := strconv.Atoi(pushSite.GuestPartyId)
+		hostPartyId, _ := strconv.Atoi(pushSite.HostPartyId)
+		gsite, ok := partyIdSiteId[guestPartyId]
+		if !ok {
+			continue
+		}
+		hsite, ok := partyIdSiteId[hostPartyId]
+		if !ok {
+			continue
+		}
+
 		monitorPushSite := MonitorPushSite{
-			Failed:     pushSite.Failed + pushSite.Timeout,
+			Failed:     pushSite.Failed + pushSite.Timeout + pushSite.Canceled,
+			FinishDate: timeunix,
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
-			FinishDate: monitorReq.EndDate,
-			GuestId:    pushSite.GuestPartyId,
-			HostId:     pushSite.HostPartyId,
+			GuestId:    gsite,
+			HostId:     hsite,
 		}
 		data = append(data, monitorPushSite)
 	}
-
-	dataJson, _ := json.Marshal(data)
-	headInfo := util.HeaderInfo{
-		AppKey:    accountInfo.AppKey,
-		AppSecret: accountInfo.AppSecret,
-		PartyId:   accountInfo.PartyId,
-		Body:      string(dataJson),
-		Role:      accountInfo.Role,
-		Uri:       setting.MonitorPushUri,
-	}
-	headerInfoMap := util.GetHeaderInfo(headInfo)
-	federationList, err := federated_service.GetFederationInfo()
-	if err != nil || len(federationList) == 0 {
-		return
-	}
-	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.MonitorPushUri), data, headerInfoMap)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return
-	}
-	if len(result.Body) > 0 {
-		var updateResp entity.CloudCommResp
-		err = json.Unmarshal([]byte(result.Body), &updateResp)
+	if len(data) > 0 {
+		dataJson, _ := json.Marshal(data)
+		headInfo := util.UserHeaderInfo{
+			UserAppKey:    accountInfo.AppKey,
+			UserAppSecret: accountInfo.AppSecret,
+			FateManagerId: accountInfo.CloudUserId,
+			Body:          string(dataJson),
+			Uri:           setting.MonitorPushUri,
+		}
+		headerInfoMap := util.GetUserHeadInfo(headInfo)
+		result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.MonitorPushUri), data, headerInfoMap)
 		if err != nil {
-			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 			return
 		}
-		if updateResp.Code == e.SUCCESS {
-			msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
-			logging.Debug(msg)
+		if len(result.Body) > 0 {
+			var updateResp entity.CloudCommResp
+			err = json.Unmarshal([]byte(result.Body), &updateResp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if updateResp.Code == e.SUCCESS {
+				msg := fmt.Sprintf("partyid:%d system heart success! content:%s", accountInfo.PartyId, string(dataJson))
+				logging.Debug(msg)
+			}
 		}
 	}
 }
@@ -1536,9 +1617,15 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 	}
 	TestReq := entity.AnsibleToyTestReq{
 		GuestPartyId: deploySite.PartyId,
-		HostPartyId:  setting.KubenetesSetting.TestPartyId,
+		HostPartyId:  setting.DeploySetting.TestPartyId,
 		Ip:           Ip,
-		WorkMode:     setting.KubenetesSetting.WorkMode,
+		WorkMode:     setting.DeploySetting.WorkMode,
+	}
+	MinReq := entity.AnsibleMinTestReq{
+		ArbiterPartyId: setting.DeploySetting.TestPartyId,
+		GuestPartyId:   deploySite.PartyId,
+		HostPartyId:    setting.DeploySetting.TestPartyId,
+		Ip:             Ip,
 	}
 	autotest := models.AutoTest{
 		PartyId: deploySite.PartyId,
@@ -1546,32 +1633,58 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 
 	ResultReq.TestType = curItem
 	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/log"), ResultReq, nil)
+	if result == nil || err != nil {
+		return
+	}
 	var resultResp entity.AnsibleTestResultResponse
 	err = json.Unmarshal([]byte(result.Body), &resultResp)
 	if err != nil {
 		return
 	}
 	if resultResp.Code == e.SUCCESS {
-		sitedata[curItem+"_test"] = int(enum.TEST_STATUS_NO)
+		deployKey, testKey := "", ""
+		if curItem == "single" {
+			deployKey = "single_test"
+			testKey = "Single Test"
+		} else if curItem == "toy" {
+			deployKey = "toy_test"
+			testKey = "Toy Test"
+		} else if curItem == "fast" {
+			deployKey = "minimize_fast_test"
+			testKey = "Minimize Fast Test"
+		} else if curItem == "normal" {
+			deployKey = "minimize_normal_test"
+			testKey = "Minimize Normal Test"
+		}
+		sitedata[deployKey] = int(enum.TEST_STATUS_NO)
+		testdata["status"] = int(enum.TEST_STATUS_NO)
 		findKey := "success to calculate secure_sum"
 		if curItem == "fast" || curItem == "normal" {
 			findKey = "success"
 		}
 		successTag := false
 		if JudgeResult(deploySite.PartyId, curItem, findKey, resultResp.Data) {
-			sitedata[curItem+"_test"] = int(enum.TEST_STATUS_YES)
+			sitedata[deployKey] = int(enum.TEST_STATUS_YES)
 			testdata["status"] = int(enum.TEST_STATUS_YES)
 			successTag = true
+			if curItem == "normal" {
+				site_deploy_service.UploadStatusToCloud(deploySite.PartyId, 0, enum.DeployType_ANSIBLE)
+			}
+		}
+		if len(resultResp.Data) <= 1 {
+			sitedata[deployKey] = int(enum.TEST_STATUS_TESTING)
+			testdata["status"] = int(enum.TEST_STATUS_TESTING)
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
 
 		testdata["end_time"] = time.Now()
-		autotest.TestItem = curItem + " Test"
+
+		autotest.TestItem = testKey
 		models.UpdateAutoTest(testdata, autotest)
 
-		if curItem != "normal" && successTag {
-			if curItem == "toy"{
-				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
+		if successTag {
+			if NextItem == "toy" {
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), TestReq, nil)
 				var commresp entity.AnsibleCommResp
 				err = json.Unmarshal([]byte(result.Body), &commresp)
 				if err != nil {
@@ -1581,14 +1694,14 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 					testdata = make(map[string]interface{})
 					testdata["status"] = int(enum.TEST_STATUS_TESTING)
 					testdata["start_time"] = time.Now()
-					autotest.TestItem = NextItem + " Test"
+					autotest.TestItem = "Toy Test"
 					models.UpdateAutoTest(testdata, autotest)
 
 					sitedata = make(map[string]interface{})
 					sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
 					models.UpdateDeploySite(sitedata, deploySite)
 				}
-			} else if curItem == "fast" {
+			} else if NextItem == "fast" {
 				dataUploadReq := entity.DataUploadReq{Ip: Ip}
 				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/upload"), dataUploadReq, nil)
 				var commresp entity.AnsibleCommResp
@@ -1597,7 +1710,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 					return
 				}
 				if commresp.Code == e.SUCCESS {
-					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+curItem), TestReq, nil)
+					result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), MinReq, nil)
 					var commresp entity.AnsibleCommResp
 					err = json.Unmarshal([]byte(result.Body), &commresp)
 					if err != nil {
@@ -1607,13 +1720,31 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 						testdata = make(map[string]interface{})
 						testdata["status"] = int(enum.TEST_STATUS_TESTING)
 						testdata["start_time"] = time.Now()
-						autotest.TestItem = NextItem + " Test"
+						autotest.TestItem = "Minimize Fast Test"
 						models.UpdateAutoTest(testdata, autotest)
 
 						sitedata = make(map[string]interface{})
-						sitedata[NextItem+"_test"] = int(enum.TEST_STATUS_TESTING)
+						sitedata["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
 						models.UpdateDeploySite(sitedata, deploySite)
 					}
+				}
+			} else if NextItem == "normal" && curItem != "normal" {
+				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+NextItem), MinReq, nil)
+				var commresp entity.AnsibleCommResp
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					return
+				}
+				if commresp.Code == e.SUCCESS {
+					testdata = make(map[string]interface{})
+					testdata["status"] = int(enum.TEST_STATUS_TESTING)
+					testdata["start_time"] = time.Now()
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(testdata, autotest)
+
+					sitedata = make(map[string]interface{})
+					sitedata["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+					models.UpdateDeploySite(sitedata, deploySite)
 				}
 			}
 		}
@@ -1621,7 +1752,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 }
 
 func VersionUpdateTask(info *models.AccountInfo) {
-	versionProduct := entity.VersionProductReq{
+	versionProduct := entity.PageReq{
 		PageNum:  1,
 		PageSize: 100,
 	}
@@ -1654,50 +1785,72 @@ func VersionUpdateTask(info *models.AccountInfo) {
 			versionProductItem := resp.Data.List[i]
 			for j := 0; j < len(versionProductItem.FederatedComponentVersionDos); j++ {
 				federatedComponentVersionDos := versionProductItem.FederatedComponentVersionDos[j]
-				if len(federatedComponentVersionDos.ComponentVersion) < 6{
+				if len(federatedComponentVersionDos.ComponentVersion) < 5 {
 					continue
 				}
-				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[1:6], ".", ""))
+				versionIndex, _ := strconv.Atoi(strings.ReplaceAll(federatedComponentVersionDos.ComponentVersion[0:5], ".", ""))
 				componentVersion := models.ComponentVersion{
-					FateVersion:      versionProductItem.ProductVersion,
-					ProductType:      federatedComponentVersionDos.ProductId,
-					ComponentVersion: federatedComponentVersionDos.ComponentVersion,
-					ComponentName:    federatedComponentVersionDos.ComponentName,
-					ImageName:        versionProductItem.ImageName,
-					ImageVersion:     federatedComponentVersionDos.ImageRepository,
-					ImageTag:         federatedComponentVersionDos.ImageTag,
-					VersionIndex:     versionIndex,
-					PullStatus:       int(enum.PULL_STATUS_NO),
-					PackageStatus:    int(enum.PACKAGE_STATUS_NO),
-					CreateTime:       time.Now(),
-					UpdateTime:       time.Now(),
+					FateVersion:   versionProductItem.ProductVersion,
+					ProductType:   int(enum.PRODUCT_TYPE_FATE),
+					ComponentName: federatedComponentVersionDos.ComponentName,
 				}
 				componentVersionList, err := models.GetComponetVersionList(componentVersion)
 				if err != nil || len(componentVersionList) > 0 {
-					continue
+					var data = make(map[string]interface{})
+					data["component_version"] = federatedComponentVersionDos.ComponentVersion
+					data["image_name"] = federatedComponentVersionDos.ImageRepository
+					data["image_version"] = federatedComponentVersionDos.ImageTag
+					data["image_tag"] = federatedComponentVersionDos.ImageTag
+					data["image_description"] = federatedComponentVersionDos.ImageTag
+					data["version_index"] = versionIndex
+					if federatedComponentVersionDos.ComponentName == "mysql" {
+						data["component_version"] = federatedComponentVersionDos.ImageTag
+						data["version_index"], _ = strconv.Atoi(federatedComponentVersionDos.ImageTag)
+					}
+					models.UpdateComponentVersionByCondition(data, &componentVersion)
+				} else {
+					componentVersion.ComponentVersion = federatedComponentVersionDos.ComponentVersion
+					componentVersion.ImageName = federatedComponentVersionDos.ImageRepository
+					componentVersion.ImageVersion = federatedComponentVersionDos.ImageTag
+					componentVersion.ImageTag = federatedComponentVersionDos.ImageTag
+					componentVersion.ImageDescription = federatedComponentVersionDos.ImageTag
+					componentVersion.VersionIndex = versionIndex
+					componentVersion.PullStatus = int(enum.PULL_STATUS_NO)
+					componentVersion.PackageStatus = int(enum.PACKAGE_STATUS_NO)
+					componentVersion.CreateTime = time.Now()
+					componentVersion.UpdateTime = time.Now()
+					if federatedComponentVersionDos.ComponentName == "mysql" {
+						componentVersion.ComponentVersion = componentVersion.ImageTag
+						componentVersion.VersionIndex, _ = strconv.Atoi(componentVersion.ImageTag)
+					}
+					models.AddComponentVersion(&componentVersion)
 				}
-				models.AddComponentVersion(&componentVersion)
 			}
-			if len(versionProductItem.ProductVersion) < 6{
+			if len(versionProductItem.ProductVersion) < 5 {
 				continue
 			}
-			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[1:6], ".", ""))
+			versionIndex, _ := strconv.Atoi(strings.ReplaceAll(versionProductItem.ProductVersion[0:5], ".", ""))
 			fateVersion := models.FateVersion{
-				FateVersion:   versionProductItem.ProductVersion,
-				ProductType:   versionProductItem.ProductId,
-				ChartVersion:  versionProductItem.ChartVersion,
-				VersionIndex:  versionIndex,
-				PullStatus:    int(enum.PULL_STATUS_NO),
-				PackageStatus: int(enum.PACKAGE_STATUS_NO),
-				PackageUrl:    versionProductItem.PackageDownloadUrl,
-				CreateTime:    time.Now(),
-				UpdateTime:    time.Now(),
+				FateVersion: versionProductItem.ProductVersion,
+				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
 			fateVersionList, err := models.GetFateVersionList(&fateVersion)
 			if err != nil || len(fateVersionList) > 0 {
-				continue
+				var data = make(map[string]interface{})
+				data["chart_version"] = "v" + versionProductItem.ChartVersion
+				data["version_index"] = versionIndex
+				data["package_url"] = versionProductItem.PackageDownloadUrl
+				models.UpdateFateVersion(data, &fateVersion)
+			} else {
+				fateVersion.ChartVersion = "v" + versionProductItem.ChartVersion
+				fateVersion.VersionIndex = versionIndex
+				fateVersion.PullStatus = int(enum.PULL_STATUS_NO)
+				fateVersion.PackageStatus = int(enum.PACKAGE_STATUS_NO)
+				fateVersion.PackageUrl = versionProductItem.PackageDownloadUrl
+				fateVersion.CreateTime = time.Now()
+				fateVersion.UpdateTime = time.Now()
+				models.AddFateVersion(&fateVersion)
 			}
-			models.AddFateVersion(&fateVersion)
 		}
 	}
 }

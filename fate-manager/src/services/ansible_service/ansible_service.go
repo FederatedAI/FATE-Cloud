@@ -34,11 +34,12 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return e.ERROR_PARSE_JSON_ERROR, err
 	}
-	if connectResp.Code == e.SUCCESS || true {
+	if connectResp.Code == e.SUCCESS {
 		kubenetesConf := models.KubenetesConf{
 			KubenetesUrl: ansibleReq.Url,
 			DeployType:   int(enum.DeployType_ANSIBLE),
 			ClickType:    int(enum.AnsibleClickType_CONNECT),
+			NodeList:     setting.DeploySetting.AnsibleNode,
 			CreateTime:   time.Now(),
 			UpdateTime:   time.Now(),
 		}
@@ -75,8 +76,13 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		if len(deploySiteList) == 0 {
 			models.AddDeploySite(&deploySite)
 		}
+		nodeploytag := false
 		for i := 0; i < len(connectResp.Data.List); i++ {
 			connectItem := connectResp.Data.List[i]
+			if connectItem.Port == 0 || nodeploytag {
+				nodeploytag = true
+				continue
+			}
 			address := ""
 			for j := 0; j < len(connectItem.Ips); j++ {
 				ipport := fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
@@ -130,189 +136,6 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		return e.SUCCESS, nil
 	}
 	return e.ERROR_CONNECT_ANSIBLE_FAIL, nil
-}
-
-func Prepare(prepareReq entity.PrepareReq) (int, error) {
-	if len(prepareReq.ManagerNode) == 0 || len(prepareReq.ControlNode) == 0 {
-		return e.INVALID_PARAMS, nil
-	}
-	prepareReqJson, _ := json.Marshal(prepareReq)
-	kubenetesConf := models.KubenetesConf{
-		DeployType: int(enum.DeployType_ANSIBLE),
-	}
-	var data = make(map[string]interface{})
-	data["node_list"] = string(prepareReqJson)
-	models.UpdateKubenetesConf(data, &kubenetesConf)
-	return e.SUCCESS, nil
-}
-
-func CheckSystem(checkSystem entity.CheckSystem) (int, error) {
-	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
-	}
-	if conf.Id == 0 {
-		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
-	}
-	var prepareReq entity.PrepareReq
-	err = json.Unmarshal([]byte(conf.NodeList), &prepareReq)
-	if err != nil {
-		return e.ERROR_PARSE_JSON_ERROR, err
-	}
-	checkSystem.ManagerNode = prepareReq.ManagerNode
-	startTime := time.Now().UnixNano()
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsiblePrepareUri), checkSystem, nil)
-	endTime := time.Now().UnixNano()
-	if err != nil || result == nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return e.ERROR_HTTP_FAIL, err
-	}
-	var ansiblePrepareResp entity.AnsibleCheckResp
-	err = json.Unmarshal([]byte(result.Body), &ansiblePrepareResp)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return e.ERROR_PARSE_JSON_ERROR, err
-	}
-	if ansiblePrepareResp.Code == e.SUCCESS {
-
-		for i := 0; i < len(ansiblePrepareResp.Data); i++ {
-			ansiblePrepareItem := &ansiblePrepareResp.Data[i]
-			if len(checkSystem.CheckName) > 0 {
-				var list []entity.AnsiblePrepareItem
-				err = json.Unmarshal([]byte(conf.AnsibleCheck), &list)
-				if err != nil {
-					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return e.ERROR_PARSE_JSON_ERROR, err
-				}
-				for j := 0; j < len(list); j++ {
-					if list[j].Ip == ansiblePrepareItem.Ip {
-						for k := 0; k < len(list[j].List); k++ {
-							if list[j].List[j].Name == ansiblePrepareItem.List[0].Name {
-								list[i].List[j].Status = ansiblePrepareItem.List[0].Status
-								if ansiblePrepareItem.List[0].Status == "warning" || ansiblePrepareItem.List[0].Status == "waring" {
-									list[i].List[j].Status = "success"
-								}
-								list[i].List[j].Duration = (endTime - startTime) / 1e6
-								list[i].List[j].Details = ansiblePrepareItem.List[0].Details
-								break
-							}
-						}
-						break
-					}
-				}
-			} else {
-				for j := 0; j < len(ansiblePrepareItem.List); j++ {
-					if ansiblePrepareItem.List[j].Status == "warning" || ansiblePrepareItem.List[j].Status == "waring" {
-						ansiblePrepareItem.List[j].Status = "success"
-					}
-					ansiblePrepareItem.List[j].Duration = (endTime - startTime) / 1e6
-				}
-			}
-		}
-		ansiblePrepareItemJson, _ := json.Marshal(ansiblePrepareResp.Data)
-		kubenetesConf := models.KubenetesConf{
-			DeployType: int(enum.DeployType_ANSIBLE),
-		}
-		var data = make(map[string]interface{})
-		data["ansible_check"] = string(ansiblePrepareItemJson)
-		models.UpdateKubenetesConf(data, &kubenetesConf)
-
-		return e.SUCCESS, nil
-	}
-	return e.GET_CHECK_SYSYTEM_LIST_FAIL, nil
-}
-func GetCheck(checkSystemReq entity.CheckSystemReq) ([]entity.Prepare, error) {
-	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-	if err != nil {
-		return nil, err
-	}
-	if conf.Id == 0 {
-		return nil, err
-	}
-	if len(conf.AnsibleCheck) > 0 {
-		var Data []entity.AnsiblePrepareItem
-		err = json.Unmarshal([]byte(conf.AnsibleCheck), &Data)
-		if err != nil {
-			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-			return nil, err
-		}
-		var list []entity.Prepare
-		for i := 0; i < len(Data); {
-			ansiblePrepareItem := Data[i]
-			if ansiblePrepareItem.Ip == checkSystemReq.Ip {
-				list = ansiblePrepareItem.List
-				break
-			}
-		}
-		return list, nil
-	}
-	return nil, nil
-}
-
-func GetAnsibleList() ([]entity.AnsibleListItem, error) {
-	var prepareReq entity.PrepareReq
-	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-	if err != nil {
-		return nil, err
-	}
-	var ansiblelist []entity.AnsibleListItem
-	if len(conf.NodeList) > 0 {
-		err := json.Unmarshal([]byte(conf.NodeList), &prepareReq)
-		if err != nil {
-			return nil, err
-		}
-		ansibleListItem := entity.AnsibleListItem{
-			Ip:       prepareReq.ControlNode,
-			Duration: conf.AnsibleDuration,
-			Status:   conf.AnsibleStatus,
-		}
-		ansiblelist = append(ansiblelist, ansibleListItem)
-	}
-	return ansiblelist, nil
-}
-
-func StartDeployAnsible() (int, error) {
-	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
-	}
-	if conf.Id == 0 {
-		return e.ERROR_ANSIBLE_CONNECT_FIRST, err
-	}
-	var deployAnsibleReq entity.DeployAnsibleReq
-	var PrepareReq entity.PrepareReq
-	err = json.Unmarshal([]byte(conf.NodeList), &PrepareReq)
-	if err != nil {
-		return e.ERROR_PARSE_JSON_ERROR, err
-	}
-	deployAnsibleReq.ControlNode = PrepareReq.ControlNode
-	startTime := time.Now()
-	result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleInstallUri), deployAnsibleReq, nil)
-	endTime := time.Now()
-	if err != nil || result == nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return e.ERROR_HTTP_FAIL, err
-	}
-	var deployAnsibleResp entity.DeployAnsibleResp
-	err = json.Unmarshal([]byte(result.Body), &deployAnsibleResp)
-	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return e.ERROR_PARSE_JSON_ERROR, err
-	}
-	if deployAnsibleResp.Code == e.SUCCESS {
-
-		kubenetesConf := models.KubenetesConf{
-			DeployType: int(enum.DeployType_ANSIBLE),
-		}
-		var data = make(map[string]interface{})
-		data["ansible_status"] = deployAnsibleResp.Data.Status
-		data["ansible_duration"] = endTime.UnixNano()/1e6 - startTime.UnixNano()/1e6
-		models.UpdateKubenetesConf(data, &kubenetesConf)
-		if deployAnsibleResp.Data.Status == "success" {
-			return e.SUCCESS, nil
-		}
-	}
-	return e.ERROR_DEPLOY_ANSIBLE_FAIL, nil
 }
 
 func LocalUpload(localUploadReq entity.LocalUploadReq) (int, error) {
@@ -462,16 +285,16 @@ func GetComponentList(connectAnsible entity.AnsibleAutoTestReq) (*entity.Acquire
 }
 
 type IpNode struct {
-	Enable bool     `json:"enable"`
-	Ip     []string `json:"ips"`
-	Port   int      `json:"port"`
+	//Enable bool     `json:"enable"`
+	Ip   []string `json:"ips"`
+	Port int      `json:"port"`
 }
 type Base struct {
 	Ip []string `json:"ips"`
 }
 type Java struct {
-	Enable bool     `json:"enable"`
-	Ip     []string `json:"ips"`
+	//Enable bool     `json:"enable"`
+	Ip []string `json:"ips"`
 }
 type AnsibleMysql struct {
 	IpNode
@@ -500,7 +323,7 @@ type Eggroll struct {
 	Egg    int      `json:"egg"`
 }
 type FateFlow struct {
-	Enable bool   `json:"enable"`
+	//Enable bool   `json:"enable"`
 	Dbname string `json:"dbname"`
 	AnsibleFlow
 }
@@ -519,7 +342,7 @@ type Modules struct {
 	Eggroll        Eggroll      `json:"eggroll"`
 	Rollsite       Rollsite     `json:"rollsite"`
 	Supervisor     Java         `json:"supervisor"`
-	Base           Base         `json:"base"`
+	//Base           Base         `json:"base"`
 }
 type ClusterInstallByAnsible struct {
 	PartyId     int     `json:"party_id"`
@@ -585,9 +408,9 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			address = append(address, arr2[0])
 		}
 		IpNode := IpNode{
-			Enable: true,
-			Ip:     address,
-			Port:   port,
+			//Enable: true,
+			Ip:   address,
+			Port: port,
 		}
 		Java := Java{
 			Ip: address,
@@ -596,18 +419,18 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			req.Modules.Mysql.IpNode = IpNode
 			req.Modules.Mysql.Password = "fate_pass"
 			req.Modules.Mysql.User = "fate_user"
-			req.Modules.Base.Ip = address
+			//req.Modules.Base.Ip = address
 		} else if item.ComponentName == "clustermanager" {
 			req.Modules.Clustermanager = IpNode
 		} else if item.ComponentName == "nodemanager" {
 			req.Modules.Nodemanager = IpNode
 		} else if item.ComponentName == "fateflow" {
 			req.Modules.Flow.Ip = address
-			req.Modules.Flow.Dbname = "fae_flow"
-			req.Modules.Flow.Enable = true
+			req.Modules.Flow.Dbname = "fate_flow"
+			//req.Modules.Flow.Enable = true
 			req.Modules.Flow.GrpcPort = 9360
 			req.Modules.Flow.HttpPort = 9380
-			req.Modules.Python.Enable = true
+			//req.Modules.Python.Enable = true
 			req.Modules.Python.Ip = address
 		} else if item.ComponentName == "fateboard" {
 			req.Modules.Fateboard = Fateboard{
@@ -617,20 +440,25 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			req.Modules.Java.Ip = IpNode.Ip
 			req.Modules.Java = Java
 			req.Modules.Supervisor.Ip = address
-			req.Modules.Supervisor.Enable = true
+			//req.Modules.Supervisor.Enable = true
 		} else if item.ComponentName == "rollsite" {
 			req.Modules.Rollsite.IpNode = IpNode
 			req.Modules.Rollsite.Port = port
 			rule := Rule{
 				Name: "default",
-				Ip:   setting.KubenetesSetting.ExchangeIp,
-				Port: setting.KubenetesSetting.ExchangePort,
+				Ip:   setting.DeploySetting.ExchangeIp,
+				Port: setting.DeploySetting.ExchangePort,
 			}
 			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, rule)
+			rule.Ip = address[0]
+			rule.Port = 9370
+			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
+			rule.Name = "fateflow"
+			rule.Port = 9360
 			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
 			req.Modules.Eggroll.Ip = address
 			req.Modules.Eggroll.Dbname = "eggroll_meta"
-			req.Modules.Eggroll.Egg = setting.KubenetesSetting.SessionProcessorsPerNode
+			req.Modules.Eggroll.Egg = setting.DeploySetting.SessionProcessorsPerNode
 		}
 	}
 	reqs, _ := json.Marshal(req)
@@ -864,7 +692,7 @@ func Click(req entity.ClickReq) bool {
 		return false
 	}
 	if len(deploySiteList) == 0 {
-		if conf.Id >0 {
+		if conf.Id > 0 {
 			deploySite := models.DeploySite{
 				PartyId:            req.PartyId,
 				ProductType:        int(enum.PRODUCT_TYPE_FATE),
@@ -1060,105 +888,203 @@ func GetAutoTestList(autoTestListReq entity.AutoTestListReq) (*entity.AutoTestLi
 
 func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 
-	var data = make(map[string]interface{})
-	data["status"] = int(enum.TEST_STATUS_WAITING)
-	data["start_time"] = time.Now()
-	req := entity.ConnectAnsible{PartyId: autoTestReq.PartyId}
-	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/status"), req, nil)
-	if err != nil || result == nil {
-		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-		return e.ERROR_HTTP_FAIL, err
+	test := models.AutoTest{
+		PartyId: autoTestReq.PartyId,
 	}
-	var ansibleAutoTestResp entity.AnsibleAutoTestResp
-	err = json.Unmarshal([]byte(result.Body), &ansibleAutoTestResp)
+	testList, err := models.GetAutoTest(test)
 	if err != nil {
-		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-		return e.ERROR_PARSE_JSON_ERROR, err
+		return e.ERROR_AUTO_TEST_FAIL, err
 	}
-	toytest := false
-	var autotest models.AutoTest
-	if ansibleAutoTestResp.Code == e.SUCCESS {
-		for i := 0; i < len(ansibleAutoTestResp.Data.List); i++ {
-			ansibleAutoTestRespItem := ansibleAutoTestResp.Data.List[i]
-			data["end_time"] = time.Now()
-			autotest = models.AutoTest{
-				PartyId:  autoTestReq.PartyId,
-				TestItem: ansibleAutoTestRespItem.Name,
+	testValueMap := map[string]bool{"fate": true}
+	for i := 0; i < len(testList); i++ {
+		testValue := true
+		if testList[i].Status != int(enum.TEST_STATUS_YES) {
+			testValue = false
+		}
+		key := testList[i].TestItem
+		if testList[i].TestItem == "clustermanager" ||
+			testList[i].TestItem == "mysql" ||
+			testList[i].TestItem == "nodemanager" ||
+			testList[i].TestItem == "fateflow" ||
+			testList[i].TestItem == "rollsite" ||
+			testList[i].TestItem == "fateboard" {
+			if !testValue {
+				testValueMap["fate"] = testValue
 			}
-			var deployData = make(map[string]interface{})
-			if ansibleAutoTestRespItem.Status == "running" {
-				data["status"] = int(enum.TEST_STATUS_YES)
-				if ansibleAutoTestRespItem.Name == "fateflow" {
-					toytest = true
+		} else {
+			testValueMap[key] = testValue
+		}
+	}
+	value, ok := testValueMap["fate"]
+	if ok && autoTestReq.IfOnly {
+		DoTestOnly(test)
+	} else if !ok || !value {
+		var data = make(map[string]interface{})
+		data["status"] = int(enum.TEST_STATUS_WAITING)
+		data["start_time"] = time.Now()
+		req := entity.ConnectAnsible{PartyId: autoTestReq.PartyId}
+		result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/status"), req, nil)
+		if err != nil || result == nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			return e.ERROR_HTTP_FAIL, err
+		}
+		var ansibleAutoTestResp entity.AnsibleAutoTestResp
+		err = json.Unmarshal([]byte(result.Body), &ansibleAutoTestResp)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			return e.ERROR_PARSE_JSON_ERROR, err
+		}
+		toytest := true
+		var autotest models.AutoTest
+		if ansibleAutoTestResp.Code == e.SUCCESS {
+			for i := 0; i < len(ansibleAutoTestResp.Data.List); i++ {
+				ansibleAutoTestRespItem := ansibleAutoTestResp.Data.List[i]
+				data["end_time"] = time.Now()
+				autotest = models.AutoTest{
+					PartyId:  autoTestReq.PartyId,
+					TestItem: ansibleAutoTestRespItem.Name,
 				}
-				deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
-			} else {
-				deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
-				data["status"] = int(enum.TEST_STATUS_NO)
+				var deployData = make(map[string]interface{})
+				if ansibleAutoTestRespItem.Status == "running" {
+					data["status"] = int(enum.TEST_STATUS_YES)
+					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
+				} else {
+					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					data["status"] = int(enum.TEST_STATUS_NO)
+					toytest = false
+				}
+				deployComponent := models.DeployComponent{
+					PartyId:       autoTestReq.PartyId,
+					ProductType:   int(enum.PRODUCT_TYPE_FATE),
+					ComponentName: ansibleAutoTestRespItem.Name,
+					DeployType:    int(enum.DeployType_ANSIBLE),
+					IsValid:       int(enum.IS_VALID_YES),
+				}
+				models.UpdateAutoTest(data, autotest)
+				models.UpdateDeployComponent(deployData, deployComponent)
 			}
+		} else {
+			var deployData = make(map[string]interface{})
+			deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+			data["status"] = int(enum.TEST_STATUS_NO)
 			deployComponent := models.DeployComponent{
-				PartyId:       autoTestReq.PartyId,
-				ProductType:   int(enum.PRODUCT_TYPE_FATE),
-				ComponentName: ansibleAutoTestRespItem.Name,
-				DeployType:    int(enum.DeployType_ANSIBLE),
-				IsValid:       int(enum.IS_VALID_YES),
+				PartyId:     autoTestReq.PartyId,
+				ProductType: int(enum.PRODUCT_TYPE_FATE),
+				DeployType:  int(enum.DeployType_ANSIBLE),
+				IsValid:     int(enum.IS_VALID_YES),
 			}
+			autotest.PartyId = autoTestReq.PartyId
 			models.UpdateAutoTest(data, autotest)
 			models.UpdateDeployComponent(deployData, deployComponent)
+			return e.SUCCESS, nil
 		}
-	} else {
-		var deployData = make(map[string]interface{})
-		deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
-		data["status"] = int(enum.TEST_STATUS_NO)
-		deployComponent := models.DeployComponent{
+		deploySite := models.DeploySite{
 			PartyId:     autoTestReq.PartyId,
 			ProductType: int(enum.PRODUCT_TYPE_FATE),
 			DeployType:  int(enum.DeployType_ANSIBLE),
 			IsValid:     int(enum.IS_VALID_YES),
 		}
-		autotest.PartyId = autoTestReq.PartyId
-		models.UpdateAutoTest(data, autotest)
-		models.UpdateDeployComponent(deployData, deployComponent)
-		return e.SUCCESS, nil
+		if toytest {
+			DoTest(autotest, "single")
+		} else {
+			data = make(map[string]interface{})
+			data["single_test"] = int(enum.TEST_STATUS_NO)
+			data["toy_test"] = int(enum.TEST_STATUS_NO)
+			data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+			data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+			data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+			models.UpdateDeploySite(data, deploySite)
+
+			autotest.TestItem = ""
+			autotest.PartyId = autoTestReq.PartyId
+			data = make(map[string]interface{})
+			data["status"] = int(enum.TEST_STATUS_NO)
+			models.UpdateAutoTest(data, autotest)
+		}
+	} else if !testValueMap["Single Test"] {
+		DoTest(test, "single")
+	} else if !testValueMap["Toy Test"] {
+		DoTest(test, "toy")
+	} else if !testValueMap["Minimize Fast Test"] {
+		DoTest(test, "fast")
+	} else if !testValueMap["Minimize Normal Test"] {
+		DoTest(test, "normal")
 	}
+	return e.SUCCESS, nil
+}
+
+func DoTest(autotest models.AutoTest, testitem string) {
 	deploySite := models.DeploySite{
-		PartyId:     autoTestReq.PartyId,
+		PartyId:     autotest.PartyId,
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
 		DeployType:  int(enum.DeployType_ANSIBLE),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
-	if toytest {
-		deployComponent := models.DeployComponent{
-			PartyId:       autoTestReq.PartyId,
-			ComponentName: "fateflow",
-			ProductType:   int(enum.PRODUCT_TYPE_FATE),
-			DeployType:    int(enum.DeployType_ANSIBLE),
-			IsValid:       int(enum.IS_VALID_YES),
-		}
-		deployComponentList, err := models.GetDeployComponent(deployComponent)
-		if err != nil {
-			return e.ERROR_SELECT_DB_FAIL, nil
-		}
-		if len(deployComponentList) > 0 {
-			address := strings.Split(deployComponentList[0].Address, ":")
-			if len(address) == 2 {
-				ansibleSingleTestReq := entity.AnsibleSingleTestReq{
-					PartyId: autoTestReq.PartyId,
-					Ip:      address[0],
-				}
-				result, err = http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/single"), ansibleSingleTestReq, nil)
-				var commresp entity.AnsibleCommResp
+
+	deployComponent := models.DeployComponent{
+		PartyId:       autotest.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil {
+		return
+	}
+	var data = make(map[string]interface{})
+	if len(deployComponentList) > 0 {
+		address := strings.Split(deployComponentList[0].Address, ":")
+		if len(address) == 2 {
+			ansibleSingleTestReq := entity.AnsibleSingleTestReq{
+				PartyId: autotest.PartyId,
+				Ip:      address[0],
+			}
+			TestReq := entity.AnsibleToyTestReq{
+				GuestPartyId: autotest.PartyId,
+				HostPartyId:  setting.DeploySetting.TestPartyId,
+				Ip:           address[0],
+				WorkMode:     setting.DeploySetting.WorkMode,
+			}
+			MinReq := entity.AnsibleMinTestReq{
+				ArbiterPartyId: setting.DeploySetting.TestPartyId,
+				GuestPartyId:   deploySite.PartyId,
+				HostPartyId:    setting.DeploySetting.TestPartyId,
+				Ip:             address[0],
+			}
+			var commresp entity.AnsibleCommResp
+			if testitem == "single" {
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), ansibleSingleTestReq, nil)
 				err = json.Unmarshal([]byte(result.Body), &commresp)
 				if err != nil {
 					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return e.ERROR_PARSE_JSON_ERROR, err
+					return
 				}
-				if commresp.Code == e.SUCCESS {
+			} else if testitem == "toy" {
+
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), TestReq, nil)
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return
+				}
+			} else if testitem == "fast" || testitem == "normal" {
+				result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/"+testitem), MinReq, nil)
+				err = json.Unmarshal([]byte(result.Body), &commresp)
+				if err != nil {
+					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+					return
+				}
+			}
+
+			if commresp.Code == e.SUCCESS {
+				if testitem == "single" {
 					data["status"] = int(enum.TEST_STATUS_TESTING)
 					data["start_time"] = time.Now()
 					autotest.TestItem = "Single Test"
 					models.UpdateAutoTest(data, autotest)
 
+					data["status"] = int(enum.TEST_STATUS_WAITING)
 					autotest.TestItem = "Toy Test"
 					models.UpdateAutoTest(data, autotest)
 
@@ -1175,23 +1101,157 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
 					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "toy" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["toy_test"] = int(enum.TEST_STATUS_TESTING)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_WAITING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "fast" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+					data = make(map[string]interface{})
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_TESTING)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_WAITING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "normal" {
+					data["status"] = int(enum.TEST_STATUS_TESTING)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_TESTING)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
+					models.UpdateDeploySite(data, deploySite)
+				}
+			} else {
+				if testitem == "single" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					data["start_time"] = time.Now()
+					autotest.TestItem = "Single Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["single_test"] = int(enum.TEST_STATUS_NO)
+					data["toy_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "toy" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Toy Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["toy_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "fast" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Minimize Fast Test"
+					models.UpdateAutoTest(data, autotest)
+
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
+				} else if testitem == "normal" {
+					data["status"] = int(enum.TEST_STATUS_NO)
+					autotest.TestItem = "Minimize Normal Test"
+					models.UpdateAutoTest(data, autotest)
+
+					data = make(map[string]interface{})
+					data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
+					data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
+					models.UpdateDeploySite(data, deploySite)
 				}
 			}
 		}
-	} else {
-		data = make(map[string]interface{})
-		data["single_test"] = int(enum.TEST_STATUS_NO)
-		data["toy_test"] = int(enum.TEST_STATUS_NO)
-		data["minimize_fast_test"] = int(enum.TEST_STATUS_NO)
-		data["minimize_normal_test"] = int(enum.TEST_STATUS_NO)
-		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
-		models.UpdateDeploySite(data, deploySite)
-
-		autotest.TestItem = ""
-		autotest.PartyId = autoTestReq.PartyId
-		data = make(map[string]interface{})
-		data["status"] = int(enum.TEST_STATUS_NO)
-		models.UpdateAutoTest(data, autotest)
 	}
-	return e.SUCCESS, nil
+}
+
+func DoTestOnly(autotest models.AutoTest) {
+	deploySite := models.DeploySite{
+		PartyId:     autotest.PartyId,
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid:     int(enum.IS_VALID_YES),
+	}
+
+	deployComponent := models.DeployComponent{
+		PartyId:       autotest.PartyId,
+		ComponentName: "fateflow",
+		ProductType:   int(enum.PRODUCT_TYPE_FATE),
+		DeployType:    int(enum.DeployType_ANSIBLE),
+		IsValid:       int(enum.IS_VALID_YES),
+	}
+	deployComponentList, err := models.GetDeployComponent(deployComponent)
+	if err != nil {
+		return
+	}
+	var data = make(map[string]interface{})
+	if len(deployComponentList) > 0 {
+		address := strings.Split(deployComponentList[0].Address, ":")
+		if len(address) == 2 {
+			TestReq := entity.AnsibleToyTestReq{
+				GuestPartyId: autotest.PartyId,
+				HostPartyId:  setting.DeploySetting.TestPartyId,
+				Ip:           address[0],
+				WorkMode:     setting.DeploySetting.WorkMode,
+			}
+
+			var commresp entity.AnsibleCommResp
+			result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleAutoTestUri+"/toy"), TestReq, nil)
+			err = json.Unmarshal([]byte(result.Body), &commresp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if commresp.Code == e.SUCCESS {
+				data = make(map[string]interface{})
+				data["toy_test_only"] = int(enum.TEST_STATUS_TESTING)
+				models.UpdateDeploySite(data, deploySite)
+			}
+		}
+	}
 }
