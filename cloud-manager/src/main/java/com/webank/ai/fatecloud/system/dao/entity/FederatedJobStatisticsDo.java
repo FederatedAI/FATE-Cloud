@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -10,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,23 +40,23 @@ public class FederatedJobStatisticsDo implements Serializable {
 
     @ApiModelProperty(value = "guest id")
     @TableField(value = "site_guest_id")
-    private String siteGuestId;
+    private Long siteGuestId;
 
     @ApiModelProperty(value = "host id")
     @TableField(value = "site_host_id")
-    private String siteHostId;
+    private Long siteHostId;
 
     @ApiModelProperty(value = "success count")
     @TableField(value = "job_success_count")
-    private Integer jobSuccessCount;
+    private Long jobSuccessCount;
 
     @ApiModelProperty(value = "failed count")
     @TableField(value = "job_failed_count")
-    private Integer jobFailedCount;
+    private Long jobFailedCount;
 
     @ApiModelProperty(value = "running count")
     @TableField(value = "job_running_count")
-    private Integer jobRunningCount;
+    private Long jobRunningCount;
 
     @ApiModelProperty(value = "finish date")
     @TableField(value = "job_finish_date")
@@ -59,7 +75,7 @@ public class FederatedJobStatisticsDo implements Serializable {
         this.siteHostId = jobStatisticsQo.getSiteHostId();
         this.jobSuccessCount = jobStatisticsQo.getJobSuccessCount();
         this.jobFailedCount = jobStatisticsQo.getJobFailedCount();
-        this.jobRunningCount=jobStatisticsQo.getJobRunningCount();
-        this.jobFinishDate = jobStatisticsQo.getJobFinishDate();
+        this.jobRunningCount = jobStatisticsQo.getJobRunningCount();
+        this.jobFinishDate = new Date(jobStatisticsQo.getJobFinishDate());
     }
 }
