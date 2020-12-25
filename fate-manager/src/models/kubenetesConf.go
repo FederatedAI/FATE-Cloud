@@ -83,3 +83,45 @@ func UpdateKubenetesConf(info map[string]interface{}, condition *KubenetesConf) 
 	}
 	return nil
 }
+
+func GetDefaultPort(componentName string,deployType enum.DeployType) int {
+	var port int
+	k8sinfo, err := GetKubenetesConf(deployType)
+	if err != nil || k8sinfo.Id == 0 {
+		return 0
+	}
+	if componentName == "proxy" {
+		port = 9330
+	} else if componentName == "roll" {
+		port = 30001
+	} else if componentName == "meta-service" {
+		port = 30002
+	} else if componentName == "egg" {
+		port = 30003
+	} else if componentName == "mysql" {
+		port = 3306
+	} else if componentName == "federation" {
+		port = 9320
+	} else if componentName == "fateboard" {
+		port = 8080
+	} else if componentName == "fateflow" {
+		port = k8sinfo.PythonPort + 1
+		if k8sinfo.PythonPort ==0 {
+			port = 9380
+		}
+	} else if componentName == "serving-server" {
+		port = 9340
+	} else if componentName == "serving-proxy" {
+		port = 9360
+	} else if componentName == "clustermanager" {
+		port = 4670
+	} else if componentName == "nodemanager" {
+		port = 4671
+	} else if componentName == "rollsite" {
+		port = k8sinfo.RollsitePort + 1
+		if k8sinfo.RollsitePort ==0 {
+			port = 9370
+		}
+	}
+	return port
+}

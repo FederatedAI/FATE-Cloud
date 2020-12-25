@@ -29,7 +29,6 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/component_deploy_service"
 	"fate.manager/services/k8s_service"
-	"fate.manager/services/version_service"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"io"
@@ -115,7 +114,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			Ip:            "mysql",
 			NodeSelector:  entity.NodeSelector{},
 			Password:      "***REMOVED***",
-			Port:          version_service.GetDefaultPort("mysql", enum.DeployType_K8S),
+			Port:          models.GetDefaultPort("mysql", enum.DeployType_K8S),
 			Size:          "1Gi",
 			StorageClass:  "mysql",
 			SubPath:       "",
@@ -412,7 +411,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 			ComponentName:    componentVersionList[i].ComponentName,
 			StartTime:        time.Now(),
 			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)),
+			Address:          nodelist[1] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			DeployType:       int(enum.DeployType_K8S),
