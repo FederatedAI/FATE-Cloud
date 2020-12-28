@@ -43,7 +43,8 @@ import (
 func JobTask() {
 
 	deployJob := models.DeployJob{
-		Status: int(enum.JOB_STATUS_RUNNING),
+		JobId:"2020122519003072388712",
+		//Status: int(enum.JOB_STATUS_RUNNING),
 	}
 	deployJobList, err := models.GetDeployJob(deployJob, true)
 	if err != nil {
@@ -278,7 +279,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
 		return
 	}
-	if queryResponse.Code == e.SUCCESS || true {
+	if queryResponse.Code == e.SUCCESS {
 		deployComponent := models.DeployComponent{
 			PartyId:     DeployJob.PartyId,
 			ProductType: DeployJob.ProductType,
@@ -385,7 +386,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 		data["end_time"] = endTime
 		models.UpdateDeployComponent(data, deployComponent)
 
-		if queryResponse.Data.Status == "Success" || queryResponse.Data.Status == "Failed" {
+		if queryResponse.Data.Status == "success" || queryResponse.Data.Status == "Failed" {
 			siteInfo, err := models.GetSiteInfo(deploySiteList[0].PartyId, deploySiteList[0].FederatedId)
 			if err != nil {
 				return
@@ -1591,18 +1592,17 @@ func JudgeResult(partyId int, testType string, testItem string, data []string) b
 		}
 	}
 	if len(content) > 0 {
-		path := fmt.Sprintf("./testLog/%s/fate-%d.log", "all", partyId)
+		path := fmt.Sprintf("./testLog/%s/fate-%d.log", testType, partyId)
 		if ioutil.WriteFile(path, []byte(content), 0644) == nil {
 			logging.Info("WriteFile " + path)
 		} else {
 			logging.Error("No WriteFile " + path)
 		}
-		path = fmt.Sprintf("./testLog/%s/fate-%d.log", testType, partyId)
-		if ioutil.WriteFile(path, []byte(content), 0644) == nil {
-			logging.Info("WriteFile " + path)
-		} else {
-			logging.Error("No WriteFile " + path)
+		cmd := fmt.Sprintf("cat ./testLog/%s/fate-%d.log >> ./testLog/all/fate-%d.log", testType, partyId,partyId)
+		if testType == "single" {
+			cmd = fmt.Sprintf("cat ./testLog/%s/fate-%d.log > ./testLog/all/fate-%d.log", testType, partyId,partyId)
 		}
+		util.ExecCommand(cmd)
 	}
 	return result
 }
