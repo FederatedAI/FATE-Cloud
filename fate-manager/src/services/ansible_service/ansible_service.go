@@ -797,6 +797,11 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}
+		deployComponent.Address = updateReq.Address
+		deployComponentList,err = models.GetDeployComponent(deployComponent)
+		if len(deployComponentList) >0 {
+			return e.ERROR_UPDATE_COMPONENT_FAIL,err
+		}
 		var data = make(map[string]interface{})
 		data["address"] = updateReq.Address
 		err = models.UpdateDeployComponent(data, deployComponent)

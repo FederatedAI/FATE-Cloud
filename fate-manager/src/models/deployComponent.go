@@ -63,6 +63,9 @@ func GetDeployComponent(info DeployComponent) ([]*DeployComponent, error) {
 	if info.DeployStatus > 0 {
 		Db = Db.Where("deploy_status = ?", info.DeployStatus)
 	}
+	if len(info.Address) >0 {
+		Db = Db.Where("address = ?", info.Address)
+	}
 	if info.DeployType > 0 {
 		Db = Db.Where("deploy_type = ?", info.DeployType)
 	}

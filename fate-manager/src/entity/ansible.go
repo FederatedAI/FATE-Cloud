@@ -165,11 +165,11 @@ type Play struct {
 }
 type PlayItem struct {
 	Play
-	Module string `json:"module"`
+	PlayId string `json:"f_play_id"`
 }
 type QueryData struct {
 	Play
-	Plays []PlayItem `json:"plays"`
+	Plays []PlayItem `json:"f_plays"`
 }
 type AnsibleConnectResp struct {
 	AnsibleCommResp
