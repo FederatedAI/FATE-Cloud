@@ -434,7 +434,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			req.Modules.Flow.Dbname = "fate_flow"
 			//req.Modules.Flow.Enable = true
 			req.Modules.Flow.GrpcPort = 9360
-			req.Modules.Flow.HttpPort = 9380
+			req.Modules.Flow.HttpPort = port
 			//req.Modules.Python.Enable = true
 			req.Modules.Python.Ip = address
 		} else if item.ComponentName == "fateboard" {
@@ -456,7 +456,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 			}
 			req.Modules.Rollsite.DefaultRules = append(req.Modules.Rollsite.DefaultRules, rule)
 			rule.Ip = address[0]
-			rule.Port = 9370
+			rule.Port = port
 			req.Modules.Rollsite.Rules = append(req.Modules.Rollsite.Rules, rule)
 			rule.Name = "fateflow"
 			rule.Port = 9360
