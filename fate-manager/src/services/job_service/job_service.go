@@ -43,8 +43,7 @@ import (
 func JobTask() {
 
 	deployJob := models.DeployJob{
-		JobId:"2020122519003072388712",
-		//Status: int(enum.JOB_STATUS_RUNNING),
+		Status: int(enum.JOB_STATUS_RUNNING),
 	}
 	deployJobList, err := models.GetDeployJob(deployJob, true)
 	if err != nil {
