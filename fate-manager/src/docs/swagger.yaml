@@ -912,6 +912,10 @@ definitions:
         type: integer
       totalJobs:
         type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.InstitutionModelingItem:
     properties:
@@ -935,6 +939,10 @@ definitions:
         type: number
       totalJobs:
         type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.InstitutionSite:
     properties:
@@ -1038,6 +1046,10 @@ definitions:
         type: number
       totalJobs:
         type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.MonitorReq:
     properties:
@@ -1076,6 +1088,10 @@ definitions:
         type: number
       totalJobs:
         type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.Operation:
     properties:
@@ -1380,6 +1396,10 @@ definitions:
         type: number
       totalJobs:
         type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.SitePair:
     properties:
