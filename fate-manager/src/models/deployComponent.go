@@ -110,3 +110,28 @@ func AddDeployComponent(deployComponent *DeployComponent) error {
 	}
 	return nil
 }
+
+func DeployComponentConditon(condition DeployComponent) ([]*DeployComponent, error) {
+	var deployComponentList []*DeployComponent
+	Db := db
+	if condition.PartyId > 0 {
+		Db = Db.Where("party_id = ?", condition.PartyId)
+	}
+	if len(condition.ComponentName) > 0 {
+		Db = Db.Where("component_name != ?", condition.ComponentName)
+	}
+	if condition.ProductType > 0 {
+		Db = Db.Where("product_type = ?", condition.ProductType)
+	}
+	if condition.IsValid >= 0 {
+		Db = Db.Where("is_valid = ?", condition.IsValid)
+	}
+	if len(condition.Address) > 0 {
+		Db = Db.Where("address = ?", condition.Address)
+	}
+	err := Db.Find(&deployComponentList).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return deployComponentList, nil
+}

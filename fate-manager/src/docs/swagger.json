@@ -4721,6 +4721,12 @@
                 },
                 "totalJobs": {
                     "type": "integer"
+                },
+                "waitingJobs": {
+                    "type": "integer"
+                },
+                "waitingPercent": {
+                    "type": "number"
                 }
             }
         },
@@ -4756,6 +4762,12 @@
                 },
                 "totalJobs": {
                     "type": "integer"
+                },
+                "waitingJobs": {
+                    "type": "integer"
+                },
+                "waitingPercent": {
+                    "type": "number"
                 }
             }
         },
@@ -4915,6 +4927,12 @@
                 },
                 "totalJobs": {
                     "type": "integer"
+                },
+                "waitingJobs": {
+                    "type": "integer"
+                },
+                "waitingPercent": {
+                    "type": "number"
                 }
             }
         },
@@ -4973,6 +4991,12 @@
                 },
                 "totalJobs": {
                     "type": "integer"
+                },
+                "waitingJobs": {
+                    "type": "integer"
+                },
+                "waitingPercent": {
+                    "type": "number"
                 }
             }
         },
@@ -5434,6 +5458,12 @@
                 },
                 "totalJobs": {
                     "type": "integer"
+                },
+                "waitingJobs": {
+                    "type": "integer"
+                },
+                "waitingPercent": {
+                    "type": "number"
                 }
             }
         },

@@ -76,34 +76,45 @@ func GetLabel(address string) string {
 	return label
 }
 
-func CheckNodeIp(address string, deployType enum.DeployType) bool {
+func CheckNodeIp(updateReq entity.UpdateReq, deployType enum.DeployType) bool {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return false
 	}
-	ipList := strings.Split(address, ":")
-	if len(ipList) != 2 {
-		return false
-	} else if len(ipList[1]) == 0 {
-		return false
-	}
+	addressList := strings.Split(updateReq.Address,",")
 	var tag = false
-	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	if deployType == enum.DeployType_K8S {
-		for i := 0; i < len(nodeList); i++ {
-			lablist := strings.Split(nodeList[i], ":")
-			if len(lablist) == 2 {
-				if lablist[1] == ipList[0] {
+	for i :=0;i<len(addressList) ;i++  {
+		deployComponent :=models.DeployComponent{PartyId:updateReq.PartyId,ComponentName:updateReq.ComponentName,IsValid:int(enum.IS_VALID_YES),Address:updateReq.Address}
+		deployComponentList,err := models.DeployComponentConditon(deployComponent)
+		if len(deployComponentList) >0 || err != nil {
+			tag = false
+			break
+		}
+		ipList := strings.Split(addressList[i], ":")
+		if len(ipList) != 2 {
+			tag= false
+			break
+		} else if len(ipList[1]) == 0 {
+			tag= false
+			break
+		}
+		nodeList := strings.Split(kubenetsConf.NodeList, ",")
+		if deployType == enum.DeployType_K8S {
+			for i := 0; i < len(nodeList); i++ {
+				lablist := strings.Split(nodeList[i], ":")
+				if len(lablist) == 2 {
+					if lablist[1] == ipList[0] {
+						tag = true
+						break
+					}
+				}
+			}
+		} else {
+			for i := 0; i < len(nodeList); i++ {
+				if nodeList[i] == ipList[0] {
 					tag = true
 					break
 				}
-			}
-		}
-	} else {
-		for i := 0; i < len(nodeList); i++ {
-			if nodeList[i] == ipList[0] {
-				tag = true
-				break
 			}
 		}
 	}
