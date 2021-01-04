@@ -404,7 +404,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 
 		item := deployComponentList[i]
 		modules = append(modules, item.ComponentName)
-		arr1 := strings.Split(item.Address, ";")
+		arr1 := strings.Split(item.Address, ",")
 		var port int
 		var address []string
 		for j := 0; j < len(arr1); j++ {
@@ -803,15 +803,11 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_IN_TESTING) ||
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
-		ret := k8s_service.CheckNodeIp(updateReq.Address, enum.DeployType_ANSIBLE)
+		ret := k8s_service.CheckNodeIp(updateReq, enum.DeployType_ANSIBLE)
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}
-		deployComponentTemp := models.DeployComponent{Address:updateReq.Address}
-		deployComponentList,err = models.GetDeployComponent(deployComponentTemp)
-		if len(deployComponentList) >0 {
-			return e.ERROR_UPDATE_COMPONENT_FAIL,err
-		}
+
 		var data = make(map[string]interface{})
 		data["address"] = updateReq.Address
 		err = models.UpdateDeployComponent(data, deployComponent)

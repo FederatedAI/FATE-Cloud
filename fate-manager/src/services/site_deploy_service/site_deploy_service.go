@@ -459,7 +459,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_TEST_PASSED) {
 
-		ret := k8s_service.CheckNodeIp(updateReq.Address, enum.DeployType_K8S)
+		ret := k8s_service.CheckNodeIp(updateReq, enum.DeployType_K8S)
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}

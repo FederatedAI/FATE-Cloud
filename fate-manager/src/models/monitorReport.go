@@ -28,6 +28,7 @@ type ReportInstitution struct {
 	Total       int
 	Success     int
 	Running     int
+	Waiting     int
 	Timeout     int
 	Failed      int
 	Canceled    int
@@ -44,6 +45,7 @@ type ReportSite struct {
 	Total               int
 	Success             int
 	Running             int
+	Waiting             int
 	Timeout             int
 	Failed              int
 	Canceled            int

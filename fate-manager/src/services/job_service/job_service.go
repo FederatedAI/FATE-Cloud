@@ -1011,17 +1011,22 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	for i := -5; i <= 0; i++ {
-		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
-		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
-			StartDate: curTime,
-			EndDate:   curTime,
+			StartDate: "20201231",
+			EndDate:   "20201231",
 		}
-		InstitutionReport(monitorReq)
-		SiteReport(monitorReq)
-		MonitorPush(monitorReq, accountInfo, timeunix)
-	}
+	InstitutionReport(monitorReq)
+	//for i := -20; i <= 0; i++ {
+	//	timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
+	//	curTime := time.Now().AddDate(0, 0, i).Format("20060102")
+	//	monitorReq := entity.MonitorReq{
+	//		StartDate: curTime,
+	//		EndDate:   curTime,
+	//	}
+	//	InstitutionReport(monitorReq)
+	//	SiteReport(monitorReq)
+	//	MonitorPush(monitorReq, accountInfo, timeunix)
+	//}
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -1043,6 +1048,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			Total:    monitorByHis.Total,
 			Success:  monitorByHis.Success,
 			Running:  monitorByHis.Running,
+			Waiting:  monitorByHis.Waiting,
 			Timeout:  monitorByHis.Timeout,
 			Canceled: monitorByHis.Canceled,
 			Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
@@ -1054,6 +1060,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 				itemBaseTmp.Total += itemBase.Total
 				itemBaseTmp.Success += itemBase.Success
 				itemBaseTmp.Running += itemBase.Running
+				itemBaseTmp.Waiting += itemBase.Waiting
 				itemBaseTmp.Failed += itemBase.Failed
 				itemBaseTmp.Timeout += itemBase.Timeout
 				itemBaseTmp.Canceled += itemBase.Canceled
@@ -1075,6 +1082,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 					itemBaseTmp.Total += itemBase.Total
 					itemBaseTmp.Success += itemBase.Success
 					itemBaseTmp.Running += itemBase.Running
+					itemBaseTmp.Waiting += itemBase.Waiting
 					itemBaseTmp.Failed += itemBase.Failed
 					itemBaseTmp.Timeout += itemBase.Timeout
 					itemBaseTmp.Canceled += itemBase.Canceled
@@ -1096,6 +1104,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			data["success"] = v.Success
 			data["running"] = v.Running
 			data["timeout"] = v.Timeout
+			data["waiting"] = v.Waiting
 			data["failed"] = v.Failed
 			data["canceled"] = v.Canceled
 			data["update_time"] = time.Now()
@@ -1104,6 +1113,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			reportInstitution.Total = v.Total
 			reportInstitution.Success = v.Success
 			reportInstitution.Running = v.Running
+			reportInstitution.Waiting = v.Waiting
 			reportInstitution.Timeout = v.Timeout
 			reportInstitution.Failed = v.Failed
 			reportInstitution.Canceled = v.Canceled
@@ -1147,6 +1157,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 					Total:    monitorByHis.Total,
 					Success:  monitorByHis.Success,
 					Running:  monitorByHis.Running,
+					Waiting:  monitorByHis.Waiting,
 					Timeout:  monitorByHis.Timeout,
 					Canceled: monitorByHis.Canceled,
 					Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
@@ -1234,6 +1245,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				var data = make(map[string]interface{})
 				data["success"] = siteSiteMonitor.Success
 				data["running"] = siteSiteMonitor.Running
+				data["waiting"] = siteSiteMonitor.Waiting
 				data["timeout"] = siteSiteMonitor.Timeout
 				data["failed"] = siteSiteMonitor.Failed
 				data["canceled"] = siteSiteMonitor.Canceled
@@ -1243,6 +1255,7 @@ func SiteReport(monitorReq entity.MonitorReq) {
 				reportSite.Total = siteSiteMonitor.Total
 				reportSite.Success = siteSiteMonitor.Success
 				reportSite.Running = siteSiteMonitor.Running
+				reportSite.Waiting = siteSiteMonitor.Waiting
 				reportSite.Timeout = siteSiteMonitor.Timeout
 				reportSite.Failed = siteSiteMonitor.Failed
 				reportSite.Canceled = siteSiteMonitor.Canceled
