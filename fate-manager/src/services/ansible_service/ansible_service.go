@@ -506,8 +506,8 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 	deploySite := models.DeploySite{
 		PartyId:     upgradeReq.PartyId,
 		ProductType: upgradeReq.ProductType,
-		DeployType:  int(enum.DeployType_ANSIBLE),
-		IsValid:     int(enum.IS_VALID_YES),
+		//DeployType:  int(enum.DeployType_ANSIBLE),
+		IsValid: int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {
@@ -528,93 +528,133 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 		logging.Debug(e.GetMsg(e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL))
 		return e.ERROR_VERSION_NO_LOWER_THAN_CURRENT_FAIL, err
 	}
-	var data = make(map[string]interface{})
-	data["is_valid"] = int(enum.IS_VALID_NO)
-	models.UpdateDeploySite(data, deploySite)
-	deploySite = models.DeploySite{
-		FederatedId:  deploySiteList[0].FederatedId,
-		PartyId:      deploySiteList[0].PartyId,
-		ProductType:  deploySiteList[0].ProductType,
-		FateVersion:  upgradeReq.FateVersion,
-		DeployStatus: int(enum.ANSIBLE_DeployStatus_UNKNOWN),
-		Status:       int(enum.SITE_RUN_STATUS_UNKNOWN),
-		KubenetesId:  deploySiteList[0].KubenetesId,
-		IsValid:      int(enum.IS_VALID_YES),
-		ClickType:    int(enum.AnsibleClickType_ACQUISITON),
-		CreateTime:   time.Now(),
-		UpdateTime:   time.Now(),
+	var req ClusterInstallByAnsible
+	err = json.Unmarshal([]byte(deploySiteList[0].Config), &req)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return e.ERROR_PARSE_JSON_ERROR, err
 	}
-	models.AddDeploySite(&deploySite)
+	req.FateVersion = upgradeReq.FateVersion
+	reqs, _ := json.Marshal(req)
+	result, err := http.POST(http.Url(k8s_service.GetKubenetesUrl(enum.DeployType_ANSIBLE)+setting.AnsibleJobSubmitUri), req, nil)
+	if err != nil || result == nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return e.ERROR_HTTP_FAIL, err
+	}
+	var submitResponse entity.SubmitResponse
+	err = json.Unmarshal([]byte(result.Body), &submitResponse)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return e.ERROR_PARSE_JSON_ERROR, err
+	}
+	if submitResponse.Code == e.SUCCESS {
+		var data = make(map[string]interface{})
+		data["is_valid"] = int(enum.IS_VALID_NO)
+		models.UpdateDeploySite(data, deploySite)
+		deploySite = models.DeploySite{
+			FederatedId:  deploySiteList[0].FederatedId,
+			PartyId:      deploySiteList[0].PartyId,
+			ProductType:  deploySiteList[0].ProductType,
+			FateVersion:  upgradeReq.FateVersion,
+			JobId:        submitResponse.Data.JobId,
+			VersionIndex: fateVersonList[0].VersionIndex,
+			DeployStatus: int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION),
+			Status:       int(enum.SITE_RUN_STATUS_UNKNOWN),
+			KubenetesId:  deploySiteList[0].KubenetesId,
+			DeployType:   int(enum.DeployType_ANSIBLE),
+			IsValid:      int(enum.IS_VALID_YES),
+			Config:       string(reqs),
+			ClickType:    int(enum.AnsibleClickType_ACQUISITON),
+			CreateTime:   time.Now(),
+			UpdateTime:   time.Now(),
+		}
+		models.AddDeploySite(&deploySite)
 
-	componentVersion := models.ComponentVersion{
-		FateVersion: upgradeReq.FateVersion,
-		ProductType: upgradeReq.ProductType,
-	}
-	componentVersionList, err := models.GetComponetVersionList(componentVersion)
-	if err != nil {
-		logging.Error("get component version list Failed")
-	}
-	siteInfo, err := models.GetSiteInfo(upgradeReq.PartyId, upgradeReq.FederatedId)
-	if err != nil {
-		return e.ERROR_SELECT_DB_FAIL, err
-	}
-	deployComponent := models.DeployComponent{
-		FederatedId: upgradeReq.FederatedId,
-		PartyId:     upgradeReq.PartyId,
-		ProductType: upgradeReq.ProductType,
-		DeployType:  int(enum.DeployType_ANSIBLE),
-		FateVersion: deploySiteList[0].FateVersion,
-		IsValid:     int(enum.IS_VALID_YES),
-	}
-	deployComponentList, err := models.GetDeployComponent(deployComponent)
-	if err != nil {
-		return e.ERROR_UPGRADE_ALL_FAIL, nil
-	}
-	models.UpdateDeployComponent(data, deployComponent)
-	for i := 0; i < len(componentVersionList); i++ {
-		nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
-		if len(nodelist) == 0 {
-			continue
+		componentVersion := models.ComponentVersion{
+			FateVersion: upgradeReq.FateVersion,
+			ProductType: upgradeReq.ProductType,
 		}
-		deployComponent = models.DeployComponent{
-			FederatedId:      upgradeReq.FederatedId,
-			PartyId:          upgradeReq.PartyId,
-			SiteName:         siteInfo.SiteName,
-			ProductType:      upgradeReq.ProductType,
-			FateVersion:      upgradeReq.FateVersion,
-			ComponentVersion: componentVersionList[i].ComponentVersion,
-			ComponentName:    componentVersionList[i].ComponentName,
-			StartTime:        time.Now(),
-			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          nodelist[0] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
-			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
-			DeployType:       int(enum.DeployType_ANSIBLE),
-			IsValid:          int(enum.IS_VALID_YES),
-			CreateTime:       time.Now(),
-			UpdateTime:       time.Now(),
+		componentVersionList, err := models.GetComponetVersionList(componentVersion)
+		if err != nil {
+			logging.Error("get component version list Failed")
 		}
-		for j := 0; j < len(deployComponentList); j++ {
-			if componentVersionList[i].ComponentName == deployComponentList[j].ComponentName {
-				deployComponent.Address = deployComponentList[j].Address
-				break
+		siteInfo, err := models.GetSiteInfo(upgradeReq.PartyId, upgradeReq.FederatedId)
+		if err != nil {
+			return e.ERROR_SELECT_DB_FAIL, err
+		}
+		deployComponent := models.DeployComponent{
+			FederatedId: upgradeReq.FederatedId,
+			PartyId:     upgradeReq.PartyId,
+			ProductType: upgradeReq.ProductType,
+			DeployType:  int(enum.DeployType_ANSIBLE),
+			FateVersion: deploySiteList[0].FateVersion,
+			IsValid:     int(enum.IS_VALID_YES),
+		}
+		deployComponentList, err := models.GetDeployComponent(deployComponent)
+		if err != nil {
+			return e.ERROR_UPGRADE_ALL_FAIL, nil
+		}
+		models.UpdateDeployComponent(data, deployComponent)
+		for i := 0; i < len(componentVersionList); i++ {
+			nodelist := k8s_service.GetNodeIp(enum.DeployType_ANSIBLE)
+			if len(nodelist) == 0 {
+				continue
+			}
+			deployComponent = models.DeployComponent{
+				FederatedId:      upgradeReq.FederatedId,
+				PartyId:          upgradeReq.PartyId,
+				SiteName:         siteInfo.SiteName,
+				ProductType:      upgradeReq.ProductType,
+				FateVersion:      upgradeReq.FateVersion,
+				JobId:            submitResponse.Data.JobId,
+				ComponentVersion: componentVersionList[i].ComponentVersion,
+				ComponentName:    componentVersionList[i].ComponentName,
+				StartTime:        time.Now(),
+				VersionIndex:     componentVersionList[i].VersionIndex,
+				Address:          nodelist[0] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
+				DeployStatus:     int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION),
+				DeployType:       int(enum.DeployType_ANSIBLE),
+				IsValid:          int(enum.IS_VALID_YES),
+				CreateTime:       time.Now(),
+				UpdateTime:       time.Now(),
+			}
+			for j := 0; j < len(deployComponentList); j++ {
+				if componentVersionList[i].ComponentName == deployComponentList[j].ComponentName {
+					deployComponent.Address = deployComponentList[j].Address
+					break
+				}
+			}
+			err = models.AddDeployComponent(&deployComponent)
+			if err != nil {
+				logging.Error("Add deploy componenet failed")
 			}
 		}
-		err = models.AddDeployComponent(&deployComponent)
-		if err != nil {
-			logging.Error("Add deploy componenet failed")
+		deployJob := models.DeployJob{
+			JobId:       submitResponse.Data.JobId,
+			JobType:     int(enum.JOB_TYPE_INSTALL),
+			Status:      int(enum.JOB_STATUS_RUNNING),
+			StartTime:   time.Now(),
+			PartyId:     req.PartyId,
+			DeployType:  int(enum.DeployType_ANSIBLE),
+			ProductType: int(enum.PRODUCT_TYPE_FATE),
+			CreateTime:  time.Now(),
+			UpdateTime:  time.Now(),
 		}
+
+		models.AddDeployJob(&deployJob)
 	}
+
 	return e.SUCCESS, nil
 }
 
 func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 	var data = make(map[string]interface{})
 	fateVersion := models.FateVersion{
-		FateVersion:   commitImagePullReq.FateVersion,
+		FateVersion: commitImagePullReq.FateVersion,
 	}
-	fateVersionList,err := models.GetFateVersionList(&fateVersion)
-	if err != nil || len(fateVersionList) ==0{
-		return e.ERROR_UPDATE_COMPONENT_VERSION_FAIL,nil
+	fateVersionList, err := models.GetFateVersionList(&fateVersion)
+	if err != nil || len(fateVersionList) == 0 {
+		return e.ERROR_UPDATE_COMPONENT_VERSION_FAIL, nil
 	}
 
 	data["fate_version"] = commitImagePullReq.FateVersion
