@@ -1011,22 +1011,17 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
+	for i := -5; i <= 0; i++ {
+		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
+		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
-			StartDate: "20201231",
-			EndDate:   "20201231",
+			StartDate: curTime,
+			EndDate:   curTime,
 		}
-	InstitutionReport(monitorReq)
-	//for i := -20; i <= 0; i++ {
-	//	timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
-	//	curTime := time.Now().AddDate(0, 0, i).Format("20060102")
-	//	monitorReq := entity.MonitorReq{
-	//		StartDate: curTime,
-	//		EndDate:   curTime,
-	//	}
-	//	InstitutionReport(monitorReq)
-	//	SiteReport(monitorReq)
-	//	MonitorPush(monitorReq, accountInfo, timeunix)
-	//}
+		InstitutionReport(monitorReq)
+		SiteReport(monitorReq)
+		MonitorPush(monitorReq, accountInfo, timeunix)
+	}
 }
 
 func InstitutionReport(monitorReq entity.MonitorReq) {
@@ -1075,7 +1070,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 			if err != nil {
 				continue
 			}
-			if len(siteInfoList) == 0 {
+			//if len(siteInfoList) == 0 {
 				_, ok := monitorBaseMap[monitorByHis.HostInstitution]
 				if ok {
 					itemBaseTmp := monitorBaseMap[monitorByHis.HostInstitution]
@@ -1090,7 +1085,7 @@ func InstitutionReport(monitorReq entity.MonitorReq) {
 				} else {
 					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
 				}
-			}
+			//}
 		}
 	}
 	for k, v := range monitorBaseMap {
