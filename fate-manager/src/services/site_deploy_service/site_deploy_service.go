@@ -27,6 +27,7 @@ import (
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/ansible_service"
 	"fate.manager/services/component_deploy_service"
 	"fate.manager/services/k8s_service"
 	"fmt"
@@ -327,12 +328,15 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	deploySite := models.DeploySite{
 		PartyId:     upgradeReq.PartyId,
 		ProductType: upgradeReq.ProductType,
-		DeployType:  int(enum.DeployType_K8S),
+		//DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if deploySiteList[0].DeployType == int(enum.DeployType_ANSIBLE){
+		return ansible_service.UpgradeByAnsible(upgradeReq)
 	}
 	fateVerson := models.FateVersion{
 		FateVersion: upgradeReq.FateVersion,
