@@ -966,7 +966,7 @@ func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType)
 				SiteId:           siteInfo.SiteId,
 				ComponentName:    deployComponentList[k].ComponentName,
 				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
-				JobStatus:        1,
+				JobStatus:        2,
 				UpdateTime:      time.Now().UnixNano() / 1e6,
 				ComponentVersion: deployComponentList[k].ComponentVersion,
 			}
