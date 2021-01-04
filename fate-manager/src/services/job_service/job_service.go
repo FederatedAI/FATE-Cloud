@@ -223,7 +223,7 @@ func JobTask() {
 								SiteId:           siteInfo.SiteId,
 								ComponentName:    deployComponentList[k].ComponentName,
 								JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[i].JobType)),
-								JobStatus:        2,
+								JobStatus:        1,
 								UpdateTime:       jobQueryResp.Data.EndTime.UnixNano() / 1e6,
 								ComponentVersion: deployComponentList[k].ComponentVersion,
 							}
@@ -403,7 +403,7 @@ func AnsibleJobQuery(DeployJob models.DeployJob) {
 						SiteId:           siteInfo.SiteId,
 						ComponentName:    deployComponentList[k].ComponentName,
 						JobType:          enum.GetJobTypeString(enum.JobType(DeployJob.JobType)),
-						JobStatus:        2,
+						JobStatus:        1,
 						UpdateTime:       queryResponse.Data.EndTime,
 						ComponentVersion: deployComponentList[k].ComponentVersion,
 					}
@@ -852,7 +852,6 @@ func ComponentStatusTask() {
 			data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		}
 		deployComponent = models.DeployComponent{
-			FederatedId:   deployComponentList[i].FederatedId,
 			PartyId:       deployComponentList[i].PartyId,
 			ProductType:   deployComponentList[i].ProductType,
 			ComponentName: deployComponentList[i].ComponentName,

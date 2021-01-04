@@ -609,9 +609,19 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 
 func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 	var data = make(map[string]interface{})
+	fateVersion := models.FateVersion{
+		FateVersion:   commitImagePullReq.FateVersion,
+	}
+	fateVersionList,err := models.GetFateVersionList(&fateVersion)
+	if err != nil || len(fateVersionList) ==0{
+		return e.ERROR_UPDATE_COMPONENT_VERSION_FAIL,nil
+	}
+
 	data["fate_version"] = commitImagePullReq.FateVersion
 	data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_LOADED)
 	data["click_type"] = int(enum.AnsibleClickType_ACQUISITON)
+	data["version_index"] = fateVersionList[0].VersionIndex
+
 	deploySite := models.DeploySite{
 		PartyId:     commitImagePullReq.PartyId,
 		ProductType: int(enum.PRODUCT_TYPE_FATE),
@@ -797,8 +807,8 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}
-		deployComponent.Address = updateReq.Address
-		deployComponentList,err = models.GetDeployComponent(deployComponent)
+		deployComponentTemp := models.DeployComponent{Address:updateReq.Address}
+		deployComponentList,err = models.GetDeployComponent(deployComponentTemp)
 		if len(deployComponentList) >0 {
 			return e.ERROR_UPDATE_COMPONENT_FAIL,err
 		}
