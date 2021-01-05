@@ -133,4 +133,14 @@ public class FederatedProductVersionService implements Serializable {
 
         return productNames;
     }
+
+    public ProductVersionDto findVersionForFateManager() {
+        List<String> productNames = federatedProductVersionMapper.getProductNamesForFateManager();
+        List<String> productVersions = federatedProductVersionMapper.getProductVersionsForFateManager();
+
+        ProductVersionDto productVersionDto = new ProductVersionDto();
+        productVersionDto.setProductNameList(productNames);
+        productVersionDto.setProductVersionList(productVersions);
+        return productVersionDto;
+    }
 }

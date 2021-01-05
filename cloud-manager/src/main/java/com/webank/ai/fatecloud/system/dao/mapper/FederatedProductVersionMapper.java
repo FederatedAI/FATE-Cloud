@@ -31,4 +31,8 @@ public interface FederatedProductVersionMapper extends BaseMapper<FederatedProdu
     List<String> getProductNames();
 
     List<String> getProductVersions();
+
+    List<String> getProductNamesForFateManager();
+
+    List<String> getProductVersionsForFateManager();
 }
