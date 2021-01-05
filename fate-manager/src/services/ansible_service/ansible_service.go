@@ -482,6 +482,7 @@ func InstallByAnsible(installReq entity.InstallReq) (int, error) {
 
 		var data = make(map[string]interface{})
 		data["deploy_status"] = int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION)
+		data["job_id"] = submitResponse.Data.JobId
 		models.UpdateDeployComponent(data, deployComponent)
 		data["config"] = string(reqs)
 		models.UpdateDeploySite(data, deploySite)
@@ -631,7 +632,7 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 		}
 		deployJob := models.DeployJob{
 			JobId:       submitResponse.Data.JobId,
-			JobType:     int(enum.JOB_TYPE_INSTALL),
+			JobType:     int(enum.JOB_TYPE_UPDATE),
 			Status:      int(enum.JOB_STATUS_RUNNING),
 			StartTime:   time.Now(),
 			PartyId:     req.PartyId,

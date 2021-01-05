@@ -926,14 +926,14 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 						IsValid:     int(enum.IS_VALID_YES),
 					}
 					models.UpdateDeployComponent(deployData, deployComponent)
-					UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S)
+					UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S,2)
 				}
 			}
 		}
 	}
 }
 
-func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType){
+func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType, serviceStatus int){
 	siteInfo, err := models.GetSiteInfo(partyId,federatedId)
 	if err != nil {
 		return
@@ -958,6 +958,10 @@ func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType)
 		DeployType:         int(deployType),
 	}
 	deploySiteList,_:= models.GetDeploySite(&deploySite)
+	var data =make(map[string]interface{})
+	data["service_status"] = serviceStatus
+	siteInfoTemp := models.SiteInfo{PartyId:partyId,Status:int(enum.SITE_STATUS_JOINED)}
+	models.UpdateSiteByCondition(data,siteInfoTemp)
 	deployJob := models.DeployJob{JobId:       deploySiteList[0].JobId}
 	deployJobList,_ := models.GetDeployJob(deployJob,true)
 	if len(deployJobList) == 0 || len(deployComponentList) ==0 || len(deploySiteList) ==0 {
@@ -966,11 +970,11 @@ func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType)
 	var cloudSystemAddList []entity.CloudSystemAdd
 	for k := 0; k < len(deployComponentList); k++ {
 			cloudSystemAdd := entity.CloudSystemAdd{
-				DetectiveStatus:  1,
+				DetectiveStatus:  serviceStatus,
 				SiteId:           siteInfo.SiteId,
 				ComponentName:    deployComponentList[k].ComponentName,
 				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
-				JobStatus:        2,
+				JobStatus:        1,
 				UpdateTime:      time.Now().UnixNano() / 1e6,
 				ComponentVersion: deployComponentList[k].ComponentVersion,
 			}

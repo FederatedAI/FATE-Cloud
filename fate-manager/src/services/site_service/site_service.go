@@ -28,6 +28,7 @@ import (
 	"fate.manager/services/changelog_service"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/job_service"
+	"fate.manager/services/site_deploy_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"strings"
@@ -173,7 +174,6 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				if findOneSiteResp.Code == int(e.SUCCESS) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
-					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus, enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
 					var siteInfo models.SiteInfo
 					siteInfo.Status = siteItem.Status.Code
 					siteInfo.PartyId = federatedSiteItem.PartyId
@@ -287,31 +287,16 @@ func HeartTask() {
 	for i := 0; i < len(federatedSiteList); i++ {
 		federatedSiteItem := federatedSiteList[i]
 		if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
-			headInfo := util.HeaderInfo{
-				AppKey:    federatedSiteItem.AppKey,
-				AppSecret: federatedSiteItem.AppSecret,
-				PartyId:   federatedSiteItem.PartyId,
-				Body:      "",
-				Role:      federatedSiteItem.Role,
-				Uri:       setting.HeartUri,
+			deploySite := models.DeploySite{PartyId: federatedSiteItem.PartyId, IsValid: int(enum.IS_VALID_YES)}
+			deploySiteList, err := models.GetDeploySite(&deploySite)
+			if err != nil || len(deploySiteList) == 0 {
+				continue
 			}
-			headerInfoMap := util.GetHeaderInfo(headInfo)
-			result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.HeartUri), nil, headerInfoMap)
-			if err != nil {
-				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			serviceStatus := 1
+			if deploySiteList[0].Status == int(enum.SITE_RUN_STATUS_RUNNING) {
+				serviceStatus = 2
 			}
-			var updateResp entity.CloudManagerResp
-			if result != nil {
-				err = json.Unmarshal([]byte(result.Body), &updateResp)
-				if err != nil {
-					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return
-				}
-				if updateResp.Code == e.SUCCESS {
-					msg := fmt.Sprintf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
-					logging.Debug(msg)
-				}
-			}
+			go site_deploy_service.UploadStatusToCloud(deploySiteList[0].PartyId, deploySiteList[0].FederatedId,enum.DeployType(deploySiteList[0].DeployType), serviceStatus)
 			deployComponent := models.DeployComponent{
 				PartyId: federatedSiteItem.PartyId,
 				IsValid: int(enum.IS_VALID_YES),

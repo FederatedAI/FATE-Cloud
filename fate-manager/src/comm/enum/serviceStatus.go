@@ -21,8 +21,8 @@ type ServiceStatusType int32
 
 const (
 	SERVICE_STATUS_UNKNOWN   ServiceStatusType = -1
-	SERVICE_STATUS_UNAVAILABLE   ServiceStatusType = 0
-	SERVICE_STATUS_AVAILABLE ServiceStatusType = 1
+	SERVICE_STATUS_UNAVAILABLE   ServiceStatusType = 1
+	SERVICE_STATUS_AVAILABLE ServiceStatusType = 2
 )
 
 func GetServiceStatusString(p ServiceStatusType) string {
@@ -38,7 +38,7 @@ func GetServiceStatusString(p ServiceStatusType) string {
 
 func GetServiceStatusList() []entity.IdPair {
 	var idPairList []entity.IdPair
-	for i := 0; i < 2; i++ {
+	for i := 1; i < 3; i++ {
 		idPair := entity.IdPair{i, GetServiceStatusString(ServiceStatusType(i))}
 		idPairList = append(idPairList, idPair)
 	}
