@@ -91,7 +91,7 @@ public class FederatedProductVersionController {
 
     @PostMapping(value = "/version")
     @ApiOperation(value = "find version items")
-    public CommonResponse<ProductVersionDto> findVersion()  {
+    public CommonResponse<ProductVersionDto> findVersion() {
 
         return federatedProductVersionServiceFacade.findVersion();
     }
@@ -106,8 +106,16 @@ public class FederatedProductVersionController {
     //interfaces for fate manager
     @PostMapping(value = "/page/fatemanager")
     @ApiOperation(value = "find paged items for fate manager")
-    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo  , HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) {
         log.info("RequestBody:{}", productVersionPageForFateManagerQo);
-        return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageForFateManagerQo,httpServletRequest);
+        return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageForFateManagerQo, httpServletRequest);
     }
+
+    @PostMapping(value = "/version/fatemanager")
+    @ApiOperation(value = "find version items for fate manager")
+    public CommonResponse<ProductVersionDto> findVersionForFateManager(HttpServletRequest httpServletRequest) {
+
+        return federatedProductVersionServiceFacade.findVersionForFateManager(httpServletRequest);
+    }
+
 }
