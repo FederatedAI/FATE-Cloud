@@ -111,11 +111,5 @@ public class FederatedProductVersionController {
         return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageForFateManagerQo, httpServletRequest);
     }
 
-    @PostMapping(value = "/version/fatemanager")
-    @ApiOperation(value = "find version items for fate manager")
-    public CommonResponse<ProductVersionDto> findVersionForFateManager(HttpServletRequest httpServletRequest) {
-
-        return federatedProductVersionServiceFacade.findVersionForFateManager(httpServletRequest);
-    }
 
 }
