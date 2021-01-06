@@ -184,8 +184,8 @@ type ConnectItem struct {
 	Status   string   `json:"status"`
 }
 type AnsibleConnect struct {
-	PartyId     string        `json:"status"`
-	FateVersion string        `json:"version"`
+	PartyId     int        `json:"party_id"`
+	FateVersion string        `json:"fate_version"`
 	List        []ConnectItem `json:"list"`
 }
 type AnsibleLog struct {

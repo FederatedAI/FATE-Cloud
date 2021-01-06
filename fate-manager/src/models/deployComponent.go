@@ -69,7 +69,7 @@ func GetDeployComponent(info DeployComponent) ([]*DeployComponent, error) {
 	if info.DeployType > 0 {
 		Db = Db.Where("deploy_type = ?", info.DeployType)
 	}
-	err := Db.Find(&deployComponentList).Error
+	err := Db.Order("component_name").Find(&deployComponentList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
