@@ -28,7 +28,6 @@ import (
 	"fate.manager/services/changelog_service"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/job_service"
-	"fate.manager/services/site_deploy_service"
 	"fate.manager/services/user_service"
 	"fmt"
 	"strings"
@@ -287,16 +286,11 @@ func HeartTask() {
 	for i := 0; i < len(federatedSiteList); i++ {
 		federatedSiteItem := federatedSiteList[i]
 		if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
-			deploySite := models.DeploySite{PartyId: federatedSiteItem.PartyId, IsValid: int(enum.IS_VALID_YES)}
-			deploySiteList, err := models.GetDeploySite(&deploySite)
-			if err != nil || len(deploySiteList) == 0 {
+			deploySite := models.DeploySite{PartyId:federatedSiteItem.PartyId,IsValid:int(enum.IS_VALID_YES)}
+			deploySiteList,err := models.GetDeploySite(&deploySite)
+			if err !=nil || len(deploySiteList) ==0 {
 				continue
 			}
-			serviceStatus := 1
-			if deploySiteList[0].Status == int(enum.SITE_RUN_STATUS_RUNNING) {
-				serviceStatus = 2
-			}
-			go site_deploy_service.UploadStatusToCloud(deploySiteList[0].PartyId, deploySiteList[0].FederatedId,enum.DeployType(deploySiteList[0].DeployType), serviceStatus)
 			deployComponent := models.DeployComponent{
 				PartyId: federatedSiteItem.PartyId,
 				IsValid: int(enum.IS_VALID_YES),
@@ -310,7 +304,7 @@ func HeartTask() {
 					ComponentName:    deployComponentList[j].ComponentName,
 					ComponentVersion: deployComponentList[j].ComponentVersion,
 				}
-				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING) {
+				if deploySiteList[0].Status == int(enum.DeployStatus_TEST_PASSED) ||  deploySiteList[0].Status == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
 					cloudSystemHeart.DetectiveStatus = 2
 				}
 				cloudSystemHeartList = append(cloudSystemHeartList, cloudSystemHeart)

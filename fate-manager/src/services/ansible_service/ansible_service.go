@@ -9,6 +9,7 @@ import (
 	"fate.manager/comm/setting"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/job_service"
 	"fate.manager/services/k8s_service"
 	"fmt"
 	"strconv"
@@ -50,8 +51,9 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			PartyId:            ansibleReq.PartyId,
 			ProductType:        int(enum.PRODUCT_TYPE_FATE),
 			Status:             int(enum.SITE_RUN_STATUS_UNKNOWN),
-			ClickType:          int(enum.AnsibleClickType_CONNECT),
+			ClickType:          int(enum.ANSIBLE_DeployStatus_LOADED),
 			KubenetesId:        kubenetesConf.Id,
+			FateVersion:        connectResp.Data.FateVersion,
 			DeployStatus:       int(enum.ANSIBLE_DeployStatus_UNKNOWN),
 			SingleTest:         int(enum.TEST_STATUS_WAITING),
 			ToyTest:            int(enum.TEST_STATUS_WAITING),
@@ -64,6 +66,11 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			CreateTime:         time.Now(),
 			UpdateTime:         time.Now(),
 		}
+		fateVersion := models.FateVersion{FateVersion: connectResp.Data.FateVersion}
+		fateVersionList, err := models.GetFateVersionList(&fateVersion)
+		if err == nil && len(fateVersionList) > 0 {
+			deploySite.VersionIndex = fateVersionList[0].VersionIndex
+		}
 		if conf.Id > 0 {
 			deploySite.KubenetesId = conf.Id
 		}
@@ -71,66 +78,106 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 		if kubenetesConf.ClickType > 0 {
 			deploySite.ClickType = conf.ClickType
 		}
-		deploySiteList, _ := models.GetDeploySite(&deploySite)
-		if len(deploySiteList) == 0 {
-			models.AddDeploySite(&deploySite)
-		}
-		nodeploytag := false
+		clickTag := false
 		for i := 0; i < len(connectResp.Data.List); i++ {
 			connectItem := connectResp.Data.List[i]
-			if connectItem.Port == 0 || nodeploytag {
-				nodeploytag = true
-				continue
-			}
-			address := ""
-			for j := 0; j < len(connectItem.Ips); j++ {
-				ipport := fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
-				if connectItem.Module == "fateflow" {
-					ipport = fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.GrpcPort)
+			if connectItem.Module == "fateflow" || connectItem.Module == "fateboard" || connectItem.Module == "mysql" ||
+				connectItem.Module == "clustermanager" || connectItem.Module == "nodemanager" || connectItem.Module == "rollsite" {
+				address := ""
+				clickTag = true
+				for j := 0; j < len(connectItem.Ips); j++ {
+					ipport := fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
+					if connectItem.Module == "fateflow" {
+						ipport = fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
+					}
+					address = ipport
+					if j < len(connectItem.Ips)-1 {
+						address = fmt.Sprintf("%s,%s", address, ipport)
+					}
 				}
-				address = fmt.Sprintf("%s;%s", ipport, address)
+
+				deployComponent := models.DeployComponent{
+					JobId:            fmt.Sprintf("%d_connect",ansibleReq.PartyId),
+					PartyId:          ansibleReq.PartyId,
+					ProductType:      int(enum.PRODUCT_TYPE_FATE),
+					ComponentName:    connectItem.Module,
+					ComponentVersion: connectResp.Data.FateVersion,
+					Address:          address,
+					DeployStatus:     int(enum.ANSIBLE_DeployStatus_INSTALLED),
+					DeployType:       int(enum.DeployType_ANSIBLE),
+					IsValid:          int(enum.IS_VALID_YES),
+					StartTime:        time.Now(),
+					EndTime:          time.Now(),
+					CreateTime:       time.Now(),
+					UpdateTime:       time.Now(),
+				}
+				componentVersion := models.ComponentVersion{FateVersion: connectResp.Data.FateVersion, ComponentName: connectItem.Module}
+				componentVersionList, err := models.GetComponetVersionList(componentVersion)
+				if err == nil && len(componentVersionList) > 0 {
+					deployComponent.VersionIndex = componentVersionList[0].VersionIndex
+					deployComponent.ComponentVersion = componentVersionList[0].ComponentVersion
+				}
+				if connectItem.Status == "running" {
+					deployComponent.Status = int(enum.SITE_RUN_STATUS_RUNNING)
+				} else if connectItem.Status == "stopped" {
+					deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
+				} else {
+					deployComponent.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED)
+					deployComponent.Status = int(enum.SITE_RUN_STATUS_UNKNOWN)
+				}
+				deployComponentList, _ := models.GetDeployComponent(deployComponent)
+				if len(deployComponentList) == 0 {
+					models.AddDeployComponent(&deployComponent)
+				}
+				autoTest := models.AutoTest{
+					PartyId:     ansibleReq.PartyId,
+					ProductType: int(enum.PRODUCT_TYPE_FATE),
+					FateVersion: connectResp.Data.FateVersion,
+					TestItem:    connectItem.Module,
+					CreateTime:  time.Now(),
+					UpdateTime:  time.Now(),
+				}
+				autoTestList, _ := models.GetAutoTest(autoTest)
+				if len(autoTestList) == 0 {
+					autoTest.Status = int(enum.TEST_STATUS_WAITING)
+					models.AddAutoTest(autoTest)
+				} else {
+					var data = make(map[string]interface{})
+					data["status"] = int(enum.TEST_STATUS_WAITING)
+					models.UpdateAutoTest(data, autoTest)
+				}
+				if i == len(connectResp.Data.List)-1 {
+					autoTest.TestItem = ""
+					job_service.InserTestItem(autoTest, enum.TEST_ITEM_TOY)
+					job_service.InserTestItem(autoTest, enum.TEST_ITEM_FAST)
+					job_service.InserTestItem(autoTest, enum.TEST_ITEM_NORMAL)
+					job_service.InserTestItem(autoTest, enum.TEST_ITEM_SINGLE)
+				}
 			}
-			deployComponent := models.DeployComponent{
-				PartyId:          ansibleReq.PartyId,
-				ProductType:      int(enum.PRODUCT_TYPE_FATE),
-				ComponentName:    connectItem.Module,
-				ComponentVersion: connectResp.Data.FateVersion,
-				Address:          address,
-				DeployStatus:     int(enum.ANSIBLE_DeployStatus_INSTALLED),
-				DeployType:       int(enum.DeployType_ANSIBLE),
-				IsValid:          int(enum.IS_VALID_YES),
-				CreateTime:       time.Now(),
-				UpdateTime:       time.Now(),
+		}
+		deploySiteList, _ := models.GetDeploySite(&deploySite)
+		if len(deploySiteList) == 0 {
+			if clickTag {
+				deploySite.ClickType = int(enum.AnsibleClickType_INSTALL)
+				deploySite.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED)
+
+				deployJob :=models.DeployJob{
+					JobId:       fmt.Sprintf("%d_connect",ansibleReq.PartyId),
+					JobType:     int(enum.JOB_TYPE_INSTALL),
+					Creator:     "admin",
+					Status:      int(enum.JOB_STATUS_SUCCESS),
+					StartTime:   time.Now(),
+					EndTime:     time.Now(),
+					PartyId:     ansibleReq.PartyId,
+					DeployType:  int(enum.DeployType_ANSIBLE),
+					ProductType: int(enum.PRODUCT_TYPE_FATE),
+					CreateTime:  time.Now(),
+					UpdateTime:  time.Now(),
+				}
+				models.AddDeployJob(&deployJob)
 			}
-			if connectItem.Status == "RUNNING" {
-				deployComponent.Status = int(enum.SITE_RUN_STATUS_RUNNING)
-			} else if connectItem.Status == "STOPPED" {
-				deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
-			} else {
-				deployComponent.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED_FAILED)
-				deployComponent.Status = int(enum.SITE_RUN_STATUS_UNKNOWN)
-			}
-			deployComponentList, _ := models.GetDeployComponent(deployComponent)
-			if len(deployComponentList) == 0 {
-				models.AddDeployComponent(&deployComponent)
-			}
-			autoTest := models.AutoTest{
-				PartyId:     ansibleReq.PartyId,
-				ProductType: int(enum.PRODUCT_TYPE_FATE),
-				FateVersion: connectResp.Data.FateVersion,
-				TestItem:    connectItem.Module,
-				CreateTime:  time.Now(),
-				UpdateTime:  time.Now(),
-			}
-			autoTestList, _ := models.GetAutoTest(autoTest)
-			if len(autoTestList) == 0 {
-				autoTest.Status = int(enum.TEST_STATUS_WAITING)
-				models.AddAutoTest(autoTest)
-			} else {
-				var data = make(map[string]interface{})
-				data["status"] = int(enum.TEST_STATUS_WAITING)
-				models.UpdateAutoTest(data, autoTest)
-			}
+
+			models.AddDeploySite(&deploySite)
 		}
 		return e.SUCCESS, nil
 	}
@@ -692,21 +739,37 @@ func CommitPackage(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 		}
 		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
-			PartyId:          commitImagePullReq.PartyId,
-			ProductType:      int(enum.PRODUCT_TYPE_FATE),
-			FateVersion:      commitImagePullReq.FateVersion,
-			ComponentVersion: componentVersionList[i].ComponentVersion,
-			ComponentName:    componentVersionList[i].ComponentName,
-			Address:          nodelist[0] + ":" + strconv.Itoa(port),
-			VersionIndex:     componentVersionList[i].VersionIndex,
-			DeployStatus:     int(enum.ANSIBLE_DeployStatus_LOADED),
-			DeployType:       int(enum.DeployType_ANSIBLE),
-			Status:           int(enum.ANSIBLE_DeployStatus_UNKNOWN),
-			IsValid:          int(enum.IS_VALID_YES),
-			CreateTime:       time.Now(),
-			UpdateTime:       time.Now(),
+			PartyId:       commitImagePullReq.PartyId,
+			ComponentName: componentVersionList[i].ComponentName,
+			ProductType:   int(enum.PRODUCT_TYPE_FATE),
+			DeployType:    int(enum.DeployType_ANSIBLE),
+			IsValid:       int(enum.IS_VALID_YES),
 		}
-		models.AddDeployComponent(&deployComponent)
+		deployComponentList, err := models.GetDeployComponent(deployComponent)
+		if err != nil {
+			continue
+		}
+		if len(deployComponentList) == 0 {
+
+			deployComponent.FateVersion = commitImagePullReq.FateVersion
+			deployComponent.ComponentVersion = componentVersionList[i].ComponentVersion
+			deployComponent.ComponentName = componentVersionList[i].ComponentName
+			deployComponent.Address = nodelist[0] + ":" + strconv.Itoa(port)
+			deployComponent.VersionIndex = componentVersionList[i].VersionIndex
+			deployComponent.DeployStatus = int(enum.ANSIBLE_DeployStatus_LOADED)
+			deployComponent.CreateTime = time.Now()
+			deployComponent.UpdateTime = time.Now()
+
+			models.AddDeployComponent(&deployComponent)
+		} else {
+			var data = make(map[string]interface{})
+			data["fate_version"] = componentVersionList[i].ComponentVersion
+			data["address"] = nodelist[0] + ":" + strconv.Itoa(port)
+			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["version_index"] = componentVersionList[i].VersionIndex
+			data["update_time"] = time.Now()
+			models.UpdateDeployComponent(data, deployComponent)
+		}
 	}
 	return e.SUCCESS, nil
 }
@@ -1308,6 +1371,7 @@ func DoTestOnly(autotest models.AutoTest) {
 			if commresp.Code == e.SUCCESS {
 				data = make(map[string]interface{})
 				data["toy_test_only"] = int(enum.TEST_STATUS_TESTING)
+				data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_NO)
 				models.UpdateDeploySite(data, deploySite)
 			}
 		}
