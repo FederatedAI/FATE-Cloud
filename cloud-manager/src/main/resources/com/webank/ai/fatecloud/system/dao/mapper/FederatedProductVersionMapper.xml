@@ -77,12 +77,33 @@
         SELECT product_version from t_product_version group by product_version order by product_version asc
     </select>
 
-    <select id="getProductNamesForFateManager" resultType="string">
-        SELECT product_name from t_product_version where public_status = 1 group by product_name order by product_name asc
+
+    <select id="countForFateManager" parameterType="com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageForFateManagerQo"
+            resultType="long">
+        SELECT count(1) from t_product_version
+        <where>
+            and public_status=1
+
+        </where>
+
     </select>
 
-    <select id="getProductVersionsForFateManager" resultType="string">
-        SELECT product_version from t_product_version where public_status = 1 group by product_version order by product_version asc
+    <select id="page" resultMap="productMap">
+
+        select * from t_product_version pv left join t_component_version cv
+        on pv.product_id=cv.product_id
+        <where>
+            and pv.product_id in
+            (select product_id from
+            ( select product_id from t_product_version
+            <where>
+                and public_status=1
+            </where>
+            order by product_name ,product_version limit #{startIndex}, #{productVersionPageForFateManagerQo.pageSize}
+            ) tmp
+            ) order by product_name ,product_version
+        </where>
+
     </select>
 
 </mapper>
