@@ -88,7 +88,7 @@
 
     </select>
 
-    <select id="page" resultMap="productMap">
+    <select id="pageForFateManager" resultMap="productMap">
 
         select * from t_product_version pv left join t_component_version cv
         on pv.product_id=cv.product_id
