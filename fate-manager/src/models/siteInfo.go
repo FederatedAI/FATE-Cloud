@@ -121,7 +121,7 @@ func GetSiteDropDownList(federatedId int) ([]*SiteInfo, error) {
 func GetFlowAddressList(info *SiteInfo)([]*FlowAddress,error){
 	var FlowAddressList []*FlowAddress
 	err := db.Table("t_fate_site_info t1").Select("t1.party_id as party_id,t2.address as address,t1.site_name as site_name").
-		Joins("left join t_fate_deploy_component t2 ON t1.party_id = t2.party_id WHERE t1.status=2 AND t1.service_status=1 AND t2.component_name='fateflow' AND t2.is_valid=1").
+		Joins("left join t_fate_deploy_component t2 ON t1.party_id = t2.party_id WHERE t1.status=2 AND t2.component_name='fateflow' AND t2.is_valid=1").
 		Scan(&FlowAddressList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err

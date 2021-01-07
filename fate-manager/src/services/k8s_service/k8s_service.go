@@ -76,34 +76,45 @@ func GetLabel(address string) string {
 	return label
 }
 
-func CheckNodeIp(address string, deployType enum.DeployType) bool {
+func CheckNodeIp(updateReq entity.UpdateReq, deployType enum.DeployType) bool {
 	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return false
 	}
-	ipList := strings.Split(address, ":")
-	if len(ipList) != 2 {
-		return false
-	}else if len(ipList[1])==0{
-		return false
-	}
+	addressList := strings.Split(updateReq.Address,",")
 	var tag = false
-	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	if deployType == enum.DeployType_K8S {
-		for i := 0; i < len(nodeList); i++ {
-			lablist := strings.Split(nodeList[i], ":")
-			if len(lablist) == 2 {
-				if lablist[1] == ipList[0] {
+	for i :=0;i<len(addressList) ;i++  {
+		deployComponent :=models.DeployComponent{PartyId:updateReq.PartyId,ComponentName:updateReq.ComponentName,IsValid:int(enum.IS_VALID_YES),Address:updateReq.Address}
+		deployComponentList,err := models.DeployComponentConditon(deployComponent)
+		if len(deployComponentList) >0 || err != nil {
+			tag = false
+			break
+		}
+		ipList := strings.Split(addressList[i], ":")
+		if len(ipList) != 2 {
+			tag= false
+			break
+		} else if len(ipList[1]) == 0 {
+			tag= false
+			break
+		}
+		nodeList := strings.Split(kubenetsConf.NodeList, ",")
+		if deployType == enum.DeployType_K8S {
+			for i := 0; i < len(nodeList); i++ {
+				lablist := strings.Split(nodeList[i], ":")
+				if len(lablist) == 2 {
+					if lablist[1] == ipList[0] {
+						tag = true
+						break
+					}
+				}
+			}
+		} else {
+			for i := 0; i < len(nodeList); i++ {
+				if nodeList[i] == ipList[0] {
 					tag = true
 					break
 				}
-			}
-		}
-	}else{
-		for i :=0;i<len(nodeList) ;i++  {
-			if nodeList[i] == ipList[0] {
-				tag=true
-				break
 			}
 		}
 	}
@@ -126,6 +137,17 @@ func GetManagerIp() ([]entity.IpStatus, error) {
 			}
 			IpStatusList = append(IpStatusList, ipStatus)
 		}
+		if len(conf.KubenetesUrl) > 0 {
+			arr = strings.Split(conf.KubenetesUrl, ":")
+			if len(arr) == 3 {
+
+				ipStatus := entity.IpStatus{
+					Ip:     strings.ReplaceAll(arr[1], "//", ""),
+					Status: "success",
+				}
+				IpStatusList = append(IpStatusList, ipStatus)
+			}
+		}
 		return IpStatusList, nil
 	}
 	return nil, nil
@@ -136,7 +158,7 @@ type ManagerNode struct {
 	Port int    `json:"port"`
 }
 
-func GetManagerIpPort() ([]ManagerNode, error) {
+func GetManagerIpPort(componentName string) ([]ManagerNode, error) {
 	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
 	if err != nil {
 		return nil, err
@@ -147,7 +169,7 @@ func GetManagerIpPort() ([]ManagerNode, error) {
 		for i := 0; i < len(arr); i++ {
 			node := ManagerNode{
 				Ip:   arr[i],
-				Port: 8080,
+				Port: models.GetDefaultPort(componentName, enum.DeployType_ANSIBLE),
 			}
 			nodelist = append(nodelist, node)
 		}
