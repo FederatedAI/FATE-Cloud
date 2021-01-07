@@ -129,6 +129,8 @@ func DoAction(actionReq entity.ActionReq) (int, error) {
 	var data = make(map[string]interface{})
 	if actionReq.Action == int(enum.ActionType_STOP) {
 		data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		deploySite := models.DeploySite{PartyId:actionReq.PartyId,IsValid:int(enum.IS_VALID_YES)}
+		models.UpdateDeploySite(data,deploySite)
 	} else if actionReq.Action == int(enum.ActionType_RESTART) {
 		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 	} else {

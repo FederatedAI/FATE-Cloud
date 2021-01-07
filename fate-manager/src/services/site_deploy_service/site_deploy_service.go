@@ -1108,7 +1108,6 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 			}
 
 			deployJob := models.DeployJob{
-				FederatedId: siteList[i].FederatedId,
 				PartyId:     siteList[i].PartyId,
 				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
@@ -1129,8 +1128,6 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 						jobMap[deployJobList[k].JobId] = deployJobList[k]
 					}
 				}
-			}else{
-				installItem.InstallTime = deployComponentList[j].EndTime.UnixNano() / 1e6
 			}
 			deployComponent := models.DeployComponent{
 				//FederatedId:   deployComponentList[j].FederatedId,
