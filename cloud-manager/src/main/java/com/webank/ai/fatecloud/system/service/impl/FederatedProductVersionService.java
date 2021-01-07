@@ -110,6 +110,19 @@ public class FederatedProductVersionService implements Serializable {
 
     }
 
+    public PageBean<FederatedProductVersionDo> pageForFateManager(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo ) {
+        long count = federatedProductVersionMapper.countForFateManager(productVersionPageForFateManagerQo);
+
+        PageBean<FederatedProductVersionDo> federatedProductVersionDoPageBean = new PageBean<>(productVersionPageForFateManagerQo.getPageNum(), productVersionPageForFateManagerQo.getPageSize(), count);
+        long startIndex = federatedProductVersionDoPageBean.getStartIndex();
+        List<FederatedProductVersionDo> productVersionPageDtoList = federatedProductVersionMapper.pageForFateManager(startIndex, productVersionPageForFateManagerQo);
+
+        federatedProductVersionDoPageBean.setList(productVersionPageDtoList);
+
+        return federatedProductVersionDoPageBean;
+
+    }
+
     public ProductVersionDto findVersion() {
         List<String> productNames = federatedProductVersionMapper.getProductNames();
         List<String> productVersions = federatedProductVersionMapper.getProductVersions();
@@ -133,4 +146,5 @@ public class FederatedProductVersionService implements Serializable {
 
         return productNames;
     }
+
 }
