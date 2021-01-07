@@ -858,7 +858,6 @@ func ComponentStatusTask() {
 				IsValid:     int(enum.IS_VALID_YES),
 			}
 			models.UpdateDeploySite(data, DeploySite)
-
 		} else {
 			data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		}
@@ -1029,119 +1028,54 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			StartDate: curTime,
 			EndDate:   curTime,
 		}
-		InstitutionReport(monitorReq)
-		SiteReport(monitorReq)
+		InstitutionReport(accountInfo.Institutions,monitorReq)
+		SiteReport(accountInfo.Institutions,monitorReq)
 		MonitorPush(monitorReq, accountInfo, timeunix)
 	}
 }
 
-func InstitutionReport(monitorReq entity.MonitorReq) {
-	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
-	if err != nil {
+func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
+	list,err :=models.CalReportInstitutionByOne(monitorReq)
+	if err != nil{
 		return
 	}
-	var monitorBaseMap = make(map[string]models.MonitorBase)
-	for i := 0; i < len(monitorByHisList); i++ {
-		monitorByHis := monitorByHisList[i]
-		siteInfo := models.SiteInfo{
-			PartyId: monitorByHis.GuestPartyId,
-		}
-		siteInfoList, err := models.GetSiteList(&siteInfo)
-		if err != nil {
-			continue
-		}
-		itemBase := models.MonitorBase{
-			Total:    monitorByHis.Total,
-			Success:  monitorByHis.Success,
-			Running:  monitorByHis.Running,
-			Waiting:  monitorByHis.Waiting,
-			Timeout:  monitorByHis.Timeout,
-			Canceled: monitorByHis.Canceled,
-			Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
-		}
-		if monitorByHis.GuestInstitution == monitorByHis.HostInstitution {
-			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
-			if ok {
-				itemBaseTmp := monitorBaseMap[monitorByHis.GuestInstitution]
-				itemBaseTmp.Total += itemBase.Total
-				itemBaseTmp.Success += itemBase.Success
-				itemBaseTmp.Running += itemBase.Running
-				itemBaseTmp.Waiting += itemBase.Waiting
-				itemBaseTmp.Failed += itemBase.Failed
-				itemBaseTmp.Timeout += itemBase.Timeout
-				itemBaseTmp.Canceled += itemBase.Canceled
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
-			} else {
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
-			}
-		} else if len(siteInfoList) == 0 {
-			_, ok := monitorBaseMap[monitorByHis.GuestInstitution]
-			if ok {
-				itemBaseTmp := monitorBaseMap[monitorByHis.GuestInstitution]
-				itemBaseTmp.Total += itemBase.Total
-				itemBaseTmp.Success += itemBase.Success
-				itemBaseTmp.Running += itemBase.Running
-				itemBaseTmp.Waiting += itemBase.Waiting
-				itemBaseTmp.Failed += itemBase.Failed
-				itemBaseTmp.Timeout += itemBase.Timeout
-				itemBaseTmp.Canceled += itemBase.Canceled
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBaseTmp
-			} else {
-				monitorBaseMap[monitorByHis.GuestInstitution] = itemBase
-			}
-		} else {
-			siteInfo.PartyId = monitorByHis.HostPartyId
-			siteInfoList, err = models.GetSiteList(&siteInfo)
-			if err != nil {
-				continue
-			}
-			if len(siteInfoList) == 0 {
-				_, ok := monitorBaseMap[monitorByHis.HostInstitution]
-				if ok {
-					itemBaseTmp := monitorBaseMap[monitorByHis.HostInstitution]
-					itemBaseTmp.Total += itemBase.Total
-					itemBaseTmp.Success += itemBase.Success
-					itemBaseTmp.Running += itemBase.Running
-					itemBaseTmp.Waiting += itemBase.Waiting
-					itemBaseTmp.Failed += itemBase.Failed
-					itemBaseTmp.Timeout += itemBase.Timeout
-					itemBaseTmp.Canceled += itemBase.Canceled
-					monitorBaseMap[monitorByHis.HostInstitution] = itemBaseTmp
-				} else {
-					monitorBaseMap[monitorByHis.HostInstitution] = itemBase
-				}
-			}
-		}
-	}
-	for k, v := range monitorBaseMap {
+	for i := 0;i< len(list) ;i++  {
+		item := list[i]
 		reportInstitution := models.ReportInstitution{
-			Ds:          monitorReq.StartDate,
-			Institution: k,
+			Ds:          item.Ds,
+			Institution: item.Institution,
+			Total:       item.Total,
+			Success:     item.Success,
+			Running:     item.Running,
+			Waiting:     item.Waiting,
+			Timeout:     item.Timeout,
+			Failed:      item.Failed,
+			Canceled:    item.Canceled,
+			CreateTime:  time.Now(),
+			UpdateTime:  time.Now(),
 		}
-		list, _ := models.GetReportInstitution(&reportInstitution)
-		if len(list) > 0 {
-			var data = make(map[string]interface{})
-			data["total"] = v.Total
-			data["success"] = v.Success
-			data["running"] = v.Running
-			data["timeout"] = v.Timeout
-			data["waiting"] = v.Waiting
-			data["failed"] = v.Failed
-			data["canceled"] = v.Canceled
-			data["update_time"] = time.Now()
-			models.UpdateReportInstitution(data, reportInstitution)
-		} else {
-			reportInstitution.Total = v.Total
-			reportInstitution.Success = v.Success
-			reportInstitution.Running = v.Running
-			reportInstitution.Waiting = v.Waiting
-			reportInstitution.Timeout = v.Timeout
-			reportInstitution.Failed = v.Failed
-			reportInstitution.Canceled = v.Canceled
-			reportInstitution.CreateTime = time.Now()
-			reportInstitution.UpdateTime = time.Now()
-			models.AddReportInstitution(&reportInstitution)
+		models.UpdateReportInstitution(&reportInstitution)
+	}
+	list,err =models.CalReportInstitutionByTwo(institution,monitorReq)
+	if err != nil{
+		return
+	}
+	for i := 0;i< len(list) ;i++  {
+		item := list[i]
+		reportInstitution := models.ReportInstitution{
+			Ds:          item.Ds,
+			Institution: item.Institution,
+			Total:       item.Total,
+			Success:     item.Success,
+			Running:     item.Running,
+			Waiting:     item.Waiting,
+			Timeout:     item.Timeout,
+			Failed:      item.Failed,
+			Canceled:    item.Canceled,
+			CreateTime:  time.Now(),
+			UpdateTime:  time.Now(),
 		}
+		models.UpdateReportInstitution(&reportInstitution)
 	}
 }
 
@@ -1150,142 +1084,52 @@ type SiteSiteMonitor struct {
 	models.MonitorBase
 }
 
-func SiteReport(monitorReq entity.MonitorReq) {
-	monitorByHisList, err := models.GetSiteMonitorByHis(monitorReq)
-	if err != nil {
+func SiteReport(institution string,monitorReq entity.MonitorReq) {
+	list,err :=models.CalReportSiteByOne(monitorReq)
+	if err != nil{
 		return
 	}
-	var siteSiteMonitorMap = make(map[entity.SitePair][]SiteSiteMonitor)
-	var InstitutionSiteList []entity.SitePair
-	var SiteList []string
-	for i := 0; i < len(monitorByHisList); i++ {
-		monitorByHis := monitorByHisList[i]
-		//if monitorByHis.GuestPartyId != monitorByHis.HostPartyId {
-		siteInfo := models.SiteInfo{
-			PartyId: monitorByHis.GuestPartyId,
+	for i := 0;i< len(list) ;i++  {
+		item := list[i]
+		reportSite := models.ReportSite{
+			Ds:          item.Ds,
+			Institution: item.Institution,
+			InstitutionSiteName: item.InstitutionSiteName,
+			SiteName:            item.SiteName,
+			Total:       item.Total,
+			Success:     item.Success,
+			Running:     item.Running,
+			Waiting:     item.Waiting,
+			Timeout:     item.Timeout,
+			Failed:      item.Failed,
+			Canceled:    item.Canceled,
+			CreateTime:  time.Now(),
+			UpdateTime:  time.Now(),
 		}
-		siteInfoList, err := models.GetSiteList(&siteInfo)
-		if err != nil {
-			continue
-		}
-		siteSiteMonitor := SiteSiteMonitor{
-			SitePair: entity.SitePair{
-				PartyId:     monitorByHis.HostPartyId,
-				SiteName:    monitorByHis.HostSiteName,
-				Institution: monitorByHis.HostInstitution,
-			},
-			MonitorBase: models.MonitorBase{
-				Total:    monitorByHis.Total,
-				Success:  monitorByHis.Success,
-				Running:  monitorByHis.Running,
-				Waiting:  monitorByHis.Waiting,
-				Timeout:  monitorByHis.Timeout,
-				Canceled: monitorByHis.Canceled,
-				Failed:   monitorByHis.Failed + monitorByHis.Timeout + monitorByHis.Canceled,
-			},
-		}
-		sitePair := entity.SitePair{
-			PartyId:     monitorByHis.GuestPartyId,
-			SiteName:    monitorByHis.GuestSiteName,
-			Institution: monitorByHis.GuestInstitution,
-		}
-		if len(siteInfoList) > 0 {
-			hitSite := false
-			for j := 0; j < len(SiteList); j++ {
-				if SiteList[j] == monitorByHis.GuestSiteName {
-					hitSite = true
-					break
-				}
-			}
-			if !hitSite {
-				SiteList = append(SiteList, monitorByHis.GuestSiteName)
-			}
-
-			InstitutionSiteList = append(InstitutionSiteList, siteSiteMonitor.SitePair)
-			_, ok := siteSiteMonitorMap[sitePair]
-			if ok {
-				siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-			} else {
-				var SiteSiteMonitorList []SiteSiteMonitor
-				SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
-				siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
-			}
-		} else {
-			InstitutionSiteList = append(InstitutionSiteList, sitePair)
-			siteInfo.PartyId = monitorByHis.HostPartyId
-			siteSiteMonitor.PartyId = monitorByHis.HostPartyId
-			siteSiteMonitor.SiteName = monitorByHis.HostSiteName
-			siteSiteMonitor.Institution = monitorByHis.HostInstitution
-			siteInfoList, err = models.GetSiteList(&siteInfo)
-			if err != nil {
-				continue
-			}
-			sitePair := entity.SitePair{
-				PartyId:     monitorByHis.HostPartyId,
-				SiteName:    monitorByHis.HostSiteName,
-				Institution: monitorByHis.HostInstitution,
-			}
-			if len(siteInfoList) > 0 {
-				hitSite := false
-				for j := 0; j < len(SiteList); j++ {
-					if SiteList[j] == monitorByHis.HostSiteName {
-						hitSite = true
-						break
-					}
-				}
-				if !hitSite {
-					SiteList = append(SiteList, monitorByHis.HostSiteName)
-				}
-				_, ok := siteSiteMonitorMap[sitePair]
-				if ok {
-					siteSiteMonitorMap[sitePair] = append(siteSiteMonitorMap[sitePair], siteSiteMonitor)
-				} else {
-					var SiteSiteMonitorList []SiteSiteMonitor
-					SiteSiteMonitorList = append(SiteSiteMonitorList, siteSiteMonitor)
-					siteSiteMonitorMap[sitePair] = SiteSiteMonitorList
-				}
-			}
-			//}
-		}
+		models.UpdateReportSite(&reportSite)
 	}
-
-	for k, v := range siteSiteMonitorMap {
-
-		siteSiteMonitorList := v
-
-		for j := 0; j < len(siteSiteMonitorList); j++ {
-			siteSiteMonitor := siteSiteMonitorList[j]
-			reportSite := models.ReportSite{
-				Ds:                  monitorReq.StartDate,
-				Institution:         siteSiteMonitor.Institution,
-				InstitutionSiteName: siteSiteMonitor.SiteName,
-				SiteName:            k.SiteName,
-			}
-			list, _ := models.GetReportSite(&reportSite)
-			if len(list) > 0 {
-				var data = make(map[string]interface{})
-				data["total"] = siteSiteMonitor.Total
-				data["success"] = siteSiteMonitor.Success
-				data["running"] = siteSiteMonitor.Running
-				data["waiting"] = siteSiteMonitor.Waiting
-				data["timeout"] = siteSiteMonitor.Timeout
-				data["failed"] = siteSiteMonitor.Failed
-				data["canceled"] = siteSiteMonitor.Canceled
-				data["update_time"] = time.Now()
-				models.UpdateReportSite(data, reportSite)
-			} else {
-				reportSite.Total = siteSiteMonitor.Total
-				reportSite.Success = siteSiteMonitor.Success
-				reportSite.Running = siteSiteMonitor.Running
-				reportSite.Waiting = siteSiteMonitor.Waiting
-				reportSite.Timeout = siteSiteMonitor.Timeout
-				reportSite.Failed = siteSiteMonitor.Failed
-				reportSite.Canceled = siteSiteMonitor.Canceled
-				reportSite.CreateTime = time.Now()
-				reportSite.UpdateTime = time.Now()
-				models.AddReportSite(&reportSite)
-			}
+	list,err =models.CalReportSiteByTwo(institution,monitorReq)
+	if err != nil{
+		return
+	}
+	for i := 0;i< len(list) ;i++  {
+		item := list[i]
+		reportSite := models.ReportSite{
+			Ds:          item.Ds,
+			Institution: item.Institution,
+			InstitutionSiteName: item.InstitutionSiteName,
+			SiteName:            item.SiteName,
+			Total:       item.Total,
+			Success:     item.Success,
+			Running:     item.Running,
+			Waiting:     item.Waiting,
+			Timeout:     item.Timeout,
+			Failed:      item.Failed,
+			Canceled:    item.Canceled,
+			CreateTime:  time.Now(),
+			UpdateTime:  time.Now(),
 		}
+		models.UpdateReportSite(&reportSite)
 	}
 }
 

@@ -75,7 +75,9 @@ func GetReportInstitutionRegion(monitorReq entity.MonitorReq) ([]*InstitutionMon
 			"sum(total) total,"+
 			"SUM(success) success,"+
 			"SUM(running) running,"+
+			"SUM(waiting) waiting,"+
 			"SUM(timeout) timeout,"+
+			"SUM(canceled) canceled,"+
 			"SUM(failed) failed").
 		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
 		Group("institution").
@@ -122,7 +124,9 @@ func GetReportSiteRegion(monitorReq entity.MonitorReq, list []string) ([]*SiteMo
 			"sum(total) total,"+
 			"SUM(success) success,"+
 			"SUM(running) running,"+
+			"SUM(waiting) waiting,"+
 			"SUM(timeout) timeout,"+
+			"SUM(canceled) canceled,"+
 			"SUM(failed) failed").
 		Where("ds >= ? and ds <= ? and institution_site_name in (?)", monitorReq.StartDate, monitorReq.EndDate, list).
 		Group("institution,institution_site_name,site_name").
@@ -170,45 +174,30 @@ func GetReportSite(reportSite *ReportSite) ([]*ReportSite, error) {
 	return result, nil
 }
 
-func UpdateReportInstitution(info map[string]interface{}, condition ReportInstitution) error {
-	Db := db
-	if len(condition.Ds) > 0 {
-		Db = Db.Where("ds = ?", condition.Ds)
-	}
-	if len(condition.Institution) > 0 {
-		Db = Db.Where("institution = ?", condition.Institution)
-	}
-	if err := Db.Model(&ReportInstitution{}).Updates(info).Error; err != nil {
+func UpdateReportInstitution(info *ReportInstitution) error {
+	list, err := GetReportInstitution(info)
+	if err != nil {
+		return err
+	} else if len(list) == 0 {
+		if err := db.Create(&info).Error; err != nil {
+			return err
+		}
+	} else if err := db.Model(&ReportInstitution{}).Where("ds  = ? and institution =? ", info.Ds, info.Institution).Updates(info).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateReportSite(info map[string]interface{}, condition ReportSite) error {
-	Db := db
-	if len(condition.Ds) > 0 {
-		Db = Db.Where("ds = ?", condition.Ds)
-	}
-	if len(condition.Institution) > 0 {
-		Db = Db.Where("institution = ?", condition.Institution)
-	}
-	if len(condition.InstitutionSiteName) > 0 {
-		Db = Db.Where("institution_site_name = ?", condition.InstitutionSiteName)
-	}
-	if err := Db.Model(&ReportSite{}).Updates(info).Error; err != nil {
+func UpdateReportSite(info *ReportSite) error {
+	list, err := GetReportSite(info)
+	if err != nil {
 		return err
-	}
-	return nil
-}
-
-func AddReportInstitution(reportInstitution *ReportInstitution) error {
-	if err := db.Create(&reportInstitution).Error; err != nil {
-		return err
-	}
-	return nil
-}
-func AddReportSite(reportSite *ReportSite) error {
-	if err := db.Create(&reportSite).Error; err != nil {
+	} else if len(list) == 0 {
+		if err := db.Create(&info).Error; err != nil {
+			return err
+		}
+	} else if err := db.Model(&ReportSite{}).Where("ds  = ? and institution =? and institution_site_name =? and site_name ",
+		info.Ds, info.Institution, info.InstitutionSiteName, info.SiteName).Updates(info).Error; err != nil {
 		return err
 	}
 	return nil
