@@ -100,7 +100,8 @@ public class FederatedProductVersionServiceFacade implements Serializable {
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-        PageBean<FederatedProductVersionDo> page = federatedProductVersionService.page(new ProductVersionPageQo(productVersionPageForFateManagerQo));
+        PageBean<FederatedProductVersionDo> page = federatedProductVersionService.pageForFateManager(productVersionPageForFateManagerQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, page);
     }
+
 }

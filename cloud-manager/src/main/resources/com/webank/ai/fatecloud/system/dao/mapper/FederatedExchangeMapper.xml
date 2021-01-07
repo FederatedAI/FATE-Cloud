@@ -4,7 +4,7 @@
 
     <select id="findExchangePage"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo">
-        select * FROM t_federated_exchange order by exchange_name asc limit #{startIndex}, #{exchangePageQo.pageSize}
+        select * FROM t_federated_exchange order by update_time desc limit #{startIndex}, #{exchangePageQo.pageSize}
     </select>
 
 </mapper>
