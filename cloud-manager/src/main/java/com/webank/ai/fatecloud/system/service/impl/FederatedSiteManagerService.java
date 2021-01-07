@@ -523,4 +523,11 @@ public class FederatedSiteManagerService {
         List<String> institutionsList = federatedSiteManagerMapper.findInstitutionsInGroup(institutionsInGroup);
         return institutionsList;
     }
+
+    public boolean checkPartyIdForRollSite(Long partyId) {
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.eq("party_id", partyId).eq("status", 2);
+        Integer integer = federatedSiteManagerMapper.selectCount(ew);
+        return integer > 0;
+    }
 }
