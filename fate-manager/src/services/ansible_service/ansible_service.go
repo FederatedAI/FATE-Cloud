@@ -178,6 +178,10 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			}
 
 			models.AddDeploySite(&deploySite)
+			siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+			var data = make(map[string]interface{})
+			data["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+			models.UpdateSiteByCondition(data,siteInfo)
 		}
 		return e.SUCCESS, nil
 	}

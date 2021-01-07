@@ -226,8 +226,8 @@ func JobTask() {
 								UpdateTime:       jobQueryResp.Data.EndTime.UnixNano() / 1e6,
 								ComponentVersion: deployComponentList[k].ComponentVersion,
 							}
-							if deployJob.Status == int(enum.JOB_STATUS_SUCCESS){
-								cloudSystemAdd.JobStatus =2
+							if deployJob.Status == int(enum.JOB_STATUS_SUCCESS) {
+								cloudSystemAdd.JobStatus = 2
 							}
 							cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
 						}
@@ -830,6 +830,7 @@ func ComponentStatusTask() {
 	if err != nil {
 		return
 	}
+
 	for i := 0; i < len(deployComponentList); i++ {
 		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS) {
 			continue
@@ -850,6 +851,14 @@ func ComponentStatusTask() {
 		var data = make(map[string]interface{})
 		if cnt < 1 {
 			data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+
+			DeploySite := models.DeploySite{
+				PartyId:     deployComponentList[i].PartyId,
+				ProductType: deployComponentList[i].ProductType,
+				IsValid:     int(enum.IS_VALID_YES),
+			}
+			models.UpdateDeploySite(data, DeploySite)
+
 		} else {
 			data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		}
@@ -1702,8 +1711,16 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 		if curItem == "normal" {
 			if successTag {
 				sitedata["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+				sitedata["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
+
+				siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+				var data = make(map[string]interface{})
+				data["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+				models.UpdateSiteByCondition(data,siteInfo)
+
 			} else if sitedata[deployKey] == int(enum.TEST_STATUS_NO) {
 				sitedata["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+				sitedata["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
 			}
 			deployComponent := models.DeployComponent{
 				PartyId:    deploySite.PartyId,
