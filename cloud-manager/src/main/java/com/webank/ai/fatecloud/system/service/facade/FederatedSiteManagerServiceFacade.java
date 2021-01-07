@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -442,5 +443,19 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsList);
 
 
+    }
+
+    public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
+
+        boolean result = checkSignature.checkSignature(httpServletRequest, "", 1, 2);
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+        HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+        if (federatedSiteManagerService.checkPartyIdForRollSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)))) {
+            stringBooleanHashMap.put("result", true);
+        }
+        stringBooleanHashMap.put("result", false);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, stringBooleanHashMap);
     }
 }
