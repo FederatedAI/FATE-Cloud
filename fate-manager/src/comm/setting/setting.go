@@ -23,7 +23,6 @@ import (
 
 const (
 	SiteQueryUri          = "/cloud-manager/api/site/findOneSite/fateManager"
-	HeartUri              = "/cloud-manager/api/site/heart/fateManager"
 	ActivateUri           = "/cloud-manager/api/site/activate"
 	IpAcceptUri           = "/cloud-manager/api/site/ip/accept"
 	IpQueryUri            = "/cloud-manager/api/site/ip/query"

@@ -173,7 +173,6 @@ func GetHomeSiteList() ([]*entity.FederatedItem, error) {
 
 				if findOneSiteResp.Code == int(e.SUCCESS) {
 					siteItem.Status = entity.IdPair{findOneSiteResp.Data.Status, enum.GetSiteString(enum.SiteStatusType(findOneSiteResp.Data.Status))}
-					siteItem.ServiceStatus = entity.IdPair{findOneSiteResp.Data.ServiceStatus, enum.GetServiceStatusString(enum.ServiceStatusType(findOneSiteResp.Data.ServiceStatus))}
 					var siteInfo models.SiteInfo
 					siteInfo.Status = siteItem.Status.Code
 					siteInfo.PartyId = federatedSiteItem.PartyId
@@ -287,30 +286,10 @@ func HeartTask() {
 	for i := 0; i < len(federatedSiteList); i++ {
 		federatedSiteItem := federatedSiteList[i]
 		if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
-			headInfo := util.HeaderInfo{
-				AppKey:    federatedSiteItem.AppKey,
-				AppSecret: federatedSiteItem.AppSecret,
-				PartyId:   federatedSiteItem.PartyId,
-				Body:      "",
-				Role:      federatedSiteItem.Role,
-				Uri:       setting.HeartUri,
-			}
-			headerInfoMap := util.GetHeaderInfo(headInfo)
-			result, err := http.POST(http.Url(federatedSiteItem.FederatedUrl+setting.HeartUri), nil, headerInfoMap)
-			if err != nil {
-				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-			}
-			var updateResp entity.CloudManagerResp
-			if result != nil {
-				err = json.Unmarshal([]byte(result.Body), &updateResp)
-				if err != nil {
-					logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-					return
-				}
-				if updateResp.Code == e.SUCCESS {
-					msg := fmt.Sprintf("federatedId:%d,partyId:%d,status:joined", federatedSiteItem.FederatedId, federatedSiteItem.PartyId)
-					logging.Debug(msg)
-				}
+			deploySite := models.DeploySite{PartyId:federatedSiteItem.PartyId,IsValid:int(enum.IS_VALID_YES)}
+			deploySiteList,err := models.GetDeploySite(&deploySite)
+			if err !=nil || len(deploySiteList) ==0 {
+				continue
 			}
 			deployComponent := models.DeployComponent{
 				PartyId: federatedSiteItem.PartyId,
@@ -325,7 +304,7 @@ func HeartTask() {
 					ComponentName:    deployComponentList[j].ComponentName,
 					ComponentVersion: deployComponentList[j].ComponentVersion,
 				}
-				if deployComponentList[j].Status != int(enum.SITE_RUN_STATUS_RUNNING) {
+				if deploySiteList[0].Status == int(enum.DeployStatus_TEST_PASSED) ||  deploySiteList[0].Status == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
 					cloudSystemHeart.DetectiveStatus = 2
 				}
 				cloudSystemHeartList = append(cloudSystemHeartList, cloudSystemHeart)

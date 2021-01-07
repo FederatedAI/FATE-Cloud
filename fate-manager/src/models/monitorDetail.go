@@ -43,6 +43,7 @@ type MonitorBase struct {
 	Total    int
 	Success  int
 	Running  int
+	Waiting  int
 	Timeout  int
 	Failed   int
 	Canceled int
@@ -66,6 +67,7 @@ type PushSite struct {
 	HostPartyId  string
 	Success      int
 	Running      int
+	Waiting      int
 	Failed       int
 	Timeout      int
 	Canceled     int
@@ -78,6 +80,7 @@ func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error
 			"COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='waiting',1,0)) waiting,"+
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
@@ -97,6 +100,7 @@ func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, err
 		Select("guest_party_id,guest_site_name,guest_institution,host_institution,host_party_id,host_site_name,COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='waiting',1,0)) waiting,"+
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
@@ -117,6 +121,7 @@ func GetSiteMonitorByHis(monitorReq entity.MonitorReq) ([]*MonitorBySite, error)
 			"COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='waiting',1,0)) waiting,"+
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
@@ -136,6 +141,7 @@ func GetPushSiteMonitorList(monitorReq entity.MonitorReq) ([]*PushSite, error) {
 		Select("guest_party_id,host_party_id,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
+			"SUM(if(status='waiting',1,0)) waiting,"+
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
