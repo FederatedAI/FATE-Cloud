@@ -1,0 +1,37 @@
+
+- hosts: fate
+  vars:
+    jbase: "{{pbase}}/{{pname}}/{{java['path']}}/{{java['name']}}-{{java['version']}}"
+    pybase: "{{pbase}}/{{pname}}/{{python['venv']}}"
+    pypath: "{{pbase}}/{{pname}}/python:{{pbase}}/{{pname}}/eggroll/python"
+  gather_facts: no
+  vars_files:
+  - var_files/exp/base_init
+  - var_files/exp/fate_init
+  - var_files/exp/fate_host
+  - var_files/exp/fate_guest
+  - var_files/exp/fate_exchange
+  roles:
+  - base
+  - supervisor
+  - { role: "mysql", when: "( ansible_ssh_host in host['mysql']['ips'] and host['mysql']['enable'] == True and deploy_mode  == 'install' ) or ( ansible_ssh_host in guest['mysql']['ips'] and guest['mysql']['enable'] == True and deploy_mode == 'install' )" }
+  - { role: "python", when: "( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or  ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or  ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True )  or  ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True )" }
+  - { role: "eggroll", when: "( ( ansible_ssh_host in exchange['rollsite']['ips'] and exchange['enable'] == True ) or ( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or  ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or  ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True )  or  ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True ) )" }
+  - { role: "fate_flow", when: "( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True ) or ( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True ) or ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True )  or ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True )" }
+  - { role: "fateboard", when: "( ansible_ssh_host in host['fateboard']['ips'] and host['fateboard']['enable'] == True ) or ( ansible_ssh_host in guest['fateboard']['ips'] and guest['fateboard']['enable'] == True )" }
+
+
+- hosts: deploy_check
+  vars:
+    jbase: "{{pbase}}/{{pname}}/{{java['path']}}/{{java['name']}}-{{java['version']}}"
+    pybase: "{{pbase}}/{{pname}}/{{python['venv']}}"
+    pypath: "{{pbase}}/{{pname}}/python:{{pbase}}/{{pname}}/eggroll/python"
+  vars_files:
+  - var_files/exp/base_init
+  - var_files/exp/fate_init
+  - var_files/exp/fate_host
+  - var_files/exp/fate_guest
+  - var_files/exp/fate_exchange
+  roles:
+  - deploy_check
+
