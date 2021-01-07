@@ -71,7 +71,6 @@ public class FederatedSiteController {
     }
 
 
-
     @PostMapping(value = "/find")
     @ApiOperation(value = "Party Id Detail")
     public CommonResponse<SiteDetailDto> findSite(@RequestBody OneSiteQo oneSiteQo) {
@@ -227,9 +226,14 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/page/fateManager")
     @ApiOperation(value = "find all sites by page for fate manager")
-    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo,HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) {
         log.info("RequestBody:{}", siteListForFateManagerQo);
-        return federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo,httpServletRequest);
+        return federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo, httpServletRequest);
     }
 
+    @PostMapping(value = "/rollsite/checkPartyId")
+    @ApiOperation(value = "Check PartyId for roll site")
+    public CommonResponse checkPartyIdForRollSite(@RequestBody HttpServletRequest httpServletRequest) {
+        return federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
+    }
 }
