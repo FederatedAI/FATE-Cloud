@@ -27,9 +27,9 @@ import (
 	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/ansible_service"
 	"fate.manager/services/component_deploy_service"
 	"fate.manager/services/k8s_service"
-	"fate.manager/services/version_service"
 	"fmt"
 	jsoniter "github.com/json-iterator/go"
 	"io"
@@ -115,7 +115,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			Ip:            "mysql",
 			NodeSelector:  entity.NodeSelector{},
 			Password:      "***REMOVED***",
-			Port:          version_service.GetDefaultPort("mysql", enum.DeployType_K8S),
+			Port:          models.GetDefaultPort("mysql", enum.DeployType_K8S),
 			Size:          "1Gi",
 			StorageClass:  "mysql",
 			SubPath:       "",
@@ -328,12 +328,15 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	deploySite := models.DeploySite{
 		PartyId:     upgradeReq.PartyId,
 		ProductType: upgradeReq.ProductType,
-		DeployType:  int(enum.DeployType_K8S),
+		//DeployType:  int(enum.DeployType_K8S),
 		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deploySiteList, err := models.GetDeploySite(&deploySite)
 	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_SELECT_DB_FAIL, err
+	}
+	if deploySiteList[0].DeployType == int(enum.DeployType_ANSIBLE){
+		return ansible_service.UpgradeByAnsible(upgradeReq)
 	}
 	fateVerson := models.FateVersion{
 		FateVersion: upgradeReq.FateVersion,
@@ -412,7 +415,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 			ComponentName:    componentVersionList[i].ComponentName,
 			StartTime:        time.Now(),
 			VersionIndex:     fateVersonList[0].VersionIndex,
-			Address:          nodelist[1] + ":" + strconv.Itoa(version_service.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)),
+			Address:          nodelist[1] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			DeployType:       int(enum.DeployType_K8S),
@@ -460,7 +463,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_INSTALLED_FAILED) ||
 		deployComponentList[0].DeployStatus == int(enum.DeployStatus_TEST_PASSED) {
 
-		ret := k8s_service.CheckNodeIp(updateReq.Address, enum.DeployType_K8S)
+		ret := k8s_service.CheckNodeIp(updateReq, enum.DeployType_K8S)
 		if ret == false {
 			return e.ERROR_IP_NOT_COURRECT_FAIL, err
 		}
@@ -923,86 +926,90 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 						IsValid:     int(enum.IS_VALID_YES),
 					}
 					models.UpdateDeployComponent(deployData, deployComponent)
-					UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S)
+					//UploadStatusToCloud(autoTestReq.PartyId,autoTestReq.FederatedId,enum.DeployType_K8S,2)
 				}
 			}
 		}
 	}
 }
 
-func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType){
-	siteInfo, err := models.GetSiteInfo(partyId,federatedId)
-	if err != nil {
-		return
-	}
-	federatedInfo, err := models.GetFederatedUrlById(federatedId)
-	if err != nil {
-		return
-	}
-	models.GetFederatedUrlById(siteInfo.FederatedId)
-	deployComponent:= models.DeployComponent{
-		FederatedId:      federatedId,
-		PartyId:          partyId,
-		ProductType:      int(enum.PRODUCT_TYPE_FATE),
-		DeployType:       int(deployType),
-		IsValid:          int(enum.IS_VALID_YES),
-	}
-	deployComponentList,_ := models.GetDeployComponent(deployComponent)
-	deploySite := models.DeploySite{
-		FederatedId:        federatedId,
-		PartyId:            partyId,
-		IsValid:            int(enum.IS_VALID_YES),
-		DeployType:         int(deployType),
-	}
-	deploySiteList,_:= models.GetDeploySite(&deploySite)
-	deployJob := models.DeployJob{JobId:       deploySiteList[0].JobId}
-	deployJobList,_ := models.GetDeployJob(deployJob,true)
-	if len(deployJobList) == 0 || len(deployComponentList) ==0 || len(deploySiteList) ==0 {
-		return
-	}
-	var cloudSystemAddList []entity.CloudSystemAdd
-	for k := 0; k < len(deployComponentList); k++ {
-			cloudSystemAdd := entity.CloudSystemAdd{
-				DetectiveStatus:  1,
-				SiteId:           siteInfo.SiteId,
-				ComponentName:    deployComponentList[k].ComponentName,
-				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
-				JobStatus:        1,
-				UpdateTime:      time.Now().UnixNano() / 1e6,
-				ComponentVersion: deployComponentList[k].ComponentVersion,
-			}
-			cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
-	}
-	if len(cloudSystemAddList) > 0 {
-		cloudSystemAddJson, _ := json.Marshal(cloudSystemAddList)
-		headInfo := util.HeaderInfo{
-			AppKey:    siteInfo.AppKey,
-			AppSecret: siteInfo.AppSecret,
-			PartyId:   siteInfo.PartyId,
-			Body:      string(cloudSystemAddJson),
-			Role:      siteInfo.Role,
-			Uri:       setting.SystemAddUri,
-		}
-		headerInfoMap := util.GetHeaderInfo(headInfo)
-		result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.SystemAddUri), cloudSystemAddList, headerInfoMap)
-		if err != nil {
-			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
-			return
-		}
-		if len(result.Body) > 0 {
-			var updateResp entity.CloudCommResp
-			err = json.Unmarshal([]byte(result.Body), &updateResp)
-			if err != nil {
-				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
-				return
-			}
-			if updateResp.Code == e.SUCCESS {
-				msg := "federatedId:" + strconv.Itoa(siteInfo.FederatedId) + ",partyId:" + strconv.Itoa(siteInfo.PartyId) + ",status:system add success"
-				logging.Debug(msg)
-			}
-		}
-	}
-}
+//func UploadStatusToCloud(partyId int,federatedId int,deployType enum.DeployType, serviceStatus int){
+//	siteInfo, err := models.GetSiteInfo(partyId,federatedId)
+//	if err != nil {
+//		return
+//	}
+//	federatedInfo, err := models.GetFederatedUrlById(federatedId)
+//	if err != nil {
+//		return
+//	}
+//	models.GetFederatedUrlById(siteInfo.FederatedId)
+//	deployComponent:= models.DeployComponent{
+//		FederatedId:      federatedId,
+//		PartyId:          partyId,
+//		ProductType:      int(enum.PRODUCT_TYPE_FATE),
+//		DeployType:       int(deployType),
+//		IsValid:          int(enum.IS_VALID_YES),
+//	}
+//	deployComponentList,_ := models.GetDeployComponent(deployComponent)
+//	deploySite := models.DeploySite{
+//		FederatedId:        federatedId,
+//		PartyId:            partyId,
+//		IsValid:            int(enum.IS_VALID_YES),
+//		DeployType:         int(deployType),
+//	}
+//	deploySiteList,_:= models.GetDeploySite(&deploySite)
+//	var data =make(map[string]interface{})
+//	data["service_status"] = serviceStatus
+//	siteInfoTemp := models.SiteInfo{PartyId:partyId,Status:int(enum.SITE_STATUS_JOINED)}
+//	models.UpdateSiteByCondition(data,siteInfoTemp)
+//	deployJob := models.DeployJob{JobId:       deploySiteList[0].JobId}
+//	deployJobList,_ := models.GetDeployJob(deployJob,true)
+//	if len(deployJobList) == 0 || len(deployComponentList) ==0 || len(deploySiteList) ==0 {
+//		return
+//	}
+//	var cloudSystemAddList []entity.CloudSystemAdd
+//	for k := 0; k < len(deployComponentList); k++ {
+//			cloudSystemAdd := entity.CloudSystemAdd{
+//				DetectiveStatus:  serviceStatus,
+//				SiteId:           siteInfo.SiteId,
+//				ComponentName:    deployComponentList[k].ComponentName,
+//				JobType:          enum.GetJobTypeString(enum.JobType(deployJobList[0].JobType)),
+//				JobStatus:        1,
+//				UpdateTime:      time.Now().UnixNano() / 1e6,
+//				ComponentVersion: deployComponentList[k].ComponentVersion,
+//			}
+//			cloudSystemAddList = append(cloudSystemAddList, cloudSystemAdd)
+//	}
+//	if len(cloudSystemAddList) > 0 {
+//		cloudSystemAddJson, _ := json.Marshal(cloudSystemAddList)
+//		headInfo := util.HeaderInfo{
+//			AppKey:    siteInfo.AppKey,
+//			AppSecret: siteInfo.AppSecret,
+//			PartyId:   siteInfo.PartyId,
+//			Body:      string(cloudSystemAddJson),
+//			Role:      siteInfo.Role,
+//			Uri:       setting.SystemAddUri,
+//		}
+//		headerInfoMap := util.GetHeaderInfo(headInfo)
+//		result, err := http.POST(http.Url(federatedInfo.FederatedUrl+setting.SystemAddUri), cloudSystemAddList, headerInfoMap)
+//		if err != nil {
+//			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+//			return
+//		}
+//		if len(result.Body) > 0 {
+//			var updateResp entity.CloudCommResp
+//			err = json.Unmarshal([]byte(result.Body), &updateResp)
+//			if err != nil {
+//				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+//				return
+//			}
+//			if updateResp.Code == e.SUCCESS {
+//				msg := "federatedId:" + strconv.Itoa(siteInfo.FederatedId) + ",partyId:" + strconv.Itoa(siteInfo.PartyId) + ",status:system add success"
+//				logging.Debug(msg)
+//			}
+//		}
+//	}
+//}
 func ToyTestOnly(autoTestReq entity.AutoTestReq) {
 	//test toy
 	deploySite := models.DeploySite{
@@ -1076,15 +1083,16 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 		}
 		for j := 0; j < len(deployComponentList); j++ {
 			componentVersion := models.ComponentVersion{
-				FateVersion:   deployComponentList[j].FateVersion,
+				//FateVersion:   deployComponentList[j].FateVersion,
 				ProductType:   deployComponentList[j].ProductType,
 				ComponentName: deployComponentList[j].ComponentName,
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			upgradeStatus := false
-			if len(componentVersionList) > 0 {
-				if componentVersionList[0].VersionIndex > deployComponentList[j].VersionIndex {
+			for jj :=0 ;jj< len(componentVersionList) ;jj++ {
+				if componentVersionList[jj].VersionIndex > deployComponentList[j].VersionIndex {
 					upgradeStatus = true
+					break
 				}
 			}
 
@@ -1121,6 +1129,8 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 						jobMap[deployJobList[k].JobId] = deployJobList[k]
 					}
 				}
+			}else{
+				installItem.InstallTime = deployComponentList[j].EndTime.UnixNano() / 1e6
 			}
 			deployComponent := models.DeployComponent{
 				//FederatedId:   deployComponentList[j].FederatedId,
@@ -1166,7 +1176,6 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 
 func UpgradeFateList(upgradeFateReq entity.UpgradeFateReq) ([]entity.UpdateVersionResp, error) {
 	deploySite := models.DeploySite{
-		FederatedId: upgradeFateReq.FederatedId,
 		PartyId:     upgradeFateReq.PartyId,
 		ProductType: upgradeFateReq.ProductType,
 		IsValid:     int(enum.PRODUCT_TYPE_FATE),
