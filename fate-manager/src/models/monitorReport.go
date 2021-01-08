@@ -196,7 +196,7 @@ func UpdateReportSite(info *ReportSite) error {
 		if err := db.Create(&info).Error; err != nil {
 			return err
 		}
-	} else if err := db.Model(&ReportSite{}).Where("ds  = ? and institution =? and institution_site_name =? and site_name ",
+	} else if err := db.Model(&ReportSite{}).Where("ds  = ? and institution =? and institution_site_name =? and site_name = ? ",
 		info.Ds, info.Institution, info.InstitutionSiteName, info.SiteName).Updates(info).Error; err != nil {
 		return err
 	}
