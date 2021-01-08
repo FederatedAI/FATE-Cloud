@@ -183,7 +183,7 @@ func CalReportInstitutionByOne(monitorReq entity.MonitorReq) ([]ReportInstitutio
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ? and guest_institution = host_institution", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_party_id = host_party_id", monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -202,7 +202,7 @@ func CalReportInstitutionByTwo(institution string, monitorReq entity.MonitorReq)
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed",institution).
-		Where("ds >= ? and ds <= ? and guest_institution != host_institution AND (guest_institution =? OR host_institution=?)", monitorReq.StartDate, monitorReq.EndDate, institution, institution).
+		Where("ds >= ? and ds <= ? and guest_party_id != host_party_id AND (guest_institution =? OR host_institution=?)", monitorReq.StartDate, monitorReq.EndDate, institution, institution).
 		Group("ds,institution").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -239,7 +239,7 @@ func CalReportSiteByOne(monitorReq entity.MonitorReq) ([]ReportSiteItem, error) 
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ? and guest_institution = host_institution", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_party_id = host_party_id", monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution,institution_site_name,site_name").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -262,7 +262,7 @@ func CalReportSiteByTwo(institution string, monitorReq entity.MonitorReq) ([]Rep
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed",institution, institution, institution).
-		Where("ds >= ? and ds <= ? and guest_institution != host_institution AND (guest_institution =? OR host_institution=?)",
+		Where("ds >= ? and ds <= ? and guest_party_id != host_party_id AND (guest_institution =? OR host_institution=?)",
 			 monitorReq.StartDate, monitorReq.EndDate, institution, institution).
 		Group("ds,institution,institution_site_name,site_name").
 		Find(&list).Error
