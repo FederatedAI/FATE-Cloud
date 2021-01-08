@@ -84,7 +84,7 @@ func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ? ", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_site_name != ''", monitorReq.StartDate, monitorReq.EndDate).
 		Find(&monitorTotal).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
@@ -104,7 +104,7 @@ func GetSiteMonitorByRegion(monitorReq entity.MonitorReq) ([]*MonitorBySite, err
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_site_name != ''", monitorReq.StartDate, monitorReq.EndDate).
 		Group("guest_party_id,host_party_id").
 		Find(&monitorBySiteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -183,7 +183,7 @@ func CalReportInstitutionByOne(monitorReq entity.MonitorReq) ([]ReportInstitutio
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ? and guest_party_id = host_party_id", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_site_name != '' and (guest_party_id = host_party_id or guest_institution = host_institution)", monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -191,6 +191,7 @@ func CalReportInstitutionByOne(monitorReq entity.MonitorReq) ([]ReportInstitutio
 	}
 	return list, nil
 }
+
 func CalReportInstitutionByTwo(institution string, monitorReq entity.MonitorReq) ([]ReportInstitutionItem, error) {
 	var list []ReportInstitutionItem
 	err := db.Table("t_fate_monitor_detail").
@@ -202,7 +203,7 @@ func CalReportInstitutionByTwo(institution string, monitorReq entity.MonitorReq)
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed",institution).
-		Where("ds >= ? and ds <= ? and guest_party_id != host_party_id AND (guest_institution =? OR host_institution=?)", monitorReq.StartDate, monitorReq.EndDate, institution, institution).
+		Where("ds >= ? and ds <= ? and guest_site_name != '' and guest_party_id != host_party_id AND guest_institution != host_institution", monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -239,7 +240,7 @@ func CalReportSiteByOne(monitorReq entity.MonitorReq) ([]ReportSiteItem, error) 
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ? and guest_party_id = host_party_id", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_site_name != '' and guest_party_id = host_party_id", monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution,institution_site_name,site_name").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -262,8 +263,8 @@ func CalReportSiteByTwo(institution string, monitorReq entity.MonitorReq) ([]Rep
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed",institution, institution, institution).
-		Where("ds >= ? and ds <= ? and guest_party_id != host_party_id AND (guest_institution =? OR host_institution=?)",
-			 monitorReq.StartDate, monitorReq.EndDate, institution, institution).
+		Where("ds >= ? and ds <= ? and guest_site_name != '' and guest_party_id != host_party_id",
+			 monitorReq.StartDate, monitorReq.EndDate).
 		Group("ds,institution,institution_site_name,site_name").
 		Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
