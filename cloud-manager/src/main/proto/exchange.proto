@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.webank.ai.fatecloud.grpc";
+option java_outer_classname = "Exchange";
+option objc_class_prefix = "EX";
+
+service ExchangeService
+{
+    rpc GetExchange(Request) returns (Result){}
+}
+
+message Request
+{
+    string request1 = 1;
+
+}
+
+message Result
+{
+    string result1 = 1;
+
+}
