@@ -36,7 +36,7 @@ def check_ansible():
         # TODO consider case that there are more than one records of specified party
         parties = JobSaver.query_party(party_id=request_data.get('party_id'))
         if parties:
-            party_info = parties[0].to_json(filters=['modules', 'version'])
+            party_info = parties[0].to_json(filters=['modules', 'version', 'role'])
             modules = party_info.get('f_modules', {}).get('data', [])
             status = {}
             host = None
@@ -53,7 +53,7 @@ def check_ansible():
                 for module in modules:
                     module['status'] = status.get(module['name'], None)
             return get_json_result(retmsg='Query party info successfully',
-                                   data={'party_id': request_data.get('party_id'), 'list': modules, 'fate_version': party_info.get('f_version')})
+                                   data={'party_id': request_data.get('party_id'), 'list': modules, 'fate_version': party_info.get('f_version'), "role": party_info.get('f_role')})
         return get_json_result(retcode=0,
                                retmsg=f"can not found info party {request_data.get('party_id')} in database.")
     return get_json_result(data={'status': 'success'})
