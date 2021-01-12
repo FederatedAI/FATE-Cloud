@@ -31,12 +31,12 @@ import java.util.Date;
 @EqualsAndHashCode
 @ApiModel(value = "job information")
 public class JobStatisticsQo implements Serializable {
-    @JSONField(ordinal = 5)
+    @JSONField(ordinal = 6)
     @NotNull(message = "site guest id can't be null!")
     @ApiModelProperty(value = "guest id")
     private Long siteGuestId;
 
-    @JSONField(ordinal = 6)
+    @JSONField(ordinal = 7)
     @NotNull(message = "site host id can't be null!")
     @ApiModelProperty(value = "host id")
     private Long siteHostId;
@@ -56,12 +56,12 @@ public class JobStatisticsQo implements Serializable {
     @ApiModelProperty(value = "running count")
     private Long jobRunningCount;
 
-    @JSONField(ordinal = 7)
+    @JSONField(ordinal = 4)
     @NotNull(message = "waiting count can't be null!")
     @ApiModelProperty(value = "waiting count")
     private Long jobWaitingCount;
 
-    @JSONField(ordinal = 4)
+    @JSONField(ordinal = 5)
     @NotNull(message = "finish date can't be null!")
     @ApiModelProperty(value = "finish date")
     private Long jobFinishDate;
