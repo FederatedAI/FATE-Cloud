@@ -56,6 +56,11 @@ public class JobStatisticsQo implements Serializable {
     @ApiModelProperty(value = "running count")
     private Long jobRunningCount;
 
+    @JSONField(ordinal = 7)
+    @NotNull(message = "waiting count can't be null!")
+    @ApiModelProperty(value = "waiting count")
+    private Long jobWaitingCount;
+
     @JSONField(ordinal = 4)
     @NotNull(message = "finish date can't be null!")
     @ApiModelProperty(value = "finish date")

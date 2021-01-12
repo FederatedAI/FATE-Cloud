@@ -41,4 +41,7 @@ public class JobStatisticOfInstitutionsDimensionDto implements Serializable {
     @ApiModelProperty(value = "running job count for institutions")
     private String runningJobCountForInstitutions;
 
+    @ApiModelProperty(value = "waiting job count for institutions")
+    private String waitingJobCountForInstitutions;
+
 }
