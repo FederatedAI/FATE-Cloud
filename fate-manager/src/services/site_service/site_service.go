@@ -304,7 +304,7 @@ func HeartTask() {
 					ComponentName:    deployComponentList[j].ComponentName,
 					ComponentVersion: deployComponentList[j].ComponentVersion,
 				}
-				if deploySiteList[0].Status == int(enum.DeployStatus_TEST_PASSED) ||  deploySiteList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
+				if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING) ||  deploySiteList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
 					cloudSystemHeart.DetectiveStatus = 2
 				}
 				cloudSystemHeartList = append(cloudSystemHeartList, cloudSystemHeart)
