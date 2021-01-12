@@ -224,6 +224,13 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			if clickTag {
 				deploySite.ClickType = int(enum.AnsibleClickType_INSTALL)
 				deploySite.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED)
+				if len(config.Role) ==0{
+					siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+					siteInfoList,_ := models.GetSiteList(&siteInfo)
+					if len(siteInfoList)>0{
+						config.Role = enum.GetRoleString(enum.RoleType(siteInfoList[0].Role))
+					}
+				}
 				reqs, _ := json.Marshal(config)
 				deploySite.Config = string(reqs)
 
