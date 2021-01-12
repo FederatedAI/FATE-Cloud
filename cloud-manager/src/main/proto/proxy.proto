@@ -77,38 +77,9 @@ message Packet {
     Data body = 2;          // packet body
 }
 
-// returned by service heartbeat to decide next operation
-enum Operation {
-    START = 0;
-    RUN = 1;
-    STOP = 2;
-    KILL = 3;
-    GET_DATA = 4;
-    PUT_DATA = 5;
-}
-
-// response of heartbeat
-message HeartbeatResponse {
-    Metadata header = 1;
-    Operation operation = 2;
-}
-
-message PollingFrame {
-    string method = 1;
-    int64 seq = 2;
-    Metadata metadata = 10;
-    Packet packet = 20;
-    string desc = 30;
-}
 
 // data transfer service
 service DataTransferService {
-    rpc push (stream Packet) returns (Metadata);
-    rpc pull (Metadata) returns (stream Packet);
     rpc unaryCall (Packet) returns (Packet);
-    rpc polling (stream PollingFrame) returns (stream PollingFrame);
 }
 
-service RouteService {
-    rpc query (Topic) returns (com.webank.ai.eggroll.api.core.Endpoint);
-}
