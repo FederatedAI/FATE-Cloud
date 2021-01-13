@@ -233,7 +233,7 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/rollsite/checkPartyId")
     @ApiOperation(value = "Check PartyId for roll site")
-    public CommonResponse checkPartyIdForRollSite(@RequestBody HttpServletRequest httpServletRequest) {
+    public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
         return federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
     }
 }
