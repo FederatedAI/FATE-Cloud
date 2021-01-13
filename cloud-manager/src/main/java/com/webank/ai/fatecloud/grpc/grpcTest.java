@@ -1,11 +1,15 @@
 package com.webank.ai.fatecloud.grpc;
 
+import com.google.protobuf.ByteString;
 import com.webank.ai.eggroll.api.networking.proxy.DataTransferServiceGrpc;
 import com.webank.ai.eggroll.api.networking.proxy.Proxy;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.NegotiationType;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import org.springframework.util.DigestUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class grpcTest {
@@ -63,11 +67,14 @@ public class grpcTest {
 //        return blockingStub.inference(inferenceMessage);
 //    }
 
-    public static void main(String[] args){
-        findExchange("172.16.153.95",9531);
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        findExchange("172.16.153.14",9531,"eggroll");
     }
 
-    public static Proxy.Packet findExchange(String ip,int port) {
+    public static Proxy.Packet findExchange(String ip,int port,String key) throws UnsupportedEncodingException {
+
+
+
         ManagedChannel managedChannel = null;
         try {
             managedChannel = createManagedChannel(ip, port);
@@ -76,13 +83,22 @@ public class grpcTest {
         }
 
         Proxy.Topic.Builder topic = Proxy.Topic.newBuilder();
-        topic.setPartyId("10001");
+        topic.setPartyId("10002");
 
         Proxy.Metadata.Builder metadata = Proxy.Metadata.newBuilder();
         metadata.setOperator("get_route_table");
         metadata.setDst(topic);
         Proxy.Packet.Builder packet = Proxy.Packet.newBuilder();
         packet.setHeader(metadata);
+
+        Proxy.Data.Builder data = Proxy.Data.newBuilder();
+        long time = new Date().getTime();
+        String s = DigestUtils.md5DigestAsHex((time + key).getBytes("UTF-8"));
+        data.setKey(s);
+        byte[] bytes = (time + "").getBytes("UTF-8");
+        data.setValue(ByteString.copyFrom(bytes));
+        packet.setBody(data);
+
         Proxy.Packet build = packet.build();
 
         DataTransferServiceGrpc.DataTransferServiceBlockingStub dataTransferServiceBlockingStub = DataTransferServiceGrpc.newBlockingStub(managedChannel);
