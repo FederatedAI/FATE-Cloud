@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package crontab
-
 import (
 	"fate.manager/comm/logging"
 	"fate.manager/models"
@@ -38,7 +37,7 @@ var (
 	MonitorTimer    = 120
 	PageckageTimer  = 30
 	AutotestTimer   = 60
-	VersionTimer    = 600
+	VersionTimer    = 300
 )
 
 func SetUp() {

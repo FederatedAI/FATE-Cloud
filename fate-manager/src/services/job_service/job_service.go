@@ -1054,7 +1054,15 @@ func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
 			CreateTime:  time.Now(),
 			UpdateTime:  time.Now(),
 		}
-		models.UpdateReportInstitution(&reportInstitution)
+		var data = make(map[string]interface{})
+		data["total"] = item.Total
+		data["success"] = item.Success
+		data["running"] = item.Running
+		data["waiting"] = item.Waiting
+		data["timeout"] = item.Timeout
+		data["failed"] = item.Failed
+		data["canceled"] = item.Canceled
+		models.UpdateReportInstitution(data,&reportInstitution)
 	}
 	list,err =models.CalReportInstitutionByTwo(institution,monitorReq)
 	if err != nil{
@@ -1075,7 +1083,15 @@ func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
 			CreateTime:  time.Now(),
 			UpdateTime:  time.Now(),
 		}
-		models.UpdateReportInstitution(&reportInstitution)
+		var data = make(map[string]interface{})
+		data["total"] = item.Total
+		data["success"] = item.Success
+		data["running"] = item.Running
+		data["waiting"] = item.Waiting
+		data["timeout"] = item.Timeout
+		data["failed"] = item.Failed
+		data["canceled"] = item.Canceled
+		models.UpdateReportInstitution(data,&reportInstitution)
 	}
 }
 
@@ -1106,7 +1122,15 @@ func SiteReport(institution string,monitorReq entity.MonitorReq) {
 			CreateTime:  time.Now(),
 			UpdateTime:  time.Now(),
 		}
-		models.UpdateReportSite(&reportSite)
+		var data = make(map[string]interface{})
+		data["total"] = item.Total
+		data["success"] = item.Success
+		data["running"] = item.Running
+		data["waiting"] = item.Waiting
+		data["timeout"] = item.Timeout
+		data["failed"] = item.Failed
+		data["canceled"] = item.Canceled
+		models.UpdateReportSite(data,&reportSite)
 	}
 	list,err =models.CalReportSiteByTwo(institution,monitorReq)
 	if err != nil{
@@ -1129,7 +1153,15 @@ func SiteReport(institution string,monitorReq entity.MonitorReq) {
 			CreateTime:  time.Now(),
 			UpdateTime:  time.Now(),
 		}
-		models.UpdateReportSite(&reportSite)
+		var data = make(map[string]interface{})
+		data["total"] = item.Total
+		data["success"] = item.Success
+		data["running"] = item.Running
+		data["waiting"] = item.Waiting
+		data["timeout"] = item.Timeout
+		data["failed"] = item.Failed
+		data["canceled"] = item.Canceled
+		models.UpdateReportSite(data,&reportSite)
 	}
 }
 
@@ -1246,6 +1278,7 @@ type MonitorPushSite struct {
 	Failed     int   `json:"jobFailedCount"`
 	Running    int   `json:"jobRunningCount"`
 	Success    int   `json:"jobSuccessCount"`
+	Waiting    int   `json:"jobWaitingCount"`
 	FinishDate int64 `json:"jobFinishDate"`
 	GuestId    int64 `json:"siteGuestId"`
 	HostId     int64 `json:"siteHostId"`
@@ -1291,6 +1324,7 @@ func MonitorPush(monitorReq entity.MonitorReq, accountInfo *models.AccountInfo, 
 			FinishDate: timeunix,
 			Running:    pushSite.Running,
 			Success:    pushSite.Success,
+			Waiting:    pushSite.Waiting,
 			GuestId:    gsite,
 			HostId:     hsite,
 		}
