@@ -174,7 +174,7 @@ func GetReportSite(reportSite *ReportSite) ([]*ReportSite, error) {
 	return result, nil
 }
 
-func UpdateReportInstitution(info *ReportInstitution) error {
+func UpdateReportInstitution(value map[string]interface{},info *ReportInstitution) error {
 	list, err := GetReportInstitution(info)
 	if err != nil {
 		return err
@@ -182,13 +182,13 @@ func UpdateReportInstitution(info *ReportInstitution) error {
 		if err := db.Create(&info).Error; err != nil {
 			return err
 		}
-	} else if err := db.Model(&ReportInstitution{}).Where("ds  = ? and institution =? ", info.Ds, info.Institution).Updates(info).Error; err != nil {
+	} else if err := db.Model(&ReportInstitution{}).Where("ds  = ? and institution =? ", info.Ds, info.Institution).Updates(value).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateReportSite(info *ReportSite) error {
+func UpdateReportSite(value map[string]interface{},info *ReportSite) error {
 	list, err := GetReportSite(info)
 	if err != nil {
 		return err
@@ -197,7 +197,7 @@ func UpdateReportSite(info *ReportSite) error {
 			return err
 		}
 	} else if err := db.Model(&ReportSite{}).Where("ds  = ? and institution =? and institution_site_name =? and site_name = ? ",
-		info.Ds, info.Institution, info.InstitutionSiteName, info.SiteName).Updates(info).Error; err != nil {
+		info.Ds, info.Institution, info.InstitutionSiteName, info.SiteName).Updates(value).Error; err != nil {
 		return err
 	}
 	return nil

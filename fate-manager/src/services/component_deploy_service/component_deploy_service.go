@@ -131,12 +131,14 @@ func DoAction(actionReq entity.ActionReq) (int, error) {
 	siteinfo := models.SiteInfo{PartyId: actionReq.PartyId, Status: int(enum.SITE_STATUS_JOINED)}
 	if actionReq.Action == int(enum.ActionType_STOP) {
 		data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		models.UpdateDeployComponent(data, deployComponent)
 		deploySite := models.DeploySite{PartyId: actionReq.PartyId, IsValid: int(enum.IS_VALID_YES)}
 		models.UpdateDeploySite(data, deploySite)
 		data2["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
 		models.UpdateSiteByCondition(data2, siteinfo)
 	} else if actionReq.Action == int(enum.ActionType_RESTART) {
 		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+		models.UpdateDeployComponent(data, deployComponent)
 		deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
 		deployComponent.ComponentName = ""
 		deployComponentList, _ := models.GetDeployComponent(deployComponent)
@@ -147,7 +149,7 @@ func DoAction(actionReq entity.ActionReq) (int, error) {
 	} else {
 		return e.INVALID_PARAMS, nil
 	}
-	models.UpdateDeployComponent(data, deployComponent)
+
 	return e.SUCCESS, nil
 }
 
