@@ -454,8 +454,9 @@ public class FederatedSiteManagerServiceFacade {
         HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
         if (federatedSiteManagerService.checkPartyIdForRollSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)))) {
             stringBooleanHashMap.put("result", true);
+        } else {
+            stringBooleanHashMap.put("result", false);
         }
-        stringBooleanHashMap.put("result", false);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, stringBooleanHashMap);
     }
 }

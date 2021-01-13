@@ -85,7 +85,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/api/site/**")
                 .excludePathPatterns("/api/site/findOneSite", "/api/site/checkAuthority", "/api/site/heart", "/api/site/page",
                         "/api/site/findOneSite/fateManager", "/api/site/checkAuthority/fateManager", "/api/site/heart/fateManager", "/api/site/page/fateManager",
-                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version"
+                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version","/api/site/rollsite/checkPartyId"
                 )
 
                 .addPathPatterns("/api/system/**")
