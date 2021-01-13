@@ -106,6 +106,40 @@ public class grpcTest {
         return dataTransferServiceBlockingStub.unaryCall(build);
     }
 
+    public static Proxy.Packet setExchange(String ip,int port,String key,String content) throws UnsupportedEncodingException {
+
+        ManagedChannel managedChannel = null;
+        try {
+            managedChannel = createManagedChannel(ip, port);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Proxy.Topic.Builder topic = Proxy.Topic.newBuilder();
+        topic.setPartyId("10002");
+
+        Proxy.Metadata.Builder metadata = Proxy.Metadata.newBuilder();
+        metadata.setOperator("set_route_table");
+        metadata.setDst(topic);
+        Proxy.Packet.Builder packet = Proxy.Packet.newBuilder();
+        packet.setHeader(metadata);
+
+        Proxy.Data.Builder data = Proxy.Data.newBuilder();
+        long time = new Date().getTime();
+
+        String s = DigestUtils.md5DigestAsHex((time + key).getBytes("UTF-8"));
+        data.setKey(s);
+        byte[] bytes = (time + "").getBytes("UTF-8");
+        data.setValue(ByteString.copyFrom(bytes));
+        packet.setBody(data);
+
+        Proxy.Packet build = packet.build();
+
+        DataTransferServiceGrpc.DataTransferServiceBlockingStub dataTransferServiceBlockingStub = DataTransferServiceGrpc.newBlockingStub(managedChannel);
+        System.out.println(dataTransferServiceBlockingStub.unaryCall(build));
+        return dataTransferServiceBlockingStub.unaryCall(build);
+    }
+
     public static ManagedChannel createManagedChannel(String ip, int port) throws Exception {
         NettyChannelBuilder builder = NettyChannelBuilder
                 .forAddress(ip, port)
