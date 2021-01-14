@@ -1,5 +1,21 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.grpc;
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
 import com.webank.ai.eggroll.api.networking.proxy.DataTransferServiceGrpc;
 import com.webank.ai.eggroll.api.networking.proxy.Proxy;
@@ -10,69 +26,22 @@ import org.springframework.util.DigestUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class grpcTest {
 
-//    public void test_03_Inference() {
-//
-//        InferenceRequest inferenceRequest = new InferenceRequest();
-//
-//        inferenceRequest.setServiceId("lr-test");
-//
-//        inferenceRequest.getFeatureData().put("x0", 0.100016);
-//        inferenceRequest.getFeatureData().put("x1", 1.210);
-//        inferenceRequest.getFeatureData().put("x2", 2.321);
-//        inferenceRequest.getFeatureData().put("x3", 3.432);
-//        inferenceRequest.getFeatureData().put("x4", 4.543);
-//        inferenceRequest.getFeatureData().put("x5", 5.654);
-//        inferenceRequest.getFeatureData().put("x6", 5.654);
-//        inferenceRequest.getFeatureData().put("x7", 0.102345);
-//
-//        inferenceRequest.getSendToRemoteFeatureData().put(Dict.DEVICE_ID, "8");
-//
-//        InferenceServiceProto.InferenceMessage.Builder inferenceMessageBuilder = InferenceServiceProto.InferenceMessage.newBuilder();
-//        String contentString = JsonUtil.object2Json(inferenceRequest);
-//        System.err.println("send data ===" + contentString);
-//        try {
-//            inferenceMessageBuilder.setBody(ByteString.copyFrom(contentString, "UTF-8"));
-//            Map protocolMap = Maps.newHashMap();
-//            protocolMap.put(Dict.PROTOCOL, Dict.RMB);
-//            inferenceMessageBuilder.setHeader(ByteString.copyFrom(JsonUtil.object2Json(protocolMap), "UTF-8"));
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//
-//        InferenceServiceProto.InferenceMessage inferenceMessage = inferenceMessageBuilder.build();
-//
-//        System.err.println(inferenceMessage.getBody());
-//
-//        InferenceServiceProto.InferenceMessage resultMessage = inferenceClient.inference(inferenceMessage);
-//
-//        System.err.println("result ==================" + new String(resultMessage.getBody().toByteArray()));
-//    }
-//
-//    public InferenceServiceProto.InferenceMessage inference(InferenceServiceProto.InferenceMessage inferenceMessage) {
-//        ManagedChannel managedChannel = null;
-//        try {
-//            managedChannel = createManagedChannel(ip, port);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        InferenceServiceGrpc.InferenceServiceBlockingStub blockingStub = InferenceServiceGrpc.newBlockingStub(managedChannel);
-//        InferenceServiceProto.InferenceMessage.Builder inferenceMessageBuilder =
-//                InferenceServiceProto.InferenceMessage.newBuilder();
-//
-//        return blockingStub.inference(inferenceMessage);
-//    }
-
     public static void main(String[] args) throws UnsupportedEncodingException {
-        findExchange("172.16.153.14",9531,"eggroll");
+        findExchange("172.16.153.14", 9531, "eggroll");
+
+        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        stringStringHashMap.put("1", "1");
+        String s = JSON.toJSONString(stringStringHashMap);
+        setExchange("172.16.153.14", 9531, "eggroll", s);
+
     }
 
-    public static Proxy.Packet findExchange(String ip,int port,String key) throws UnsupportedEncodingException {
-
+    public static Proxy.Packet findExchange(String ip, int port, String key) throws UnsupportedEncodingException {
 
 
         ManagedChannel managedChannel = null;
@@ -106,7 +75,7 @@ public class grpcTest {
         return dataTransferServiceBlockingStub.unaryCall(build);
     }
 
-    public static Proxy.Packet setExchange(String ip,int port,String key,String content) throws UnsupportedEncodingException {
+    public static Proxy.Packet setExchange(String ip, int port, String key, String content) throws UnsupportedEncodingException {
 
         ManagedChannel managedChannel = null;
         try {
@@ -127,9 +96,9 @@ public class grpcTest {
         Proxy.Data.Builder data = Proxy.Data.newBuilder();
         long time = new Date().getTime();
 
-        String s = DigestUtils.md5DigestAsHex((time + key).getBytes("UTF-8"));
-        data.setKey(s);
-        byte[] bytes = (time + "").getBytes("UTF-8");
+        String md5String = DigestUtils.md5DigestAsHex((time + content + key).getBytes("UTF-8"));
+        data.setKey(md5String);
+        byte[] bytes = (time + content).getBytes("UTF-8");
         data.setValue(ByteString.copyFrom(bytes));
         packet.setBody(data);
 
