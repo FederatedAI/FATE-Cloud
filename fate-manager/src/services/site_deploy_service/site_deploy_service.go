@@ -368,6 +368,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 		KubenetesId:  deploySiteList[0].KubenetesId,
 		PythonPort:   deploySiteList[0].PythonPort,
 		RollsitePort: deploySiteList[0].RollsitePort,
+		DeployType:   int(enum.DeployType_K8S),
 		IsValid:      int(enum.IS_VALID_YES),
 		ClickType:    int(enum.ClickType_PAGE),
 		ClusterId:    deploySiteList[0].ClusterId,
