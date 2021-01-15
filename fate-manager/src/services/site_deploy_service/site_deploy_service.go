@@ -834,6 +834,11 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 					IsValid:     int(enum.IS_VALID_YES),
 				}
 				models.UpdateDeployComponent(deployData, deployComponent)
+
+				var data = make(map[string]interface{})
+				data["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+				siteInfo := models.SiteInfo{PartyId:autoTestReq.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+				models.UpdateSiteByCondition(data,siteInfo)
 			}
 		}
 	} else {
