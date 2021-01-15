@@ -116,3 +116,16 @@ func UpdateDeploySite(info map[string]interface{}, condition DeploySite) error {
 	}
 	return nil
 }
+
+func GetDeploySuccessSite(info *DeploySite) ([]DeploySite, error) {
+	var deploySite []DeploySite
+	Db := db
+	if info.IsValid > 0 {
+		Db = Db.Where("is_valid = ?", info.IsValid)
+	}
+	err := Db.Where("status in (1,2)").Find(&deploySite).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return deploySite, nil
+}
