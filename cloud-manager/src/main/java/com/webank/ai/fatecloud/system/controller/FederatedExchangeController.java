@@ -78,4 +78,6 @@ public class FederatedExchangeController {
         log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageQo);
         return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageQo, httpServletRequest);
     }
+
+
 }

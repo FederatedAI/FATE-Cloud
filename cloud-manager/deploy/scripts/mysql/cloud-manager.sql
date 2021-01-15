@@ -168,12 +168,23 @@ create table IF NOT EXISTS `t_job_statistics`(
 CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
   `exchange_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `exchange_name` varchar(128) unique DEFAULT NULL COMMENT 'exchagne Name',
-  `network_access_entrances` varchar(512) DEFAULT NULL COMMENT 'network access entrances',
-  `network_access_exits` varchar(512) DEFAULT NULL COMMENT 'network access exits',
+  `network_access` varchar(512) DEFAULT NULL COMMENT 'exchange network address',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`exchange_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
+
+CREATE TABLE IF NOT EXISTS `t_exchange_details` (
+  `exchange_details_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'exchange details id',
+  `party_id` varchar(128) unique DEFAULT NULL COMMENT 'party id',
+  `network_access` varchar(512) DEFAULT NULL COMMENT 'network address',
+  `batch` bigint(20) NOT NULL  COMMENT 'insert-batch-number of route table',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `exchange_id` bigint(20) NOT NULL COMMENT 'exchange id',
+  PRIMARY KEY (`exchange_details_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Detail';
+
 
 CREATE TABLE IF NOT EXISTS `t_product_version` (
   `product_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
