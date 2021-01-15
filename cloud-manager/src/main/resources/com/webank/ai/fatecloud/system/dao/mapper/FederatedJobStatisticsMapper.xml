@@ -109,13 +109,15 @@
     <select id="getJobStatisticsSummaryTodaySiteAll"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryTodaySiteAllQo"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteAllDto">
-        SELECT count(1) siteCount,sum(tmp.job_failed_count) failedJobCount,sum(tmp.job_success_count) successJobCount ,sum(tmp.job_running_count) runningJobCount, sum(tmp.job_waiting_count) waitingJobCount
+        SELECT count(1) siteCount,sum(tmp.failed) failedJobCount,sum(tmp.success) successJobCount ,sum(tmp.running) runningJobCount, sum(tmp.waiting) waitingJobCount
         from
-        ( select js.site_guest_id,js.job_failed_count,js.job_success_count,js.job_running_count,js.job_waiting_count
+        ( select js.site_guest_id,sum(js.job_failed_count) failed,sum(js.job_success_count) success,sum(js.job_running_count) running,sum(js.job_waiting_count) waiting
         FROM t_job_statistics js,t_federated_site_manager sm
         where js.site_guest_id =sm.id
         and js.job_finish_date=#{dateToday,jdbcType=DATE}
-        and sm.institutions =#{institutions} ) tmp
+        and sm.institutions =#{institutions}
+        group by js.site_guest_id
+        ) tmp
     </select>
 
     <select id="getJobStatisticsSummaryTodaySiteEachCount"
@@ -223,13 +225,15 @@
     <select id="getJobStatisticsSummarySiteAllForPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummarySiteAllForPeriodQo"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteAllDto">
-        SELECT count(1) siteCount,sum(tmp.job_failed_count) failedJobCount,sum(tmp.job_success_count) successJobCount,sum(tmp.job_running_count) runningJobCount,sum(tmp.job_waiting_count) waitingJobCount
+        SELECT count(1) siteCount,sum(tmp.failed) failedJobCount,sum(tmp.success) successJobCount ,sum(tmp.running) runningJobCount, sum(tmp.waiting) waitingJobCount
         from
-        ( select js.site_guest_id,js.job_failed_count,js.job_success_count,js.job_running_count,js.job_waiting_count
+        ( select js.site_guest_id,sum(js.job_failed_count) failed,sum(js.job_success_count) success,sum(js.job_running_count) running,sum(js.job_waiting_count) waiting
         FROM t_job_statistics js,t_federated_site_manager sm
         where js.site_guest_id =sm.id
         and js.job_finish_date between #{beginDate,jdbcType=DATE}  and #{endDate,jdbcType=DATE}
-        and sm.institutions =#{institutions} ) tmp
+        and sm.institutions =#{institutions}
+        group by js.site_guest_id
+        ) tmp
     </select>
 
     <select id="getJobStatisticsSummarySiteEachForPeriodCount"
