@@ -25,28 +25,31 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange information")
-@TableName("t_federated_exchange")
-public class FederatedExchangeDo implements Serializable {
+@ApiModel(value = "exchange details information")
+@TableName("t_exchange_details")
+public class ExchangeDetailsDo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
-    @TableId(value = "exchange_id", type = IdType.AUTO)
-    private Long exchangeId;
+    @TableId(value = "exchange_details_id", type = IdType.AUTO)
+    private Long exchangeDetailsId;
 
     @ApiModelProperty(value = "exchange name")
-    @TableField(value = "exchange_name")
-    private String exchangeName;
+    @TableField(value = "party_id")
+    private String partyId;
 
     @ApiModelProperty(value = "network access ")
     @TableField(value = "network_access")
     private String networkAccess;
+
+    @ApiModelProperty(value = "primary key")
+    @TableId(value = "batch")
+    private Long batch;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
@@ -56,6 +59,8 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
-    @TableField(exist = false)
-    private List<ExchangeDetailsDo> exchangeDetailsDoList;
+    @ApiModelProperty(value = "exchange id")
+    @TableId(value = "exchange_id")
+    private Long exchangeId;
+
 }

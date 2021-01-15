@@ -17,6 +17,7 @@ package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webank.ai.fatecloud.common.util.PageBean;
+import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedExchangeMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
@@ -39,11 +40,15 @@ public class FederatedExchangeService implements Serializable {
 
 
     public FederatedExchangeDo addExchange(ExchangeAddQo exchangeAddQo) {
+        //add exchange table
         FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
         federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
-        federatedExchangeDo.setNetworkAccessEntrances(exchangeAddQo.getNetworkAccessEntrances());
-        federatedExchangeDo.setNetworkAccessExits(exchangeAddQo.getNetworkAccessExits());
+        federatedExchangeDo.setNetworkAccess(exchangeAddQo.getNetworkAccess());
         federatedExchangeMapper.insert(federatedExchangeDo);
+
+        //add exchange details table
+        new ExchangeDetailsDo()
+
         return federatedExchangeDo;
     }
 

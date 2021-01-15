@@ -15,29 +15,25 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange add qo")
-public class ExchangeAddQo implements Serializable {
+@ApiModel(value = "exchange details information")
+public class ExchangeDetailsAddBean implements Serializable {
 
     @ApiModelProperty(value = "exchange name")
-    private String exchangeName;
+    private String partyId;
 
-    @ApiModelProperty(value = "network access entrances")
+    @ApiModelProperty(value = "network access ")
     private String networkAccess;
 
-    @ApiModelProperty(value = "exchange details list")
-    List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList;
 
 }

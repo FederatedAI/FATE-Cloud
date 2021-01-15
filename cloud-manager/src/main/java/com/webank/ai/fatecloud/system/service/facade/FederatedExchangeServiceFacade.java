@@ -22,12 +22,10 @@ import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeDeleteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedExchangeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,14 +46,41 @@ public class FederatedExchangeServiceFacade implements Serializable {
     public CommonResponse addExchange(ExchangeAddQo exchangeAddQo) {
 
         //check duplicate name
-        if(this.checkExchangeName(exchangeAddQo)){
+        if (!checkExchangeAddQo(exchangeAddQo)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS,federatedExchangeDo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, federatedExchangeDo);
 
     }
-    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo){
+
+    private boolean checkExchangeAddQo(ExchangeAddQo exchangeAddQo) {
+        if (this.checkExchangeName(exchangeAddQo)) {
+            return false;
+        }
+        if (StringUtils.isBlank(exchangeAddQo.getExchangeName())) {
+            return false;
+        }
+        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeAddQo.getExchangeDetailsAddBeanList();
+        if (exchangeDetailsAddBeanList == null || exchangeDetailsAddBeanList.size() == 0) {
+            return false;
+        }
+        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$\n";
+        for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
+            String partyId = exchangeDetailsAddBean.getPartyId();
+            if (StringUtils.isBlank(partyId)) {
+                return false;
+            }
+            String networkAccess = exchangeDetailsAddBean.getNetworkAccess();
+            if (!networkAccess.matches(ipAndPortRegex)) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
         return federatedExchangeService.checkExchangeName(exchangeAddQo);
     }
 
@@ -75,7 +100,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS,exchangePage);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
     }
 
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageQo exchangePageQo, HttpServletRequest httpServletRequest) {
@@ -87,6 +112,6 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS,exchangePage);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
     }
 }
