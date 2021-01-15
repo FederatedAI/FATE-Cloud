@@ -820,54 +820,115 @@ func AllowApplyTask(info *models.AccountInfo) {
 }
 
 func ComponentStatusTask() {
-
-	deployComponent := models.DeployComponent{
-		ProductType: int(enum.PRODUCT_TYPE_FATE),
-		DeployType:  int(enum.DeployType_K8S),
-		IsValid:     int(enum.IS_VALID_YES),
-	}
-	deployComponentList, err := models.GetDeployComponent(deployComponent)
-	if err != nil {
+	deploySite := models.DeploySite{IsValid:int(enum.IS_VALID_YES)}
+	deploySiteList,err := models.GetDeploySuccessSite(&deploySite)
+	if err != nil{
 		return
 	}
+	conf,err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil{
+		return
+	}
+	for i := 0;i< len(deploySiteList);i++ {
+		deployComponent := models.DeployComponent{
+			PartyId:  deploySiteList[i].PartyId,
+			IsValid:     int(enum.IS_VALID_YES),
+		}
+		deployComponentList, err := models.GetDeployComponent(deployComponent)
+		if err != nil {
+			return
+		}
 
-	for i := 0; i < len(deployComponentList); i++ {
-		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS) {
-			continue
-		}
-		testname := deployComponentList[i].ComponentName
-		if deployComponentList[i].ComponentName == "meta-service" {
-			testname = "roll"
-		}
-		if deployComponentList[i].ComponentName == "fateboard" || deployComponentList[i].ComponentName == "fateflow" {
-			testname = "python"
-		}
-		cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
-		if setting.DeploySetting.SudoTag {
-			cmdSub = fmt.Sprintf("sudo kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
-		}
-		result, _ := util.ExecCommand(cmdSub)
-		cnt, _ := strconv.Atoi(result[0:1])
-		var data = make(map[string]interface{})
-		if cnt < 1 {
-			data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		serviceStatus := true
+		if deploySiteList[i].DeployType == int(enum.DeployType_K8S) {
+			for j := 0; j < len(deployComponentList); j++ {
+				testname := deployComponentList[j].ComponentName
+				if deployComponentList[j].ComponentName == "meta-service" {
+					testname = "roll"
+				}
+				if deployComponentList[j].ComponentName == "fateboard" || deployComponentList[j].ComponentName == "fateflow" {
+					testname = "python"
+				}
+				cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[j].PartyId, testname)
+				if setting.DeploySetting.SudoTag {
+					cmdSub = fmt.Sprintf("sudo kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[j].PartyId, testname)
+				}
+				result, _ := util.ExecCommand(cmdSub)
+				cnt, _ := strconv.Atoi(result[0:1])
+				var data = make(map[string]interface{})
+				if cnt < 1 {
+					data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
 
-			DeploySite := models.DeploySite{
-				PartyId:     deployComponentList[i].PartyId,
-				ProductType: deployComponentList[i].ProductType,
-				IsValid:     int(enum.IS_VALID_YES),
+					DeploySite := models.DeploySite{
+						PartyId:     deployComponentList[j].PartyId,
+						ProductType: deployComponentList[j].ProductType,
+						IsValid:     int(enum.IS_VALID_YES),
+					}
+					models.UpdateDeploySite(data, DeploySite)
+					serviceStatus = false
+				} else {
+					data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+				}
+				deployComponent = models.DeployComponent{
+					PartyId:       deployComponentList[j].PartyId,
+					ProductType:   deployComponentList[j].ProductType,
+					ComponentName: deployComponentList[j].ComponentName,
+					IsValid:       int(enum.IS_VALID_YES),
+				}
+				models.UpdateDeployComponent(data, deployComponent)
 			}
-			models.UpdateDeploySite(data, DeploySite)
-		} else {
-			data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+		}else {
+			var connectReq entity.ConnectAnsible
+			connectReq.PartyId = deploySiteList[i].PartyId
+			result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleConnectUri), connectReq, nil)
+			if err != nil || result == nil {
+				logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+				return
+			}
+			var connectResp entity.AnsibleConnectResp
+			err = json.Unmarshal([]byte(result.Body), &connectResp)
+			if err != nil {
+				logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+				return
+			}
+			if connectResp.Code == e.SUCCESS {
+				for k := 0; k < len(connectResp.Data.List); k++   {
+					ConnectItem := connectResp.Data.List[k]
+					if ConnectItem.Module == "fateflow" ||
+						ConnectItem.Module == "mysql" ||
+						ConnectItem.Module == "fateboard" ||
+						ConnectItem.Module == "clustermanager" ||
+						ConnectItem.Module == "nodemanager" ||
+						ConnectItem.Module == "rollsite" {
+
+						deployComponent = models.DeployComponent{
+							PartyId:       deploySiteList[i].PartyId,
+							ComponentName: ConnectItem.Module,
+							IsValid:       int(enum.IS_VALID_YES),
+						}
+						data := make(map[string]interface{})
+						data["status"] =  int(enum.SITE_RUN_STATUS_STOPPED)
+						serviceStatus = false
+						if ConnectItem.Status == "running"{
+							data["status"] =  int(enum.SITE_RUN_STATUS_RUNNING)
+							serviceStatus = true
+						}
+						models.UpdateDeployComponent(data, deployComponent)
+					}
+				}
+			}
 		}
-		deployComponent = models.DeployComponent{
-			PartyId:       deployComponentList[i].PartyId,
-			ProductType:   deployComponentList[i].ProductType,
-			ComponentName: deployComponentList[i].ComponentName,
-			IsValid:       int(enum.IS_VALID_YES),
+		var site = make(map[string]interface{})
+		var deploy = make(map[string]interface{})
+		site["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+		deploy["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		if serviceStatus{
+			site["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+			deploy["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		}
-		models.UpdateDeployComponent(data, deployComponent)
+		siteInfo := models.SiteInfo{PartyId: deploySiteList[i].PartyId, Status: int(enum.SITE_STATUS_JOINED)}
+		models.UpdateSiteByCondition(site, siteInfo)
+		models.UpdateDeploySite(deploy,deploySiteList[i])
 	}
 }
 
@@ -1021,25 +1082,25 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	for i := -1; i <= 0; i++ {
+	for i := -5; i <= 0; i++ {
 		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
 		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
 			StartDate: curTime,
 			EndDate:   curTime,
 		}
-		InstitutionReport(accountInfo.Institutions,monitorReq)
-		SiteReport(accountInfo.Institutions,monitorReq)
+		InstitutionReport(accountInfo.Institutions, monitorReq)
+		SiteReport(accountInfo.Institutions, monitorReq)
 		MonitorPush(monitorReq, accountInfo, timeunix)
 	}
 }
 
-func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
-	list,err :=models.CalReportInstitutionByOne(monitorReq)
-	if err != nil{
+func InstitutionReport(institution string, monitorReq entity.MonitorReq) {
+	list, err := models.CalReportInstitutionByOne(monitorReq)
+	if err != nil {
 		return
 	}
-	for i := 0;i< len(list) ;i++  {
+	for i := 0; i < len(list); i++ {
 		item := list[i]
 		reportInstitution := models.ReportInstitution{
 			Ds:          item.Ds,
@@ -1062,13 +1123,13 @@ func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
 		data["timeout"] = item.Timeout
 		data["failed"] = item.Failed
 		data["canceled"] = item.Canceled
-		models.UpdateReportInstitution(data,&reportInstitution)
+		models.UpdateReportInstitution(data, &reportInstitution)
 	}
-	list,err =models.CalReportInstitutionByTwo(institution,monitorReq)
-	if err != nil{
+	list, err = models.CalReportInstitutionByTwo(institution, monitorReq)
+	if err != nil {
 		return
 	}
-	for i := 0;i< len(list) ;i++  {
+	for i := 0; i < len(list); i++ {
 		item := list[i]
 		reportInstitution := models.ReportInstitution{
 			Ds:          item.Ds,
@@ -1091,7 +1152,7 @@ func InstitutionReport(institution string,monitorReq entity.MonitorReq) {
 		data["timeout"] = item.Timeout
 		data["failed"] = item.Failed
 		data["canceled"] = item.Canceled
-		models.UpdateReportInstitution(data,&reportInstitution)
+		models.UpdateReportInstitution(data, &reportInstitution)
 	}
 }
 
@@ -1100,27 +1161,27 @@ type SiteSiteMonitor struct {
 	models.MonitorBase
 }
 
-func SiteReport(institution string,monitorReq entity.MonitorReq) {
-	list,err :=models.CalReportSiteByOne(monitorReq)
-	if err != nil{
+func SiteReport(institution string, monitorReq entity.MonitorReq) {
+	list, err := models.CalReportSiteByOne(monitorReq)
+	if err != nil {
 		return
 	}
-	for i := 0;i< len(list) ;i++  {
+	for i := 0; i < len(list); i++ {
 		item := list[i]
 		reportSite := models.ReportSite{
-			Ds:          item.Ds,
-			Institution: item.Institution,
+			Ds:                  item.Ds,
+			Institution:         item.Institution,
 			InstitutionSiteName: item.InstitutionSiteName,
 			SiteName:            item.SiteName,
-			Total:       item.Total,
-			Success:     item.Success,
-			Running:     item.Running,
-			Waiting:     item.Waiting,
-			Timeout:     item.Timeout,
-			Failed:      item.Failed,
-			Canceled:    item.Canceled,
-			CreateTime:  time.Now(),
-			UpdateTime:  time.Now(),
+			Total:               item.Total,
+			Success:             item.Success,
+			Running:             item.Running,
+			Waiting:             item.Waiting,
+			Timeout:             item.Timeout,
+			Failed:              item.Failed,
+			Canceled:            item.Canceled,
+			CreateTime:          time.Now(),
+			UpdateTime:          time.Now(),
 		}
 		var data = make(map[string]interface{})
 		data["total"] = item.Total
@@ -1130,28 +1191,28 @@ func SiteReport(institution string,monitorReq entity.MonitorReq) {
 		data["timeout"] = item.Timeout
 		data["failed"] = item.Failed
 		data["canceled"] = item.Canceled
-		models.UpdateReportSite(data,&reportSite)
+		models.UpdateReportSite(data, &reportSite)
 	}
-	list,err =models.CalReportSiteByTwo(institution,monitorReq)
-	if err != nil{
+	list, err = models.CalReportSiteByTwo(institution, monitorReq)
+	if err != nil {
 		return
 	}
-	for i := 0;i< len(list) ;i++  {
+	for i := 0; i < len(list); i++ {
 		item := list[i]
 		reportSite := models.ReportSite{
-			Ds:          item.Ds,
-			Institution: item.Institution,
+			Ds:                  item.Ds,
+			Institution:         item.Institution,
 			InstitutionSiteName: item.InstitutionSiteName,
 			SiteName:            item.SiteName,
-			Total:       item.Total,
-			Success:     item.Success,
-			Running:     item.Running,
-			Waiting:     item.Waiting,
-			Timeout:     item.Timeout,
-			Failed:      item.Failed,
-			Canceled:    item.Canceled,
-			CreateTime:  time.Now(),
-			UpdateTime:  time.Now(),
+			Total:               item.Total,
+			Success:             item.Success,
+			Running:             item.Running,
+			Waiting:             item.Waiting,
+			Timeout:             item.Timeout,
+			Failed:              item.Failed,
+			Canceled:            item.Canceled,
+			CreateTime:          time.Now(),
+			UpdateTime:          time.Now(),
 		}
 		var data = make(map[string]interface{})
 		data["total"] = item.Total
@@ -1161,7 +1222,7 @@ func SiteReport(institution string,monitorReq entity.MonitorReq) {
 		data["timeout"] = item.Timeout
 		data["failed"] = item.Failed
 		data["canceled"] = item.Canceled
-		models.UpdateReportSite(data,&reportSite)
+		models.UpdateReportSite(data, &reportSite)
 	}
 }
 
@@ -1591,10 +1652,10 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 				sitedata["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 				sitedata["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
 
-				siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+				siteInfo := models.SiteInfo{PartyId: deploySite.PartyId, Status: int(enum.SITE_STATUS_JOINED)}
 				var data = make(map[string]interface{})
 				data["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
-				models.UpdateSiteByCondition(data,siteInfo)
+				models.UpdateSiteByCondition(data, siteInfo)
 
 			} else if sitedata[deployKey] == int(enum.TEST_STATUS_NO) {
 				sitedata["status"] = int(enum.SITE_RUN_STATUS_STOPPED)

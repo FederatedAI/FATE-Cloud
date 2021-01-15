@@ -73,17 +73,17 @@ type PushSite struct {
 	Canceled     int
 }
 
-func GetTotalMonitorByRegion(monitorReq entity.MonitorReq) (*MonitorTotal, error) {
+func GetTotalMonitorByRegion(institution string,monitorReq entity.MonitorReq) (*MonitorTotal, error) {
 	var monitorTotal MonitorTotal
 	err := db.Table("t_fate_monitor_detail").
-		Select("COUNT(DISTINCT guest_party_id) active_data,"+
+		Select("COUNT(DISTINCT if(host_institution=?,host_party_id,guest_party_id)) active_data,"+
 			"COUNT(job_id) total,"+
 			"SUM(if(status='success',1,0)) success,"+
 			"SUM(if(status='running',1,0)) running,"+
 			"SUM(if(status='waiting',1,0)) waiting,"+
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
-			"SUM(if(status='failed',1,0)) failed").
+			"SUM(if(status='failed',1,0)) failed",institution).
 		Where("ds >= ? and ds <= ? and guest_site_name != ''", monitorReq.StartDate, monitorReq.EndDate).
 		Find(&monitorTotal).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -124,7 +124,7 @@ func GetPushSiteMonitorList(monitorReq entity.MonitorReq) ([]*PushSite, error) {
 			"SUM(if(status='timeout',1,0)) timeout,"+
 			"SUM(if(status='canceled',1,0)) canceled,"+
 			"SUM(if(status='failed',1,0)) failed").
-		Where("ds >= ? and ds <= ?", monitorReq.StartDate, monitorReq.EndDate).
+		Where("ds >= ? and ds <= ? and guest_site_name !=''", monitorReq.StartDate, monitorReq.EndDate).
 		Group("guest_party_id,host_party_id").
 		Find(&pushSiteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

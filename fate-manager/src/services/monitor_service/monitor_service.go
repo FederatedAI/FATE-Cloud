@@ -4,12 +4,17 @@ import (
 	"fate.manager/comm/enum"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/user_service"
 	"fmt"
 	"strconv"
 )
 
 func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, error) {
-	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return nil,err
+	}
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions,monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +148,11 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 		monitorReq.PageSize = 15
 		monitorReq.PageNum = 1
 	}
-	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return nil,err
+	}
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions,monitorReq)
 	if err != nil {
 		return nil, err
 	}
