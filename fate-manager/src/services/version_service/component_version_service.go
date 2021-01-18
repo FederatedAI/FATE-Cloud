@@ -239,6 +239,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			data["component_version"] = componentVersionList[i].ComponentVersion
 			data["address"] = deployComponentList[0].Address
 			data["version_index"] = componentVersionList[i].VersionIndex
+			data["deploy_type"] = int(enum.DeployType_K8S)
 			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
