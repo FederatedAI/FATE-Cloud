@@ -18,9 +18,11 @@ package com.webank.ai.fatecloud;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @MapperScan("com.webank.ai.fatecloud.system.dao.*")
+@EnableScheduling
 public class CloudManagerApplication {
     public static void main(String[] args){
         SpringApplication.run(CloudManagerApplication.class,args);
