@@ -30,6 +30,7 @@ import (
 	"fate.manager/services/job_service"
 	"fate.manager/services/user_service"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -450,8 +451,10 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 	return e.ERROR_CHECK_SITE_FAIL, err
 }
 
-func GetSecretInfo(siteDetailReq entity.SiteDetailReq) (*entity.SiteSecretResp, error) {
-	federatedInfo, err := federated_service.GetPartyIdInfo(siteDetailReq.PartyId, siteDetailReq.FederatedId)
+func GetSecretInfo(siteDetailReq entity.SecretInfoReq) (*entity.SiteSecretResp, error) {
+	partyId,_ :=strconv.Atoi(siteDetailReq.PartyId)
+	federatedId,_ :=strconv.Atoi(siteDetailReq.PartyId)
+	federatedInfo, err := federated_service.GetPartyIdInfo(partyId,federatedId)
 	if err != nil {
 		return nil, err
 	}

@@ -113,7 +113,6 @@ func InitRouter() *gin.Engine {
 		deploys.POST("/fateboard", GetFateBoardUrl)
 		deploys.POST("/version", GetInstallVersion)
 	}
-
 	//User
 	user := router.Group("/fate-manager/api/user").Use(JWT())
 	{
