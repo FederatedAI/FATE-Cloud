@@ -43,4 +43,7 @@ public class JobStatisticsSummaryTodaySiteEachDto implements Serializable {
 
     @ApiModelProperty(value = "total running job count")
     private Integer runningJobCount;
+
+    @ApiModelProperty(value = "total waiting job count")
+    private Integer waitingJobCount;
 }

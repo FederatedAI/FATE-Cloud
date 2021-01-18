@@ -40,4 +40,7 @@ public class JobStatistics implements Serializable {
 
     @ApiModelProperty(value = "failed count")
     private Long jobFailedCount;
+
+    @ApiModelProperty(value = "waiting count")
+    private Long jobWaitingCount;
 }

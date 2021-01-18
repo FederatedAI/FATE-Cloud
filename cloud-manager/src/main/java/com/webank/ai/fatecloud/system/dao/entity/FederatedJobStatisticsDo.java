@@ -58,6 +58,10 @@ public class FederatedJobStatisticsDo implements Serializable {
     @TableField(value = "job_running_count")
     private Long jobRunningCount;
 
+    @ApiModelProperty(value = "waiting count")
+    @TableField(value = "job_waiting_count")
+    private Long jobWaitingCount;
+
     @ApiModelProperty(value = "finish date")
     @TableField(value = "job_finish_date")
     private Date jobFinishDate;
@@ -77,5 +81,6 @@ public class FederatedJobStatisticsDo implements Serializable {
         this.jobFailedCount = jobStatisticsQo.getJobFailedCount();
         this.jobRunningCount = jobStatisticsQo.getJobRunningCount();
         this.jobFinishDate = new Date(jobStatisticsQo.getJobFinishDate());
+        this.jobWaitingCount=jobStatisticsQo.getJobWaitingCount();
     }
 }
