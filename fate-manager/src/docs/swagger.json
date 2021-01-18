@@ -2730,7 +2730,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.SiteDetailReq"
+                            "$ref": "#/definitions/entity.SecretInfoReq"
                         }
                     }
                 ],
@@ -5257,6 +5257,17 @@
             "type": "object",
             "properties": {
                 "context": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.SecretInfoReq": {
+            "type": "object",
+            "properties": {
+                "federatedId": {
+                    "type": "string"
+                },
+                "partyId": {
                     "type": "string"
                 }
             }
