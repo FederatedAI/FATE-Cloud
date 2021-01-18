@@ -31,6 +31,12 @@ import java.util.List;
 @ApiModel(value = "exchange add qo")
 public class ExchangeAddQo implements Serializable {
 
+    public ExchangeAddQo(ExchangeUpdateQo exchangeUpdateQo) {
+        this.exchangeName = exchangeUpdateQo.getExchangeName();
+        this.networkAccess = exchangeUpdateQo.getNetworkAccess();
+        this.exchangeDetailsAddBeanList = exchangeUpdateQo.getExchangeDetailsAddBeanList();
+    }
+
     @ApiModelProperty(value = "exchange name")
     private String exchangeName;
 

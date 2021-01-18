@@ -13,34 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.system.pojo.qo;
+package com.webank.ai.fatecloud.grpc;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange update qo")
-
-public class ExchangeUpdateQo implements Serializable {
-
-    @ApiModelProperty(value = "exchange id")
-    private Long exchangeId;
-
-    @ApiModelProperty(value = "exchange name")
-    private String exchangeName;
-
-    @ApiModelProperty(value = "network access entrances")
-    private String networkAccess;
-
-    @ApiModelProperty(value = "exchange details list")
-    List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList;
-
+public class NetworkBean implements Serializable {
+    private Integer port;
+    private String ip;
 }
