@@ -44,20 +44,26 @@ public class FederatedExchangeServiceFacade implements Serializable {
     CheckSignature checkSignature;
 
     public CommonResponse addExchange(ExchangeAddQo exchangeAddQo) {
-
         //check duplicate name
+        if (this.checkExchangeName(exchangeAddQo)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        //check exchange add qo
         if (!checkExchangeAddQo(exchangeAddQo)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
+
+        if (federatedExchangeDo == null) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+        }
+
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, federatedExchangeDo);
 
     }
 
     private boolean checkExchangeAddQo(ExchangeAddQo exchangeAddQo) {
-        if (this.checkExchangeName(exchangeAddQo)) {
-            return false;
-        }
+
         if (StringUtils.isBlank(exchangeAddQo.getExchangeName())) {
             return false;
         }
@@ -76,12 +82,17 @@ public class FederatedExchangeServiceFacade implements Serializable {
                 return false;
             }
         }
-        return true;
+
+        return exchangeAddQo.getNetworkAccess().matches(ipAndPortRegex);
 
     }
 
     public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
         return federatedExchangeService.checkExchangeName(exchangeAddQo);
+    }
+
+    public boolean checkExchangeName(ExchangeUpdateQo exchangeUpdateQo) {
+        return federatedExchangeService.checkExchangeName(exchangeUpdateQo);
     }
 
     public CommonResponse deleteExchange(ExchangeDeleteQo exchangeDeleteQo) {
@@ -91,6 +102,23 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
+
+        //check duplicate name
+        if (this.checkExchangeName(exchangeUpdateQo)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        ExchangeAddQo exchangeAddQo = new ExchangeAddQo(exchangeUpdateQo);
+        //check duplicate name
+        if (!checkExchangeAddQo(exchangeAddQo)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
+
+        if (federatedExchangeDo == null) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+        }
+
         federatedExchangeService.updateExchange(exchangeUpdateQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 

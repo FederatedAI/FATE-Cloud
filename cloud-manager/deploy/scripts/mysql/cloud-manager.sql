@@ -167,8 +167,9 @@ create table IF NOT EXISTS `t_job_statistics`(
 
 CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
   `exchange_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `exchange_name` varchar(128) unique DEFAULT NULL COMMENT 'exchagne Name',
+  `exchange_name` varchar(128) DEFAULT NULL COMMENT 'exchagne Name',
   `network_access` varchar(512) DEFAULT NULL COMMENT 'exchange network address',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1  exist 2  deleted',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`exchange_id`)

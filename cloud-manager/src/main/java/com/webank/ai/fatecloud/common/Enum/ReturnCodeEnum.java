@@ -54,6 +54,7 @@ public enum ReturnCodeEnum {
     FATE_MANAGER_USER_ERROR(134, "The institution has been used!"),
     MEMORY_ERROR(135, "Memory has error!"),
     CANCEL_ERROR(136, "Institutions to cancel authority doesn't exist!"),
+    ROLLSITE_GRPC_ERROR(137, "Connect rollsite by grpc error!"),
 
     ;
     private int code;

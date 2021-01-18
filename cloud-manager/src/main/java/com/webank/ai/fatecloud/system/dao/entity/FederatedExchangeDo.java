@@ -48,6 +48,10 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "network_access")
     private String networkAccess;
 
+    @ApiModelProperty(value = "status")
+    @TableField(value = "status")
+    private int status;
+
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
     private Date createTime;
