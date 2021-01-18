@@ -17,6 +17,8 @@ package com.webank.ai.fatecloud.system.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.protobuf.ByteString;
+import com.webank.ai.eggroll.api.networking.proxy.Proxy;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.grpc.ExchangeGrpcUtil;
 import com.webank.ai.fatecloud.grpc.NetworkBean;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,7 +81,8 @@ public class FederatedExchangeService implements Serializable {
 
         //send grpc request
         String[] network = exchangeAddQo.getNetworkAccess().split(":");
-        ExchangeGrpcUtil.setExchange(network[0], Integer.parseInt(network[1]), "eggroll", routeTableJsonString, "10002", "set_route_table");
+        Proxy.Packet packet = ExchangeGrpcUtil.setExchange(network[0], Integer.parseInt(network[1]), "eggroll", routeTableJsonString, "10002", "set_route_table");
+        //todo
 
     }
 
@@ -126,6 +130,7 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
+    @Transactional
     public FederatedExchangeDo updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
 
         //update rollsite
@@ -138,17 +143,21 @@ public class FederatedExchangeService implements Serializable {
 
         //update exchange table
         FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-        federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
-        federatedExchangeDo.setNetworkAccess(exchangeAddQo.getNetworkAccess());
+        federatedExchangeDo.setExchangeId(exchangeUpdateQo.getExchangeId());
+        federatedExchangeDo.setExchangeName(exchangeUpdateQo.getExchangeName());
+        federatedExchangeDo.setNetworkAccess(exchangeUpdateQo.getNetworkAccess());
         federatedExchangeDo.setStatus(1);
-        federatedExchangeMapper.insert(federatedExchangeDo);
+        federatedExchangeDo.setUpdateTime(new Date());
+        federatedExchangeMapper.updateById(federatedExchangeDo);
 
         //add exchange details table
-        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeAddQo.getExchangeDetailsAddBeanList();
+        Long maxBatch = exchangeDetailsMapper.findMaxBatch(exchangeUpdateQo);
+
+        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeUpdateQo.getExchangeDetailsAddBeanList();
         for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
             ExchangeDetailsDo exchangeDetailsDo = new ExchangeDetailsDo();
             exchangeDetailsDo.setExchangeDetailsId(federatedExchangeDo.getExchangeId());
-            exchangeDetailsDo.setBatch(1L);
+            exchangeDetailsDo.setBatch(maxBatch + 1);
             exchangeDetailsDo.setPartyId(exchangeDetailsAddBean.getPartyId());
             exchangeDetailsDo.setNetworkAccess(exchangeDetailsAddBean.getNetworkAccess());
             exchangeDetailsMapper.insert(exchangeDetailsDo);
@@ -156,11 +165,11 @@ public class FederatedExchangeService implements Serializable {
 
         return federatedExchangeDo;
 
-
     }
 
     public PageBean<FederatedExchangeDo> findExchangePage(ExchangePageQo exchangePageQo) {
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        federatedExchangeDoQueryWrapper.eq("status", 1);
         Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
         PageBean<FederatedExchangeDo> siteDetailDtoPageBean = new PageBean<>(exchangePageQo.getPageNum(), exchangePageQo.getPageSize(), count);
         long startIndex = siteDetailDtoPageBean.getStartIndex();
@@ -180,8 +189,28 @@ public class FederatedExchangeService implements Serializable {
 
     public boolean checkExchangeName(ExchangeUpdateQo exchangeUpdateQo) {
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
-        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeUpdateQo.getExchangeName()).eq("status", 1).ne("exchange_id",exchangeUpdateQo.getExchangeId());
+        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeUpdateQo.getExchangeName()).eq("status", 1).ne("exchange_id", exchangeUpdateQo.getExchangeId());
         Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
         return count > 0;
+    }
+
+    public List<ExchangeDetailsDo> queryExchange(ExchangeQueryQo exchangeQueryQo) {
+        ArrayList<ExchangeDetailsDo> exchangeDetailsDos = new ArrayList<>();
+
+        //send grpc request
+        String[] network = exchangeQueryQo.getNetworkAccess().split(":");
+        try {
+            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "set_route_table");
+
+            Proxy.Data body = exchange.getBody();
+            ByteString value = body.getValue();
+
+        } catch (UnsupportedEncodingException e) {
+            log.error("update route table error by grpc ", e);
+            return null;
+        }
+
+
+        return exchangeDetailsDos;
     }
 }

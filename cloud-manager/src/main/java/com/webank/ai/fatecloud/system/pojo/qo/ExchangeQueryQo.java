@@ -26,27 +26,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel("add site")
-public class SiteAddQo implements Serializable {
+@ApiModel(value = "exchange query qo")
+public class ExchangeQueryQo implements Serializable {
 
-    @ApiModelProperty(value = "site name")
-    private String siteName;
+    @ApiModelProperty(value = "network access ")
+    private String networkAccess;
 
-    @ApiModelProperty(value = "site belongs to institutions")
-    private String institutions;
-
-    @ApiModelProperty(value = "site partyid")
-    private Long partyId;
-
-    @ApiModelProperty(value = "party id  group")
-    private Long groupId;
-
-    @ApiModelProperty(value = "network access entrances")
-    private String networkAccessEntrances;
-
-    @ApiModelProperty(value = "network access exits")
-    private String networkAccessExits;
-
-    @ApiModelProperty(value = "protocol")
-    private String protocol;
 }

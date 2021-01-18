@@ -21,6 +21,7 @@ import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
+import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedExchangeService;
@@ -119,7 +120,6 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
         }
 
-        federatedExchangeService.updateExchange(exchangeUpdateQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 
     }
@@ -141,5 +141,31 @@ public class FederatedExchangeServiceFacade implements Serializable {
         PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
+    }
+
+    public CommonResponse<List<ExchangeDetailsDo>> queryExchange(ExchangeQueryQo exchangeQueryQo) {
+        if (exchangeQueryQo == null) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+        String networkAccess = exchangeQueryQo.getNetworkAccess();
+        if (StringUtils.isBlank(networkAccess)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$\n";
+
+        if (!networkAccess.matches(ipAndPortRegex)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        List<ExchangeDetailsDo> exchangeDetailsDos = federatedExchangeService.queryExchange(exchangeQueryQo);
+
+        if (exchangeDetailsDos == null) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+        }
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangeDetailsDos);
+
     }
 }

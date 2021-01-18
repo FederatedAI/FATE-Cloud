@@ -17,11 +17,9 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
+import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeDeleteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedExchangeServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -70,6 +68,13 @@ public class FederatedExchangeController {
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(@RequestBody ExchangePageQo exchangePageQo) {
         log.info("url:find paged exchange, requestBody:{}", exchangePageQo);
         return federatedExchangeServiceFacade.findExchangePage(exchangePageQo);
+    }
+
+    @PostMapping(value = "/query")
+    @ApiOperation(value = "find exchange")
+    public CommonResponse<ExchangeDetailsDo> queryExchange(@RequestBody ExchangeQueryQo exchangeQueryQo) {
+        log.info("url:find paged exchange, requestBody:{}", exchangeQueryQo);
+        return federatedExchangeServiceFacade.queryExchange(exchangeQueryQo);
     }
 
     @PostMapping(value = "/page/fatemanager")
