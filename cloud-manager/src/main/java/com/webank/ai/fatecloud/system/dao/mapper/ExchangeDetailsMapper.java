@@ -17,6 +17,8 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
+import com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo;
 
 public interface ExchangeDetailsMapper extends BaseMapper<ExchangeDetailsDo> {
+    Long findMaxBatch(ExchangeUpdateQo exchangeUpdateQo);
 }
