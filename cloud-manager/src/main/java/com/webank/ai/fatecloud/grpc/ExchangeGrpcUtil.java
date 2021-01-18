@@ -29,19 +29,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-public class grpcTest {
+public class ExchangeGrpcUtil {
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        findExchange("172.16.153.14", 9531, "eggroll");
+//    public static void main(String[] args) throws UnsupportedEncodingException {
+//        findExchange("172.16.153.14", 9531, "eggroll","10002",);
+//
+//        HashMap<String, String> stringStringHashMap = new HashMap<>();
+//        stringStringHashMap.put("1", "1");
+//        String s = JSON.toJSONString(stringStringHashMap);
+//        setExchange("172.16.153.14", 9531, "eggroll", s);
+//
+//    }
 
-        HashMap<String, String> stringStringHashMap = new HashMap<>();
-        stringStringHashMap.put("1", "1");
-        String s = JSON.toJSONString(stringStringHashMap);
-        setExchange("172.16.153.14", 9531, "eggroll", s);
-
-    }
-
-    public static Proxy.Packet findExchange(String ip, int port, String key) throws UnsupportedEncodingException {
+    public static Proxy.Packet findExchange(String ip, int port, String key,String partyId,String operator) throws UnsupportedEncodingException {
 
 
         ManagedChannel managedChannel = null;
@@ -52,10 +52,11 @@ public class grpcTest {
         }
 
         Proxy.Topic.Builder topic = Proxy.Topic.newBuilder();
-        topic.setPartyId("10002");
+        topic.setPartyId(partyId);
 
         Proxy.Metadata.Builder metadata = Proxy.Metadata.newBuilder();
-        metadata.setOperator("get_route_table");
+//        metadata.setOperator("get_route_table");
+        metadata.setOperator(operator);
         metadata.setDst(topic);
         Proxy.Packet.Builder packet = Proxy.Packet.newBuilder();
         packet.setHeader(metadata);
@@ -75,7 +76,7 @@ public class grpcTest {
         return dataTransferServiceBlockingStub.unaryCall(build);
     }
 
-    public static Proxy.Packet setExchange(String ip, int port, String key, String content) throws UnsupportedEncodingException {
+    public static Proxy.Packet setExchange(String ip, int port, String key, String content,String partyId,String operator) throws UnsupportedEncodingException {
 
         ManagedChannel managedChannel = null;
         try {
@@ -85,10 +86,11 @@ public class grpcTest {
         }
 
         Proxy.Topic.Builder topic = Proxy.Topic.newBuilder();
-        topic.setPartyId("10002");
+        topic.setPartyId(partyId);
 
         Proxy.Metadata.Builder metadata = Proxy.Metadata.newBuilder();
-        metadata.setOperator("set_route_table");
+//        metadata.setOperator("set_route_table");
+        metadata.setOperator(operator);
         metadata.setDst(topic);
         Proxy.Packet.Builder packet = Proxy.Packet.newBuilder();
         packet.setHeader(metadata);
