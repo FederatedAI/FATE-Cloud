@@ -455,6 +455,9 @@ func GetSecretInfo(siteDetailReq entity.SiteDetailReq) (*entity.SiteSecretResp, 
 	if err != nil {
 		return nil, err
 	}
+	if len(federatedInfo) ==0 {
+		return nil,nil
+	}
 	siteSecretResp := entity.SiteSecretResp{
 		AppKey:    federatedInfo[0].AppKey,
 		AppSecret: federatedInfo[0].AppSecret,
