@@ -72,7 +72,7 @@ public class FederatedExchangeController {
 
     @PostMapping(value = "/query")
     @ApiOperation(value = "find exchange")
-    public CommonResponse<ExchangeDetailsDo> queryExchange(@RequestBody ExchangeQueryQo exchangeQueryQo) {
+    public CommonResponse<List<ExchangeDetailsDo>> queryExchange(@RequestBody ExchangeQueryQo exchangeQueryQo) {
         log.info("url:find paged exchange, requestBody:{}", exchangeQueryQo);
         return federatedExchangeServiceFacade.queryExchange(exchangeQueryQo);
     }
