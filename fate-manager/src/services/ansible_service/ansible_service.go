@@ -1145,7 +1145,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				var deployData = make(map[string]interface{})
 				if ansibleAutoTestRespItem.Status == "running" {
 					data["status"] = int(enum.TEST_STATUS_YES)
-					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
+					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 				} else {
 					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
 					data["status"] = int(enum.TEST_STATUS_NO)
