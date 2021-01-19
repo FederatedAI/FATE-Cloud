@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class ExchangeGrpcUtil {
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        findExchange("172.16.153.14", 9531, "eggroll","10002","get_route_table");
+        findExchange("172.16.153.14", 9531, "eggroll","10003","get_route_table");
 
 //        HashMap<String, String> stringStringHashMap = new HashMap<>();
 //        stringStringHashMap.put("1", "1");
@@ -72,8 +72,9 @@ public class ExchangeGrpcUtil {
         Proxy.Packet build = packet.build();
 
         DataTransferServiceGrpc.DataTransferServiceBlockingStub dataTransferServiceBlockingStub = DataTransferServiceGrpc.newBlockingStub(managedChannel);
-        System.out.println(dataTransferServiceBlockingStub.unaryCall(build));
-        return dataTransferServiceBlockingStub.unaryCall(build);
+        Proxy.Packet packet1 = dataTransferServiceBlockingStub.unaryCall(build);
+        System.out.println(packet1);
+        return packet1;
     }
 
     public static Proxy.Packet setExchange(String ip, int port, String key, String content,String partyId,String operator) throws UnsupportedEncodingException {
