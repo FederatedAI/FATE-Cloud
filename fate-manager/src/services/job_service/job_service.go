@@ -1668,6 +1668,7 @@ func DoProcess(curItem string, NextItem string, deploySite models.DeploySite, Ip
 			}
 			var componentData = make(map[string]interface{})
 			componentData["status"] = sitedata["status"]
+			componentData["deploy_status"] = sitedata["deploy_status"]
 			models.UpdateDeployComponent(componentData, deployComponent)
 		}
 		models.UpdateDeploySite(sitedata, deploySite)
