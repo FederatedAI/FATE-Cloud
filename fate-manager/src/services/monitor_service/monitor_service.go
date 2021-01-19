@@ -12,9 +12,9 @@ import (
 func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, error) {
 	accountInfo, err := user_service.GetAdminInfo()
 	if err != nil || accountInfo == nil {
-		return nil,err
+		return nil, err
 	}
-	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions,monitorReq)
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions, monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,33 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 			} else {
 				monitorBaseMap[sitePair] = itemBase
 			}
-			continue
+			if monitorBySite.GuestPartyId != monitorBySite.HostPartyId {
+				siteInfo.PartyId = monitorBySite.HostPartyId
+				siteInfoList, err = models.GetSiteList(&siteInfo)
+				if err != nil {
+					continue
+				}
+				if len(siteInfoList) > 0 {
+					sitePair = entity.SitePair{
+						PartyId:     monitorBySite.HostPartyId,
+						SiteName:    monitorBySite.HostSiteName,
+						Institution: monitorBySite.HostInstitution,
+					}
+					_, ok := monitorBaseMap[sitePair]
+					if ok {
+						itemBaseTmp := monitorBaseMap[sitePair]
+						itemBaseTmp.Total += itemBase.Total
+						itemBaseTmp.Success += itemBase.Success
+						itemBaseTmp.Running += itemBase.Running
+						itemBaseTmp.Waiting += itemBase.Waiting
+						itemBaseTmp.Failed += itemBase.Failed
+						itemBaseTmp.Timeout += itemBase.Timeout
+						monitorBaseMap[sitePair] = itemBaseTmp
+					} else {
+						monitorBaseMap[sitePair] = itemBase
+					}
+				}
+			}
 		} else {
 			sitePair := entity.SitePair{
 				PartyId:     monitorBySite.HostPartyId,
@@ -150,9 +176,9 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 	}
 	accountInfo, err := user_service.GetAdminInfo()
 	if err != nil || accountInfo == nil {
-		return nil,err
+		return nil, err
 	}
-	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions,monitorReq)
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions, monitorReq)
 	if err != nil {
 		return nil, err
 	}
