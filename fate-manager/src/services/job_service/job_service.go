@@ -1082,7 +1082,7 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 			}
 		}
 	}
-	for i := -5; i <= 0; i++ {
+	for i := -1; i <= 0; i++ {
 		timeunix := time.Now().AddDate(0, 0, i).UnixNano() / 1e6
 		curTime := time.Now().AddDate(0, 0, i).Format("20060102")
 		monitorReq := entity.MonitorReq{
