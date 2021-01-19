@@ -767,6 +767,11 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 		}
 
 		models.AddDeployJob(&deployJob)
+
+		data = make(map[string]interface{})
+		data["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+		site := models.SiteInfo{PartyId:req.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+		models.UpdateSiteByCondition(data,site)
 	}
 
 	return e.SUCCESS, nil
