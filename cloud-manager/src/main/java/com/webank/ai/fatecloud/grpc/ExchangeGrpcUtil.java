@@ -31,15 +31,15 @@ import java.util.concurrent.TimeUnit;
 
 public class ExchangeGrpcUtil {
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        findExchange("172.16.153.14", 9531, "eggroll","10003","get_route_table");
-
+//    public static void main(String[] args) throws UnsupportedEncodingException {
+//        findExchange("172.16.153.19", 9531, "eggroll","exchange","get_route_table");
+//
 //        HashMap<String, String> stringStringHashMap = new HashMap<>();
 //        stringStringHashMap.put("1", "1");
 //        String s = JSON.toJSONString(stringStringHashMap);
 //        setExchange("172.16.153.14", 9531, "eggroll", s);
-
-    }
+//
+//    }
 
     public static Proxy.Packet findExchange(String ip, int port, String key,String partyId,String operator) throws UnsupportedEncodingException {
 

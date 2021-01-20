@@ -120,7 +120,8 @@ public class FederatedSiteManagerService {
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
         String protocol = siteAddQo.getProtocol();
-        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+//        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         String encodedUrl = EncryptUtil.encode(url);
 
         FederatedSiteManagerDo federatedSiteManagerDoUpdate = new FederatedSiteManagerDo();
@@ -209,7 +210,8 @@ public class FederatedSiteManagerService {
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
         String protocol = siteUpdateQo.getProtocol();
-        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+//        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         String encodedUrl = EncryptUtil.encode(url);
         federatedSiteManagerDo.setRegistrationLink(encodedUrl);
 
