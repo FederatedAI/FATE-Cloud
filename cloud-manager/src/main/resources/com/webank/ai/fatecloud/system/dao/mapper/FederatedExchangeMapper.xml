@@ -10,7 +10,8 @@
         <result property="updateTime" column="update_time"></result>
 
         <collection property="exchangeDetailsList"
-                    ofType="com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo">
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo"
+                    javaType="java.util.List">
             <id property="exchangeDetailsId" column="exchange_details_id"></id>
             <result property="partyId" column="party_id"></result>
             <result property="networkAccess" column="network_access"></result>
@@ -21,8 +22,7 @@
         </collection>
     </resultMap>
 
-    <select id="findExchangePage"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo" resultMap="exchangeMap">
+    <select id="findExchangePage" resultMap="exchangeMap">
         select * from (select * FROM t_federated_exchange where status =1 order by update_time desc limit #{startIndex}, #{exchangePageQo.pageSize}) tmp,t_exchange_details ed where tmp.exchange_id=ed.exchange_id and not exists (select 1 from t_exchange_details ed1 where ed1.exchange_id = ed.exchange_id and ed1.batch > ed.batch )
     </select>
 
