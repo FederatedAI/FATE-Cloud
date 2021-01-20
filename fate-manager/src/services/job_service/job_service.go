@@ -820,19 +820,19 @@ func AllowApplyTask(info *models.AccountInfo) {
 }
 
 func ComponentStatusTask() {
-	deploySite := models.DeploySite{IsValid:int(enum.IS_VALID_YES)}
-	deploySiteList,err := models.GetDeploySuccessSite(&deploySite)
-	if err != nil{
+	deploySite := models.DeploySite{IsValid: int(enum.IS_VALID_YES)}
+	deploySiteList, err := models.GetDeploySuccessSite(&deploySite)
+	if err != nil {
 		return
 	}
-	conf,err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
-	if err != nil{
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
 		return
 	}
-	for i := 0;i< len(deploySiteList);i++ {
+	for i := 0; i < len(deploySiteList); i++ {
 		deployComponent := models.DeployComponent{
-			PartyId:  deploySiteList[i].PartyId,
-			IsValid:     int(enum.IS_VALID_YES),
+			PartyId: deploySiteList[i].PartyId,
+			IsValid: int(enum.IS_VALID_YES),
 		}
 		deployComponentList, err := models.GetDeployComponent(deployComponent)
 		if err != nil {
@@ -877,7 +877,7 @@ func ComponentStatusTask() {
 				}
 				models.UpdateDeployComponent(data, deployComponent)
 			}
-		}else {
+		} else {
 			var connectReq entity.ConnectAnsible
 			connectReq.PartyId = deploySiteList[i].PartyId
 			result, err := http.POST(http.Url(conf.KubenetesUrl+setting.AnsibleConnectUri), connectReq, nil)
@@ -892,7 +892,7 @@ func ComponentStatusTask() {
 				return
 			}
 			if connectResp.Code == e.SUCCESS {
-				for k := 0; k < len(connectResp.Data.List); k++   {
+				for k := 0; k < len(connectResp.Data.List); k++ {
 					ConnectItem := connectResp.Data.List[k]
 					if ConnectItem.Module == "fateflow" ||
 						ConnectItem.Module == "mysql" ||
@@ -907,10 +907,10 @@ func ComponentStatusTask() {
 							IsValid:       int(enum.IS_VALID_YES),
 						}
 						data := make(map[string]interface{})
-						data["status"] =  int(enum.SITE_RUN_STATUS_STOPPED)
+						data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
 						serviceStatus = false
-						if ConnectItem.Status == "running"{
-							data["status"] =  int(enum.SITE_RUN_STATUS_RUNNING)
+						if ConnectItem.Status == "running" && (deploySite.DeployStatus == int(enum.ANSIBLE_DeployStatus_SUCCESS) || deploySite.DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED)) {
+							data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 							serviceStatus = true
 						}
 						models.UpdateDeployComponent(data, deployComponent)
@@ -922,13 +922,13 @@ func ComponentStatusTask() {
 		var deploy = make(map[string]interface{})
 		site["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
 		deploy["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
-		if serviceStatus{
+		if serviceStatus {
 			site["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
 			deploy["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		}
 		siteInfo := models.SiteInfo{PartyId: deploySiteList[i].PartyId, Status: int(enum.SITE_STATUS_JOINED)}
 		models.UpdateSiteByCondition(site, siteInfo)
-		models.UpdateDeploySite(deploy,deploySiteList[i])
+		models.UpdateDeploySite(deploy, deploySiteList[i])
 	}
 }
 

@@ -737,6 +737,7 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 				StartTime:        time.Now(),
 				VersionIndex:     componentVersionList[i].VersionIndex,
 				Address:          nodelist[0] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
+				Status:           int(enum.SITE_RUN_STATUS_UNKNOWN),
 				DeployStatus:     int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION),
 				DeployType:       int(enum.DeployType_ANSIBLE),
 				IsValid:          int(enum.IS_VALID_YES),
