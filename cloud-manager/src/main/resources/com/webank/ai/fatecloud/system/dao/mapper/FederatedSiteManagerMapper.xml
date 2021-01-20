@@ -309,7 +309,7 @@
             resultMap="institutionsWithSitesMap">
         SELECT institutions,site_name FROM t_federated_site_manager
         <where>
-            and institutions !=#{institutions}
+<!--            and institutions !=#{institutions}-->
             and status=2
             order by institutions asc
         </where>
