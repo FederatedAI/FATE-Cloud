@@ -64,13 +64,16 @@
     </select>
 
     <select id="getPagedJobStatisticsODimension" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
-        SELECT sm2.institutions,sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
+        SELECT
+        (case when sm2.institutions = #{jobOfSiteDimensionQo.institutions} then sm.institutions else sm2.institutions end) as institutions,
+        sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
         FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
         where js.site_guest_id =sm.id
         and js.site_host_id=sm2.id
         and js.job_finish_date=#{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and js.site_guest_id in (select id from t_federated_site_manager where institutions =#{jobOfSiteDimensionQo.institutions} and status = 2)
-        group by sm2.institutions order by sm2.institutions limit #{startIndex},#{jobOfSiteDimensionQo.pageSize}
+<!--        and js.site_guest_id in (select id from t_federated_site_manager where institutions =#{jobOfSiteDimensionQo.institutions} and status = 2)-->
+        and (sm.institutions =#{jobOfSiteDimensionQo.institutions} || sm2.institutions=#{jobOfSiteDimensionQo.institutions})
+        group by sm2.institutions ,sm.institutions order by institutions limit #{startIndex},#{jobOfSiteDimensionQo.pageSize}
     </select>
 
 
@@ -180,13 +183,24 @@
     </select>
 
     <select id="getPagedJobStatisticsODimensionForPeriod" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
-        SELECT sm2.institutions,sum(js.job_success_count) successJobCountForInstitutions, sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
+<!--        SELECT sm2.institutions,sum(js.job_success_count) successJobCountForInstitutions, sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions-->
+<!--        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2-->
+<!--        where js.site_guest_id = sm.id-->
+<!--        and js.site_host_id=sm2.id-->
+<!--        and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE}  and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}-->
+<!--        and js.site_guest_id in (select id from t_federated_site_manager where institutions =#{jobOfSiteDimensionPeriodQo.institutions} and status = 2)-->
+<!--        group by sm2.institutions order by sm2.institutions limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}-->
+
+        SELECT
+        (case when sm2.institutions = #{jobOfSiteDimensionPeriodQo.institutions} then sm.institutions else sm2.institutions end) as institutions,
+        sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
         FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
-        where js.site_guest_id = sm.id
+        where js.site_guest_id =sm.id
         and js.site_host_id=sm2.id
         and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE}  and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        and js.site_guest_id in (select id from t_federated_site_manager where institutions =#{jobOfSiteDimensionPeriodQo.institutions} and status = 2)
-        group by sm2.institutions order by sm2.institutions limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
+        and (sm.institutions =#{jobOfSiteDimensionPeriodQo.institutions} || sm2.institutions=#{jobOfSiteDimensionPeriodQo.institutions})
+        group by sm2.institutions ,sm.institutions order by institutions limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
+
     </select>
 
 
