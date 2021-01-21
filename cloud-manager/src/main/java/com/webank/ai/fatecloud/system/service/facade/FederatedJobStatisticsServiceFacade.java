@@ -90,10 +90,6 @@ public class FederatedJobStatisticsServiceFacade {
 
     }
 
-
-
-
-
     public CommonResponse<JobStatisticsSummaryTodaySiteAllDto> getJobStatisticsSummaryTodaySiteAll(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
         JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto = federatedJobStatisticsService.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
 
