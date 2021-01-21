@@ -20,16 +20,13 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsQo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -38,9 +35,25 @@ import java.util.Date;
 @ApiModel(value = "jobs statistics for sites")
 public class FederatedJobStatisticsDo implements Serializable {
 
+    @ApiModelProperty(value = "guest site belongs to institutions")
+    @TableField(value = "site_guest_institutions")
+    private String siteGuestInstitutions;
+
+    @ApiModelProperty(value = "guest site Name")
+    @TableField(value = "site_guest_name")
+    private String siteGuestName;
+
     @ApiModelProperty(value = "guest id")
     @TableField(value = "site_guest_id")
     private Long siteGuestId;
+
+    @ApiModelProperty(value = "host site belongs to institutions")
+    @TableField(value = "site_host_institutions")
+    private String siteHostInstitutions;
+
+    @ApiModelProperty(value = "host site Name")
+    @TableField(value = "site_host_name")
+    private String siteHostName;
 
     @ApiModelProperty(value = "host id")
     @TableField(value = "site_host_id")
