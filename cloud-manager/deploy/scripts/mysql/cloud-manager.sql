@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `site_name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
+  `site_name` varchar(128) DEFAULT NULL COMMENT 'site Name',
   `party_id` bigint(12) DEFAULT NULL COMMENT 'party_id',
   `secret_info` varchar(256) NOT NULL DEFAULT '' COMMENT 'site appkey,secret',
   `registration_link` text COMMENT 'federated registration link',
@@ -152,7 +152,11 @@ create table IF NOT EXISTS `t_fate_manager_user`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
 
 create table IF NOT EXISTS `t_job_statistics`(
+    `site_guest_institutions` varchar(128) DEFAULT NULL COMMENT 'guest site belongs to institutions'
+    `site_guest_name` varchar(128) DEFAULT NULL COMMENT 'guest site Name'
     `site_guest_id` bigint(20) not null COMMENT 'site id to launch the job',
+    `site_host_institutions` varchar(128) DEFAULT NULL COMMENT 'host site belongs to institutions'
+    `site_host_name` varchar(128) DEFAULT NULL COMMENT 'host site Name'
     `site_host_id` bigint(20) NOT NULL  COMMENT 'site id to cooperation',
     `job_success_count` bigint(20) not null COMMENT 'count of successful jobs',
     `job_failed_count` bigint(20) NOT NULL COMMENT 'count of failed jobs',
