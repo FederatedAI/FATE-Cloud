@@ -458,7 +458,7 @@ public class FederatedSiteManagerService {
 
     public boolean checkSiteName(SiteNameQo siteNameQo) {
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
-        ew.select("id").eq("site_name", siteNameQo.getSiteName()).in("status", 1, 2).ne(siteNameQo.getId() != null, "id", siteNameQo.getId());
+        ew.select("id").eq("site_name", siteNameQo.getSiteName()).ne(siteNameQo.getId() != null, "id", siteNameQo.getId());
         List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
         return federatedSiteManagerDos.size() > 0;
     }
