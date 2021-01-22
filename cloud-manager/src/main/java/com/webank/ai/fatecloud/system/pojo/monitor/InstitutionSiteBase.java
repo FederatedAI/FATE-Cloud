@@ -9,14 +9,11 @@ import java.io.Serializable;
 
 @Data
 @ApiModel(value = " InstitutionSiteBase")
-public class InstitutionSiteBase implements Serializable {
+public class InstitutionSiteBase extends Base {
 
     @ApiModelProperty(value = "institution")
-private String institution;
+    private String institution;
 
     @ApiModelProperty(value = "siteName")
     private String siteName;
-
-    @ApiModelProperty(value = "base Static")
-    private Base base;
 }
