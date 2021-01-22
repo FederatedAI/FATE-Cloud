@@ -16,10 +16,15 @@
 package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.monitor.Base;
+import com.webank.ai.fatecloud.system.pojo.monitor.InstitutionBase;
+import com.webank.ai.fatecloud.system.pojo.monitor.TwoSiteBase;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.Date;
 import java.util.List;
@@ -69,4 +74,67 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
     int findInstitutionsCountToday(JobOfSiteDimensionQo jobOfSiteDimensionQo);
 
     int findInstitutionsCountPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo);
+
+    String BaseSQL = "SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS totalJobs," +
+            "SUM(job_success_count) AS successJobs," +
+            "SUM(job_running_count) AS runningJobs," +
+            "SUM(job_failed_count) AS failedJobs," +
+            "SUM(job_waiting_count) AS waitingJobs," +
+            "SUM(job_success_count) / SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS successPercent," +
+            "SUM(job_running_count) / SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS runningPercent," +
+            "SUM(job_failed_count) / SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS failedPercent," +
+            "SUM(job_waiting_count) / SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS waitingPercent " +
+            "FROM t_job_statistics " +
+            "WHERE create_time between #{startDate} and #{endDate} ";
+
+    @Select("SELECT " + BaseSQL)
+    List<Base> getTotal(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    @Select("SELECT " +
+            "site_guest_institutions, " +
+            "site_host_institutions," +
+            BaseSQL +
+            " group by site_guest_institutions, site_host_institutions")
+    List<InstitutionBase> getTotalDetail(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+    @Select("SELECT " +
+            "IF(site_guest_institutions=#{insitution},site_guest_name,site_host_name) AS siteName," +
+            BaseSQL + " and " +
+            "(site_guest_institutions=#{insitution} or site_host_institutions =#{insitution}) " +
+            "group by siteName")
+    Page<InstitutionBase> getInsitutionDetail(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+
+    @Select("SELECT " +
+            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS insitution," + BaseSQL +
+            "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
+            "  (site_guest_institutions != site_host_institutions)" +
+            "GROUP BY insitution")
+    Page<InstitutionBase> getMonitorInstitutionByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+
+    @Select("SELECT " +
+            "  site_guest_institutions AS insitution," + BaseSQL +
+            "  site_guest_institutions = #{insitution} AND " +
+            "  (site_guest_institutions = site_host_institutions)" +
+            "GROUP BY insitution")
+    Page<InstitutionBase> getMonitorInstitutionByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+
+    @Select("SELECT " +
+            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS insitution," +
+            "  IF(site_guest_institutions =#{insitution},site_host_name,site_guest_name) AS insitutionSiteName,        " +
+            "  IF(site_guest_institutions =#{insitution},site_guest_name,site_host_name) AS siteName," +
+            BaseSQL +
+            "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
+            "  (site_guest_institutions != site_host_institutions)" +
+            "GROUP BY insitution,insitutionSiteName,siteName")
+    Page<TwoSiteBase> getMonitorSiteByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+
+    @Select("SELECT " +
+            "  site_host_institutions AS insitution," +
+            "  site_guest_name AS insitutionSiteName, " +
+            "  site_host_name AS siteName," +
+            BaseSQL +
+            "  site_guest_institutions = #{insitution} AND " +
+            "  (site_guest_institutions = site_host_institutions)" +
+            "GROUP BY  insitution,insitutionSiteName,siteName")
+    Page<TwoSiteBase> getMonitorSiteByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 }

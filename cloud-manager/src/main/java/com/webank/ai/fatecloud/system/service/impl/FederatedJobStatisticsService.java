@@ -16,12 +16,14 @@
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedJobStatisticsMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.monitor.*;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -43,6 +43,7 @@ public class FederatedJobStatisticsService {
 
     @Autowired
     FederatedSiteManagerMapper federatedSiteManagerMapper;
+
 
     @Transactional
     public void pushJosStatistics(List<JobStatisticsQo> jobStatisticsQos) {
@@ -231,5 +232,36 @@ public class FederatedJobStatisticsService {
 
         jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
         return jobStatisticsSummaryTodaySiteEachDtoPageBean;
+    }
+
+    //monitor write by nobslin
+    public MonitorTotalDto getMonitorTotal(TotalReqQo totalReqQo){
+        MonitorTotalDto monitorTotalDto = new MonitorTotalDto();
+
+        List<Base> totalList = federatedJobStatisticsMapper.getTotal(totalReqQo.getStartDate(),totalReqQo.getEndDate());
+        if (!totalList.isEmpty()){
+            monitorTotalDto.setBase(totalList.get(0));
+        }else{
+            return null;
+        }
+        List<InstitutionBase> totalDetailList = federatedJobStatisticsMapper.getTotalDetail(totalReqQo.getStartDate(),totalReqQo.getEndDate());
+        Map<String,Base> map = new HashMap<>();
+        for(int i =0;i < totalDetailList.size();i++){
+            InstitutionBase item = totalDetailList.get(i);
+            if(item.)
+        }
+        return  monitorTotalDto;
+    }
+    public InstitutionDetailDto getInsitutionDetail(InsitutionDetailQo insitutionDetailQo){
+        InstitutionDetailDto monitorTotalDto = new InstitutionDetailDto();
+        return  monitorTotalDto;
+    }
+    public PageBean<MonitorInstituionDto> getInstitutionMonitor(MonitorInsitutionQo monitorInsitutionQo){
+        PageBean<MonitorInstituionDto> pageBean = new PageBean<>(monitorInsitutionQo.getPageNum(), monitorInsitutionQo.getPageSize(), 100);
+        return  pageBean;
+    }
+    public PageBean<MonitorSiteDto> getSiteMonitor(MonitorSiteQo monitorSiteQo){
+        PageBean<MonitorSiteDto> pageBean = new PageBean<>(monitorSiteQo.getPageNum(), monitorSiteQo.getPageSize(), 100);
+        return  pageBean;
     }
 }
