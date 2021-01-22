@@ -13,5 +13,5 @@ import java.util.List;
 public class InstitutionDetailDto implements Serializable {
 
     @ApiModelProperty(value = "institution")
-    private List<InstitutionSiteBase> data;
+    private List<SiteBase> data;
 }

@@ -146,13 +146,13 @@ public class FederatedJobStatisticsServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionDetailDto);
     }
 
-    public CommonResponse<PageBean<MonitorInstituionDto>> getInstitutionMonitor(MonitorInsitutionQo monitorInsitutionQo) {
-        PageBean<MonitorInstituionDto> pageBean = federatedJobStatisticsService.getInstitutionMonitor(monitorInsitutionQo);
+    public CommonResponse<MonitorInstituionDto> getInstitutionMonitor(MonitorInsitutionQo monitorInsitutionQo) {
+        MonitorInstituionDto pageBean = federatedJobStatisticsService.getInstitutionMonitor(monitorInsitutionQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
     }
 
-    public CommonResponse<PageBean<MonitorSiteDto>> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
-        PageBean<MonitorSiteDto> pageBean = federatedJobStatisticsService.getSiteMonitor(monitorSiteQo);
+    public CommonResponse<List<MonitorSiteDto>> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
+        List<MonitorSiteDto> pageBean = federatedJobStatisticsService.getSiteMonitor(monitorSiteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
     }
 }

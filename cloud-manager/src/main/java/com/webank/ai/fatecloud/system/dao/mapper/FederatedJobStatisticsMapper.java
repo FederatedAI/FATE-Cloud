@@ -19,9 +19,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
-import com.webank.ai.fatecloud.system.pojo.monitor.Base;
-import com.webank.ai.fatecloud.system.pojo.monitor.InstitutionBase;
-import com.webank.ai.fatecloud.system.pojo.monitor.TwoSiteBase;
+import com.webank.ai.fatecloud.system.pojo.monitor.*;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -91,50 +89,51 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
     List<Base> getTotal(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
     @Select("SELECT " +
-            "site_guest_institutions, " +
-            "site_host_institutions," +
+            "site_guest_institutions As guestInstitution, " +
+            "site_host_institutions  As hostInstitution," +
             BaseSQL +
-            " group by site_guest_institutions, site_host_institutions")
-    List<InstitutionBase> getTotalDetail(@Param("startDate") String startDate, @Param("endDate") String endDate);
+            " group by guestInstitution, hostInstitution")
+    List<TwoInstitutionBase> getTotalDetail(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
     @Select("SELECT " +
             "IF(site_guest_institutions=#{insitution},site_guest_name,site_host_name) AS siteName," +
             BaseSQL + " and " +
             "(site_guest_institutions=#{insitution} or site_host_institutions =#{insitution}) " +
-            "group by siteName")
-    Page<InstitutionBase> getInsitutionDetail(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+            " group by siteName")
+    List<SiteBase> getInsitutionDetail(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 
     @Select("SELECT " +
-            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS insitution," + BaseSQL +
+            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS institution," +
+            BaseSQL + " and " +
             "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
             "  (site_guest_institutions != site_host_institutions)" +
-            "GROUP BY insitution")
-    Page<InstitutionBase> getMonitorInstitutionByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+            " GROUP BY institution")
+    List<InstitutionBase> getMonitorInstitutionByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 
     @Select("SELECT " +
-            "  site_guest_institutions AS insitution," + BaseSQL +
+            "  site_guest_institutions AS institution," + BaseSQL + " and " +
             "  site_guest_institutions = #{insitution} AND " +
             "  (site_guest_institutions = site_host_institutions)" +
-            "GROUP BY insitution")
-    Page<InstitutionBase> getMonitorInstitutionByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+            " GROUP BY institution")
+    List<InstitutionBase> getMonitorInstitutionByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 
     @Select("SELECT " +
-            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS insitution," +
-            "  IF(site_guest_institutions =#{insitution},site_host_name,site_guest_name) AS insitutionSiteName,        " +
+            "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS institution," +
+            "  IF(site_guest_institutions =#{insitution},site_host_name,site_guest_name) AS institutionSiteName,        " +
             "  IF(site_guest_institutions =#{insitution},site_guest_name,site_host_name) AS siteName," +
-            BaseSQL +
+            BaseSQL + " and " +
             "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
             "  (site_guest_institutions != site_host_institutions)" +
-            "GROUP BY insitution,insitutionSiteName,siteName")
-    Page<TwoSiteBase> getMonitorSiteByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+            " GROUP BY institution,institutionSiteName,siteName")
+    List<TwoSiteBase> getMonitorSiteByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 
     @Select("SELECT " +
-            "  site_host_institutions AS insitution," +
-            "  site_guest_name AS insitutionSiteName, " +
+            "  site_host_institutions AS institution," +
+            "  site_guest_name AS institutionSiteName, " +
             "  site_host_name AS siteName," +
-            BaseSQL +
+            BaseSQL + " and " +
             "  site_guest_institutions = #{insitution} AND " +
             "  (site_guest_institutions = site_host_institutions)" +
-            "GROUP BY  insitution,insitutionSiteName,siteName")
-    Page<TwoSiteBase> getMonitorSiteByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+            " GROUP BY  institution,institutionSiteName,siteName")
+    List<TwoSiteBase> getMonitorSiteByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 }

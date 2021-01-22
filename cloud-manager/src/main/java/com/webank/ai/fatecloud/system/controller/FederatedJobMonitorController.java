@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -70,7 +71,7 @@ public class FederatedJobMonitorController {
 
     @PostMapping(value = "/summary/institutions")
     @ApiOperation(value = "statistitcs institution by region")
-    public CommonResponse<PageBean<MonitorInstituionDto>> getInstitutionMonitor(@Valid @RequestBody MonitorInsitutionQo monitorInsitutionQo, BindingResult bindingResult) {
+    public CommonResponse<MonitorInstituionDto> getInstitutionMonitor(@Valid @RequestBody MonitorInsitutionQo monitorInsitutionQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", monitorInsitutionQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -80,7 +81,7 @@ public class FederatedJobMonitorController {
 
     @PostMapping(value = "/summary/site")
     @ApiOperation(value = "statistitcs institution site by region")
-    public CommonResponse<PageBean<MonitorSiteDto>> getSiteMonitor(@Valid @RequestBody MonitorSiteQo monitorSiteQo, BindingResult bindingResult) {
+    public CommonResponse<List<MonitorSiteDto>> getSiteMonitor(@Valid @RequestBody MonitorSiteQo monitorSiteQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", monitorSiteQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);

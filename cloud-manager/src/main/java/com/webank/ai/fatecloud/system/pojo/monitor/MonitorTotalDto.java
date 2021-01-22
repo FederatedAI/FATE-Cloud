@@ -10,10 +10,7 @@ import java.util.List;
 
 @Data
 @ApiModel(value = "MonitorTotalDto")
-public class MonitorTotalDto implements Serializable {
-    @ApiModelProperty(value = "total monitor")
-    private Base base;
-
+public class MonitorTotalDto extends Base {
     @ApiModelProperty(value = "total insitution monitor")
     private List<InstitutionBase> data;
 }
