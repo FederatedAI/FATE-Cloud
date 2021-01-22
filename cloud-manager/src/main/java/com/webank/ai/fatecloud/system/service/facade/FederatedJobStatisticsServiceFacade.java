@@ -56,20 +56,16 @@ public class FederatedJobStatisticsServiceFacade {
 
     }
 
-    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
-    }
-
-    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
-
-    }
-
     public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryTodayInstitutionsAll(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
+
         JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummary = federatedJobStatisticsService.getJobStatisticsSummaryTodayInstitutionsAll(jobStatisticsSummaryTodayQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummary);
+    }
+
+    public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryInstitutionsAllForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
+
+        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummary = federatedJobStatisticsService.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummary);
     }
@@ -78,6 +74,19 @@ public class FederatedJobStatisticsServiceFacade {
         PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsService.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodayInstitutionsEachDtos);
+
+    }
+
+    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
+    }
+
+    //get institutions statistics today
+    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
+        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
 
     }
 
@@ -103,12 +112,7 @@ public class FederatedJobStatisticsServiceFacade {
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);    }
 
-    public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryInstitutionsAllForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
-        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummary = federatedJobStatisticsService.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummary);
-
-    }
 
     public CommonResponse<PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryInstitutionsEachForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
         PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsService.getJobStatisticsSummaryInstitutionsEachForPeriod(jobStatisticsSummaryForPeriodQo);
