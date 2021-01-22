@@ -16,23 +16,23 @@ public class Base implements Serializable {
     private Integer successJobs;
 
     @ApiModelProperty(value = "success job percent")
-    private Float successPercent;
+    private String successPercent;
 
     @ApiModelProperty(value = "running job")
     private Integer runningJobs;
 
     @ApiModelProperty(value = "running job percent")
-    private Float runningPercent;
+    private String runningPercent;
 
     @ApiModelProperty(value = "waiting job")
     private Integer waitingJobs;
 
     @ApiModelProperty(value = "waiting job percent")
-    private Float waitingPercent;
+    private String waitingPercent;
 
     @ApiModelProperty(value = "failed job")
     private Integer failedJobs;
 
     @ApiModelProperty(value = "failed job percent")
-    private Float failedPercent;
+    private String failedPercent;
 }

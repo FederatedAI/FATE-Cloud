@@ -5,16 +5,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+
 @Data
 @ApiModel("TwoSiteBase")
-public class TwoSiteBase extends Base {
+public class TwoInstitutionBase extends Base {
 
-    @ApiModelProperty(value = "institution")
-    private String institution;
+    @ApiModelProperty(value = "guestInstitution")
+    private String guestInstitution;
 
     @ApiModelProperty(value = "institutionSiteName")
-    private String institutionSiteName;
-
-    @ApiModelProperty(value = "siteName")
-    private String siteName;
+    private String hostInstitution;
 }

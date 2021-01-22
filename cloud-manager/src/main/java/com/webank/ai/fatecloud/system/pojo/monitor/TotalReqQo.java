@@ -11,7 +11,4 @@ import java.io.Serializable;
 @Data
 @ApiModel("TotalReqQo")
 public class TotalReqQo extends MonitorReq {
-
-//    @ApiModelProperty("monitorReq")
-//    private MonitorReq  monitorReq;
 }

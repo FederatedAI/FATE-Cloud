@@ -9,9 +9,7 @@ import java.io.Serializable;
 
 @Data
 @ApiModel("InsitutionDetailQo")
-public class InsitutionDetailQo implements Serializable {
-    @ApiModelProperty("monitorReq")
-    private MonitorReq  monitorReq;
+public class InsitutionDetailQo extends MonitorReq {
 
     @ApiModelProperty("institution")
     private String  institution;

@@ -12,9 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class MonitorInsitutionQo implements Serializable {
-    @ApiModelProperty("monitorReq")
-    private MonitorReq  monitorReq;
+public class MonitorInsitutionQo extends MonitorReq {
 
     @ApiModelProperty("institution")
     private String  institution;
