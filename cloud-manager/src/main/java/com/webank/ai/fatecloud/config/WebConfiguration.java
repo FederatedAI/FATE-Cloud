@@ -19,6 +19,10 @@ import com.webank.ai.fatecloud.Interceptor.AutoDeployInterceptor;
 import com.webank.ai.fatecloud.Interceptor.ReferrerInterceptor;
 import com.webank.ai.fatecloud.Interceptor.SiteAuthorizationInterceptor;
 import com.webank.ai.fatecloud.Interceptor.UserInterceptor;
+import org.apache.catalina.connector.Connector;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -85,7 +89,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/api/site/**")
                 .excludePathPatterns("/api/site/findOneSite", "/api/site/checkAuthority", "/api/site/heart", "/api/site/page",
                         "/api/site/findOneSite/fateManager", "/api/site/checkAuthority/fateManager", "/api/site/heart/fateManager", "/api/site/page/fateManager",
-                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version","/api/site/rollsite/checkPartyId"
+                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version", "/api/site/rollsite/checkPartyId"
                 )
 
                 .addPathPatterns("/api/system/**")
@@ -108,4 +112,20 @@ public class WebConfiguration implements WebMvcConfigurer {
 //        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowCredentials(true);
 //    }
 
+    @Value("${server.http.port}")
+    private int httpPort;
+
+    @Bean
+    public ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+        tomcat.addAdditionalTomcatConnectors(createStandardConnector()); // 添加http
+        return tomcat;
+    }
+
+    // 配置http
+    private Connector createStandardConnector() {
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setPort(httpPort);
+        return connector;
+    }
 }
