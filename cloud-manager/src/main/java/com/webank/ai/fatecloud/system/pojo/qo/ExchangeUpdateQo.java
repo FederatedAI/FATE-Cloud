@@ -41,6 +41,6 @@ public class ExchangeUpdateQo implements Serializable {
     private String networkAccess;
 
     @ApiModelProperty(value = "exchange details list")
-    List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList;
+    List<RollSiteAddBean> rollSiteAddBeanList;
 
 }

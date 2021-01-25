@@ -32,25 +32,17 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange information")
-@TableName("t_federated_exchange")
-public class FederatedExchangeDo implements Serializable {
+@ApiModel(value = "roll site details ")
+@TableName("t_roll_site")
+public class RollSiteDo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
-    @TableId(value = "exchange_id", type = IdType.AUTO)
-    private Long exchangeId;
+    @TableId(value = "roll_site_id", type = IdType.AUTO)
+    private Long RollSiteId;
 
-    @ApiModelProperty(value = "exchange name")
-    @TableField(value = "exchange_name")
-    private String exchangeName;
-
-    @ApiModelProperty(value = "vip address access ")
-    @TableField(value = "vip")
-    private String vip;
-
-//    @ApiModelProperty(value = "status")
-//    @TableField(value = "status")
-//    private int status;
+    @ApiModelProperty(value = "network access ")
+    @TableField(value = "network_access")
+    private String networkAccess;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
@@ -60,6 +52,11 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
+    @ApiModelProperty(value = "exchange id")
+    @TableId(value = "exchange_id")
+    private Long exchangeId;
+
     @TableField(exist = false)
-    private List<RollSiteDo> rollSiteDos;
+    private List<PartyDo> partyDos;
+
 }

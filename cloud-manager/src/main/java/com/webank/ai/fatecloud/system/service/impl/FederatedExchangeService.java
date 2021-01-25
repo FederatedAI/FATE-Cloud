@@ -16,29 +16,32 @@
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.google.protobuf.ByteString;
 import com.webank.ai.eggroll.api.networking.proxy.Proxy;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.grpc.ExchangeGrpcUtil;
 import com.webank.ai.fatecloud.grpc.NetworkBean;
-import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.dao.mapper.ExchangeDetailsMapper;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
+import com.webank.ai.fatecloud.system.dao.mapper.PartyMapper;
+import com.webank.ai.fatecloud.system.dao.mapper.RollSiteMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedExchangeMapper;
-import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
+import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -47,25 +50,458 @@ public class FederatedExchangeService implements Serializable {
     FederatedExchangeMapper federatedExchangeMapper;
 
     @Autowired
-    ExchangeDetailsMapper exchangeDetailsMapper;
+    RollSiteMapper rollSiteMapper;
 
-    private void updateRouteTableJsonString(ExchangeAddQo exchangeAddQo) throws UnsupportedEncodingException {
+    @Autowired
+    PartyMapper partyMapper;
+
+    public boolean findRollSite(String network) {
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("network_access", network);
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+        return rollSiteDos.size() > 0;
+    }
+
+
+    @Transactional
+    public FederatedExchangeDo addExchange(ExchangeAddQo exchangeAddQo) {
+
+//        try {
+//            this.updateRouteTableJsonString(exchangeAddQo);
+//        } catch (UnsupportedEncodingException e) {
+//            log.error("update route table error by grpc ", e);
+//            return null;
+//        }
+
+        //add exchange table
+        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+        federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
+        federatedExchangeDo.setVip(exchangeAddQo.getVip());
+        federatedExchangeMapper.insert(federatedExchangeDo);
+
+        //add roll site table
+        List<RollSiteAddBean> rollSiteAddBeanList = exchangeAddQo.getRollSiteAddBeanList();
+        for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
+            RollSiteDo rollSiteDo = new RollSiteDo();
+            rollSiteDo.setNetworkAccess(rollSiteAddBean.getNetworkAccess());
+            rollSiteDo.setExchangeId(federatedExchangeDo.getExchangeId());
+            rollSiteMapper.insert(rollSiteDo);
+
+            //add party table
+            List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
+            for (PartyAddBean partyAddBean : partyAddBeanList) {
+                PartyDo partyDo = new PartyDo();
+                partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                partyDo.setPartyId(partyAddBean.getPartyId());
+                partyDo.setStatus(1);
+
+                partyMapper.insert(partyDo);
+
+            }
+        }
+
+        return federatedExchangeDo;
+    }
+
+    @Transactional
+    public void deleteExchange(ExchangeDeleteQo exchangeDeleteQo) {
+        //update exchange table
+        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        Long exchangeId = exchangeDeleteQo.getExchangeId();
+        federatedExchangeDoQueryWrapper.eq("exchangeId", exchangeId);
+        federatedExchangeMapper.delete(federatedExchangeDoQueryWrapper);
+
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("exchange_id", exchangeId);
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+        for (RollSiteDo rollSiteDo : rollSiteDos) {
+            //update party table
+            QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+            partyDoQueryWrapper.eq("roll_site_id", rollSiteDo.getRollSiteId());
+            partyMapper.delete(partyDoQueryWrapper);
+        }
+        //update roll site table
+        rollSiteMapper.delete(rollSiteDoQueryWrapper);
+
+    }
+
+//    @Transactional
+//    public FederatedExchangeDo updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
+//
+//        //update rollsite
+//        try {
+//            this.updateRouteTableJsonString(new ExchangeAddQo(exchangeUpdateQo));
+//        } catch (UnsupportedEncodingException e) {
+//            log.error("update route table error by grpc ", e);
+//            return null;
+//        }
+//
+//        //update exchange table
+//        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+//        federatedExchangeDo.setExchangeId(exchangeUpdateQo.getExchangeId());
+//        federatedExchangeDo.setExchangeName(exchangeUpdateQo.getExchangeName());
+//        federatedExchangeDo.setNetworkAccess(exchangeUpdateQo.getNetworkAccess());
+//        federatedExchangeDo.setStatus(1);
+//        federatedExchangeDo.setUpdateTime(new Date());
+//        federatedExchangeMapper.updateById(federatedExchangeDo);
+//
+//        //add exchange details table
+//        Long maxBatch = rollSiteMapper.findMaxBatch(exchangeUpdateQo);
+//
+//        List<RollSiteAddBean> rollSiteAddBeanList = exchangeUpdateQo.getRollSiteAddBeanList();
+//        for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
+//            PartyDo rollSiteDo = new PartyDo();
+//            rollSiteDo.setExchangeDetailsId(federatedExchangeDo.getExchangeId());
+//            rollSiteDo.setBatch(maxBatch + 1);
+//            rollSiteDo.setPartyId(rollSiteAddBean.getPartyId());
+//            rollSiteDo.setNetworkAccess(rollSiteAddBean.getNetworkAccess());
+//            rollSiteMapper.insert(rollSiteDo);
+//        }
+//
+//        return federatedExchangeDo;
+//
+//    }
+
+
+    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
+        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeAddQo.getExchangeName());
+        Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
+        return count > 0;
+    }
+
+    public boolean checkExchangeName(ExchangeUpdateQo exchangeUpdateQo) {
+        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeUpdateQo.getExchangeName()).eq("status", 1).ne("exchange_id", exchangeUpdateQo.getExchangeId());
+        Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
+        return count > 0;
+    }
+
+
+    public  ArrayList<PartyDo> buildPartyList(String routerString){
+        ArrayList<PartyDo> partyDos = new ArrayList<>();
+        JSONObject jsonObject = JSON.parseObject(routerString);
+        JSONObject route_table = jsonObject.getJSONObject("route_table");
+        Set<Map.Entry<String, Object>> entries = route_table.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            PartyDo partyDo = new PartyDo();
+            partyDo.setPartyId(entry.getKey());
+
+            Object value = entry.getValue();
+            String valueString = JSONObject.toJSONString(value);
+            JSONObject partyIdValue = JSON.parseObject(valueString);
+            JSONArray netWorkList = partyIdValue.getJSONArray("default");
+            JSONObject netWorkJSONObject = netWorkList.getJSONObject(0);
+            partyDo.setNetworkAccess(netWorkJSONObject.get("ip") + ":" + netWorkJSONObject.get("port"));
+            partyDo.setStatus(1);
+            partyDo.setUpdateTime(new Date());
+
+            partyDos.add(partyDo);
+
+        }
+        return partyDos;
+
+    }
+    public List<PartyDo> queryExchange(ExchangeQueryQo exchangeQueryQo) {
+
+        //send grpc request
+        String[] network = exchangeQueryQo.getNetworkAccess().split(":");
+        try {
+            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
+
+            Proxy.Data body = exchange.getBody();
+            ByteString value = body.getValue();
+
+        } catch (UnsupportedEncodingException e) {
+            log.error("update route table error by grpc ", e);
+            return null;
+        }
+
+        // build party list according to grpc todo
+        String grpcBody = "";
+        ArrayList<PartyDo> partyDos = this.buildPartyList(grpcBody);
+
+
+
+        //find roll site in roll site table
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("network_access", exchangeQueryQo.getNetworkAccess());
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+        if (rollSiteDos.size() > 0) {
+            //update party table
+            RollSiteDo rollSiteDo = rollSiteDos.get(0);
+            Long rollSiteId = rollSiteDo.getRollSiteId();
+
+            QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+            partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
+            List<PartyDo> partyDosExisted = partyMapper.selectList(partyDoQueryWrapper);
+
+            for (PartyDo partyDo : partyDos) {
+                String partyId = partyDo.getPartyId();
+                String networkAccess = partyDo.getNetworkAccess();
+
+                boolean exist = false;
+                for (PartyDo existPartyDo : partyDosExisted) {
+                    String existPartyId = existPartyDo.getPartyId();
+                    if (partyId.equals(existPartyId)) {
+                        exist = true;
+                        if (existPartyDo.getStatus() == 1 && (!existPartyDo.getNetworkAccess().equals(networkAccess))) {
+                            existPartyDo.setNetworkAccess(networkAccess);
+                            existPartyDo.setUpdateTime(new Date());
+                            partyMapper.updateById(existPartyDo);
+                        }
+//                        break;
+                    }
+                }
+
+                //party not exist  insert
+                if (!exist) {
+                    partyDo.setRollSiteId(rollSiteId);
+                    Date date = new Date();
+                    partyDo.setCreateTime(date);
+                    partyDo.setUpdateTime(date);
+                    partyMapper.insert(partyDo);
+                }
+            }
+
+            //find newest party information
+            List<PartyDo> partyDosFinal = partyMapper.selectList(partyDoQueryWrapper);
+            return partyDosFinal;
+
+        } else {
+            return partyDos;
+        }
+
+    }
+
+//
+//    public static void main(String[] args){
+//
+//        try {
+//            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange("172.16.153.19",9631 , "eggroll", "eggroll", "get_route_table");
+//
+//            Proxy.Data body = exchange.getBody();
+//            ByteString value = body.getValue();
+//            System.out.println(value);
+//
+//        } catch (UnsupportedEncodingException e) {
+//            log.error("update route table error by grpc ", e);
+//        }
+//    }
+
+
+//    @Scheduled(cron = "0 */5 * * * ?")
+    @Transactional
+    private void queryAndUpdateRollSiteInformation(){
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+
+        for (RollSiteDo rollSiteDo : rollSiteDos) {
+
+            //send grpc request
+            String[] network = rollSiteDo.getNetworkAccess().split(":");
+            try {
+                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
+
+                Proxy.Data body = exchange.getBody();
+                ByteString value = body.getValue();
+
+            } catch (UnsupportedEncodingException e) {
+                log.error("update route table error by grpc ", e);
+                continue;
+            }
+
+            //todo
+            String grpcBody="";
+            ArrayList<PartyDo> partyDos = this.buildPartyList(grpcBody);
+
+
+            //update party table
+            Long rollSiteId = rollSiteDo.getRollSiteId();
+            QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+            partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
+            List<PartyDo> partyDosExisted = partyMapper.selectList(partyDoQueryWrapper);
+
+            for (PartyDo partyDo : partyDos) {
+                String partyId = partyDo.getPartyId();
+                String networkAccess = partyDo.getNetworkAccess();
+
+                boolean exist = false;
+                for (PartyDo existPartyDo : partyDosExisted) {
+                    String existPartyId = existPartyDo.getPartyId();
+                    if (partyId.equals(existPartyId)) {
+                        exist = true;
+                        if (existPartyDo.getStatus() == 1 && (!existPartyDo.getNetworkAccess().equals(networkAccess))) {
+                            existPartyDo.setNetworkAccess(networkAccess);
+                            existPartyDo.setUpdateTime(new Date());
+                            partyMapper.updateById(existPartyDo);
+                        }
+//                        break;
+                    }
+                }
+
+                //party not exist  insert
+                if (!exist) {
+                    partyDo.setRollSiteId(rollSiteId);
+                    Date date = new Date();
+                    partyDo.setCreateTime(date);
+                    partyDo.setUpdateTime(date);
+                    partyMapper.insert(partyDo);
+                }
+            }
+
+        }
+    }
+
+    @Transactional
+    public void addRollSite(RollSieAddQo rollSieAddQo) {
+        //update
+        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
+        federatedExchangeDoQueryWrapper.eq("exchange_id", rollSieAddQo.getExchangeId());
+        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+        federatedExchangeDo.setUpdateTime(new Date());
+        federatedExchangeMapper.update(federatedExchangeDo, federatedExchangeDoQueryWrapper);
+
+        //insert roll site
+        RollSiteDo rollSiteDo = new RollSiteDo();
+        rollSiteDo.setExchangeId(rollSieAddQo.getExchangeId());
+        rollSiteDo.setNetworkAccess(rollSieAddQo.getNetworkAccess());
+        rollSiteMapper.insert(rollSiteDo);
+
+        //insert party
+        List<PartyAddBean> partyAddBeanList = rollSieAddQo.getPartyAddBeanList();
+        for (PartyAddBean partyAddBean : partyAddBeanList) {
+            PartyDo partyDo = new PartyDo();
+            partyDo.setRollSiteId(rollSiteDo.getRollSiteId());
+            partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+            partyDo.setStatus(partyAddBean.getStatus());
+            partyDo.setPartyId(partyAddBean.getPartyId());
+            partyMapper.insert(partyDo);
+        }
+
+    }
+
+    @Transactional
+    public void updateRollSite(RollSiteUpdateQo rollSiteUpdateQo) {
+
+        List<PartyAddBean> partyAddBeanList = rollSiteUpdateQo.getPartyAddBeanList();
+        boolean updateResult = false;
+        for (PartyAddBean partyAddBean : partyAddBeanList) {
+
+            QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+            Long rollSiteId = rollSiteUpdateQo.getRollSiteId();
+            partyDoQueryWrapper.eq("rollSiteId", rollSiteId).eq("party_id", partyAddBean.getPartyId());
+            List<PartyDo> partyDos = partyMapper.selectList(partyDoQueryWrapper);
+
+            if (partyDos.size() <= 0) {
+                PartyDo partyDo = new PartyDo();
+                partyDo.setPartyId(partyAddBean.getPartyId());
+                partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                partyDo.setStatus(partyAddBean.getStatus());
+                partyDo.setRollSiteId(rollSiteId);
+                partyMapper.insert(partyDo);
+                updateResult = true;
+            } else {
+                for (PartyDo partyDo : partyDos) {
+
+                    if (!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess()) || !partyDo.getStatus().equals(partyAddBean.getStatus())) {
+                        partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                        partyDo.setStatus(partyAddBean.getStatus());
+                        partyDo.setUpdateTime(new Date());
+                        partyMapper.updateById(partyDo);
+                        updateResult = true;
+                    }
+
+                }
+            }
+
+
+        }
+
+        //update roll site time
+        if (updateResult) {
+            QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+            rollSiteDoQueryWrapper.eq("rollSiteId", rollSiteUpdateQo.getRollSiteId());
+            RollSiteDo rollSiteDo = new RollSiteDo();
+            rollSiteDo.setUpdateTime(new Date());
+            rollSiteMapper.update(rollSiteDo, rollSiteDoQueryWrapper);
+        }
+
+    }
+
+    @Transactional
+    public void deleteRollSite(RollSiteDeleteQo rollSiteDeleteQo) {
+        //delete roll site
+        Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        rollSiteMapper.delete(rollSiteDoQueryWrapper);
+
+        //delete party
+        QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+        partyDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        partyMapper.delete(partyDoQueryWrapper);
+
+    }
+
+    @Transactional
+    public int publishRollSite(RollSiteDeleteQo rollSiteDeleteQo) {
+
+        Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
+        RollSiteDo rollSiteDo = rollSiteMapper.selectById(rollSiteId);
+
+        QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+        partyDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        List<PartyDo> partyDos = partyMapper.selectList(partyDoQueryWrapper);
+
+        //update roll site
+        ArrayList<PartyDo> partyDosToPublish = new ArrayList<>();
+        for (PartyDo partyDo : partyDos) {
+            if (partyDo.getStatus() == 1 || partyDo.getStatus() == 2) {
+                partyDosToPublish.add(partyDo);
+            }
+        }
+        try {
+            this.updateRouteTableJsonString(partyDosToPublish, rollSiteDo.getNetworkAccess());
+        } catch (UnsupportedEncodingException e) {
+            log.error("update route table error by grpc ", e);
+            return 1;
+        }
+
+
+        //update party table
+        for (PartyDo partyDo : partyDos) {
+            if (partyDo.getStatus() == 2) {
+                partyDo.setStatus(1);
+                partyDo.setUpdateTime(new Date());
+                partyMapper.updateById(partyDo);
+            }
+            if (partyDo.getStatus() == 3) {
+                partyMapper.deleteById(partyDo.getId());
+            }
+
+        }
+        return 2;
+
+    }
+
+    private void updateRouteTableJsonString(List<PartyDo> partyDos, String network) throws UnsupportedEncodingException {
 
         //build route table string
         HashMap<String, Object> routeTableMap = new HashMap<>();
-        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeAddQo.getExchangeDetailsAddBeanList();
-        for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
-            String[] partIdNetwork = exchangeDetailsAddBean.getNetworkAccess().split(":");
+
+        for (PartyDo partyDo : partyDos) {
+            String[] partIdNetwork = partyDo.getNetworkAccess().split(":");
             NetworkBean networkBean = new NetworkBean();
             networkBean.setIp(partIdNetwork[0]);
             networkBean.setPort(Integer.valueOf(partIdNetwork[1]));
 
-            HashMap<String, List<NetworkBean>> defaultMap = new HashMap<>();
             ArrayList<NetworkBean> networkBeans = new ArrayList<>();
             networkBeans.add(networkBean);
+            HashMap<String, List<NetworkBean>> defaultMap = new HashMap<>();
             defaultMap.put("default", networkBeans);
 
-            String partyId = exchangeDetailsAddBean.getPartyId();
+            String partyId = partyDo.getPartyId();
             routeTableMap.put(partyId, defaultMap);
         }
 
@@ -80,96 +516,15 @@ public class FederatedExchangeService implements Serializable {
         log.info("exchange string to add:{}", routeTableJsonString);
 
         //send grpc request
-        String[] network = exchangeAddQo.getNetworkAccess().split(":");
-        Proxy.Packet packet = ExchangeGrpcUtil.setExchange(network[0], Integer.parseInt(network[1]), "eggroll", routeTableJsonString, "10002", "set_route_table");
+        String[] ipAndPort = network.split(":");
+        Proxy.Packet packet = ExchangeGrpcUtil.setExchange(ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
         //todo
 
-    }
-
-
-    @Transactional
-    public FederatedExchangeDo addExchange(ExchangeAddQo exchangeAddQo) {
-
-        //update rollsite
-        try {
-            this.updateRouteTableJsonString(exchangeAddQo);
-        } catch (UnsupportedEncodingException e) {
-            log.error("update route table error by grpc ", e);
-            return null;
-        }
-
-        //add exchange table
-        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-        federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
-        federatedExchangeDo.setNetworkAccess(exchangeAddQo.getNetworkAccess());
-        federatedExchangeDo.setStatus(1);
-        federatedExchangeMapper.insert(federatedExchangeDo);
-
-        //add exchange details table
-        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeAddQo.getExchangeDetailsAddBeanList();
-        for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
-            ExchangeDetailsDo exchangeDetailsDo = new ExchangeDetailsDo();
-            exchangeDetailsDo.setExchangeDetailsId(federatedExchangeDo.getExchangeId());
-            exchangeDetailsDo.setBatch(1L);
-            exchangeDetailsDo.setPartyId(exchangeDetailsAddBean.getPartyId());
-            exchangeDetailsDo.setNetworkAccess(exchangeDetailsAddBean.getNetworkAccess());
-            exchangeDetailsMapper.insert(exchangeDetailsDo);
-        }
-
-        return federatedExchangeDo;
-    }
-
-    @Transactional
-    public void deleteExchange(ExchangeDeleteQo exchangeDeleteQo) {
-        //update exchange table
-        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
-        federatedExchangeDoQueryWrapper.eq("exchangeId", exchangeDeleteQo.getExchangeId());
-        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-        federatedExchangeDo.setStatus(2);
-        federatedExchangeMapper.update(federatedExchangeDo, federatedExchangeDoQueryWrapper);
-
-    }
-
-    @Transactional
-    public FederatedExchangeDo updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
-
-        //update rollsite
-        try {
-            this.updateRouteTableJsonString(new ExchangeAddQo(exchangeUpdateQo));
-        } catch (UnsupportedEncodingException e) {
-            log.error("update route table error by grpc ", e);
-            return null;
-        }
-
-        //update exchange table
-        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-        federatedExchangeDo.setExchangeId(exchangeUpdateQo.getExchangeId());
-        federatedExchangeDo.setExchangeName(exchangeUpdateQo.getExchangeName());
-        federatedExchangeDo.setNetworkAccess(exchangeUpdateQo.getNetworkAccess());
-        federatedExchangeDo.setStatus(1);
-        federatedExchangeDo.setUpdateTime(new Date());
-        federatedExchangeMapper.updateById(federatedExchangeDo);
-
-        //add exchange details table
-        Long maxBatch = exchangeDetailsMapper.findMaxBatch(exchangeUpdateQo);
-
-        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeUpdateQo.getExchangeDetailsAddBeanList();
-        for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
-            ExchangeDetailsDo exchangeDetailsDo = new ExchangeDetailsDo();
-            exchangeDetailsDo.setExchangeDetailsId(federatedExchangeDo.getExchangeId());
-            exchangeDetailsDo.setBatch(maxBatch + 1);
-            exchangeDetailsDo.setPartyId(exchangeDetailsAddBean.getPartyId());
-            exchangeDetailsDo.setNetworkAccess(exchangeDetailsAddBean.getNetworkAccess());
-            exchangeDetailsMapper.insert(exchangeDetailsDo);
-        }
-
-        return federatedExchangeDo;
 
     }
 
     public PageBean<FederatedExchangeDo> findExchangePage(ExchangePageQo exchangePageQo) {
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
-        federatedExchangeDoQueryWrapper.eq("status", 1);
         Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
         PageBean<FederatedExchangeDo> siteDetailDtoPageBean = new PageBean<>(exchangePageQo.getPageNum(), exchangePageQo.getPageSize(), count);
         long startIndex = siteDetailDtoPageBean.getStartIndex();
@@ -180,37 +535,53 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-    public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
-        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
-        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeAddQo.getExchangeName()).eq("status", 1);
-        Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
-        return count > 0;
-    }
 
-    public boolean checkExchangeName(ExchangeUpdateQo exchangeUpdateQo) {
-        QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
-        federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeUpdateQo.getExchangeName()).eq("status", 1).ne("exchange_id", exchangeUpdateQo.getExchangeId());
-        Integer count = federatedExchangeMapper.selectCount(federatedExchangeDoQueryWrapper);
-        return count > 0;
-    }
+    public PageBean<RollSitePageDto> findRollSitePage(RollSitePageQo rollSitePageQo) {
 
-    public List<ExchangeDetailsDo> queryExchange(ExchangeQueryQo exchangeQueryQo) {
-        ArrayList<ExchangeDetailsDo> exchangeDetailsDos = new ArrayList<>();
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("exchange_id", rollSitePageQo.getExchangeId());
+        Integer count = rollSiteMapper.selectCount(rollSiteDoQueryWrapper);
+        PageBean<RollSitePageDto> rollSitePageDtoPageBean = new PageBean<>(rollSitePageQo.getPageNum(), rollSitePageQo.getPageSize(), count);
+        long startIndex = rollSitePageDtoPageBean.getStartIndex();
 
-        //send grpc request
-        String[] network = exchangeQueryQo.getNetworkAccess().split(":");
-        try {
-            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "set_route_table");
+        List<RollSiteDo> rollSiteMapperRollSitePage = rollSiteMapper.findRollSitePage(startIndex, rollSitePageQo);
 
-            Proxy.Data body = exchange.getBody();
-            ByteString value = body.getValue();
+        LinkedList<RollSitePageDto> rollSitePageDtos = new LinkedList<>();
 
-        } catch (UnsupportedEncodingException e) {
-            log.error("update route table error by grpc ", e);
-            return null;
+        for (RollSiteDo rollSiteDo : rollSiteMapperRollSitePage) {
+            String status = "published";
+
+            List<PartyDo> partyDos = rollSiteDo.getPartyDos();
+            Iterator<PartyDo> iterator = partyDos.iterator();
+            while (iterator.hasNext()) {
+                PartyDo next = iterator.next();
+                if (next.getStatus() != 1) {
+                    iterator.remove();
+                    status = "unpublished";
+                }
+            }
+            int size = partyDos.size();
+            RollSitePageDto rollSitePageDto = (RollSitePageDto) rollSiteDo;
+            rollSitePageDto.setStatus(status);
+            rollSitePageDto.setCount(size);
+            rollSitePageDtos.add(rollSitePageDto);
         }
 
+        rollSitePageDtoPageBean.setList(rollSitePageDtos);
+        return rollSitePageDtoPageBean;
 
-        return exchangeDetailsDos;
+    }
+
+    public PageBean<FederatedExchangeDo> findExchangePageForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo) {
+
+        int count = federatedExchangeMapper.findExchangeCountForFateManager(exchangePageForFateManagerQo);
+
+        PageBean<FederatedExchangeDo> federatedExchangeDoPageBean = new PageBean<>(exchangePageForFateManagerQo.getPageNum(), exchangePageForFateManagerQo.getPageSize(), count);
+        long startIndex = federatedExchangeDoPageBean.getStartIndex();
+
+        List<FederatedExchangeDo> federatedExchangeDos = federatedExchangeMapper.findExchangePageForFateManager(startIndex, exchangePageForFateManagerQo);
+
+        federatedExchangeDoPageBean.setList(federatedExchangeDos);
+        return federatedExchangeDoPageBean;
     }
 }

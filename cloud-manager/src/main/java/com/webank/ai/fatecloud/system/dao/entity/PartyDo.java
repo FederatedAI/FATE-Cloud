@@ -25,32 +25,31 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange information")
-@TableName("t_federated_exchange")
-public class FederatedExchangeDo implements Serializable {
+@ApiModel(value = "party details ")
+@TableName("t_party")
+public class PartyDo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
-    @TableId(value = "exchange_id", type = IdType.AUTO)
-    private Long exchangeId;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
-    @ApiModelProperty(value = "exchange name")
-    @TableField(value = "exchange_name")
-    private String exchangeName;
+    @ApiModelProperty(value = "party id value")
+    @TableField(value = "party_id")
+    private String partyId;
 
-    @ApiModelProperty(value = "vip address access ")
-    @TableField(value = "vip")
-    private String vip;
+    @ApiModelProperty(value = "network access ")
+    @TableField(value = "network_access")
+    private String networkAccess;
 
-//    @ApiModelProperty(value = "status")
-//    @TableField(value = "status")
-//    private int status;
+    @ApiModelProperty(value = "status")
+    @TableField(value = "status")
+    private Integer status;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
@@ -60,6 +59,8 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
-    @TableField(exist = false)
-    private List<RollSiteDo> rollSiteDos;
+    @ApiModelProperty(value = "roll site  id")
+    @TableId(value = "roll_site_id")
+    private Long rollSiteId;
+
 }

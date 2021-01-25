@@ -17,17 +17,19 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangePageForFateManagerQo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import com.webank.ai.fatecloud.system.pojo.qo.ExchangePageQo;
+import com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.RollSitePageQo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface FederatedExchangeMapper extends BaseMapper<FederatedExchangeDo> {
-    List<FederatedExchangeDo> findExchangePage(@Param("startIndex") long startIndex, @Param("exchangePageQo") ExchangePageQo exchangePageQo);
+public interface RollSiteMapper extends BaseMapper<RollSiteDo> {
 
-    int findExchangeCountForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo);
+//    Long findMaxBatch(ExchangeUpdateQo exchangeUpdateQo);
 
-    List<FederatedExchangeDo> findExchangePageForFateManager(@Param("startIndex") long startIndex, @Param("exchangePageForFateManagerQo") ExchangePageForFateManagerQo exchangePageForFateManagerQo);
+    List<RollSiteDo> findRollSitePage(@Param("startIndex") long startIndex, @Param("rollSitePageQo") RollSitePageQo rollSitePageQo);
 
 }

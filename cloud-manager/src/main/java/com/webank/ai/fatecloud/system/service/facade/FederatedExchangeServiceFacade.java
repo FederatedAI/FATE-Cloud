@@ -21,8 +21,10 @@ import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
-import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
+import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedExchangeService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -68,23 +72,42 @@ public class FederatedExchangeServiceFacade implements Serializable {
         if (StringUtils.isBlank(exchangeAddQo.getExchangeName())) {
             return false;
         }
-        List<ExchangeDetailsAddBean> exchangeDetailsAddBeanList = exchangeAddQo.getExchangeDetailsAddBeanList();
-        if (exchangeDetailsAddBeanList == null || exchangeDetailsAddBeanList.size() == 0) {
+
+        if (StringUtils.isBlank(exchangeAddQo.getVip())) {
             return false;
         }
+
+        List<RollSiteAddBean> rollSiteAddBeanList = exchangeAddQo.getRollSiteAddBeanList();
+        if (rollSiteAddBeanList == null || rollSiteAddBeanList.size() == 0) {
+            return false;
+        }
+
         String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$\n";
-        for (ExchangeDetailsAddBean exchangeDetailsAddBean : exchangeDetailsAddBeanList) {
-            String partyId = exchangeDetailsAddBean.getPartyId();
-            if (StringUtils.isBlank(partyId)) {
-                return false;
-            }
-            String networkAccess = exchangeDetailsAddBean.getNetworkAccess();
+        for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
+
+            //check roll site ip
+            String networkAccess = rollSiteAddBean.getNetworkAccess();
             if (!networkAccess.matches(ipAndPortRegex)) {
                 return false;
             }
+
+            //check roll site is managed or not
+            if (federatedExchangeService.findRollSite(networkAccess)) {
+                return false;
+            }
+
+
+            //check party list
+            List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
+            boolean result = this.checkPartyNetwork(partyAddBeanList, false);
+            if (!result) {
+                return false;
+            }
+
+
         }
 
-        return exchangeAddQo.getNetworkAccess().matches(ipAndPortRegex);
+        return exchangeAddQo.getVip().matches(ipAndPortRegex);
 
     }
 
@@ -102,52 +125,86 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     }
 
-    public CommonResponse updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
 
-        //check duplicate name
-        if (this.checkExchangeName(exchangeUpdateQo)) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+    public boolean checkPartyNetwork(List<PartyAddBean> partyAddBeanList, Boolean checkStatus) {
+        if (partyAddBeanList == null || partyAddBeanList.size() <= 0) {
+            return false;
         }
 
-        ExchangeAddQo exchangeAddQo = new ExchangeAddQo(exchangeUpdateQo);
-        //check duplicate name
-        if (!checkExchangeAddQo(exchangeAddQo)) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$\n";
+        HashSet<String> partyIds = new HashSet<>();
+
+        for (PartyAddBean partyAddBean : partyAddBeanList) {
+            String networkAccess = partyAddBean.getNetworkAccess();
+            if (!networkAccess.matches(ipAndPortRegex)) {
+                return false;
+            }
+            String partyId = partyAddBean.getPartyId();
+            if (StringUtils.isBlank(partyId)) {
+                return false;
+            }
+            partyIds.add(partyId);
+
+            if (checkStatus) {
+                Integer status = partyAddBean.getStatus();
+
+                HashSet<Integer> integers = new HashSet<>();
+                integers.add(1);
+                integers.add(2);
+                integers.add(3);
+                if (!integers.contains(status)) {
+                    return false;
+                }
+
+            }
         }
-        FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
 
-        if (federatedExchangeDo == null) {
-            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+        if (partyIds.size() != partyAddBeanList.size()) {
+            return false;
         }
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
-
+        return true;
     }
 
-    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(ExchangePageQo exchangePageQo) {
 
-        PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
+//    public CommonResponse updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
+//
+//        //check duplicate name
+//        if (this.checkExchangeName(exchangeUpdateQo)) {
+//            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+//        }
+//
+//        ExchangeAddQo exchangeAddQo = new ExchangeAddQo(exchangeUpdateQo);
+//        //check duplicate name
+//        if (!checkExchangeAddQo(exchangeAddQo)) {
+//            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+//        }
+//        FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
+//
+//        if (federatedExchangeDo == null) {
+//            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+//        }
+//
+//        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+//
+//    }
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
-    }
 
-    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageQo exchangePageQo, HttpServletRequest httpServletRequest) {
 
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(exchangePageQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) {
+
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(exchangePageForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
-        PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
+        PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePageForFateManager(exchangePageForFateManagerQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
     }
 
-    public CommonResponse<List<ExchangeDetailsDo>> queryExchange(ExchangeQueryQo exchangeQueryQo) {
-        if (exchangeQueryQo == null) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+    public CommonResponse<List<PartyDo>> queryExchange(ExchangeQueryQo exchangeQueryQo) {
 
-        }
         String networkAccess = exchangeQueryQo.getNetworkAccess();
         if (StringUtils.isBlank(networkAccess)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
@@ -159,13 +216,88 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        List<ExchangeDetailsDo> exchangeDetailsDos = federatedExchangeService.queryExchange(exchangeQueryQo);
+        List<PartyDo> partyDos = federatedExchangeService.queryExchange(exchangeQueryQo);
 
-        if (exchangeDetailsDos == null) {
+        if (partyDos == null) {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
         }
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangeDetailsDos);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, partyDos);
+
+    }
+
+    public CommonResponse addRollSite(RollSieAddQo rollSieAddQo) {
+
+        //check roll site is managed or not
+        if (federatedExchangeService.findRollSite(rollSieAddQo.getNetworkAccess())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        //check party
+        if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        federatedExchangeService.addRollSite(rollSieAddQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+
+    }
+
+    public CommonResponse updateRollSite(RollSiteUpdateQo rollSiteUpdateQo) {
+        Long rollSiteId = rollSiteUpdateQo.getRollSiteId();
+        if (rollSiteId == null || rollSiteId <= 0) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+
+        //check party
+        if (!this.checkPartyNetwork(rollSiteUpdateQo.getPartyAddBeanList(), true)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        federatedExchangeService.updateRollSite(rollSiteUpdateQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
+
+    public CommonResponse deleteRollSite(RollSiteDeleteQo rollSiteDeleteQo) {
+        Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
+        if (rollSiteId == null || rollSiteId <= 0) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+        federatedExchangeService.deleteRollSite(rollSiteDeleteQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
+
+    public CommonResponse publishRollSite(RollSiteDeleteQo rollSiteDeleteQo) {
+        Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
+        if (rollSiteId == null || rollSiteId <= 0) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+        int i = federatedExchangeService.publishRollSite(rollSiteDeleteQo);
+        if (i == 1) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
+
+        }
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
+
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(ExchangePageQo exchangePageQo) {
+
+        PageBean<FederatedExchangeDo> exchangePage = federatedExchangeService.findExchangePage(exchangePageQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangePage);
+    }
+
+    public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(RollSitePageQo rollSitePageQo) {
+        if(StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))){
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+
+        }
+        PageBean<RollSitePageDto> rollSitePageDtoPageBean = federatedExchangeService.findRollSitePage(rollSitePageQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, rollSitePageDtoPageBean);
 
     }
 }
