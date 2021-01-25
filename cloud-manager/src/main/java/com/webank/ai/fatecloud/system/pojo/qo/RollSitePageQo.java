@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.webank.ai.fatecloud.system.pojo.qo;
 
 import io.swagger.annotations.ApiModel;
@@ -26,14 +27,16 @@ import java.io.Serializable;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange details information")
-public class ExchangeDetailsAddBean implements Serializable {
+@ApiModel("find paged roll site")
+public class RollSitePageQo implements Serializable {
 
-    @ApiModelProperty(value = "exchange name")
-    private String partyId;
+    @ApiModelProperty("pageNum")
+    private Integer pageNum = 1;
 
-    @ApiModelProperty(value = "network access ")
-    private String networkAccess;
+    @ApiModelProperty("pageSize")
+    private Integer pageSize = 10;
 
+    @ApiModelProperty(value = "exchange id")
+    private Long exchangeId;
 
 }

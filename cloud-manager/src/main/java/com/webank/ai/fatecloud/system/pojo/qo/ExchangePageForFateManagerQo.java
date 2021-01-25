@@ -15,34 +15,27 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange add qo")
-public class ExchangeAddQo implements Serializable {
+@ApiModel("find exchange page for fate manager")
+public class ExchangePageForFateManagerQo implements Serializable {
 
-    public ExchangeAddQo(ExchangeUpdateQo exchangeUpdateQo) {
-        this.exchangeName = exchangeUpdateQo.getExchangeName();
-        this.rollSiteAddBeanList = exchangeUpdateQo.getRollSiteAddBeanList();
-    }
+    @ApiModelProperty(value = "institutions name")
+    private String institutions;
 
-    @ApiModelProperty(value = "exchange name")
-    private String exchangeName;
+    @ApiModelProperty("pageNum")
+    private Integer pageNum = 1;
 
-    @ApiModelProperty(value = "vip address access ")
-    private String vip;
-
-    @ApiModelProperty(value = "exchange details list")
-    List<RollSiteAddBean> rollSiteAddBeanList;
+    @ApiModelProperty("pageSize")
+    private Integer pageSize = 10;
 
 }

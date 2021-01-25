@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.system.dao.entity;
+package com.webank.ai.fatecloud.system.pojo.qo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -31,15 +30,10 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange details information")
-@TableName("t_exchange_details")
-public class ExchangeDetailsDo implements Serializable {
+@ApiModel(value = "roll site add information")
+public class PartyAddBean implements Serializable {
 
-    @ApiModelProperty(value = "primary key")
-    @TableId(value = "exchange_details_id", type = IdType.AUTO)
-    private Long exchangeDetailsId;
-
-    @ApiModelProperty(value = "exchange name")
+    @ApiModelProperty(value = "party id value")
     @TableField(value = "party_id")
     private String partyId;
 
@@ -47,20 +41,6 @@ public class ExchangeDetailsDo implements Serializable {
     @TableField(value = "network_access")
     private String networkAccess;
 
-    @ApiModelProperty(value = "primary key")
-    @TableId(value = "batch")
-    private Long batch;
-
-    @ApiModelProperty(value = "create time")
-    @TableField(value = "create_time")
-    private Date createTime;
-
-    @ApiModelProperty(value = "update time")
-    @TableField(value = "update_time")
-    private Date updateTime;
-
-    @ApiModelProperty(value = "exchange id")
-    @TableId(value = "exchange_id")
-    private Long exchangeId;
-
+    @ApiModelProperty(value = "status")
+    private Integer status;
 }

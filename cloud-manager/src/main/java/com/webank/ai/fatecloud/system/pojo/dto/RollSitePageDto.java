@@ -13,36 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.system.pojo.qo;
+package com.webank.ai.fatecloud.system.pojo.dto;
 
-
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
-
-import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange add qo")
-public class ExchangeAddQo implements Serializable {
+@ApiModel(value = "roll site details ")
+public class RollSitePageDto extends RollSiteDo {
 
-    public ExchangeAddQo(ExchangeUpdateQo exchangeUpdateQo) {
-        this.exchangeName = exchangeUpdateQo.getExchangeName();
-        this.rollSiteAddBeanList = exchangeUpdateQo.getRollSiteAddBeanList();
-    }
+    @ApiModelProperty(value = " published party count")
+    private Integer count;
 
-    @ApiModelProperty(value = "exchange name")
-    private String exchangeName;
-
-    @ApiModelProperty(value = "vip address access ")
-    private String vip;
-
-    @ApiModelProperty(value = "exchange details list")
-    List<RollSiteAddBean> rollSiteAddBeanList;
+    @ApiModelProperty(value = "roll site count")
+    private String status;
 
 }
