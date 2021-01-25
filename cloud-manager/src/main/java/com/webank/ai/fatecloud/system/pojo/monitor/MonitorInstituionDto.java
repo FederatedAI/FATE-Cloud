@@ -12,4 +12,7 @@ import java.util.List;
 public class MonitorInstituionDto implements Serializable {
     @ApiModelProperty(value = "total insitution ")
     private List<InstitutionBase> data;
+
+    @ApiModelProperty(value = "total ")
+    private Integer total;
 }
