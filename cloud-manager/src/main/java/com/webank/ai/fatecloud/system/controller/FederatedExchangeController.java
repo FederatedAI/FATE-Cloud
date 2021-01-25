@@ -102,7 +102,7 @@ public class FederatedExchangeController {
     }
 
     @PostMapping(value = "/rollsite/page")
-    @ApiOperation(value = "find rollsite page")
+    @ApiOperation(value = "find roll site page")
     public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(@RequestBody RollSitePageQo rollSitePageQo) {
         log.info("url:find paged roll site, requestBody:{}", rollSitePageQo);
         return federatedExchangeServiceFacade.findRollSitePage(rollSitePageQo);
