@@ -178,7 +178,7 @@ public class FederatedExchangeService implements Serializable {
     }
 
 
-    public  ArrayList<PartyDo> buildPartyList(String routerString){
+    public static ArrayList<PartyDo> buildPartyList(String routerString) {
         ArrayList<PartyDo> partyDos = new ArrayList<>();
         JSONObject jsonObject = JSON.parseObject(routerString);
         JSONObject route_table = jsonObject.getJSONObject("route_table");
@@ -202,25 +202,27 @@ public class FederatedExchangeService implements Serializable {
         return partyDos;
 
     }
+
     public List<PartyDo> queryExchange(ExchangeQueryQo exchangeQueryQo) {
 
         //send grpc request
         String[] network = exchangeQueryQo.getNetworkAccess().split(":");
+        String routerTableString;
+
         try {
             Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
 
             Proxy.Data body = exchange.getBody();
             ByteString value = body.getValue();
+            routerTableString = value.toStringUtf8();
 
         } catch (UnsupportedEncodingException e) {
             log.error("update route table error by grpc ", e);
             return null;
         }
 
-        // build party list according to grpc todo
-        String grpcBody = "";
-        ArrayList<PartyDo> partyDos = this.buildPartyList(grpcBody);
 
+        ArrayList<PartyDo> partyDos = this.buildPartyList(routerTableString);
 
 
         //find roll site in roll site table
@@ -274,25 +276,28 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-//
 //    public static void main(String[] args){
 //
+//        //send grpc request
+//        String grpcBody = null;
 //        try {
-//            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange("172.16.153.19",9631 , "eggroll", "eggroll", "get_route_table");
+//            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange("172.16.153.19", 9631, "eggroll", "eggroll", "get_route_table");
 //
 //            Proxy.Data body = exchange.getBody();
 //            ByteString value = body.getValue();
-//            System.out.println(value);
+//            grpcBody = value.toStringUtf8();
 //
 //        } catch (UnsupportedEncodingException e) {
 //            log.error("update route table error by grpc ", e);
 //        }
+//
+//        ArrayList<PartyDo> partyDos = buildPartyList(grpcBody);
 //    }
 
 
-//    @Scheduled(cron = "0 */5 * * * ?")
+    //    @Scheduled(cron = "0 */5 * * * ?")
     @Transactional
-    private void queryAndUpdateRollSiteInformation(){
+    private void queryAndUpdateRollSiteInformation() {
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
 
@@ -300,21 +305,20 @@ public class FederatedExchangeService implements Serializable {
 
             //send grpc request
             String[] network = rollSiteDo.getNetworkAccess().split(":");
+            String grpcBody;
             try {
                 Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
 
                 Proxy.Data body = exchange.getBody();
                 ByteString value = body.getValue();
+                grpcBody = value.toStringUtf8();
 
             } catch (UnsupportedEncodingException e) {
                 log.error("update route table error by grpc ", e);
                 continue;
             }
 
-            //todo
-            String grpcBody="";
             ArrayList<PartyDo> partyDos = this.buildPartyList(grpcBody);
-
 
             //update party table
             Long rollSiteId = rollSiteDo.getRollSiteId();
@@ -451,7 +455,7 @@ public class FederatedExchangeService implements Serializable {
         RollSiteDo rollSiteDo = rollSiteMapper.selectById(rollSiteId);
 
         QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
-        partyDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
         List<PartyDo> partyDos = partyMapper.selectList(partyDoQueryWrapper);
 
         //update roll site
@@ -463,7 +467,7 @@ public class FederatedExchangeService implements Serializable {
         }
         try {
             this.updateRouteTableJsonString(partyDosToPublish, rollSiteDo.getNetworkAccess());
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             log.error("update route table error by grpc ", e);
             return 1;
         }
@@ -485,7 +489,7 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-    private void updateRouteTableJsonString(List<PartyDo> partyDos, String network) throws UnsupportedEncodingException {
+    private void updateRouteTableJsonString(List<PartyDo> partyDos, String network) throws Exception {
 
         //build route table string
         HashMap<String, Object> routeTableMap = new HashMap<>();
@@ -518,8 +522,15 @@ public class FederatedExchangeService implements Serializable {
         //send grpc request
         String[] ipAndPort = network.split(":");
         Proxy.Packet packet = ExchangeGrpcUtil.setExchange(ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
-        //todo
 
+        //todo
+        Proxy.Data body = packet.getBody();
+        ByteString value = body.getValue();
+        String information = value.toStringUtf8();
+        log.info("returned information when publish router information from roll site :{}",information);
+        if(!"setRouteTable finished".equals(information)){
+            throw new  Exception();
+        }
 
     }
 
