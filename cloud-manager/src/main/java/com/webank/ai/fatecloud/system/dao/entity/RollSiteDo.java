@@ -32,7 +32,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "roll site details ")
+@ApiModel(value = "roll site details")
 @TableName("t_roll_site")
 public class RollSiteDo implements Serializable {
 

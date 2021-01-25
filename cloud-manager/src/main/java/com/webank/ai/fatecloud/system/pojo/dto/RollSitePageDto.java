@@ -27,7 +27,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "roll site details ")
+@ApiModel(value = "roll site details with count")
 public class RollSitePageDto extends RollSiteDo {
 
     @ApiModelProperty(value = " published party count")

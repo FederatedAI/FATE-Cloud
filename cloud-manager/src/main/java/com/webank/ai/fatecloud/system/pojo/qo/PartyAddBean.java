@@ -30,7 +30,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "roll site add information")
+@ApiModel(value = "party id list in rollsite")
 public class PartyAddBean implements Serializable {
 
     @ApiModelProperty(value = "party id value")

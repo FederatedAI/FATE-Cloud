@@ -32,8 +32,6 @@ import java.util.List;
 @ApiModel(value = "roll site add information")
 public class RollSiteAddBean implements Serializable {
 
-//    @ApiModelProperty(value = "primary key")
-//    private Long RollSiteId;
 
     @ApiModelProperty(value = "network access ")
     private String networkAccess;
