@@ -17,8 +17,10 @@ package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
-import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
+import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedExchangeServiceFacade;
 import io.swagger.annotations.Api;
@@ -42,6 +44,13 @@ public class FederatedExchangeController {
     @Autowired
     FederatedExchangeServiceFacade federatedExchangeServiceFacade;
 
+    @PostMapping(value = "/query")
+    @ApiOperation(value = "find exchange")
+    public CommonResponse<List<PartyDo>> queryExchange(@RequestBody ExchangeQueryQo exchangeQueryQo) {
+        log.info("url:find paged exchange, requestBody:{}", exchangeQueryQo);
+        return federatedExchangeServiceFacade.queryExchange(exchangeQueryQo);
+    }
+
     @PostMapping(value = "/add")
     @ApiOperation(value = "add new exchange")
     public CommonResponse addExchange(@RequestBody ExchangeAddQo exchangeAddQo) {
@@ -56,33 +65,61 @@ public class FederatedExchangeController {
         return federatedExchangeServiceFacade.deleteExchange(exchangeDeleteQo);
     }
 
-    @PostMapping(value = "/update")
-    @ApiOperation(value = "update exchange")
-    public CommonResponse updateExchange(@RequestBody ExchangeUpdateQo exchangeUpdateQo) {
-        log.info("url:update exchange, requestBody:{}", exchangeUpdateQo);
-        return federatedExchangeServiceFacade.updateExchange(exchangeUpdateQo);
+    @PostMapping(value = "/rollsite/add")
+    @ApiOperation(value = "add roll site for exchange")
+    public CommonResponse addRollSite(@RequestBody RollSieAddQo rollSieAddQo) {
+        log.info("url:add roll site, requestBody:{}", rollSieAddQo);
+        return federatedExchangeServiceFacade.addRollSite(rollSieAddQo);
     }
 
-    @PostMapping(value = "/page")
+    @PostMapping(value = "/rollsite/update")
+    @ApiOperation(value = "update roll site for exchange")
+    public CommonResponse updateRollSite(@RequestBody RollSiteUpdateQo rollSiteUpdateQo) {
+        log.info("url:update roll site, requestBody:{}", rollSiteUpdateQo);
+        return federatedExchangeServiceFacade.updateRollSite(rollSiteUpdateQo);
+    }
+
+    @PostMapping(value = "/rollsite/delete")
+    @ApiOperation(value = "delete roll site for exchange")
+    public CommonResponse deleteRollSite(@RequestBody RollSiteDeleteQo rollSiteDeleteQo) {
+        log.info("url:delete roll site, requestBody:{}", rollSiteDeleteQo);
+        return federatedExchangeServiceFacade.deleteRollSite(rollSiteDeleteQo);
+    }
+
+    @PostMapping(value = "/rollsite/publish")
+    @ApiOperation(value = "publish roll site for exchange")
+    public CommonResponse publishRollSite(@RequestBody RollSiteDeleteQo rollSiteDeleteQo) {
+        log.info("url:publish roll site, requestBody:{}", rollSiteDeleteQo);
+        return federatedExchangeServiceFacade.publishRollSite(rollSiteDeleteQo);
+    }
+
+
+    @PostMapping(value = "/exchange/page")
     @ApiOperation(value = "find exchange page")
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePage(@RequestBody ExchangePageQo exchangePageQo) {
         log.info("url:find paged exchange, requestBody:{}", exchangePageQo);
         return federatedExchangeServiceFacade.findExchangePage(exchangePageQo);
     }
 
-    @PostMapping(value = "/query")
-    @ApiOperation(value = "find exchange")
-    public CommonResponse<List<ExchangeDetailsDo>> queryExchange(@RequestBody ExchangeQueryQo exchangeQueryQo) {
-        log.info("url:find paged exchange, requestBody:{}", exchangeQueryQo);
-        return federatedExchangeServiceFacade.queryExchange(exchangeQueryQo);
+    @PostMapping(value = "/rollsite/page")
+    @ApiOperation(value = "find rollsite page")
+    public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(@RequestBody RollSitePageQo rollSitePageQo) {
+        log.info("url:find paged roll site, requestBody:{}", rollSitePageQo);
+        return federatedExchangeServiceFacade.findRollSitePage(rollSitePageQo);
     }
 
-    @PostMapping(value = "/page/fatemanager")
+
+    @PostMapping(value = "/exchange/page/fatemanager")
     @ApiOperation(value = "find exchange page for fate manager")
-    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageQo exchangePageQo, HttpServletRequest httpServletRequest) {
-        log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageQo);
-        return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageQo, httpServletRequest);
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) {
+        log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageForFateManagerQo);
+        return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageForFateManagerQo, httpServletRequest);
     }
 
-
+//    @PostMapping(value = "/update")
+//    @ApiOperation(value = "update exchange")
+//    public CommonResponse updateExchange(@RequestBody ExchangeUpdateQo exchangeUpdateQo) {
+//        log.info("url:update exchange, requestBody:{}", exchangeUpdateQo);
+//        return federatedExchangeServiceFacade.updateExchange(exchangeUpdateQo);
+//    }
 }

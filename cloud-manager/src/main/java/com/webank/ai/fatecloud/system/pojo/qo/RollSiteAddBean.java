@@ -15,7 +15,8 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -28,21 +29,16 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "exchange add qo")
-public class ExchangeAddQo implements Serializable {
+@ApiModel(value = "roll site add information")
+public class RollSiteAddBean implements Serializable {
 
-    public ExchangeAddQo(ExchangeUpdateQo exchangeUpdateQo) {
-        this.exchangeName = exchangeUpdateQo.getExchangeName();
-        this.rollSiteAddBeanList = exchangeUpdateQo.getRollSiteAddBeanList();
-    }
+//    @ApiModelProperty(value = "primary key")
+//    private Long RollSiteId;
 
-    @ApiModelProperty(value = "exchange name")
-    private String exchangeName;
+    @ApiModelProperty(value = "network access ")
+    private String networkAccess;
 
-    @ApiModelProperty(value = "vip address access ")
-    private String vip;
-
-    @ApiModelProperty(value = "exchange details list")
-    List<RollSiteAddBean> rollSiteAddBeanList;
+    @ApiModelProperty(value = "party details list")
+    List<PartyAddBean> partyAddBeanList;
 
 }

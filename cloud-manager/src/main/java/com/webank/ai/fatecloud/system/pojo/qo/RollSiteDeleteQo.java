@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.system.dao.mapper;
+package com.webank.ai.fatecloud.system.pojo.qo;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.webank.ai.fatecloud.system.dao.entity.ExchangeDetailsDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 
-public interface ExchangeDetailsMapper extends BaseMapper<ExchangeDetailsDo> {
-    Long findMaxBatch(ExchangeUpdateQo exchangeUpdateQo);
+import java.io.Serializable;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
+@ApiModel(value = "delete roll site")
+
+public class RollSiteDeleteQo implements Serializable {
+
+    @ApiModelProperty(value = "primary key")
+    private Long RollSiteId;
 }
