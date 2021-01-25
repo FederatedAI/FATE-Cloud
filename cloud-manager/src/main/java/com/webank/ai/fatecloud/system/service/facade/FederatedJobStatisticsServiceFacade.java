@@ -151,8 +151,8 @@ public class FederatedJobStatisticsServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
     }
 
-    public CommonResponse<List<MonitorSiteDto>> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
-        List<MonitorSiteDto> pageBean = federatedJobStatisticsService.getSiteMonitor(monitorSiteQo);
+    public CommonResponse<MonitorSiteDto> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
+        MonitorSiteDto pageBean = federatedJobStatisticsService.getSiteMonitor(monitorSiteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
     }
 }
