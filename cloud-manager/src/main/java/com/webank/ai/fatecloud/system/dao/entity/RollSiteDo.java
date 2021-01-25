@@ -38,25 +38,25 @@ public class RollSiteDo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
     @TableId(value = "roll_site_id", type = IdType.AUTO)
-    private Long RollSiteId;
+    public Long RollSiteId;
 
     @ApiModelProperty(value = "network access ")
     @TableField(value = "network_access")
-    private String networkAccess;
+    public String networkAccess;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
-    private Date createTime;
+    public Date createTime;
 
     @ApiModelProperty(value = "update time")
     @TableField(value = "update_time")
-    private Date updateTime;
+    public Date updateTime;
 
     @ApiModelProperty(value = "exchange id")
     @TableId(value = "exchange_id")
-    private Long exchangeId;
+    public Long exchangeId;
 
     @TableField(exist = false)
-    private List<PartyDo> partyDos;
+    public List<PartyDo> partyDos;
 
 }

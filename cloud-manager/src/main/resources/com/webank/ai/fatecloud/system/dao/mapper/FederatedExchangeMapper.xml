@@ -4,7 +4,7 @@
 
 
     <select id="findExchangePage" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo">
-        select * FROM t_federated_exchange order by update_time desc limit #{startIndex}, #{exchangePageQo.pageSize})
+        select * FROM t_federated_exchange order by update_time desc limit #{startIndex}, #{exchangePageQo.pageSize}
     </select>
 
     <select id="findExchangeCountForFateManager"
@@ -13,7 +13,7 @@
         select count(1) FROM t_federated_exchange a, t_roll_site b, t_party c
         where a.exchange_id = b.exchange_id and b.roll_site_id = c.roll_site_id
         and c.party_id in (select party_id from t_federated_site_manager where institutions=#{institutions})
-        group by exchangeName
+        group by a.exchange_id
     </select>
 
 
@@ -21,8 +21,8 @@
 
         select a.* FROM t_federated_exchange a, t_roll_site b, t_party c
         where a.exchange_id = b.exchange_id and b.roll_site_id = c.roll_site_id
-        and c.party_id in (select party_id from t_federated_site_manager where institutions=#{exchangePageForFateManagerQo.institutions})
-        group by exchangeName order by update_time desc limit #{startIndex}, #{exchangePageForFateManagerQo.pageSize})
+        and c.party_id in  (select party_id from t_federated_site_manager where institutions=#{exchangePageForFateManagerQo.institutions})
+        group by a.exchange_id order by a.update_time desc limit #{startIndex}, #{exchangePageForFateManagerQo.pageSize}
 
     </select>
 

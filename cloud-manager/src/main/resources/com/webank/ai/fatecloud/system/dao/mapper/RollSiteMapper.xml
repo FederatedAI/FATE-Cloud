@@ -29,7 +29,7 @@
 
     <select id="findRollSitePage"
             resultMap="rollSiteMap">
-        select * from (select * FROM t_roll_site where  exchange_id= #{rollSitePageQo.exchangeId} order by update_time desc limit #{startIndex}, #{rollSitePageQo.pageSize})) a,t_party b
+        select * from (select * FROM t_roll_site where  exchange_id= #{rollSitePageQo.exchangeId} order by update_time desc limit #{startIndex}, #{rollSitePageQo.pageSize}) a,t_party b
         where a.roll_site_id= b.roll_site_id
 
     </select>

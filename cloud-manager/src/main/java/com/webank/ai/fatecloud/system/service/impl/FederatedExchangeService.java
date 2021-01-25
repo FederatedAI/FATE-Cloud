@@ -94,6 +94,7 @@ public class FederatedExchangeService implements Serializable {
                 partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
                 partyDo.setPartyId(partyAddBean.getPartyId());
                 partyDo.setStatus(1);
+                partyDo.setRollSiteId(rollSiteDo.getRollSiteId());
 
                 partyMapper.insert(partyDo);
 
@@ -394,7 +395,7 @@ public class FederatedExchangeService implements Serializable {
 
             QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
             Long rollSiteId = rollSiteUpdateQo.getRollSiteId();
-            partyDoQueryWrapper.eq("rollSiteId", rollSiteId).eq("party_id", partyAddBean.getPartyId());
+            partyDoQueryWrapper.eq("roll_site_id", rollSiteId).eq("party_id", partyAddBean.getPartyId());
             List<PartyDo> partyDos = partyMapper.selectList(partyDoQueryWrapper);
 
             if (partyDos.size() <= 0) {
@@ -425,7 +426,7 @@ public class FederatedExchangeService implements Serializable {
         //update roll site time
         if (updateResult) {
             QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
-            rollSiteDoQueryWrapper.eq("rollSiteId", rollSiteUpdateQo.getRollSiteId());
+            rollSiteDoQueryWrapper.eq("roll_site_id", rollSiteUpdateQo.getRollSiteId());
             RollSiteDo rollSiteDo = new RollSiteDo();
             rollSiteDo.setUpdateTime(new Date());
             rollSiteMapper.update(rollSiteDo, rollSiteDoQueryWrapper);
@@ -438,12 +439,12 @@ public class FederatedExchangeService implements Serializable {
         //delete roll site
         Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
-        rollSiteDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        rollSiteDoQueryWrapper.eq("roll_site_id", rollSiteId);
         rollSiteMapper.delete(rollSiteDoQueryWrapper);
 
         //delete party
         QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
-        partyDoQueryWrapper.eq("rollSiteId", rollSiteId);
+        partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
         partyMapper.delete(partyDoQueryWrapper);
 
     }
@@ -572,7 +573,7 @@ public class FederatedExchangeService implements Serializable {
                 }
             }
             int size = partyDos.size();
-            RollSitePageDto rollSitePageDto = (RollSitePageDto) rollSiteDo;
+            RollSitePageDto rollSitePageDto = new RollSitePageDto(rollSiteDo) ;
             rollSitePageDto.setStatus(status);
             rollSitePageDto.setCount(size);
             rollSitePageDtos.add(rollSitePageDto);

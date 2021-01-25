@@ -36,4 +36,13 @@ public class RollSitePageDto extends RollSiteDo {
     @ApiModelProperty(value = "roll site count")
     private String status;
 
+    public RollSitePageDto(RollSiteDo rollSiteDo){
+        this.RollSiteId=rollSiteDo.getRollSiteId();
+        this.networkAccess=rollSiteDo.getNetworkAccess();
+        this.createTime=rollSiteDo.getCreateTime();
+        this.updateTime=rollSiteDo.getUpdateTime();
+        this.exchangeId=rollSiteDo.getRollSiteId();
+        this.partyDos=rollSiteDo.getPartyDos();
+    }
+
 }
