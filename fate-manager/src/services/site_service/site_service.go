@@ -287,9 +287,9 @@ func HeartTask() {
 	for i := 0; i < len(federatedSiteList); i++ {
 		federatedSiteItem := federatedSiteList[i]
 		if federatedSiteItem.Status == int(enum.SITE_STATUS_JOINED) {
-			deploySite := models.DeploySite{PartyId:federatedSiteItem.PartyId,IsValid:int(enum.IS_VALID_YES)}
-			deploySiteList,err := models.GetDeploySite(&deploySite)
-			if err !=nil || len(deploySiteList) ==0 {
+			deploySite := models.DeploySite{PartyId: federatedSiteItem.PartyId, IsValid: int(enum.IS_VALID_YES)}
+			deploySiteList, err := models.GetDeploySite(&deploySite)
+			if err != nil || len(deploySiteList) == 0 {
 				continue
 			}
 			deployComponent := models.DeployComponent{
@@ -305,7 +305,7 @@ func HeartTask() {
 					ComponentName:    deployComponentList[j].ComponentName,
 					ComponentVersion: deployComponentList[j].ComponentVersion,
 				}
-				if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING) ||  deploySiteList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
+				if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING) || deploySiteList[0].DeployStatus == int(enum.ANSIBLE_DeployStatus_TEST_PASSED) {
 					cloudSystemHeart.DetectiveStatus = 2
 				}
 				cloudSystemHeartList = append(cloudSystemHeartList, cloudSystemHeart)
@@ -452,14 +452,14 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 }
 
 func GetSecretInfo(siteDetailReq entity.SecretInfoReq) (*entity.SiteSecretResp, error) {
-	partyId,_ :=strconv.Atoi(siteDetailReq.PartyId)
-	federatedId,_ :=strconv.Atoi(siteDetailReq.PartyId)
-	federatedInfo, err := federated_service.GetPartyIdInfo(partyId,federatedId)
+	partyId, _ := strconv.Atoi(siteDetailReq.PartyId)
+	federatedId, _ := strconv.Atoi(siteDetailReq.PartyId)
+	federatedInfo, err := federated_service.GetPartyIdInfo(partyId, federatedId)
 	if err != nil {
 		return nil, err
 	}
-	if len(federatedInfo) ==0 {
-		return nil,nil
+	if len(federatedInfo) == 0 {
+		return nil, nil
 	}
 	siteSecretResp := entity.SiteSecretResp{
 		AppKey:    federatedInfo[0].AppKey,
@@ -1061,7 +1061,10 @@ func GetExchangeInfo() (*entity.ExchangeResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	pageReq := entity.PageReq{PageSize: 100, PageNum: 1}
+	pageReq := entity.ExchangeReq{
+		Institution: accountInfo.Institutions,
+		PageReq:     entity.PageReq{PageSize: 100, PageNum: 1},
+	}
 	pageReqJson, _ := json.Marshal(pageReq)
 	headInfo := util.UserHeaderInfo{
 		UserAppKey:    accountInfo.AppKey,
