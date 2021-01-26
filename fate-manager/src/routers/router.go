@@ -37,7 +37,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Site Manager
-	sites := router.Group("/fate-manager/api/site").Use(JWT())
+	sites := router.Group("/fate-manager/api/site") //.Use(JWT())
 	{
 		sites.GET("", GetHomeSiteList)
 		sites.GET("/other", GetOtherSiteList)
