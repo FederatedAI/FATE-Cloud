@@ -60,11 +60,11 @@ public class FederatedSiteManagerService {
     @Autowired
     FederatedFateManagerUserMapper federatedFateManagerUserMapper;
 
-    @Value(value = "${cloud-manager.http.ip}")
+    @Value(value = "${cloud-manager.ip}")
     String ip;
 
-    @Value(value = "${cloud-manager.https.ip}")
-    String httpsIp;
+//    @Value(value = "${cloud-manager.https.ip}")
+//    String httpsIp;
 
     @Value(value = "${server.servlet.context-path}")
     String prefix;
@@ -126,7 +126,7 @@ public class FederatedSiteManagerService {
         if ("http://".equals(siteAddQo.getProtocol())) {
             url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            url = "https://" + httpsIp + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            url = "https://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
         String encodedUrl = EncryptUtil.encode(url);
 
@@ -221,7 +221,7 @@ public class FederatedSiteManagerService {
         if ("http://".equals(siteUpdateQo.getProtocol())) {
             url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            url = "https://" + httpsIp + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            url = "https://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedUrl = EncryptUtil.encode(url);
