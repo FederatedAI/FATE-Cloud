@@ -109,7 +109,7 @@ public class FederatedExchangeService implements Serializable {
         //update exchange table
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
         Long exchangeId = exchangeDeleteQo.getExchangeId();
-        federatedExchangeDoQueryWrapper.eq("exchangeId", exchangeId);
+        federatedExchangeDoQueryWrapper.eq("exchange_id", exchangeId);
         federatedExchangeMapper.delete(federatedExchangeDoQueryWrapper);
 
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
