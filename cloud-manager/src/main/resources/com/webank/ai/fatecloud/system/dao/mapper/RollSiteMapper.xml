@@ -3,7 +3,7 @@
 <mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.RollSiteMapper">
 
     <resultMap id="rollSiteMap" type="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
-        <id property="RollSiteId" column="roll_site_id"></id>
+        <id property="rollSiteId" column="roll_site_id"></id>
         <result property="networkAccess" column="network_access"></result>
         <result property="createTime" column="create_time"></result>
         <result property="updateTime" column="update_time"></result>
