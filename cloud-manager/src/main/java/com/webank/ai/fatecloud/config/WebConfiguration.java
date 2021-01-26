@@ -103,7 +103,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/product/page/fatemanager")
         ;
 
-//        registry.addInterceptor(getReferrerInterceptor());
+        registry.addInterceptor(getReferrerInterceptor());
 
     }
 
@@ -112,20 +112,23 @@ public class WebConfiguration implements WebMvcConfigurer {
 //        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowCredentials(true);
 //    }
 
-    @Value("${server.http.port}")
-    private int httpPort;
 
-    @Bean
-    public ServletWebServerFactory servletContainer() {
-        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
-        tomcat.addAdditionalTomcatConnectors(createStandardConnector()); // 添加http
-        return tomcat;
-    }
+
+//    @Value("${server.http.port}")
+//    private int httpPort;
+//
+//    @Bean
+//    public ServletWebServerFactory servletContainer() {
+//        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+//        tomcat.addAdditionalTomcatConnectors(createStandardConnector()); // 添加http
+//        return tomcat;
+//    }
 
     // 配置http
-    private Connector createStandardConnector() {
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        connector.setPort(httpPort);
-        return connector;
-    }
+//    private Connector createStandardConnector() {
+//        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+//        connector.setPort(httpPort);
+//        return connector;
+//    }
+
 }

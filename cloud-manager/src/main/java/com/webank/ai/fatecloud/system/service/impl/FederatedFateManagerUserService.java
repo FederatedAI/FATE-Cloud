@@ -56,11 +56,11 @@ public class FederatedFateManagerUserService {
     FederatedOrganizationMapper federatedOrganizationMapper;
 
 
-    @Value(value = "${cloud-manager.http.ip}")
+    @Value(value = "${cloud-manager.ip}")
     String ip;
 
-    @Value(value = "${cloud-manager.https.ip}")
-    String httpsIp;
+//    @Value(value = "${cloud-manager.https.ip}")
+//    String httpsIp;
 
     @Value(value = "${server.servlet.context-path}")
     String prefix;
@@ -96,7 +96,7 @@ public class FederatedFateManagerUserService {
         if ("http://".equals(fateManagerUserAddQo.getProtocol())) {
             fateUserRegistrationUrl = "http://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            fateUserRegistrationUrl = "https://" + httpsIp + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "https://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
