@@ -296,9 +296,9 @@ public class FederatedExchangeService implements Serializable {
 //    }
 
 
-    //    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     @Transactional
-    private void queryAndUpdateRollSiteInformation() {
+    public void queryAndUpdateRollSiteInformation() {
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
 
@@ -353,6 +353,18 @@ public class FederatedExchangeService implements Serializable {
                     partyDo.setUpdateTime(date);
                     partyMapper.insert(partyDo);
                 }
+            }
+
+            //delete party
+            HashSet<String> partyIdsFromGRPC = new HashSet<>();
+            for (PartyDo aDo : partyDos) {
+                partyIdsFromGRPC.add(aDo.getPartyId());
+            }
+            for (PartyDo partyDo : partyDosExisted) {
+                if (partyDo.getStatus() == 1 && (!partyIdsFromGRPC.contains(partyDo.getPartyId()))) {
+                    partyMapper.deleteById(partyDo.getId());
+                }
+
             }
 
         }
@@ -528,9 +540,9 @@ public class FederatedExchangeService implements Serializable {
         Proxy.Data body = packet.getBody();
         ByteString value = body.getValue();
         String information = value.toStringUtf8();
-        log.info("returned information when publish router information from roll site :{}",information);
-        if(!"setRouteTable finished".equals(information)){
-            throw new  Exception();
+        log.info("returned information when publish router information from roll site :{}", information);
+        if (!"setRouteTable finished".equals(information)) {
+            throw new Exception();
         }
 
     }
@@ -573,7 +585,7 @@ public class FederatedExchangeService implements Serializable {
                 }
             }
             int size = partyDos.size();
-            RollSitePageDto rollSitePageDto = new RollSitePageDto(rollSiteDo) ;
+            RollSitePageDto rollSitePageDto = new RollSitePageDto(rollSiteDo);
             rollSitePageDto.setStatus(status);
             rollSitePageDto.setCount(size);
             rollSitePageDtos.add(rollSitePageDto);

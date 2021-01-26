@@ -38,7 +38,7 @@ public class RollSiteDo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
     @TableId(value = "roll_site_id", type = IdType.AUTO)
-    public Long RollSiteId;
+    public Long rollSiteId;
 
     @ApiModelProperty(value = "network access ")
     @TableField(value = "network_access")
