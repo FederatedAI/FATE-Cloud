@@ -56,8 +56,11 @@ public class FederatedFateManagerUserService {
     FederatedOrganizationMapper federatedOrganizationMapper;
 
 
-    @Value(value = "${cloud-manager.ip}")
+    @Value(value = "${cloud-manager.http.ip}")
     String ip;
+
+    @Value(value = "${cloud-manager.https.ip}")
+    String httpsIp;
 
     @Value(value = "${server.servlet.context-path}")
     String prefix;
@@ -83,12 +86,19 @@ public class FederatedFateManagerUserService {
         stringObjectHashMap.put("fateManagerUser", federatedFateManagerUserDo);
 
         QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
-        query.select("id", "name","institution").eq("status", 1);
+        query.select("id", "name", "institution").eq("status", 1);
         FederatedOrganizationDo federatedOrganizationDo = federatedOrganizationMapper.selectOne(query);
         stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
 
         String userInfo = JSON.toJSONString(stringObjectHashMap);
-        String fateUserRegistrationUrl = ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+
+        String fateUserRegistrationUrl = "";
+        if ("http://".equals(fateManagerUserAddQo.getProtocol())) {
+            fateUserRegistrationUrl = "http://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        } else {
+            fateUserRegistrationUrl = "https://" + httpsIp + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        }
+
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
 
         federatedFateManagerUserDo.setRegistrationLink(encodedFateUserRegistrationUrl);
@@ -153,7 +163,7 @@ public class FederatedFateManagerUserService {
 
     public List<String> findAllFateManagerUserInstitutions() {
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
-        federatedFateManagerUserDoQueryWrapper.select("institutions").eq("status",2);
+        federatedFateManagerUserDoQueryWrapper.select("institutions").eq("status", 2);
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
 
         LinkedList<String> institutionsList = new LinkedList<>();
