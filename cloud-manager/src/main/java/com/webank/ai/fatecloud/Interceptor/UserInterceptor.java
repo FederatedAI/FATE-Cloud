@@ -34,18 +34,18 @@ public class UserInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-//        Object cloudUser = request.getSession().getAttribute(Dict.CLOUD_USER);
-//        if (cloudUser == null) {
-//            response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
-//            return false;
-//        }
-//
-//        FederatedCloudManagerUserDo cloudUserObject = (FederatedCloudManagerUserDo) cloudUser;
-//        Long cloudManagerId = cloudUserObject.getCloudManagerId();
-//        FederatedCloudManagerUserDo federatedCloudManagerUserDo = federatedCloudManagerUserMapper.selectById(cloudManagerId);
-//        if (federatedCloudManagerUserDo == null) {
-//            response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
-//        }
+        Object cloudUser = request.getSession().getAttribute(Dict.CLOUD_USER);
+        if (cloudUser == null) {
+            response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
+            return false;
+        }
+
+        FederatedCloudManagerUserDo cloudUserObject = (FederatedCloudManagerUserDo) cloudUser;
+        Long cloudManagerId = cloudUserObject.getCloudManagerId();
+        FederatedCloudManagerUserDo federatedCloudManagerUserDo = federatedCloudManagerUserMapper.selectById(cloudManagerId);
+        if (federatedCloudManagerUserDo == null) {
+            response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
+        }
 
 
         return true;
