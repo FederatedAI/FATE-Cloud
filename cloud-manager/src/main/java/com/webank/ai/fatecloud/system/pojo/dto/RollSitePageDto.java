@@ -16,11 +16,16 @@
 package com.webank.ai.fatecloud.system.pojo.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+
+import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +33,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 @ApiModel(value = "roll site details with count")
-public class RollSitePageDto extends RollSiteDo {
+public class RollSitePageDto   {
 
     @ApiModelProperty(value = " published party count")
     private Integer count;
@@ -36,8 +41,25 @@ public class RollSitePageDto extends RollSiteDo {
     @ApiModelProperty(value = "roll site count")
     private String status;
 
+    @ApiModelProperty(value = "primary key")
+    public Long rollSiteId;
+
+    @ApiModelProperty(value = "network access ")
+    public String networkAccess;
+
+    @ApiModelProperty(value = "create time")
+    public Date createTime;
+
+    @ApiModelProperty(value = "update time")
+    public Date updateTime;
+
+    @ApiModelProperty(value = "exchange id")
+    public Long exchangeId;
+
+    public List<PartyDo> partyDos;
+
     public RollSitePageDto(RollSiteDo rollSiteDo){
-        this.RollSiteId=rollSiteDo.getRollSiteId();
+        this.rollSiteId=rollSiteDo.getRollSiteId();
         this.networkAccess=rollSiteDo.getNetworkAccess();
         this.createTime=rollSiteDo.getCreateTime();
         this.updateTime=rollSiteDo.getUpdateTime();
