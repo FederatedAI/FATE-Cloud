@@ -60,10 +60,11 @@ public class FederatedSiteManagerService {
     @Autowired
     FederatedFateManagerUserMapper federatedFateManagerUserMapper;
 
-
-    @Value(value = "${cloud-manager.ip}")
+    @Value(value = "${cloud-manager.http.ip}")
     String ip;
 
+    @Value(value = "${cloud-manager.https.ip}")
+    String httpsIp;
 
     @Value(value = "${server.servlet.context-path}")
     String prefix;
@@ -120,8 +121,13 @@ public class FederatedSiteManagerService {
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
         String protocol = siteAddQo.getProtocol();
-        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-//        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+
+        String url = "";
+        if ("http://".equals(siteAddQo.getProtocol())) {
+            url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        } else {
+            url = "https://" + httpsIp + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        }
         String encodedUrl = EncryptUtil.encode(url);
 
         FederatedSiteManagerDo federatedSiteManagerDoUpdate = new FederatedSiteManagerDo();
@@ -210,8 +216,14 @@ public class FederatedSiteManagerService {
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
         String protocol = siteUpdateQo.getProtocol();
-        String url = protocol + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-//        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+
+        String url = "";
+        if ("http://".equals(siteUpdateQo.getProtocol())) {
+            url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        } else {
+            url = "https://" + httpsIp + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        }
+
         String encodedUrl = EncryptUtil.encode(url);
         federatedSiteManagerDo.setRegistrationLink(encodedUrl);
 
