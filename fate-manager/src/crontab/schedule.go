@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package crontab
+
 import (
 	"fate.manager/comm/logging"
 	"fate.manager/models"
@@ -45,22 +46,22 @@ func SetUp() {
 	if err != nil || accountInfo == nil {
 		return
 	}
-	go SiteStatusTask()
-	go IpManagerTask()
-	go HeartTask()
-	go JobTask()
-	go TestOnlyTask()
-	go ComponentStatusTask()
-	go ApplyResultTask(accountInfo)
-	go AllowApplyTask(accountInfo)
-	if AutoTestCheck {
-		AutoTestTaskOne()
-		AutoTestCheck = false
-	}
-	go MonitorTask(accountInfo)
-	go PackageStatusTask()
-	go AutotestTask()
-	go VersionUpdateTask(accountInfo)
+	//go SiteStatusTask()
+	//go IpManagerTask()
+	//go HeartTask()
+	//go JobTask()
+	//go TestOnlyTask()
+	//go ComponentStatusTask()
+	//go ApplyResultTask(accountInfo)
+	//go AllowApplyTask(accountInfo)
+	//if AutoTestCheck {
+	//	AutoTestTaskOne()
+	//	AutoTestCheck = false
+	//}
+	//go MonitorTask(accountInfo)
+	//go PackageStatusTask()
+	//go AutotestTask()
+	//go VersionUpdateTask(accountInfo)
 }
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(SiteStatusTimer))
