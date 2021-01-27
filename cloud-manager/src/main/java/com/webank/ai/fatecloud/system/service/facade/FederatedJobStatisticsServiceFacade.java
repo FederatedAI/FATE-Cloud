@@ -23,6 +23,7 @@ import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.monitor.*;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedJobStatisticsService;
 import lombok.extern.slf4j.Slf4j;
@@ -131,5 +132,27 @@ public class FederatedJobStatisticsServiceFacade {
     public CommonResponse<PageBean<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummarySiteEachForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
         PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsService.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodaySiteEachDtos);
+    }
+
+
+    //monitor write by nobslin
+    public CommonResponse<MonitorTotalDto> getMonitorTotal(TotalReqQo totalReqQo) {
+        MonitorTotalDto monitorTotalDto = federatedJobStatisticsService.getMonitorTotal(totalReqQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, monitorTotalDto);
+    }
+
+    public CommonResponse<InstitutionDetailDto> getInsitutionDetail(InsitutionDetailQo insitutionDetailQo) {
+        InstitutionDetailDto institutionDetailDto = federatedJobStatisticsService.getInsitutionDetail(insitutionDetailQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionDetailDto);
+    }
+
+    public CommonResponse<MonitorInstituionDto> getInstitutionMonitor(MonitorInsitutionQo monitorInsitutionQo) {
+        MonitorInstituionDto pageBean = federatedJobStatisticsService.getInstitutionMonitor(monitorInsitutionQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
+    }
+
+    public CommonResponse<MonitorSiteDto> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
+        MonitorSiteDto pageBean = federatedJobStatisticsService.getSiteMonitor(monitorSiteQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pageBean);
     }
 }
