@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -56,7 +71,7 @@ public class FederatedModelService {
             }
         }
 
-        int detectiveStatus = 1;
+        int detectiveStatus = 2;
         for (ModelAddQo modelAddQo : modelAddQos) {
             FederatedSiteModelDo modelDo = new FederatedSiteModelDo(modelAddQo);
 
@@ -76,8 +91,8 @@ public class FederatedModelService {
             modelDo.setUpdateTime(modelAddQo.getUpdateTime());
             modelDo.setLastDetectiveTime(new Date());
             federatedModelMapper.insert(modelDo);
-            if (modelAddQo.getDetectiveStatus() == 2) {
-                detectiveStatus = 2;
+            if (modelAddQo.getDetectiveStatus() == 1) {
+                detectiveStatus = 1;
             }
         }
 
@@ -93,7 +108,7 @@ public class FederatedModelService {
     @Transactional
     public void modelHeart(ArrayList<ModelHeartQo> modelHeartQos) {
         Date date = new Date();
-        int detectiveStatus = 1;
+        int detectiveStatus = 2;
 
         for (ModelHeartQo modelHeartQo : modelHeartQos) {
             QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion = new QueryWrapper<>();
@@ -102,8 +117,8 @@ public class FederatedModelService {
             modelDo.setDetectiveStatus(modelHeartQo.getDetectiveStatus());
             modelDo.setLastDetectiveTime(date);
             federatedModelMapper.update(modelDo, federatedSiteModelDoQueryWrapperForModelNotExistInNewVersion);
-            if (modelHeartQo.getDetectiveStatus() == 2) {
-                detectiveStatus = 2;
+            if (modelHeartQo.getDetectiveStatus() == 1) {
+                detectiveStatus = 1;
             }
         }
 
@@ -138,25 +153,27 @@ public class FederatedModelService {
     }
 
     //update model status and site status
-    @Scheduled(cron = "0 0/1 * * * ? ")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void updateModelAndSiteStatus() {
         log.info("start detective");
         long time = new Date().getTime();
         QueryWrapper<FederatedSiteModelDo> federatedSiteModelDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteModelDoQueryWrapper.eq("status", 1).eq("detective_status", 1);
+        federatedSiteModelDoQueryWrapper.eq("status", 2).eq("detective_status", 2);
         List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
         for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
-            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 1800000) {
+            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 600000) {
                 //update model status
-                federatedSiteModelDo.setDetectiveStatus(2);
+                federatedSiteModelDo.setDetectiveStatus(1);
                 federatedModelMapper.updateById(federatedSiteModelDo);
 
                 //update site status
                 FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectById(federatedSiteModelDo.getId());
-                if (federatedSiteManagerDo.getDetectiveStatus() == 1) {
-                    federatedSiteManagerDo.setDetectiveStatus(2);
+                if (federatedSiteManagerDo.getDetectiveStatus() == 2) {
+                    federatedSiteManagerDo.setDetectiveStatus(1);
                     federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
                 }
+                log.info("model:{} failed", federatedSiteModelDo);
+                log.info("site:{} failed", federatedSiteManagerDo);
 
             }
         }
