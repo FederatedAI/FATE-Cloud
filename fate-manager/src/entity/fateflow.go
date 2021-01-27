@@ -34,24 +34,25 @@ type TrainRuntimeConf struct {
 }
 type FlowJobQuery struct {
 	CreateTime     int64    `json:"f_create_time"`
-	CurrentSteps   CurrentSteps   `json:"f_current_steps"`
-	CurrentTasks   []string `json:"f_current_tasks"`
+	CurrentSteps   interface{}   `json:"f_current_steps"`
+	CurrentTasks   interface{} `json:"f_current_tasks"`
 	Description    string   `json:"f_description"`
-	Elapsed        int      `json:"f_elapsed"`
-	EndTime        int64    `json:"f_end_time"`
+	Elapsed        interface{}      `json:"f_elapsed"`
+	EndTime        interface{}    `json:"f_end_time"`
 	InitiatorPartyId string `json:"f_initiator_party_id"`
-	IsInitiator    bool     `json:"f_is_initiator"`
+	IsInitiator    int     `json:"f_is_initiator"`
 	JobId          string   `json:"f_job_id"`
 	Name           string   `json:"f_name"`
 	PartyId        string   `json:"f_party_id"`
 	Progress       int      `json:"f_progress"`
 	Role           string   `json:"f_role"`
-	Roles          Roles    `json:"f_roles"`
+	Roles          string    `json:"f_roles"`
 	RunIp          string   `json:"f_run_ip"`
-	StartTime      int64    `json:"f_start_time"`
+	RuntimeConf    string  `json:"f_runtime_conf"`
+	StartTime      interface{}    `json:"f_start_time"`
 	Status         string   `json:"f_status"`
 	Tage           string   `json:"f_tag"`
-	TrainRuntimeConf TrainRuntimeConf  `json:"f_train_runtime_conf"`
+	TrainRuntimeConf string  `json:"f_train_runtime_conf"`
 	UpdateTime     int64    `json:"f_update_time"`
 	WorkMode       int      `json:"f_work_mode"`
 
