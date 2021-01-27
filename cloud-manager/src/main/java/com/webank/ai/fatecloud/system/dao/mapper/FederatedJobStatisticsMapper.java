@@ -107,15 +107,14 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
             BaseSQL + " and " +
             "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
             "  (site_guest_institutions != site_host_institutions)" +
-            " GROUP BY institution")
-    List<InstitutionBase> getMonitorInstitutionByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
-
-    @Select("SELECT " +
+            " GROUP BY institution" +
+            " UNION ALL " +
+            " SELECT " +
             "  site_guest_institutions AS institution," + BaseSQL + " and " +
             "  site_guest_institutions = #{insitution} AND " +
             "  (site_guest_institutions = site_host_institutions)" +
             " GROUP BY institution")
-    List<InstitutionBase> getMonitorInstitutionByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+    List<InstitutionBase> getMonitorInstitution(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 
     @Select("SELECT " +
             "  IF(site_guest_institutions =#{insitution},site_host_institutions,site_guest_institutions) AS institution," +
@@ -124,10 +123,9 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
             BaseSQL + " and " +
             "  (site_guest_institutions = #{insitution} OR site_host_institutions =#{insitution}) AND " +
             "  (site_guest_institutions != site_host_institutions)" +
-            " GROUP BY institution,institutionSiteName,siteName")
-    List<TwoSiteBase> getMonitorSiteByTwo(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
-
-    @Select("SELECT " +
+            " GROUP BY institution,institutionSiteName,siteName" +
+            " UNION ALL " +
+            " SELECT " +
             "  site_host_institutions AS institution," +
             "  site_guest_name AS institutionSiteName, " +
             "  site_host_name AS siteName," +
@@ -135,5 +133,5 @@ public interface FederatedJobStatisticsMapper extends BaseMapper<FederatedJobSta
             "  site_guest_institutions = #{insitution} AND " +
             "  (site_guest_institutions = site_host_institutions)" +
             " GROUP BY  institution,institutionSiteName,siteName")
-    List<TwoSiteBase> getMonitorSiteByOne(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
+    List<TwoSiteBase> getMonitorSite(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("insitution") String insitution);
 }

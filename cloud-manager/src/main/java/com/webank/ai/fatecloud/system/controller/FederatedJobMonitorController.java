@@ -81,7 +81,7 @@ public class FederatedJobMonitorController {
 
     @PostMapping(value = "/summary/site")
     @ApiOperation(value = "statistitcs institution site by region")
-    public CommonResponse<List<MonitorSiteDto>> getSiteMonitor(@Valid @RequestBody MonitorSiteQo monitorSiteQo, BindingResult bindingResult) {
+    public CommonResponse<MonitorSiteDto> getSiteMonitor(@Valid @RequestBody MonitorSiteQo monitorSiteQo, BindingResult bindingResult) {
         log.info("RequestBody:{}", monitorSiteQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
