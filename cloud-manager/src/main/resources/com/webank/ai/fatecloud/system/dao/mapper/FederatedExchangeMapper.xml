@@ -10,10 +10,10 @@
     <select id="findExchangeCountForFateManager"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageForFateManagerQo"
             resultType="int">
-        select count(1) FROM t_federated_exchange a, t_roll_site b, t_party c
+        select count(1) from (select a.exchange_id FROM t_federated_exchange a, t_roll_site b, t_party c
         where a.exchange_id = b.exchange_id and b.roll_site_id = c.roll_site_id
         and c.party_id in (select party_id from t_federated_site_manager where institutions=#{institutions})
-        group by a.exchange_id
+        group by a.exchange_id ) temp
     </select>
 
 
