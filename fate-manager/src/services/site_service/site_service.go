@@ -1091,16 +1091,22 @@ func GetExchangeInfo() (*entity.ExchangeResponse, error) {
 	}
 	if resp.Code == e.SUCCESS {
 		var vip []entity.ExchangeItem
+		var exits []entity.ExchangeItem
 		for i := 0; i < len(resp.Data.List); i++ {
 			exchangeDataItem := resp.Data.List[i]
 			ExchangeItem := entity.ExchangeItem{
+				ExchangeId:   exchangeDataItem.ExchangeId,
 				ExchangeName: exchangeDataItem.ExchangeName,
-				Vip:          exchangeDataItem.Vip,
+				Address:      exchangeDataItem.NetworkAccessEntrances,
+				UpdateTime:   exchangeDataItem.UpdateTime,
 			}
 			vip = append(vip, ExchangeItem)
+			ExchangeItem.Address = exchangeDataItem.NetworkAccessExits
+			exits = append(exits, ExchangeItem)
 		}
 		ExchangeResponse := entity.ExchangeResponse{
-			ExchangeVip: vip,
+			ExchangeVip:   vip,
+			ExchangeExits: exits,
 		}
 		return &ExchangeResponse, nil
 	}
