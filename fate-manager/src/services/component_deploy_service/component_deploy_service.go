@@ -28,7 +28,6 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
-	"fate.manager/services/version_service"
 	"fmt"
 	"github.com/axgle/mahonia"
 	"io"
@@ -153,7 +152,7 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 		return nil, err
 	}
 	cmd := "kubectl get pods -n kube-fate | grep kubefate|grep Running| awk '{print $1}'"
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ := util.ExecCommand(cmd)
@@ -161,7 +160,7 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 		return nil, err
 	}
 	cmd = fmt.Sprintf("kubectl logs -n kube-fate --tail 500  %s> ./testLog/kubefate.log", result[0:len(result)-1])
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ = util.ExecCommand(cmd)
@@ -221,7 +220,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	if len(kubeReq.Url) == 0 || kubeReq.PartyId == 0 {
 		return e.INVALID_PARAMS, nil
 	}
-	if kubeReq.Url != setting.KubenetesSetting.KubeFateUrl {
+	if kubeReq.Url != setting.DeploySetting.KubeFateUrl {
 		return e.INVALID_PARAMS, nil
 	}
 	if kubeReq.FederatedId == 0 {
@@ -262,24 +261,24 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
-		if setting.KubenetesSetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone{
 			cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
 		}
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
-			if setting.KubenetesSetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone{
 				cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
 			}
 		}
 		util.ExecCommand(cmd)
 
 		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-		if setting.KubenetesSetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone{
 			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 		}
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-			if setting.KubenetesSetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone{
 				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 			}
 		}
@@ -394,7 +393,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			for i := 0; i < len(componentVersionList); i++ {
-				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
+				port := models.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
 				} else if componentVersionList[i].ComponentName == "rollsite" {
@@ -445,7 +444,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Toy Test"
 					models.AddAutoTest(autoTest)
-					autoTest.TestItem = "Mininmize Fast Test"
+					autoTest.TestItem = "Minimize Fast Test"
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Minimize Normal Test"
 					models.AddAutoTest(autoTest)
