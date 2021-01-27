@@ -342,7 +342,7 @@
 
         select count(1) FROM (
         (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date   between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_guest_institutions= #{institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_guest_institutions= #{institutions} ) tmp ) )tmp1
+        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_host_institutions= #{institutions} ) tmp ) )tmp1
 
 
     </select>
@@ -358,7 +358,7 @@
         SELECT *FROM
         (
         (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions}  ) tmp )
+        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_host_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions}  ) tmp )
         ) tmp1
         ORDER BY site LIMIT #{startIndex}, #{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
         ) a, t_job_statistics b
