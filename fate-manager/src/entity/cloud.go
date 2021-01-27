@@ -208,12 +208,12 @@ type VersionProductResp struct {
 	Data VersionProduct `json:"data"`
 }
 type ExchangeDataItem struct {
-	CreateTime   string `json:"createTime"`
-	ExchangeId   int    `json:"exchangeId"`
-	ExchangeName string `json:"exchangeName"`
-	Vip          string `json:"vip"`
-	RollSiteDos  string `json:"rollSiteDos"`
-	UpdateTime   string `json:"updateTime"`
+	CreateTime             string `json:"createTime"`
+	ExchangeId             int    `json:"exchangeId"`
+	ExchangeName           string `json:"exchangeName"`
+	NetworkAccessEntrances string `json:"networkAccessEntrances"`
+	NetworkAccessExits     string `json:"networkAccessExits"`
+	UpdateTime             string `json:"updateTime"`
 }
 type ExchangeData struct {
 	TotalRecord int                `json:"totalRecord"`
