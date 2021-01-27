@@ -16,7 +16,6 @@
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
@@ -247,12 +246,12 @@ public class FederatedJobStatisticsService {
             monitorTotalDto.setRunningJobs(base.getRunningJobs());
             monitorTotalDto.setFailedJobs(base.getFailedJobs());
             monitorTotalDto.setWaitingJobs(base.getWaitingJobs());
-            if (base.getTotalJobs()>0){
+            if (base.getTotalJobs() > 0) {
                 monitorTotalDto.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * base.getSuccessJobs() / base.getTotalJobs())) + "%");
                 monitorTotalDto.setRunningPercent(String.format("%.2f", Double.valueOf(100 * base.getRunningJobs() / base.getTotalJobs())) + "%");
                 monitorTotalDto.setFailedPercent(String.format("%.2f", Double.valueOf(100 * base.getFailedJobs() / base.getTotalJobs())) + "%");
                 monitorTotalDto.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * base.getWaitingJobs() / base.getTotalJobs())) + "%");
-            }else{
+            } else {
                 monitorTotalDto.setSuccessPercent("0.00%");
                 monitorTotalDto.setRunningPercent("0.00%");
                 monitorTotalDto.setFailedPercent("0.00%");
@@ -327,18 +326,19 @@ public class FederatedJobStatisticsService {
         monitorTotalDto.setData(institutionBaseList);
         return monitorTotalDto;
     }
+
     public InstitutionDetailDto getInsitutionDetail(InsitutionDetailQo insitutionDetailQo) {
         InstitutionDetailDto monitorTotalDto = new InstitutionDetailDto();
-        List<SiteBase> siteBaseList = federatedJobStatisticsMapper.getInsitutionDetail(insitutionDetailQo.getStartDate(), insitutionDetailQo.getEndDate(),insitutionDetailQo.getInstitution());
-        List<SiteBase> list = new  ArrayList<>();
-        for (int i =0;i<siteBaseList.size();i++){
+        List<SiteBase> siteBaseList = federatedJobStatisticsMapper.getInsitutionDetail(insitutionDetailQo.getStartDate(), insitutionDetailQo.getEndDate(), insitutionDetailQo.getInstitution());
+        List<SiteBase> list = new ArrayList<>();
+        for (int i = 0; i < siteBaseList.size(); i++) {
             SiteBase siteBase = siteBaseList.get(i);
-            if (siteBase.getTotalJobs()>0){
+            if (siteBase.getTotalJobs() > 0) {
                 siteBase.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getSuccessJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setRunningPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getRunningJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setFailedPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getFailedJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getWaitingJobs() / siteBase.getTotalJobs())) + "%");
-            }else{
+            } else {
                 siteBase.setSuccessPercent("0.00%");
                 siteBase.setRunningPercent("0.00%");
                 siteBase.setFailedPercent("0.00%");
@@ -349,34 +349,20 @@ public class FederatedJobStatisticsService {
         monitorTotalDto.setData(list);
         return monitorTotalDto;
     }
+
     public MonitorInstituionDto getInstitutionMonitor(MonitorInsitutionQo monitorInsitutionQo) {
         MonitorInstituionDto monitorInstituionDto = new MonitorInstituionDto();
-        List<InstitutionBase> institutionBaseList1 = federatedJobStatisticsMapper.getMonitorInstitutionByOne(monitorInsitutionQo.getStartDate(), monitorInsitutionQo.getEndDate(),monitorInsitutionQo.getInstitution());
-        List<InstitutionBase> institutionBaseList2 = federatedJobStatisticsMapper.getMonitorInstitutionByTwo(monitorInsitutionQo.getStartDate(), monitorInsitutionQo.getEndDate(),monitorInsitutionQo.getInstitution());
+//        Page<InstitutionBase> page = PageHelper.startPage(monitorInsitutionQo.getPageNum(), monitorInsitutionQo.getPageSize());
+        List<InstitutionBase> institutionBaseList = federatedJobStatisticsMapper.getMonitorInstitution(monitorInsitutionQo.getStartDate(), monitorInsitutionQo.getEndDate(), monitorInsitutionQo.getInstitution());
         List<InstitutionBase> list = new ArrayList<>();
-        for (int i =0 ;i < institutionBaseList1.size();i++){
-            InstitutionBase siteBase = institutionBaseList1.get(i);
-            if (siteBase.getTotalJobs()>0){
+        for (int i = 0; i < institutionBaseList.size(); i++) {
+            InstitutionBase siteBase = institutionBaseList.get(i);
+            if (siteBase.getTotalJobs() > 0) {
                 siteBase.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getSuccessJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setRunningPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getRunningJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setFailedPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getFailedJobs() / siteBase.getTotalJobs())) + "%");
                 siteBase.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getWaitingJobs() / siteBase.getTotalJobs())) + "%");
-            }else{
-                siteBase.setSuccessPercent("0.00%");
-                siteBase.setRunningPercent("0.00%");
-                siteBase.setFailedPercent("0.00%");
-                siteBase.setWaitingPercent("0.00%");
-            }
-            list.add(siteBase);
-        }
-        for (int i =0 ;i < institutionBaseList2.size();i++){
-            InstitutionBase siteBase = institutionBaseList2.get(i);
-            if (siteBase.getTotalJobs()>0){
-                siteBase.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getSuccessJobs() / siteBase.getTotalJobs())) + "%");
-                siteBase.setRunningPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getRunningJobs() / siteBase.getTotalJobs())) + "%");
-                siteBase.setFailedPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getFailedJobs() / siteBase.getTotalJobs())) + "%");
-                siteBase.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * siteBase.getWaitingJobs() / siteBase.getTotalJobs())) + "%");
-            }else{
+            } else {
                 siteBase.setSuccessPercent("0.00%");
                 siteBase.setRunningPercent("0.00%");
                 siteBase.setFailedPercent("0.00%");
@@ -385,14 +371,21 @@ public class FederatedJobStatisticsService {
             list.add(siteBase);
         }
         monitorInstituionDto.setData(list);
+        monitorInstituionDto.setTotal(list.size());
         return monitorInstituionDto;
     }
-    public List<MonitorSiteDto> getSiteMonitor(MonitorSiteQo monitorSiteQo) {
-        List<TwoSiteBase> twoSiteBaseList1 = federatedJobStatisticsMapper.getMonitorSiteByOne(monitorSiteQo.getStartDate(), monitorSiteQo.getEndDate(),monitorSiteQo.getInstitution());
-        List<TwoSiteBase> twoSiteBaseList2 = federatedJobStatisticsMapper.getMonitorSiteByTwo(monitorSiteQo.getStartDate(), monitorSiteQo.getEndDate(),monitorSiteQo.getInstitution());
-        Map<String,Map<String,List<SiteBase>>> map = new HashMap<>();
-        for (int i =0;i< twoSiteBaseList1.size();i++){
-            TwoSiteBase item = twoSiteBaseList1.get(i);
+
+    public MonitorSiteDto getSiteMonitor(MonitorSiteQo monitorSiteQo) {
+        MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
+        List<TwoSiteBase> twoSiteBaseList = federatedJobStatisticsMapper.getMonitorSite(monitorSiteQo.getStartDate(), monitorSiteQo.getEndDate(), monitorSiteQo.getInstitution());
+        Map<String, Map<String, List<SiteBase>>> map = new HashMap<>();
+        List<String> rowSiteName = new ArrayList<>();
+        for (int i = 0; i < twoSiteBaseList.size(); i++) {
+
+            TwoSiteBase item = twoSiteBaseList.get(i);
+            if (!rowSiteName.contains(item.getSiteName())) {
+                rowSiteName.add(item.getSiteName());
+            }
             SiteBase siteBase = new SiteBase();
             siteBase.setSiteName(item.getSiteName());
             siteBase.setSuccessJobs(item.getSuccessJobs());
@@ -400,97 +393,63 @@ public class FederatedJobStatisticsService {
             siteBase.setFailedJobs(item.getFailedJobs());
             siteBase.setWaitingJobs(item.getWaitingJobs());
             siteBase.setTotalJobs(item.getTotalJobs());
-            if (item.getTotalJobs()>0){
+            if (item.getTotalJobs() > 0) {
                 siteBase.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * item.getSuccessJobs() / item.getTotalJobs())) + "%");
                 siteBase.setRunningPercent(String.format("%.2f", Double.valueOf(100 * item.getRunningJobs() / item.getTotalJobs())) + "%");
                 siteBase.setFailedPercent(String.format("%.2f", Double.valueOf(100 * item.getFailedJobs() / item.getTotalJobs())) + "%");
                 siteBase.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * item.getWaitingJobs() / item.getTotalJobs())) + "%");
-            }else{
+            } else {
                 siteBase.setSuccessPercent("0.00%");
                 siteBase.setRunningPercent("0.00%");
                 siteBase.setFailedPercent("0.00%");
                 siteBase.setWaitingPercent("0.00%");
             }
 
-            if (map.containsKey(item.getInstitution())){
-                Map<String,List<SiteBase>> institutionmap = map.get(item.getInstitution());
-                if (institutionmap.containsKey(item.getInstitutionSiteName())){
+            if (map.containsKey(item.getInstitution())) {
+                Map<String, List<SiteBase>> institutionmap = map.get(item.getInstitution());
+                if (institutionmap.containsKey(item.getInstitutionSiteName())) {
                     institutionmap.get(item.getInstitutionSiteName()).add(siteBase);
-                }else{
+                } else {
                     List<SiteBase> list = new ArrayList<>();
                     list.add(siteBase);
-                    institutionmap.put(item.getInstitutionSiteName(),list);
+                    institutionmap.put(item.getInstitutionSiteName(), list);
                 }
-            }else{
+            } else {
                 List<SiteBase> list = new ArrayList<>();
                 list.add(siteBase);
-                Map<String,List<SiteBase>> institutionmap = new HashMap<>();
-                institutionmap.put(item.getInstitutionSiteName(),list);
-                map.put(item.getInstitution(),institutionmap);
+                Map<String, List<SiteBase>> institutionmap = new HashMap<>();
+                institutionmap.put(item.getInstitutionSiteName(), list);
+                map.put(item.getInstitution(), institutionmap);
             }
         }
-        for (int i =0;i< twoSiteBaseList2.size();i++){
-            TwoSiteBase item = twoSiteBaseList2.get(i);
-            SiteBase siteBase = new SiteBase();
-            siteBase.setSiteName(item.getSiteName());
-            siteBase.setSuccessJobs(item.getSuccessJobs());
-            siteBase.setRunningJobs(item.getRunningJobs());
-            siteBase.setFailedJobs(item.getFailedJobs());
-            siteBase.setWaitingJobs(item.getWaitingJobs());
-            siteBase.setTotalJobs(item.getTotalJobs());
-            if (item.getTotalJobs()>0){
-                siteBase.setSuccessPercent(String.format("%.2f", Double.valueOf(100 * item.getSuccessJobs() / item.getTotalJobs())) + "%");
-                siteBase.setRunningPercent(String.format("%.2f", Double.valueOf(100 * item.getRunningJobs() / item.getTotalJobs())) + "%");
-                siteBase.setFailedPercent(String.format("%.2f", Double.valueOf(100 * item.getFailedJobs() / item.getTotalJobs())) + "%");
-                siteBase.setWaitingPercent(String.format("%.2f", Double.valueOf(100 * item.getWaitingJobs() / item.getTotalJobs())) + "%");
-            }else{
-                siteBase.setSuccessPercent("0.00%");
-                siteBase.setRunningPercent("0.00%");
-                siteBase.setFailedPercent("0.00%");
-                siteBase.setWaitingPercent("0.00%");
-            }
-
-            if (map.containsKey(item.getInstitution())){
-                Map<String,List<SiteBase>> institutionmap = map.get(item.getInstitution());
-                if (institutionmap.containsKey(item.getInstitutionSiteName())){
-                    institutionmap.get(item.getInstitutionSiteName()).add(siteBase);
-                }else{
-                    List<SiteBase> list = new ArrayList<>();
-                    list.add(siteBase);
-                    institutionmap.put(item.getInstitutionSiteName(),list);
-                }
-            }else{
-                List<SiteBase> list = new ArrayList<>();
-                list.add(siteBase);
-                Map<String,List<SiteBase>> institutionmap = new HashMap<>();
-                institutionmap.put(item.getInstitutionSiteName(),list);
-                map.put(item.getInstitution(),institutionmap);
-            }
-        }
-
-        List<MonitorSiteDto> data = new ArrayList<>();
-        for (Map.Entry<String,Map<String,List<SiteBase>>> entry : map.entrySet()) {
-            MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
+        List<MonitorSiteItem> data = new ArrayList<>();
+        Integer total = 0;
+        for (Map.Entry<String, Map<String, List<SiteBase>>> entry : map.entrySet()) {
+            MonitorSiteItem monitorSiteItem = new MonitorSiteItem();
             String institution = entry.getKey();
-            monitorSiteDto.setInstitution(institution);
+            monitorSiteItem.setInstitution(institution);
 
             List<MonitorTwoSite> monitorTwoSiteList = new ArrayList<>();
-            Map<String,List<SiteBase>> institutionmap = entry.getValue();
-            for (Map.Entry<String,List<SiteBase>> entry2 : institutionmap.entrySet()) {
+            Map<String, List<SiteBase>> institutionmap = entry.getValue();
+            for (Map.Entry<String, List<SiteBase>> entry2 : institutionmap.entrySet()) {
+                total = total + 1;
                 String institutionSiteName = entry2.getKey();
                 List<SiteBase> siteList = entry2.getValue();
                 MonitorTwoSite monitorTwoSite = new MonitorTwoSite();
                 monitorTwoSite.setInstitutionSiteName(institutionSiteName);
                 List<SiteBase> mixSiteModeling = new ArrayList<>();
-                for (int i=0;i<siteList.size();i++){
+                for (int i = 0; i < siteList.size(); i++) {
                     mixSiteModeling.add(siteList.get(i));
                 }
                 monitorTwoSite.setMixSiteModeling(mixSiteModeling);
                 monitorTwoSiteList.add(monitorTwoSite);
             }
-            monitorSiteDto.setInstitutionSiteList(monitorTwoSiteList);
-            data.add(monitorSiteDto);
+            monitorSiteItem.setInstitutionSiteList(monitorTwoSiteList);
+            data.add(monitorSiteItem);
         }
-        return data;
+        monitorSiteDto.setData(data);
+        monitorSiteDto.setTotal(total);
+        monitorSiteDto.setSiteList(rowSiteName);
+        return monitorSiteDto;
     }
 }
