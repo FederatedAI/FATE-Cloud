@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -29,12 +30,15 @@ import java.io.Serializable;
 @ApiModel("find exchange page for fate manager")
 public class ExchangePageForFateManagerQo implements Serializable {
 
+    @JSONField(ordinal = 3)
     @ApiModelProperty(value = "institutions name")
     private String institutions;
 
+    @JSONField(ordinal = 1)
     @ApiModelProperty("pageNum")
     private Integer pageNum = 1;
 
+    @JSONField(ordinal = 2)
     @ApiModelProperty("pageSize")
     private Integer pageSize = 10;
 
