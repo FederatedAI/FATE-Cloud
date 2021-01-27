@@ -739,21 +739,13 @@ definitions:
     type: object
   entity.ExchangeItem:
     properties:
-      address:
-        type: string
-      exchangeId:
-        type: integer
       exchangeName:
         type: string
-      updateTime:
+      vip:
         type: string
     type: object
   entity.ExchangeResponse:
     properties:
-      exchangeExits:
-        items:
-          $ref: '#/definitions/entity.ExchangeItem'
-        type: array
       exchangeVip:
         items:
           $ref: '#/definitions/entity.ExchangeItem'
