@@ -570,3 +570,14 @@ type MonitorReq struct {
 	PageNum   int    `json:"pageNum"`
 	PageSize  int    `json:"pageSize"`
 }
+
+type ExchangeItem struct {
+	ExchangeId   int    `json:"exchangeId"`
+	ExchangeName string `json:"exchangeName"`
+	Address      string `json:"address"`
+	UpdateTime   string `json:"updateTime"`
+}
+type ExchangeResponse struct {
+	ExchangeVip   []ExchangeItem `json:"exchangeVip"`
+	ExchangeExits []ExchangeItem `json:"exchangeExits"`
+}

@@ -106,3 +106,32 @@ func GetHeaderInfo(headInfo HeaderInfo) map[string]interface{} {
 	logging.Debug(string(headJson))
 	return head
 }
+
+func GetHeadInfoOld(headInfo HeaderInfo) map[string]interface{} {
+	head := make(map[string]interface{})
+	curtime := time.Now().UnixNano() / 1e6
+	uid := uuid.NewV4()
+	nonce := strings.ReplaceAll(uid.String(), "-", "")
+
+	head["TIMESTAMP"] = strconv.FormatInt(curtime, 10)
+	head["PARTY_ID"] = strconv.Itoa(headInfo.PartyId)
+	head["NONCE"] = nonce
+	head["ROLE"] = strconv.Itoa(headInfo.Role)
+	head["APP_KEY"] = headInfo.AppKey
+
+	signture := Signature{
+		AppKey:        headInfo.AppKey,
+		AppSecret:     headInfo.AppSecret,
+		PartyId:       headInfo.PartyId,
+		Role:          headInfo.Role,
+		Nonce:         nonce,
+		Body:          headInfo.Body,
+		Uri:           headInfo.Uri,
+		Time:          curtime,
+	}
+	result := Base64EncodeOld(signture)
+	head["SIGNATURE"] = result
+	headJson, _ := json.Marshal(head)
+	logging.Debug(string(headJson))
+	return head
+}

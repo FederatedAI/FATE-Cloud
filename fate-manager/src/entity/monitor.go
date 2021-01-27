@@ -6,6 +6,8 @@ type JobBase struct {
 	SuccessPercent float64 `json:"successPercent"`
 	RunningJobs    int     `json:"runningJobs"`
 	RunningPercent float64 `json:"runningPercent"`
+	WaitingJobs    int     `json:"waitingJobs"`
+	WaitingPercent float64 `json:"waitingPercent"`
 	TimeoutJobs    int     `json:"timeoutJobs"`
 	TimeoutPercent float64 `json:"timeoutPercent"`
 	FailedJobs     int     `json:"failedJobs"`

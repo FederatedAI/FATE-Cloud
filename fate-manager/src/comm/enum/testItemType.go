@@ -37,7 +37,7 @@ func GetTestItemString(p TestItemType) string {
 	case TEST_ITEM_TOY:
 		return "Toy Test"
 	case TEST_ITEM_FAST:
-		return "Mininmize Fast Test"
+		return "Minimize Fast Test"
 	case TEST_ITEM_NORMAL:
 		return "Minimize Normal Test"
 	default:
