@@ -8,15 +8,12 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@ApiModel(value = "MonitorSiteDto")
-public class MonitorSiteDto implements Serializable {
+@ApiModel(value = "MonitorSiteItem")
+public class MonitorSiteItem implements Serializable {
 
-    @ApiModelProperty(value = "total ")
-    private Integer total;
+    @ApiModelProperty(value = "institution ")
+    private String institution;
 
     @ApiModelProperty(value = "institutionSite ")
-    private List<MonitorSiteItem> data;
-
-    @ApiModelProperty(value = "siteList")
-    private List<String> siteList;
+    private List<MonitorTwoSite> institutionSiteList;
 }
