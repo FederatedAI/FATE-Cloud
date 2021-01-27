@@ -211,7 +211,7 @@ public class FederatedExchangeService implements Serializable {
         String routerTableString;
 
         try {
-            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
+            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
 
             Proxy.Data body = exchange.getBody();
             ByteString value = body.getValue();
@@ -308,7 +308,7 @@ public class FederatedExchangeService implements Serializable {
             String[] network = rollSiteDo.getNetworkAccess().split(":");
             String grpcBody;
             try {
-                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "eggroll", "get_route_table");
+                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
 
                 Proxy.Data body = exchange.getBody();
                 ByteString value = body.getValue();
