@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.common;
 
 import com.alibaba.fastjson.JSON;
@@ -69,51 +84,6 @@ public class CheckSignature {
 
         return true;
     }
-
-
-//    public boolean checkFateManagerUserActivateAuthority(HttpServletRequest httpServletRequest, String httpBody, int... status) {
-//        if (checksignature) {
-//            String signature = httpServletRequest.getHeader(Dict.SIGNATURE);
-//            String fateManagerId = httpServletRequest.getHeader(Dict.FATE_MANAGER_ID);
-//            String appKey = httpServletRequest.getHeader(Dict.APP_KEY);
-//            String timestamp = httpServletRequest.getHeader(Dict.TIMESTAMP);
-//            String nonce = httpServletRequest.getHeader(Dict.NONCE);
-//            String httpURI = httpServletRequest.getRequestURI();
-//            Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, fateManagerId, appKey, timestamp, nonce, httpURI));
-//
-//            FederatedFateManagerUserDo fateManagerUser = federatedFateManagerUserService.findFateManagerUser(fateManagerId);
-//            if (fateManagerUser == null) {
-//                return false;
-//            }
-//
-//            boolean statusResult = false;
-//            for (int i : status) {
-//                if (i == fateManagerUser.getStatus()) {
-//                    statusResult = true;
-//                    break;
-//                }
-//            }
-//            if (!statusResult) {
-//                return false;
-//            }
-//
-//            String secretInfoString = fateManagerUser.getSecretInfo();
-//            SecretInfo secretInfo = JSON.parseObject(secretInfoString, new TypeReference<SecretInfo>() {
-//            });
-//            String key = secretInfo.getKey();
-//            String secret = secretInfo.getSecret();
-//
-//            String headSignature = EncryptUtil.generateSignature(secret, fateManagerId, appKey, timestamp, nonce, httpURI, httpBody);
-//            String trueSignature = EncryptUtil.generateSignature(secret, fateManagerId, key, timestamp, nonce, httpURI, httpBody);
-//
-//            log.info("Request Signature: {}", signature);
-//            log.info("Head Signature:    {} | secret:{},fateManagerId:{},appKey:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}", headSignature, secret, fateManagerId, appKey, timestamp, nonce, httpURI, httpBody);
-//            log.info("True Signature:    {} | secret:{},fateManagerId:{},   key:{},timestamp:{},nonce:{},httpURI:{},httpBody:{}", trueSignature, secret, fateManagerId, key, timestamp, nonce, httpURI, httpBody);
-//
-//            return StringUtils.equals(signature, trueSignature) && StringUtils.equals(headSignature, trueSignature);
-//        }
-//        return true;
-//    }
 
     public boolean checkSignatureNew(HttpServletRequest httpServletRequest, String httpBody, String type, int[] fateManagerUserStatus, Object... siteStatus) {
         //check whether need to verify the signature
