@@ -126,4 +126,5 @@ const (
 	ERROR_LOACAL_UPLOAD_FAIL                 = 10098
 	ERROR_AUTO_ACQUIRE_FAIL                  = 10099
 	GET_ANSIBLE_LIST_FAIL                    = 10100
+	ERROR_GET_EXCHANGE_INFO_FAIL             = 10101
 )

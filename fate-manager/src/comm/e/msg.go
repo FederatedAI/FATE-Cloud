@@ -120,6 +120,7 @@ var MsgFlags = map[int]string{
 	ERROR_LOACAL_UPLOAD_FAIL:                "Upload Local Fail",
 	ERROR_AUTO_ACQUIRE_FAIL:                 "Auto Acquire Fail",
 	GET_ANSIBLE_LIST_FAIL:                   "Get Ansible List Fail",
+	ERROR_GET_EXCHANGE_INFO_FAIL:            "Get Exchange Info Fail",
 }
 
 func GetMsg(code int) string {
