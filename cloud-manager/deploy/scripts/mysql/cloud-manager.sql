@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `site_name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
+  `site_name` varchar(128) DEFAULT NULL COMMENT 'site Name',
   `party_id` bigint(12) DEFAULT NULL COMMENT 'party_id',
   `secret_info` varchar(256) NOT NULL DEFAULT '' COMMENT 'site appkey,secret',
   `registration_link` text COMMENT 'federated registration link',
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
   `activation_time` timestamp NULL DEFAULT NULL COMMENT 'activation_time',
-  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：survie，2：not survive',
+  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：not survie，2: survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_model` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Update Time',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'version status 1:current, 2:old',
   `update_status` tinyint(4) NOT NULL  COMMENT 'version update status 1:success, 2:failed',
-  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'model status when detect：1：survive，2：not survive',
+  `detective_status` tinyint(4) DEFAULT '1' COMMENT 'model status when detect：1：not survive，2：survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `type` varchar(128) DEFAULT NULL COMMENT 'system type',
   `id` bigint(20) NOT NULL COMMENT 'site id',
@@ -152,11 +152,16 @@ create table IF NOT EXISTS `t_fate_manager_user`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
 
 create table IF NOT EXISTS `t_job_statistics`(
+    `site_guest_institutions` varchar(128) DEFAULT NULL COMMENT 'guest site belongs to institutions'
+    `site_guest_name` varchar(128) DEFAULT NULL COMMENT 'guest site Name'
     `site_guest_id` bigint(20) not null COMMENT 'site id to launch the job',
+    `site_host_institutions` varchar(128) DEFAULT NULL COMMENT 'host site belongs to institutions'
+    `site_host_name` varchar(128) DEFAULT NULL COMMENT 'host site Name'
     `site_host_id` bigint(20) NOT NULL  COMMENT 'site id to cooperation',
     `job_success_count` bigint(20) not null COMMENT 'count of successful jobs',
     `job_failed_count` bigint(20) NOT NULL COMMENT 'count of failed jobs',
     `job_running_count` bigint(20) NOT NULL COMMENT 'count of running jobs',
+    `job_waiting_count` bigint(20) NOT NULL COMMENT 'count of waiting jobs',
     `job_finish_date` date NOT NULL COMMENT 'type: day',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
@@ -167,7 +172,7 @@ create table IF NOT EXISTS `t_job_statistics`(
 
 CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
   `exchange_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `exchange_name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
+  `exchange_name` varchar(128) unique DEFAULT NULL COMMENT 'exchagne Name',
   `network_access_entrances` varchar(512) DEFAULT NULL COMMENT 'network access entrances',
   `network_access_exits` varchar(512) DEFAULT NULL COMMENT 'network access exits',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
