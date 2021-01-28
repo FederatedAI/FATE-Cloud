@@ -47,6 +47,7 @@ const (
 )
 const (
 	FlowJobQuery = "/v1/job/query"
+	FlowVersion  = "/v1/version/get"
 )
 
 const (

@@ -989,6 +989,9 @@ func AutoTestTask() {
 type FlowJobQuery struct {
 	PartyId int `json:"party_id"`
 }
+type FlowVersionQuery struct {
+	Module string `json:"module"`
+}
 type SiteInstitution struct {
 	SiteName    string `json:"siteName"`
 	Institution string `json:"institution"`
@@ -1080,6 +1083,24 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 					models.UpdateMonitorDetail(&monitorDetail)
 				}
 			}
+		}
+		flowVersionQuery := FlowVersionQuery{Module: "FATE"}
+		result, err = http.POST(http.Url("http://"+flowAddressList[i].Address+setting.FlowVersion), flowVersionQuery, nil)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+			continue
+		}
+		var flowVersionQueryResp entity.FlowVersionQueryResp
+		err = json.Unmarshal([]byte(result.Body), &flowVersionQueryResp)
+		if err != nil {
+			logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+			continue
+		}
+		if flowVersionQueryResp.Code == e.SUCCESS {
+			siteInfo := models.SiteInfo{PartyId: flowAddressList[i].PartyId}
+			var data = make(map[string]interface{})
+			data["fate_version"] = flowVersionQuery.Module
+			models.UpdateSiteByCondition(data, siteInfo)
 		}
 	}
 	for i := -1; i <= 0; i++ {
