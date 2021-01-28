@@ -153,7 +153,7 @@ public class FederatedModelService {
     }
 
     //update model status and site status
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */2 * * * ?")
     public void updateModelAndSiteStatus() {
         log.info("start detective");
         long time = new Date().getTime();
@@ -161,7 +161,7 @@ public class FederatedModelService {
         federatedSiteModelDoQueryWrapper.eq("status", 2).eq("detective_status", 2);
         List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
         for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
-            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 600000) {
+            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 3000) {
                 //update model status
                 federatedSiteModelDo.setDetectiveStatus(1);
                 federatedModelMapper.updateById(federatedSiteModelDo);
