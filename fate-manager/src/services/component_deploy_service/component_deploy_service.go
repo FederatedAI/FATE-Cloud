@@ -19,6 +19,15 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
@@ -29,14 +38,7 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
 	"fate.manager/services/version_service"
-	"fmt"
 	"github.com/axgle/mahonia"
-	"io"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func GetComponentList(serviceInfoReq entity.ServiceInfoReq) ([]entity.ComponentDeploy, error) {
@@ -152,19 +154,15 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 	if err != nil || len(deploySiteList) == 0 {
 		return nil, err
 	}
-	cmd := "kubectl get pods -n kube-fate | grep kubefate|grep Running| awk '{print $1}'"
-	if setting.KubenetesSetting.SudoTag {
-		cmd = fmt.Sprintf("sudo %s", cmd)
+	result, err := clientgo.ClientSet.GetPodWithPattern("kube-fate", "kubefate")
+	if err != nil {
+		return nil, fmt.Errorf("GetPodWithPattern err[%s]", err.Error())
 	}
-	result, _ := util.ExecCommand(cmd)
-	if len(result) == 0 {
-		return nil, err
+	err = clientgo.ClientSet.WriteLogsIntoFile("kube-fate", result, "./testLog/kubefate.log", 500)
+	if err != nil {
+		logging.Error("clientgo.ClientSet.WriteLogsIntoFile err[%s]", err.Error())
 	}
-	cmd = fmt.Sprintf("kubectl logs -n kube-fate --tail 500  %s> ./testLog/kubefate.log", result[0:len(result)-1])
-	if setting.KubenetesSetting.SudoTag {
-		cmd = fmt.Sprintf("sudo %s", cmd)
-	}
-	result, _ = util.ExecCommand(cmd)
+
 	file, err := os.Open("./testLog/kubefate.log")
 	if err != nil {
 		log.Fatal(err)
@@ -259,31 +257,48 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
-		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
-		if setting.KubenetesSetting.ModeAlone{
-			cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+		/*
+			cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+		*/
+		nodes, _ := clientgo.ClientSet.GetNodesWithoutMaster()
+		if setting.KubenetesSetting.ModeAlone {
+			/*
+					cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
+				}
+			*/
+			nodes, _ = clientgo.ClientSet.GetNodesWithoutMaster()
 		}
-		if setting.KubenetesSetting.SudoTag {
-			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
-			if setting.KubenetesSetting.ModeAlone{
-				cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+		labels := clientgo.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-")
+		clientgo.ClientSet.SetLabelsForNode(nodes, labels)
+		/*
+			if setting.KubenetesSetting.SudoTag {
+				cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+				if setting.KubenetesSetting.ModeAlone {
+					cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
+				}
 			}
-		}
-		util.ExecCommand(cmd)
+			util.ExecCommand(cmd)
+		*/
 
-		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-		if setting.KubenetesSetting.ModeAlone{
-			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-		}
-		if setting.KubenetesSetting.SudoTag {
-			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-			if setting.KubenetesSetting.ModeAlone{
-				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		/*
+			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+		*/
+		result := clientgo.ClientSet.GetNodeLabelOfFM(nodes, "fm-node-")
+		/*
+			if setting.KubenetesSetting.ModeAlone {
+				cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 			}
-		}
-		result, _ := util.ExecCommand(cmd)
+			if setting.KubenetesSetting.SudoTag {
+				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+				if setting.KubenetesSetting.ModeAlone {
+					cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
+				}
+			}
+		*/
+		// result, _ := util.ExecCommand(cmd)
 		if len(result) > 0 {
-			iplist := result[0 : len(result)-1]
+			// iplist := result[0 : len(result)-1]
+			iplist := result
 			var data = make(map[string]interface{})
 			data["node_list"] = iplist
 			data["update_time"] = time.Now()
@@ -398,8 +413,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
-				if len(nodelist)==0{
+				nodelist := k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
+				if len(nodelist) == 0 {
 					continue
 				}
 				deployComponent := models.DeployComponent{

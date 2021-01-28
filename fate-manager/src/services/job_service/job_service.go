@@ -19,6 +19,14 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
@@ -29,12 +37,6 @@ import (
 	"fate.manager/models"
 	"fate.manager/services/federated_service"
 	"fate.manager/services/k8s_service"
-	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type CloudSystemAdd struct {
@@ -150,10 +152,10 @@ func JobTask() {
 
 				componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 				site := models.SiteInfo{
-					FederatedId:        deployJobList[i].FederatedId,
-					PartyId:            deployJobList[i].PartyId,
-					FateVersion:        deploySiteList[0].FateVersion,
-					ComponentVersion:   string(componentVersonMapjson),
+					FederatedId:      deployJobList[i].FederatedId,
+					PartyId:          deployJobList[i].PartyId,
+					FateVersion:      deploySiteList[0].FateVersion,
+					ComponentVersion: string(componentVersonMapjson),
 					//FateServingVersion: "1.2.1",
 				}
 				models.UpdateSite(&site)
@@ -454,7 +456,7 @@ func ApplyResultTask(info *models.AccountInfo) {
 		applySiteInfo.Status = int(enum.IS_VALID_YES)
 		if len(validAuditList) > 0 {
 			models.UpdateApplySiteInfo(data, &applySiteInfo)
-		} else if len(validAudit) >0{
+		} else if len(validAudit) > 0 {
 			applySiteInfo = models.ApplySiteInfo{
 				Institutions: string(validAuditJson),
 				Status:       int(enum.IS_VALID_YES),
@@ -523,15 +525,15 @@ func AllowApplyTask(info *models.AccountInfo) {
 func ComponentStatusTask() {
 
 	deployComponent := models.DeployComponent{
-		ProductType:  int(enum.PRODUCT_TYPE_FATE),
-		IsValid:      int(enum.IS_VALID_YES),
+		ProductType: int(enum.PRODUCT_TYPE_FATE),
+		IsValid:     int(enum.IS_VALID_YES),
 	}
 	deployComponentList, err := models.GetDeployComponent(deployComponent)
 	if err != nil {
 		return
 	}
 	for i := 0; i < len(deployComponentList); i++ {
-		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS){
+		if deployComponentList[i].DeployStatus != int(enum.DeployStatus_SUCCESS) {
 			continue
 		}
 		testname := deployComponentList[i].ComponentName
@@ -541,9 +543,15 @@ func ComponentStatusTask() {
 		if deployComponentList[i].ComponentName == "fateboard" || deployComponentList[i].ComponentName == "fateflow" {
 			testname = "python"
 		}
-		cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
-		result, _ := util.ExecCommand(cmdSub)
-		cnt, _ := strconv.Atoi(result[0:1])
+		ns := fmt.Sprintf("fate-%d", deployComponentList[i].PartyId)
+		podNameList, _ := clientgo.ClientSet.GetPodListWithPattern(ns, testname)
+		/*
+			cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
+			result, _ := util.ExecCommand(cmdSub)
+			log.Println("result: %s", result)
+			cnt, _ := strconv.Atoi(result[0:1])
+		*/
+		cnt := len(podNameList)
 		var data = make(map[string]interface{})
 		if cnt < 1 {
 			data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)

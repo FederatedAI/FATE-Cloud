@@ -19,6 +19,15 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
@@ -30,14 +39,7 @@ import (
 	"fate.manager/services/component_deploy_service"
 	"fate.manager/services/k8s_service"
 	"fate.manager/services/version_service"
-	"fmt"
 	jsoniter "github.com/json-iterator/go"
-	"io"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func GetPrepare() ([]entity.PrepareItem, error) {
@@ -182,19 +184,29 @@ func Install(installReq entity.InstallReq) (int, error) {
 
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
-	cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
-	if setting.KubenetesSetting.SudoTag {
-		cmd = fmt.Sprintf("sudo %s", cmd)
-	}
-	value, _ := util.ExecCommand(cmd)
-	logging.Debug(value)
-	if value[0:1] != "1" {
-		cmd = fmt.Sprintf("kubectl create namespace %s", nameSpace)
+	nsList, _ := clientgo.ClientSet.ListNamespaceWithPattern(nameSpace)
+	/*
+		cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
 		if setting.KubenetesSetting.SudoTag {
 			cmd = fmt.Sprintf("sudo %s", cmd)
 		}
 		value, _ := util.ExecCommand(cmd)
-		logging.Debug(value)
+	*/
+	logging.Debug(len(nsList))
+	if len(nsList) != 1 {
+		/*
+			cmd = fmt.Sprintf("kubectl create namespace %s", nameSpace)
+			if setting.KubenetesSetting.SudoTag {
+				cmd = fmt.Sprintf("sudo %s", cmd)
+			}
+			value, _ := util.ExecCommand(cmd)
+		*/
+		_, err := clientgo.ClientSet.CreateNamespace(nameSpace)
+		if err != nil {
+			logging.Error("clientset.CreateNamespace err[%s]", err.Error())
+		} else {
+			logging.Debug("clientset.CreateNamespace succeed")
+		}
 	}
 
 	valBj, err := GetClusterConfig(deploySiteList[0], deploySiteList[0].VersionIndex, name, nameSpace, deploySiteList[0].ChartVersion)
@@ -224,8 +236,8 @@ func Install(installReq entity.InstallReq) (int, error) {
 	head["Authorization"] = authorization
 	upgrade := false
 	if len(deploySiteList[0].ClusterId) > 0 {
-		if deploySiteList[0].DeployStatus < int(enum.DeployStatus_INSTALLED){
-			upgrade =true
+		if deploySiteList[0].DeployStatus < int(enum.DeployStatus_INSTALLED) {
+			upgrade = true
 		}
 		_, err := http.DELETE(http.Url(kubefateUrl+"/v1/cluster/"+deploySiteList[0].ClusterId), nil, head)
 		if err != nil {
@@ -397,7 +409,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 	models.UpdateDeployComponent(data, deployComponent)
 	for i := 0; i < len(componentVersionList); i++ {
 		nodelist := k8s_service.GetNodeIp(upgradeReq.FederatedId, upgradeReq.PartyId)
-		if len(nodelist)==0{
+		if len(nodelist) == 0 {
 			continue
 		}
 		deployComponent = models.DeployComponent{
@@ -463,7 +475,7 @@ func Update(updateReq entity.UpdateReq) (int, error) {
 		}
 		var data = make(map[string]interface{})
 		data["address"] = updateReq.Address
-		data["label"]=k8s_service.GetLabel(updateReq.Address)
+		data["label"] = k8s_service.GetLabel(updateReq.Address)
 		err = models.UpdateDeployComponent(data, deployComponent)
 		if err != nil {
 			logging.Error("update component failed")
@@ -558,14 +570,22 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 	if err != nil || len(deploySiteList) == 0 {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
-	cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
-	if setting.KubenetesSetting.SudoTag {
-		cmd = fmt.Sprintf("sudo %s", cmd)
-	}
-	result, _ := util.ExecCommand(cmd)
-	if result == "No resources found." {
+	ns := deploySiteList[0].NameSpace
+	podList, err := clientgo.ClientSet.GetPods(ns)
+	if len(podList.Items) == 0 {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
+
+	/*
+		cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
+		if setting.KubenetesSetting.SudoTag {
+			cmd = fmt.Sprintf("sudo %s", cmd)
+		}
+		result, _ := util.ExecCommand(cmd)
+		if result == "No resources found." {
+			return e.ERROR_AUTO_TEST_FAIL, err
+		}
+	*/
 	autoTest := models.AutoTest{
 		FederatedId: autoTestReq.FederatedId,
 		PartyId:     autoTestReq.PartyId,
@@ -587,9 +607,10 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 				if testname == "fateboard" || testname == "fateflow" {
 					testname = "python"
 				}
-				cmdSub := fmt.Sprintf("%s |grep %s* | grep Running |wc -l", cmd, testname)
+				podNameList, _ := clientgo.ClientSet.GetPodListWithPattern(ns, testname)
+				// cmdSub := fmt.Sprintf("%s |grep %s* | grep Running |wc -l", cmd, testname)
 				data["start_time"] = time.Now()
-				result, _ := util.ExecCommand(cmdSub)
+				// result, _ := util.ExecCommand(cmdSub)
 				data["end_time"] = time.Now()
 
 				autoTest.TestItem = v[i]
@@ -597,7 +618,8 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 				temp["deploy_status"] = int(enum.DeployStatus_IN_TESTING)
 
 				data["status"] = int(enum.TEST_STATUS_YES)
-				cnt, _ := strconv.Atoi(result[0:1])
+				// cnt, _ := strconv.Atoi(result[0:1])
+				cnt := len(podNameList)
 				logging.Info(cnt)
 				if cnt < 1 {
 					toytesttag = false

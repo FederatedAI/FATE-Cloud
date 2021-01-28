@@ -1,4 +1,4 @@
-package k8s
+package clientgo
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"fate.manager/comm/logging"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,6 +19,18 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
+
+var ClientSet *KubeClient
+
+func init() {
+	var err error
+	if ClientSet == nil {
+		ClientSet, err = NewKubeClient("")
+		if err != nil {
+			logging.Error("init kubernetes clientgo err[%s]", err.Error())
+		}
+	}
+}
 
 type KubeClient struct {
 	clientset *kubernetes.Clientset
