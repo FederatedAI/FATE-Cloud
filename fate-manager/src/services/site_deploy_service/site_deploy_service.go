@@ -185,22 +185,8 @@ func Install(installReq entity.InstallReq) (int, error) {
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nsList, _ := clientgo.ClientSet.ListNamespaceWithPattern(nameSpace)
-	/*
-		cmd := fmt.Sprintf("kubectl get namespace |awk '{if($1==\"%s\"){print $0}}' |grep Active|wc -l", nameSpace)
-		if setting.KubenetesSetting.SudoTag {
-			cmd = fmt.Sprintf("sudo %s", cmd)
-		}
-		value, _ := util.ExecCommand(cmd)
-	*/
 	logging.Debug(len(nsList))
 	if len(nsList) != 1 {
-		/*
-			cmd = fmt.Sprintf("kubectl create namespace %s", nameSpace)
-			if setting.KubenetesSetting.SudoTag {
-				cmd = fmt.Sprintf("sudo %s", cmd)
-			}
-			value, _ := util.ExecCommand(cmd)
-		*/
 		_, err := clientgo.ClientSet.CreateNamespace(nameSpace)
 		if err != nil {
 			logging.Error("clientset.CreateNamespace err[%s]", err.Error())
@@ -576,16 +562,6 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
 
-	/*
-		cmd := fmt.Sprintf("kubectl get pods -n %s", deploySiteList[0].NameSpace)
-		if setting.KubenetesSetting.SudoTag {
-			cmd = fmt.Sprintf("sudo %s", cmd)
-		}
-		result, _ := util.ExecCommand(cmd)
-		if result == "No resources found." {
-			return e.ERROR_AUTO_TEST_FAIL, err
-		}
-	*/
 	autoTest := models.AutoTest{
 		FederatedId: autoTestReq.FederatedId,
 		PartyId:     autoTestReq.PartyId,

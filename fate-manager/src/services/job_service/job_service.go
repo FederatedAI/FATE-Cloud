@@ -545,12 +545,6 @@ func ComponentStatusTask() {
 		}
 		ns := fmt.Sprintf("fate-%d", deployComponentList[i].PartyId)
 		podNameList, _ := clientgo.ClientSet.GetPodListWithPattern(ns, testname)
-		/*
-			cmdSub := fmt.Sprintf("kubectl get pods -n fate-%d |grep %s* | grep Running |wc -l", deployComponentList[i].PartyId, testname)
-			result, _ := util.ExecCommand(cmdSub)
-			log.Println("result: %s", result)
-			cnt, _ := strconv.Atoi(result[0:1])
-		*/
 		cnt := len(podNameList)
 		var data = make(map[string]interface{})
 		if cnt < 1 {
