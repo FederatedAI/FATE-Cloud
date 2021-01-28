@@ -167,30 +167,6 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
 
-//    public CommonResponse updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
-//
-//        //check duplicate name
-//        if (this.checkExchangeName(exchangeUpdateQo)) {
-//            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-//        }
-//
-//        ExchangeAddQo exchangeAddQo = new ExchangeAddQo(exchangeUpdateQo);
-//        //check duplicate name
-//        if (!checkExchangeAddQo(exchangeAddQo)) {
-//            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-//        }
-//        FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
-//
-//        if (federatedExchangeDo == null) {
-//            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR);
-//        }
-//
-//        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
-//
-//    }
-
-
-
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) {
 
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(exchangePageForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);

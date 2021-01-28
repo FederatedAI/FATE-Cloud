@@ -116,10 +116,4 @@ public class FederatedExchangeController {
         return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageForFateManagerQo, httpServletRequest);
     }
 
-//    @PostMapping(value = "/update")
-//    @ApiOperation(value = "update exchange")
-//    public CommonResponse updateExchange(@RequestBody ExchangeUpdateQo exchangeUpdateQo) {
-//        log.info("url:update exchange, requestBody:{}", exchangeUpdateQo);
-//        return federatedExchangeServiceFacade.updateExchange(exchangeUpdateQo);
-//    }
 }
