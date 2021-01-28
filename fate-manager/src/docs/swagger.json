@@ -4458,10 +4458,16 @@
         "entity.ExchangeItem": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "exchangeId": {
+                    "type": "integer"
+                },
                 "exchangeName": {
                     "type": "string"
                 },
-                "vip": {
+                "updateTime": {
                     "type": "string"
                 }
             }
@@ -4469,6 +4475,12 @@
         "entity.ExchangeResponse": {
             "type": "object",
             "properties": {
+                "exchangeExits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ExchangeItem"
+                    }
+                },
                 "exchangeVip": {
                     "type": "array",
                     "items": {
