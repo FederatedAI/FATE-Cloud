@@ -193,7 +193,7 @@ create TABLE IF NOT EXISTS `t_roll_site` (
 
 create TABLE IF NOT EXISTS `t_party` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'party id',
-  `party_id` varchar(128) unique DEFAULT NULL COMMENT 'party id',
+  `party_id` varchar(128)  DEFAULT NULL COMMENT 'party id',
   `network_access` varchar(512) DEFAULT NULL COMMENT 'network address',
 --  `batch` bigint(20) NOT NULL  COMMENT 'insert-batch-number of route table',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 publised,2 modified, 3 to be deleted',
