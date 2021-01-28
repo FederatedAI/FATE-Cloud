@@ -66,13 +66,6 @@ public class FederatedExchangeService implements Serializable {
     @Transactional
     public FederatedExchangeDo addExchange(ExchangeAddQo exchangeAddQo) {
 
-//        try {
-//            this.updateRouteTableJsonString(exchangeAddQo);
-//        } catch (UnsupportedEncodingException e) {
-//            log.error("update route table error by grpc ", e);
-//            return null;
-//        }
-
         //add exchange table
         FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
         federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
@@ -126,42 +119,6 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-//    @Transactional
-//    public FederatedExchangeDo updateExchange(ExchangeUpdateQo exchangeUpdateQo) {
-//
-//        //update rollsite
-//        try {
-//            this.updateRouteTableJsonString(new ExchangeAddQo(exchangeUpdateQo));
-//        } catch (UnsupportedEncodingException e) {
-//            log.error("update route table error by grpc ", e);
-//            return null;
-//        }
-//
-//        //update exchange table
-//        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-//        federatedExchangeDo.setExchangeId(exchangeUpdateQo.getExchangeId());
-//        federatedExchangeDo.setExchangeName(exchangeUpdateQo.getExchangeName());
-//        federatedExchangeDo.setNetworkAccess(exchangeUpdateQo.getNetworkAccess());
-//        federatedExchangeDo.setStatus(1);
-//        federatedExchangeDo.setUpdateTime(new Date());
-//        federatedExchangeMapper.updateById(federatedExchangeDo);
-//
-//        //add exchange details table
-//        Long maxBatch = rollSiteMapper.findMaxBatch(exchangeUpdateQo);
-//
-//        List<RollSiteAddBean> rollSiteAddBeanList = exchangeUpdateQo.getRollSiteAddBeanList();
-//        for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
-//            PartyDo rollSiteDo = new PartyDo();
-//            rollSiteDo.setExchangeDetailsId(federatedExchangeDo.getExchangeId());
-//            rollSiteDo.setBatch(maxBatch + 1);
-//            rollSiteDo.setPartyId(rollSiteAddBean.getPartyId());
-//            rollSiteDo.setNetworkAccess(rollSiteAddBean.getNetworkAccess());
-//            rollSiteMapper.insert(rollSiteDo);
-//        }
-//
-//        return federatedExchangeDo;
-//
-//    }
 
 
     public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
@@ -217,7 +174,7 @@ public class FederatedExchangeService implements Serializable {
             ByteString value = body.getValue();
             routerTableString = value.toStringUtf8();
 
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             log.error("update route table error by grpc ", e);
             return null;
         }
@@ -277,26 +234,8 @@ public class FederatedExchangeService implements Serializable {
 
     }
 
-//    public static void main(String[] args){
-//
-//        //send grpc request
-//        String grpcBody = null;
-//        try {
-//            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange("172.16.153.19", 9631, "eggroll", "eggroll", "get_route_table");
-//
-//            Proxy.Data body = exchange.getBody();
-//            ByteString value = body.getValue();
-//            grpcBody = value.toStringUtf8();
-//
-//        } catch (UnsupportedEncodingException e) {
-//            log.error("update route table error by grpc ", e);
-//        }
-//
-//        ArrayList<PartyDo> partyDos = buildPartyList(grpcBody);
-//    }
 
-
-    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     @Transactional
     public void queryAndUpdateRollSiteInformation() {
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
@@ -314,7 +253,7 @@ public class FederatedExchangeService implements Serializable {
                 ByteString value = body.getValue();
                 grpcBody = value.toStringUtf8();
 
-            } catch (UnsupportedEncodingException e) {
+            } catch (Exception e) {
                 log.error("update route table error by grpc ", e);
                 continue;
             }
