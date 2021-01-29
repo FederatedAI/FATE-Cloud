@@ -177,6 +177,22 @@ public class FederatedModelService {
 
             }
         }
+
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.select("id", "last_detective_time");
+        ew.eq("status", 2).eq("detective_status", 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
+        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
+            Date lastDetectiveTime = federatedSiteManagerDo.getLastDetectiveTime();
+            if (time - lastDetectiveTime.getTime() > 3000) {
+                FederatedSiteManagerDo federatedSiteManagerDoToUpdate = new FederatedSiteManagerDo();
+                federatedSiteManagerDoToUpdate.setDetectiveStatus(1);
+                QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
+                federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
+                federatedSiteManagerMapper.update(federatedSiteManagerDoToUpdate, ew);
+            }
+            log.info("site:{} failed", federatedSiteManagerDo);
+        }
     }
 
 
