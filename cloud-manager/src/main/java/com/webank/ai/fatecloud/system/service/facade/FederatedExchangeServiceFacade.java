@@ -51,12 +51,17 @@ public class FederatedExchangeServiceFacade implements Serializable {
     public CommonResponse addExchange(ExchangeAddQo exchangeAddQo) {
         //check duplicate name
         if (this.checkExchangeName(exchangeAddQo)) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+            return new CommonResponse<>(ReturnCodeEnum.EXCHANGE_NAME_REPEAT);
         }
         //check exchange add qo
-        if (!checkExchangeAddQo(exchangeAddQo)) {
+        int i = checkExchangeAddQo(exchangeAddQo);
+        if (i == 1) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
+        if (i == 2) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_EXIST_ERROR);
+        }
+
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
 
         if (federatedExchangeDo == null) {
@@ -67,19 +72,19 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     }
 
-    private boolean checkExchangeAddQo(ExchangeAddQo exchangeAddQo) {
+    private int checkExchangeAddQo(ExchangeAddQo exchangeAddQo) {
 
         if (StringUtils.isBlank(exchangeAddQo.getExchangeName())) {
-            return false;
+            return 1;
         }
 
         if (StringUtils.isBlank(exchangeAddQo.getVip())) {
-            return false;
+            return 1;
         }
 
         List<RollSiteAddBean> rollSiteAddBeanList = exchangeAddQo.getRollSiteAddBeanList();
         if (rollSiteAddBeanList == null || rollSiteAddBeanList.size() == 0) {
-            return false;
+            return 1;
         }
 
         String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
@@ -88,12 +93,12 @@ public class FederatedExchangeServiceFacade implements Serializable {
             //check roll site ip
             String networkAccess = rollSiteAddBean.getNetworkAccess();
             if (!networkAccess.matches(ipAndPortRegex)) {
-                return false;
+                return 1;
             }
 
             //check roll site is managed or not
             if (federatedExchangeService.findRollSite(networkAccess)) {
-                return false;
+                return 2;
             }
 
 
@@ -101,13 +106,16 @@ public class FederatedExchangeServiceFacade implements Serializable {
             List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
             boolean result = this.checkPartyNetwork(partyAddBeanList, false);
             if (!result) {
-                return false;
+                return 1;
             }
 
 
         }
 
-        return exchangeAddQo.getVip().matches(ipAndPortRegex);
+        if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
+            return 1;
+        }
+        return 0;
 
     }
 
@@ -206,7 +214,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         //check roll site is managed or not
         if (federatedExchangeService.findRollSite(rollSieAddQo.getNetworkAccess())) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_EXIST_ERROR);
         }
         //check party
         if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true)) {
@@ -267,7 +275,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(RollSitePageQo rollSitePageQo) {
-        if(StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))){
+        if (StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
