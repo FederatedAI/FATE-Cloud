@@ -54,7 +54,9 @@ public enum ReturnCodeEnum {
     FATE_MANAGER_USER_ERROR(134, "The institution has been used!"),
     MEMORY_ERROR(135, "Memory has error!"),
     CANCEL_ERROR(136, "Institutions to cancel authority doesn't exist!"),
-    ROLLSITE_GRPC_ERROR(137, "Connect rollsite by grpc error!"),
+    ROLLSITE_GRPC_ERROR(137, "Connect this rollsite error!"),
+    ROLLSITE_EXIST_ERROR(138, "This rollsite already exist!"),
+    EXCHANGE_NAME_REPEAT(139, "This exchange name already exist!"),
 
     ;
     private int code;

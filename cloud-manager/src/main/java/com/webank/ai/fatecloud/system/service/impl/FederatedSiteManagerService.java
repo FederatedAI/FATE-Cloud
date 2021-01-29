@@ -121,9 +121,8 @@ public class FederatedSiteManagerService {
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
         String protocol = siteAddQo.getProtocol();
-
         String url = "";
-        if ("http://".equals(siteAddQo.getProtocol())) {
+        if ("http://".equals(protocol)) {
             url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
             url = "https://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
