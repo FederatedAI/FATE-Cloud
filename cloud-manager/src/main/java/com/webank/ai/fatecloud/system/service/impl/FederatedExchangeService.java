@@ -120,7 +120,6 @@ public class FederatedExchangeService implements Serializable {
     }
 
 
-
     public boolean checkExchangeName(ExchangeAddQo exchangeAddQo) {
         QueryWrapper<FederatedExchangeDo> federatedExchangeDoQueryWrapper = new QueryWrapper<>();
         federatedExchangeDoQueryWrapper.eq("exchange_name", exchangeAddQo.getExchangeName());
@@ -339,7 +338,7 @@ public class FederatedExchangeService implements Serializable {
 
     @Transactional
     public void updateRollSite(RollSiteUpdateQo rollSiteUpdateQo) {
-
+        Date date = new Date();
         List<PartyAddBean> partyAddBeanList = rollSiteUpdateQo.getPartyAddBeanList();
         boolean updateResult = false;
         for (PartyAddBean partyAddBean : partyAddBeanList) {
@@ -355,6 +354,8 @@ public class FederatedExchangeService implements Serializable {
                 partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
                 partyDo.setStatus(partyAddBean.getStatus());
                 partyDo.setRollSiteId(rollSiteId);
+                partyDo.setCreateTime(date);
+                partyDo.setUpdateTime(date);
                 partyMapper.insert(partyDo);
                 updateResult = true;
             } else {
@@ -363,7 +364,7 @@ public class FederatedExchangeService implements Serializable {
                     if (!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess()) || !partyDo.getStatus().equals(partyAddBean.getStatus())) {
                         partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
                         partyDo.setStatus(partyAddBean.getStatus());
-                        partyDo.setUpdateTime(new Date());
+                        partyDo.setUpdateTime(date);
                         partyMapper.updateById(partyDo);
                         updateResult = true;
                     }
@@ -374,13 +375,20 @@ public class FederatedExchangeService implements Serializable {
 
         }
 
-        //update roll site time
         if (updateResult) {
+            //update roll site time
             QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
             rollSiteDoQueryWrapper.eq("roll_site_id", rollSiteUpdateQo.getRollSiteId());
             RollSiteDo rollSiteDo = new RollSiteDo();
-            rollSiteDo.setUpdateTime(new Date());
+            rollSiteDo.setUpdateTime(date);
             rollSiteMapper.update(rollSiteDo, rollSiteDoQueryWrapper);
+
+            //update exchange
+            Long exchangeId = rollSiteDo.getExchangeId();
+            FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+            federatedExchangeDo.setExchangeId(exchangeId);
+            federatedExchangeDo.setUpdateTime(date);
+            federatedExchangeMapper.updateById(federatedExchangeDo);
         }
 
     }
@@ -410,7 +418,7 @@ public class FederatedExchangeService implements Serializable {
         partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
         List<PartyDo> partyDos = partyMapper.selectList(partyDoQueryWrapper);
 
-        //update roll site
+        //update roll site by grpc
         ArrayList<PartyDo> partyDosToPublish = new ArrayList<>();
         for (PartyDo partyDo : partyDos) {
             if (partyDo.getStatus() == 1 || partyDo.getStatus() == 2) {
@@ -424,12 +432,12 @@ public class FederatedExchangeService implements Serializable {
             return 1;
         }
 
-
         //update party table
+        Date date = new Date();
         for (PartyDo partyDo : partyDos) {
             if (partyDo.getStatus() == 2) {
                 partyDo.setStatus(1);
-                partyDo.setUpdateTime(new Date());
+                partyDo.setUpdateTime(date);
                 partyMapper.updateById(partyDo);
             }
             if (partyDo.getStatus() == 3) {
@@ -437,6 +445,10 @@ public class FederatedExchangeService implements Serializable {
             }
 
         }
+
+        //update roll site table
+        rollSiteDo.setUpdateTime(date);
+        rollSiteMapper.updateById(rollSiteDo);
         return 2;
 
     }
