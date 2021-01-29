@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
 import com.webank.ai.eggroll.api.networking.proxy.DataTransferServiceGrpc;
 import com.webank.ai.eggroll.api.networking.proxy.Proxy;
+import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
 import io.grpc.netty.shaded.io.grpc.netty.NegotiationType;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
@@ -30,16 +31,6 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class ExchangeGrpcUtil {
-
-//    public static void main(String[] args) throws UnsupportedEncodingException {
-//        findExchange("172.16.153.19", 9531, "eggroll","exchange","get_route_table");
-//
-//        HashMap<String, String> stringStringHashMap = new HashMap<>();
-//        stringStringHashMap.put("1", "1");
-//        String s = JSON.toJSONString(stringStringHashMap);
-//        setExchange("172.16.153.14", 9531, "eggroll", s);
-//
-//    }
 
     public static Proxy.Packet findExchange(String ip, int port, String key,String partyId,String operator) throws UnsupportedEncodingException {
 
@@ -108,6 +99,7 @@ public class ExchangeGrpcUtil {
         Proxy.Packet build = packet.build();
 
         DataTransferServiceGrpc.DataTransferServiceBlockingStub dataTransferServiceBlockingStub = DataTransferServiceGrpc.newBlockingStub(managedChannel);
+        dataTransferServiceBlockingStub.withDeadlineAfter(2,TimeUnit.SECONDS);
         System.out.println(dataTransferServiceBlockingStub.unaryCall(build));
         return dataTransferServiceBlockingStub.unaryCall(build);
     }
@@ -115,16 +107,16 @@ public class ExchangeGrpcUtil {
     public static ManagedChannel createManagedChannel(String ip, int port) throws Exception {
         NettyChannelBuilder builder = NettyChannelBuilder
                 .forAddress(ip, port)
-                .keepAliveTime(60, TimeUnit.SECONDS)
-                .keepAliveTimeout(60, TimeUnit.SECONDS)
+                .keepAliveTime(3, TimeUnit.SECONDS)
+                .keepAliveTimeout(3, TimeUnit.SECONDS)
                 .keepAliveWithoutCalls(true)
-                .idleTimeout(60, TimeUnit.SECONDS)
+                .idleTimeout(3, TimeUnit.SECONDS)
                 .perRpcBufferLimit(128 << 20)
                 .flowControlWindow(32 << 20)
                 .maxInboundMessageSize(32 << 20)
                 .enableRetry()
                 .retryBufferSize(16 << 20)
-                .maxRetryAttempts(20);      // todo: configurable
+                .maxRetryAttempts(1);      // todo: configurable
         builder.negotiationType(NegotiationType.PLAINTEXT)
                 .usePlaintext();
 
