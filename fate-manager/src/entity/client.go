@@ -578,6 +578,7 @@ type MonitorReq struct {
 type ExchangeItem struct {
 	ExchangeName string `json:"exchangeName"`
 	Vip          string `json:"vip"`
+	UpdateTime   string `json:"updateTime"`
 }
 type ExchangeResponse struct {
 	ExchangeVip []ExchangeItem `json:"exchangeVip"`
