@@ -49,4 +49,8 @@ public class SiteAddQo implements Serializable {
 
     @ApiModelProperty(value = "protocol")
     private String protocol;
+
+    @ApiModelProperty(value = "encrypt type")
+    private Integer encryptType;
+
 }
