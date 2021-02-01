@@ -1096,11 +1096,13 @@ func GetExchangeInfo() (*entity.ExchangeResponse, error) {
 			ExchangeItem := entity.ExchangeItem{
 				ExchangeName: exchangeDataItem.ExchangeName,
 				Vip:          exchangeDataItem.Vip,
+				UpdateTime:   exchangeDataItem.UpdateTime,
 			}
 			vip = append(vip, ExchangeItem)
 		}
 		ExchangeResponse := entity.ExchangeResponse{
 			ExchangeVip: vip,
+
 		}
 		return &ExchangeResponse, nil
 	}
