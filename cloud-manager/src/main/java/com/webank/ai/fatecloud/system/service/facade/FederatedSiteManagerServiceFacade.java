@@ -160,10 +160,21 @@ public class FederatedSiteManagerServiceFacade {
         }
 
 //        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
-        if (!result) {
-            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+//        if (!result) {
+//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+//
+//        }
 
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
+        }
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
 //        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),1);
@@ -173,7 +184,12 @@ public class FederatedSiteManagerServiceFacade {
         }
 
         String registrationLink = site.getRegistrationLink();
-        String finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+        String finalUrl;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+        } else {
+            finalUrl = registrationLink;
+        }
         String registrationLinkFromRequest = siteActivateQo.getRegistrationLink();
 
         log.info("registrationLinkFromRequest:{}", registrationLinkFromRequest);
@@ -191,7 +207,7 @@ public class FederatedSiteManagerServiceFacade {
             return commonResponse;
         }
 
-        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)));
+        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),httpServletRequest);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
 

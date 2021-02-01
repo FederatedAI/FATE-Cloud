@@ -223,6 +223,19 @@ public class FederatedExchangeService implements Serializable {
                 }
             }
 
+            //delete party
+            HashSet<String> partyIdsFromGRPC = new HashSet<>();
+            for (PartyDo aDo : partyDos) {
+                partyIdsFromGRPC.add(aDo.getPartyId());
+            }
+            for (PartyDo partyDo : partyDosExisted) {
+                if (partyDo.getStatus() == 1 && (!partyIdsFromGRPC.contains(partyDo.getPartyId()))) {
+                    partyMapper.deleteById(partyDo.getId());
+                }
+
+            }
+
+
             //find newest party information
             List<PartyDo> partyDosFinal = partyMapper.selectList(partyDoQueryWrapper);
             return partyDosFinal;
@@ -361,7 +374,7 @@ public class FederatedExchangeService implements Serializable {
             } else {
                 for (PartyDo partyDo : partyDos) {
 
-                    if (!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess()) || !partyDo.getStatus().equals(partyAddBean.getStatus())) {
+                    if ((!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess())) || (!partyDo.getStatus().equals(partyAddBean.getStatus()))) {
                         partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
                         partyDo.setStatus(partyAddBean.getStatus());
                         partyDo.setUpdateTime(date);
@@ -384,9 +397,11 @@ public class FederatedExchangeService implements Serializable {
             rollSiteMapper.update(rollSiteDo, rollSiteDoQueryWrapper);
 
             //update exchange
-            Long exchangeId = rollSiteDo.getExchangeId();
+            List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+            RollSiteDo rollSiteDo1 = rollSiteDos.get(0);
+
             FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
-            federatedExchangeDo.setExchangeId(exchangeId);
+            federatedExchangeDo.setExchangeId(rollSiteDo1.getExchangeId());
             federatedExchangeDo.setUpdateTime(date);
             federatedExchangeMapper.updateById(federatedExchangeDo);
         }
@@ -543,6 +558,31 @@ public class FederatedExchangeService implements Serializable {
         }
 
         rollSitePageDtoPageBean.setList(rollSitePageDtos);
+
+        for (RollSitePageDto rollSitePageDto : rollSitePageDtos) {
+            //send grpc request
+            String[] network = rollSitePageDto.getNetworkAccess().split(":");
+            String routerTableString;
+
+            try {
+                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
+
+                Proxy.Data body = exchange.getBody();
+                ByteString value = body.getValue();
+                routerTableString = value.toStringUtf8();
+
+            } catch (Exception e) {
+                log.error("update route table error by grpc ", e);
+                rollSitePageDto.setPartyDos(null);
+                rollSitePageDto.setCount(0);
+                continue;
+            }
+
+            ArrayList<PartyDo> partyDos = this.buildPartyList(routerTableString);
+            rollSitePageDto.setPartyDos(partyDos);
+            rollSitePageDto.setCount(partyDos.size());
+        }
+
         return rollSitePageDtoPageBean;
 
     }
