@@ -127,14 +127,29 @@ func DoAction(actionReq entity.ActionReq) (int, error) {
 		IsValid:       int(enum.IS_VALID_YES),
 	}
 	var data = make(map[string]interface{})
+	var data2 = make(map[string]interface{})
+	siteinfo := models.SiteInfo{PartyId: actionReq.PartyId, Status: int(enum.SITE_STATUS_JOINED)}
 	if actionReq.Action == int(enum.ActionType_STOP) {
 		data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		models.UpdateDeployComponent(data, deployComponent)
+		deploySite := models.DeploySite{PartyId: actionReq.PartyId, IsValid: int(enum.IS_VALID_YES)}
+		models.UpdateDeploySite(data, deploySite)
+		data2["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+		models.UpdateSiteByCondition(data2, siteinfo)
 	} else if actionReq.Action == int(enum.ActionType_RESTART) {
 		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+		models.UpdateDeployComponent(data, deployComponent)
+		deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
+		deployComponent.ComponentName = ""
+		deployComponentList, _ := models.GetDeployComponent(deployComponent)
+		if len(deployComponentList) == 0 {
+			data2["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+			models.UpdateSiteByCondition(data2, siteinfo)
+		}
 	} else {
 		return e.INVALID_PARAMS, nil
 	}
-	models.UpdateDeployComponent(data, deployComponent)
+
 	return e.SUCCESS, nil
 }
 
@@ -261,24 +276,24 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
-		if setting.DeploySetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone {
 			cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
 		}
 		if setting.DeploySetting.SudoTag {
 			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
-			if setting.DeploySetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone {
 				cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
 			}
 		}
 		util.ExecCommand(cmd)
 
 		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-		if setting.DeploySetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone {
 			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 		}
 		if setting.DeploySetting.SudoTag {
 			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-			if setting.DeploySetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone {
 				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 			}
 		}
@@ -393,15 +408,15 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			for i := 0; i < len(componentVersionList); i++ {
-				port := models.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
+				port := models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
 				} else if componentVersionList[i].ComponentName == "rollsite" {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(enum.DeployType_K8S)
-				if len(nodelist)==0{
+				nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
+				if len(nodelist) == 0 {
 					continue
 				}
 				deployComponent := models.DeployComponent{
@@ -470,14 +485,14 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		models.UpdateDeploySite(data, deploySite)
 	}
 	var data = make(map[string]interface{})
-	data["deploy_type"]=int(enum.DeployType_K8S)
+	data["deploy_type"] = int(enum.DeployType_K8S)
 	data["update_time"] = time.Now()
 	siteInfo := models.SiteInfo{
-		FederatedId:            kubeReq.FederatedId,
-		PartyId:                kubeReq.PartyId,
-		Status:                 int(enum.SITE_STATUS_JOINED),
+		FederatedId: kubeReq.FederatedId,
+		PartyId:     kubeReq.PartyId,
+		Status:      int(enum.SITE_STATUS_JOINED),
 	}
-	models.UpdateSiteByCondition(data,siteInfo)
+	models.UpdateSiteByCondition(data, siteInfo)
 	return e.SUCCESS, nil
 }
 

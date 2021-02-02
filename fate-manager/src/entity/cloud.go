@@ -165,6 +165,10 @@ type PageReq struct {
 	PageNum  int `json:"pageNum"`
 	PageSize int `json:"pageSize"`
 }
+type ExchangeReq struct {
+	PageReq
+	Institution string `json:"institutions"`
+}
 type FederatedComponentVersionDos struct {
 	ComponentId      int    `json:"componentId"`
 	ComponentName    string `json:"componentName"`
