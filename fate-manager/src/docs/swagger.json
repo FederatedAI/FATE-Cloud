@@ -4461,6 +4461,9 @@
                 "exchangeName": {
                     "type": "string"
                 },
+                "updateTime": {
+                    "type": "string"
+                },
                 "vip": {
                     "type": "string"
                 }
