@@ -27,18 +27,18 @@ import (
 
 var (
 	AutoTestCheck   = true
-	SiteStatusTimer = 10
+	SiteStatusTimer = 30
 	IpManagerTimer  = 30
-	HeartTimer      = 10
+	HeartTimer      = 30
 	JobTimer        = 30
 	TestOnlyTimer   = 30
-	ComponentTimer  = 10
+	ComponentTimer  = 30
 	ApplyTimer      = 10
 	AllowApplyTimer = 30
 	MonitorTimer    = 120
 	PageckageTimer  = 30
 	AutotestTimer   = 60
-	VersionTimer    = 600
+	VersionTimer    = 300
 )
 
 func SetUp() {

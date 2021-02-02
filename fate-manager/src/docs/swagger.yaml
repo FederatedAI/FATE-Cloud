@@ -1264,6 +1264,13 @@ definitions:
       context:
         type: string
     type: object
+  entity.SecretInfoReq:
+    properties:
+      federatedId:
+        type: string
+      partyId:
+        type: string
+    type: object
   entity.ServiceInfoReq:
     properties:
       fateVersion:
@@ -3349,7 +3356,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.SiteDetailReq'
+          $ref: '#/definitions/entity.SecretInfoReq'
       produces:
       - application/json
       responses:
