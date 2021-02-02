@@ -410,10 +410,21 @@ public class FederatedExchangeService implements Serializable {
 
     @Transactional
     public void deleteRollSite(RollSiteDeleteQo rollSiteDeleteQo) {
-        //delete roll site
         Long rollSiteId = rollSiteDeleteQo.getRollSiteId();
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         rollSiteDoQueryWrapper.eq("roll_site_id", rollSiteId);
+
+        //update exchange table
+        Date date = new Date();
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+        RollSiteDo rollSiteDo1 = rollSiteDos.get(0);
+        Long exchangeId = rollSiteDo1.getExchangeId();
+        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+        federatedExchangeDo.setExchangeId(exchangeId);
+        federatedExchangeDo.setUpdateTime(date);
+        federatedExchangeMapper.updateById(federatedExchangeDo);
+
+        //delete roll site
         rollSiteMapper.delete(rollSiteDoQueryWrapper);
 
         //delete party
