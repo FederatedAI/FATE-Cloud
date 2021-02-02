@@ -37,7 +37,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Site Manager
-	sites := router.Group("/fate-manager/api/site").Use(JWT())
+	sites := router.Group("/fate-manager/api/site") //.Use(JWT())
 	{
 		sites.GET("", GetHomeSiteList)
 		sites.GET("/other", GetOtherSiteList)
@@ -113,7 +113,6 @@ func InitRouter() *gin.Engine {
 		deploys.POST("/fateboard", GetFateBoardUrl)
 		deploys.POST("/version", GetInstallVersion)
 	}
-
 	//User
 	user := router.Group("/fate-manager/api/user").Use(JWT())
 	{

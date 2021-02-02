@@ -218,7 +218,6 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			ComponentName:    componentVersionList[i].ComponentName,
 			VersionIndex:     componentVersionList[i].VersionIndex,
 			StartTime:        time.Now(),
-			Address:          nodelist[1] + ":" + strconv.Itoa(port),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
 			DeployType:       int(enum.DeployType_K8S),
@@ -238,11 +237,14 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			var data =make(map[string]interface{})
 			data["fate_version"] = commitImagePullReq.FateVersion
 			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["address"] = deployComponentList[0].Address
 			data["version_index"] = componentVersionList[i].VersionIndex
+			data["deploy_type"] = int(enum.DeployType_K8S)
 			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
 		}
+		deployComponent.Address = nodelist[1] + ":" + strconv.Itoa(port)
 		err = models.AddDeployComponent(&deployComponent)
 		if err != nil {
 			logging.Error("Add Deploy Component Filed")
