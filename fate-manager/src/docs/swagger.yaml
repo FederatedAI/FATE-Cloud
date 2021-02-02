@@ -741,6 +741,8 @@ definitions:
     properties:
       exchangeName:
         type: string
+      updateTime:
+        type: string
       vip:
         type: string
     type: object
