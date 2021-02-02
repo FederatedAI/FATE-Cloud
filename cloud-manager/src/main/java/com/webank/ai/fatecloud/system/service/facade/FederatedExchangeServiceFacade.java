@@ -88,6 +88,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
         }
 
         String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
+        HashSet<String> rollSiteNetworkList = new HashSet<>();
         for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
 
             //check roll site ip
@@ -109,12 +110,17 @@ public class FederatedExchangeServiceFacade implements Serializable {
                 return 1;
             }
 
+            rollSiteNetworkList.add(rollSiteAddBean.getNetworkAccess());
+        }
 
+        if(rollSiteAddBeanList.size()!=rollSiteNetworkList.size()){
+            return 2;
         }
 
         if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
             return 1;
         }
+
         return 0;
 
     }
