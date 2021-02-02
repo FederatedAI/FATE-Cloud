@@ -464,6 +464,19 @@ public class FederatedExchangeService implements Serializable {
         //update roll site table
         rollSiteDo.setUpdateTime(date);
         rollSiteMapper.updateById(rollSiteDo);
+
+        //update exchange table
+        QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
+        rollSiteDoQueryWrapper.eq("roll_site_id",rollSiteDeleteQo.getRollSiteId());
+        List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
+        RollSiteDo rollSiteDo1 = rollSiteDos.get(0);
+        Long exchangeId = rollSiteDo1.getExchangeId();
+
+        FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
+        federatedExchangeDo.setExchangeId(exchangeId);
+        federatedExchangeDo.setUpdateTime(date);
+        federatedExchangeMapper.updateById(federatedExchangeDo);
+
         return 2;
 
     }
