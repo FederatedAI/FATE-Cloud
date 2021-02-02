@@ -61,7 +61,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
         if (i == 2) {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_EXIST_ERROR);
         }
-
+        if (i == 3) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_NETWORK_REPEAT);
+        }
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
 
         if (federatedExchangeDo == null) {
@@ -113,8 +115,8 @@ public class FederatedExchangeServiceFacade implements Serializable {
             rollSiteNetworkList.add(rollSiteAddBean.getNetworkAccess());
         }
 
-        if(rollSiteAddBeanList.size()!=rollSiteNetworkList.size()){
-            return 2;
+        if (rollSiteAddBeanList.size() != rollSiteNetworkList.size()) {
+            return 3;
         }
 
         if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
