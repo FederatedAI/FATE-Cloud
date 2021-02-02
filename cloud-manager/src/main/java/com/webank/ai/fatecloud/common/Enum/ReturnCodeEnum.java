@@ -57,6 +57,7 @@ public enum ReturnCodeEnum {
     ROLLSITE_GRPC_ERROR(137, "Connect this rollsite error!"),
     ROLLSITE_EXIST_ERROR(138, "This rollsite already exist!"),
     EXCHANGE_NAME_REPEAT(139, "This exchange name already exist!"),
+    ROLLSITE_NETWORK_REPEAT(140, "There are duplicated roll site networks!"),
 
     ;
     private int code;
