@@ -59,6 +59,10 @@ public class FederatedFateManagerUserDo {
     @TableField(value = "status")
     private Integer status;
 
+    @ApiModelProperty(value = "protocol")
+    @TableField(value = "protocol")
+    private String protocol;
+
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
     private Date createTime;
