@@ -1,0 +1,11 @@
+database:
+  name: fate_ansible
+  user: user
+  passwd: pass
+  host: 127.0.0.1
+  port: 3306
+  max_connections: 100
+  stale_timeout: 30
+ansible:
+  host: 0.0.0.0
+  http_port: 9999
