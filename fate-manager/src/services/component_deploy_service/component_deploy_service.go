@@ -257,11 +257,11 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
-		nodes, _ := kubernetes.ClientSet.GetNodesWithoutMaster()
+		nodes, _ := kubernetes.ClientSet.GetNodesWithoutSpecNode("master")
 		if setting.KubenetesSetting.ModeAlone {
-			nodes, _ = kubernetes.ClientSet.GetNodesWithoutMaster()
+			nodes, _ = kubernetes.ClientSet.GetNodesWithoutSpecNode("master")
 		}
-		labels := kubernetes.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-")
+		labels := kubernetes.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-", "InternalIP")
 		kubernetes.ClientSet.SetLabelsForNode(nodes, labels)
 		result := kubernetes.ClientSet.GetNodeLabelOfFM(nodes, "fm-node-")
 		if len(result) > 0 {

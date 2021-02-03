@@ -20,6 +20,11 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+const (
+	POD_STATUS       = "Running"
+	NAMESPACE_STATUS = "Active"
+)
+
 var ClientSet *KubeClient
 
 func init() {
@@ -79,7 +84,7 @@ func (k *KubeClient) GetPodListWithPattern(namespace, pattern string) ([]string,
 		return nil, fmt.Errorf("GetK8sInfoFromOutcluster err:[%s]", err.Error())
 	}
 	for _, item := range pods.Items {
-		if strings.Contains(item.Name, pattern) && item.Status.Phase == "Running" {
+		if strings.Contains(item.Name, pattern) && item.Status.Phase == POD_STATUS {
 			podNameList = append(podNameList, item.Name)
 		}
 	}
@@ -93,7 +98,7 @@ func (k *KubeClient) GetPodWithPattern(namespace, pattern string) (string, error
 		return "", fmt.Errorf("GetK8sInfoFromOutcluster err:[%s]", err.Error())
 	}
 	for _, item := range pods.Items {
-		if strings.Contains(item.Name, pattern) && item.Status.Phase == "Running" {
+		if strings.Contains(item.Name, pattern) && item.Status.Phase == POD_STATUS {
 			podName = item.Name
 		}
 	}
@@ -123,7 +128,7 @@ func (k *KubeClient) GetNodes() ([]v1.Node, error) {
 	return nodeList.Items, nil
 }
 
-func (k *KubeClient) GetNodesWithoutMaster() ([]v1.Node, error) {
+func (k *KubeClient) GetNodesWithoutSpecNode(nodeName string) ([]v1.Node, error) {
 	var nodes []v1.Node
 	nodeList, err := k.GetNodes()
 	if err != nil {
@@ -132,7 +137,7 @@ func (k *KubeClient) GetNodesWithoutMaster() ([]v1.Node, error) {
 	for _, node := range nodeList {
 		var isMaster bool
 		for k, _ := range node.Labels {
-			if strings.Contains(k, "master") {
+			if strings.Contains(k, nodeName) {
 				isMaster = true
 			}
 		}
@@ -160,11 +165,11 @@ func (k *KubeClient) SetLabelsForNode(nodes []v1.Node, labels map[string]string)
 	return nil
 }
 
-func (k *KubeClient) GenerateFMNodeLabel(nodes []v1.Node, tag string) map[string]string {
+func (k *KubeClient) GenerateFMNodeLabel(nodes []v1.Node, tag, ipType string) map[string]string {
 	nodesLabels := make(map[string]string)
 	for k, node := range nodes {
 		for _, v := range node.Status.Addresses {
-			if v.Type == "InternalIP" {
+			if string(v.Type) == ipType {
 				// kubectl label nodes workshop fm-node-0=10.192.162.56
 				nodesLabels[node.Name] = strings.Join([]string{tag, strconv.Itoa(k), "=", v.Address}, "")
 			}
@@ -220,7 +225,7 @@ func (k *KubeClient) ListNamespaceWithPattern(pattern string) ([]string, error) 
 		return nil, fmt.Errorf("list namespaces err[%s]", err.Error())
 	}
 	for _, ns := range nsList.Items {
-		if strings.Contains(ns.Name, pattern) && ns.Status.Phase == "Active" {
+		if strings.Contains(ns.Name, pattern) && ns.Status.Phase == NAMESPACE_STATUS {
 			namespaceList = append(namespaceList, ns.Name)
 		}
 	}
