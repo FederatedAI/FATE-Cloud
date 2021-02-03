@@ -58,6 +58,8 @@ public enum ReturnCodeEnum {
     ROLLSITE_EXIST_ERROR(138, "This rollsite already exist!"),
     EXCHANGE_NAME_REPEAT(139, "This exchange name already exist!"),
     ROLLSITE_NETWORK_REPEAT(140, "There are duplicated roll site networks!"),
+    FATE_MANAGER_STATUS_ERROR(141, "The institution can't edit!"),
+    FATE_MANAGER_URL_ERROR(142, "The institution activate url has changed!"),
 
     ;
     private int code;

@@ -147,6 +147,7 @@ create table IF NOT EXISTS `t_fate_manager_user`(
     `registration_link` text COMMENT 'federated registration link',
     `creator` varchar(128) NOT NULL COMMENT 'creator for user',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 not activated, 2 activated, 3 deleted',
+    `protocol` varchar(128) NOT NULL  COMMENT 'https:// or http://',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';

@@ -42,9 +42,17 @@ public class FederatedFateManagerUserController {
 
     @PostMapping(value = "/add")
     @ApiOperation(value = "add fate manager to cloud manager")
-    public CommonResponse<String> addFateManagerUser(@RequestBody FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
+    public CommonResponse<FederatedFateManagerUserDo> addFateManagerUser(@RequestBody FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
         log.info("RequestBody:{}", fateManagerUserAddQo);
         return federatedFateManagerUserServiceFacade.addFateManagerUser(fateManagerUserAddQo);
+
+    }
+
+    @PostMapping(value = "/update")
+    @ApiOperation(value = "update fate manager to cloud manager")
+    public CommonResponse<FederatedFateManagerUserDo> updateFateManagerUser(@RequestBody FateManagerUserUpdateQo fateManagerUserUpdateQo) throws UnsupportedEncodingException {
+        log.info("RequestBody:{}", fateManagerUserUpdateQo);
+        return federatedFateManagerUserServiceFacade.updateFateManagerUser(fateManagerUserUpdateQo);
 
     }
 
@@ -59,9 +67,9 @@ public class FederatedFateManagerUserController {
 
     @PostMapping(value = "/activate")
     @ApiOperation(value = "activate fate manager user")
-    public CommonResponse activateFateManagerUser(HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", httpServletRequest);
-        return federatedFateManagerUserServiceFacade.activateFateManagerUser(httpServletRequest);
+    public CommonResponse activateFateManagerUser(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        log.info("RequestBody:{}|{}", httpServletRequest,siteActivateQo);
+        return federatedFateManagerUserServiceFacade.activateFateManagerUser(siteActivateQo,httpServletRequest);
 
     }
 
