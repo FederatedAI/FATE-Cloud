@@ -26,10 +26,10 @@ import (
 	"strings"
 	"time"
 
-	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
+	"fate.manager/comm/kubernetes"
 	"fate.manager/comm/logging"
 	"fate.manager/comm/setting"
 	"fate.manager/comm/util"
@@ -544,7 +544,7 @@ func ComponentStatusTask() {
 			testname = "python"
 		}
 		ns := fmt.Sprintf("fate-%d", deployComponentList[i].PartyId)
-		podNameList, _ := clientgo.ClientSet.GetPodListWithPattern(ns, testname)
+		podNameList, _ := kubernetes.ClientSet.GetPodListWithPattern(ns, testname)
 		cnt := len(podNameList)
 		var data = make(map[string]interface{})
 		if cnt < 1 {

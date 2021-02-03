@@ -27,10 +27,10 @@ import (
 	"strings"
 	"time"
 
-	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
+	"fate.manager/comm/kubernetes"
 	"fate.manager/comm/logging"
 	"fate.manager/comm/setting"
 	"fate.manager/comm/util"
@@ -154,13 +154,13 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 	if err != nil || len(deploySiteList) == 0 {
 		return nil, err
 	}
-	result, err := clientgo.ClientSet.GetPodWithPattern("kube-fate", "kubefate")
+	result, err := kubernetes.ClientSet.GetPodWithPattern("kube-fate", "kubefate")
 	if err != nil {
 		return nil, fmt.Errorf("GetPodWithPattern err[%s]", err.Error())
 	}
-	err = clientgo.ClientSet.WriteLogsIntoFile("kube-fate", result, "./testLog/kubefate.log", 500)
+	err = kubernetes.ClientSet.WriteLogsIntoFile("kube-fate", result, "./testLog/kubefate.log", 500)
 	if err != nil {
-		logging.Error("clientgo.ClientSet.WriteLogsIntoFile err[%s]", err.Error())
+		logging.Error("kubernetes.ClientSet.WriteLogsIntoFile err[%s]", err.Error())
 	}
 
 	file, err := os.Open("./testLog/kubefate.log")
@@ -257,13 +257,13 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
-		nodes, _ := clientgo.ClientSet.GetNodesWithoutMaster()
+		nodes, _ := kubernetes.ClientSet.GetNodesWithoutMaster()
 		if setting.KubenetesSetting.ModeAlone {
-			nodes, _ = clientgo.ClientSet.GetNodesWithoutMaster()
+			nodes, _ = kubernetes.ClientSet.GetNodesWithoutMaster()
 		}
-		labels := clientgo.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-")
-		clientgo.ClientSet.SetLabelsForNode(nodes, labels)
-		result := clientgo.ClientSet.GetNodeLabelOfFM(nodes, "fm-node-")
+		labels := kubernetes.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-")
+		kubernetes.ClientSet.SetLabelsForNode(nodes, labels)
+		result := kubernetes.ClientSet.GetNodeLabelOfFM(nodes, "fm-node-")
 		if len(result) > 0 {
 			iplist := result
 			var data = make(map[string]interface{})

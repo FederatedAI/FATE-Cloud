@@ -1,4 +1,4 @@
-package clientgo
+package kubernetes
 
 import (
 	"bytes"

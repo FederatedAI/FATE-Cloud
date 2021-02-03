@@ -27,10 +27,10 @@ import (
 	"strings"
 	"time"
 
-	"fate.manager/comm/clientgo"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
 	"fate.manager/comm/http"
+	"fate.manager/comm/kubernetes"
 	"fate.manager/comm/logging"
 	"fate.manager/comm/setting"
 	"fate.manager/comm/util"
@@ -184,10 +184,10 @@ func Install(installReq entity.InstallReq) (int, error) {
 
 	name := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
 	nameSpace := fmt.Sprintf("fate-%d", deploySiteList[0].PartyId)
-	nsList, _ := clientgo.ClientSet.ListNamespaceWithPattern(nameSpace)
+	nsList, _ := kubernetes.ClientSet.ListNamespaceWithPattern(nameSpace)
 	logging.Debug(len(nsList))
 	if len(nsList) != 1 {
-		_, err := clientgo.ClientSet.CreateNamespace(nameSpace)
+		_, err := kubernetes.ClientSet.CreateNamespace(nameSpace)
 		if err != nil {
 			logging.Error("clientset.CreateNamespace err[%s]", err.Error())
 		} else {
@@ -557,7 +557,7 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
 	ns := deploySiteList[0].NameSpace
-	podList, err := clientgo.ClientSet.GetPods(ns)
+	podList, err := kubernetes.ClientSet.GetPods(ns)
 	if len(podList.Items) == 0 {
 		return e.ERROR_AUTO_TEST_FAIL, err
 	}
@@ -583,10 +583,8 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 				if testname == "fateboard" || testname == "fateflow" {
 					testname = "python"
 				}
-				podNameList, _ := clientgo.ClientSet.GetPodListWithPattern(ns, testname)
-				// cmdSub := fmt.Sprintf("%s |grep %s* | grep Running |wc -l", cmd, testname)
+				podNameList, _ := kubernetes.ClientSet.GetPodListWithPattern(ns, testname)
 				data["start_time"] = time.Now()
-				// result, _ := util.ExecCommand(cmdSub)
 				data["end_time"] = time.Now()
 
 				autoTest.TestItem = v[i]
@@ -594,7 +592,6 @@ func AutoTest(autoTestReq entity.AutoTestReq) (int, error) {
 				temp["deploy_status"] = int(enum.DeployStatus_IN_TESTING)
 
 				data["status"] = int(enum.TEST_STATUS_YES)
-				// cnt, _ := strconv.Atoi(result[0:1])
 				cnt := len(podNameList)
 				logging.Info(cnt)
 				if cnt < 1 {
