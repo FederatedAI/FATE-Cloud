@@ -1,0 +1,25 @@
+{
+  "base": "base",
+  "supervisor": "supervisor",
+  "python": {
+    "role": "python",
+    "when": "( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or  ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or  ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True )  or  ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True )"
+  },
+  "java": "java",
+  "mysql": {
+    "role": "mysql",
+    "when": "( ansible_ssh_host in host['mysql']['ips'] and host['mysql']['enable'] == True ) or ( ansible_ssh_host in guest['mysql']['ips'] and guest['mysql']['enable'] == True )"
+  },
+  "eggroll": {
+    "role": "eggroll",
+    "when": "( ( ansible_ssh_host in exchange['rollsite']['ips'] and exchange['enable'] == True ) or ( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or  ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or  ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True )  or  ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True ) or ( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True ) )"
+  },
+  "fate_flow": {
+    "role": "fate_flow",
+    "when": "( ansible_ssh_host in host['fate_flow']['ips'] and host['fate_flow']['enable'] == True ) or ( ansible_ssh_host in guest['fate_flow']['ips'] and guest['fate_flow']['enable'] == True ) or ( ansible_ssh_host in host['rollsite']['ips'] and host['rollsite']['enable'] == True ) or ( ansible_ssh_host in guest['rollsite']['ips'] and guest['rollsite']['enable'] == True ) or ( ansible_ssh_host in host['nodemanager']['ips'] and host['nodemanager']['enable'] == True ) or ( ansible_ssh_host in guest['nodemanager']['ips'] and guest['nodemanager']['enable'] == True ) or ( ansible_ssh_host in host['clustermanager']['ips'] and host['clustermanager']['enable'] == True )  or ( ansible_ssh_host in guest['clustermanager']['ips'] and guest['clustermanager']['enable'] == True )"
+  },
+  "fateboard": {
+    "role": "fateboard",
+    "when": "( ansible_ssh_host in host['fateboard']['ips'] and host['fateboard']['enable'] == True ) or ( ansible_ssh_host in guest['fateboard']['ips'] and guest['fateboard']['enable'] == True )"
+  }
+}
