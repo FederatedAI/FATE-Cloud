@@ -46,7 +46,7 @@ func SignIn(loginReq entity.LoginReq) (int, *entity.LoginResp, error) {
 			return e.ERROR_SELECT_DB_FAIL, nil, err
 		}
 		if len(result) > 0 {
-			if result[0].Role != int(enum.UserRole_ADMIN) && result[0].Role != int(enum.UserRole_DEVELOPER) && !loginReq.SubTag{
+			if result[0].Role != int(enum.UserRole_ADMIN) && result[0].Role != int(enum.UserRole_DEVELOPER) && !loginReq.SubTag {
 				return e.ERROR_SIGN_IN_FAIL, nil, nil
 			}
 			userInfo := models.UserInfo{
@@ -151,6 +151,11 @@ func CheckJwt(checkJwtReq entity.CheckJwtReq) (int, *entity.CheckJwtResp, error)
 
 	return e.SUCCESS, &checkJwtResp, nil
 }
+
+type ActivateReq struct {
+	ActivateUrl string `json:"registrationLink"`
+}
+
 func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 
 	accountInfo := models.AccountInfo{
@@ -185,15 +190,18 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 	if len(userInfoList) == 0 {
 		return e.ERROR_USERNAME_OR_PASSWORD_FAIL, err
 	}
+
+	ActivateReq := ActivateReq{ActivateUrl: accountActivateReq.ActivateUrl}
+	ActivateReqJson, _ := json.Marshal(ActivateReq)
 	headInfo := util.UserHeaderInfo{
 		UserAppKey:    accountActivateReq.AppKey,
 		UserAppSecret: accountActivateReq.AppSecret,
 		FateManagerId: accountActivateReq.FateManagerId,
-		Body:          "",
+		Body:          string(ActivateReqJson),
 		Uri:           setting.UserActivateUri,
 	}
 	headerInfoMap := util.GetUserHeadInfo(headInfo)
-	result, err := http.POST(http.Url(accountActivateReq.FederatedUrl+setting.UserActivateUri), nil, headerInfoMap)
+	result, err := http.POST(http.Url(accountActivateReq.FederatedUrl+setting.UserActivateUri), ActivateReq, headerInfoMap)
 	if err != nil {
 		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
 		return e.ERROR_ACCOUNT_ACTIVATE_FAIL, err
