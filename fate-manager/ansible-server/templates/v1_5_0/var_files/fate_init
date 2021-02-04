@@ -1,0 +1,36 @@
+
+deploy_mode: "install"
+ 
+pname: "fate"
+mversion: 1.5.0
+versions:
+  fate_flow: 1.5.0
+  eggroll: 1.5.0
+  fateboard: 1.5.0
+ 
+
+python:
+  version: 4.5.4
+  dest: "common/miniconda3"
+  venv: "common/python/venv"
+  pip: pip-packages-fate-1.5.0
+  must:
+  - setuptools-42.0.2-py2.py3-none-any.whl
+
+java:
+  name: "jdk"
+  version: "8u192"
+  path: "common/jdk"
+
+mysql:
+  version: "8.0.13"
+  path: "common/mysql"
+  user: "root"
+  passwd: "fatE168dev"
+redis:
+  version: "5.0.2"
+  path: "common/redis"
+
+
+
+
