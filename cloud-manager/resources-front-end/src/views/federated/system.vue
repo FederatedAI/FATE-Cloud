@@ -3,12 +3,12 @@
     <div class="system">
         <div class="system-header">
             <el-radio-group class="radio" v-model="radio">
-                <el-radio-button label="Site service info."></el-radio-button>
+                <el-radio-button label="Site service info"></el-radio-button>
                 <el-radio-button label="Service version manage"></el-radio-button>
             </el-radio-group>
         </div>
         <div class="system-body">
-            <div v-if="radio==='Site service info.'" class="table" >
+            <div v-if="radio==='Site service info'" class="table" >
                 <div class="table-head">
                     <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID"> </el-input>
                     <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
@@ -30,7 +30,7 @@
                     height="100%"
                     tooltip-effect="light">
                     <el-table-column type="index" label="Index" class-name="cell-td-td" width="70"></el-table-column>
-                    <el-table-column prop="siteName" label="Site Name" min-width="90" class-name="cell-td-td">
+                    <el-table-column prop="siteName" label="Site Name" min-width="90" class-name="cell-td-td" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <!-- <el-button type="text">{{scope.row.siteName}}</el-button> -->
                             <span>{{scope.row.siteName}}</span>
@@ -59,7 +59,7 @@
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
                                     <!-- <span v-if="item.updateStatus===1">{{item.version}}</span> -->
-                                    <tooltip :width="'80px'" :content="item.version" :placement="'top'"/>
+                                    <tooltip :width="'90px'" :content="item.version" :placement="'top'"/>
                                     <!-- <span >{{item.version}}</span> -->
                                 </div>
                             </span>
@@ -69,7 +69,7 @@
                             <template slot-scope="scope">
                                 <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
-                                    <span>{{item.updateStatus===1?'Available':'Unavailable'}}</span>
+                                    <span>{{item.detectiveStatus===1?'Unavailable':'Available'}}</span>
                                 </div>
                             </span>
                             </template>
@@ -115,7 +115,7 @@
                                                 <div class="title-history">History</div>
                                             </div>
                                             <div class="content-box">
-                                                <div v-for="(item, index) in elm.historylist" :key="index">
+                                                <div v-for="(item, index) in historydata" :key="index">
                                                     <div class="title-time">{{item.updateTime | dateFormat}}</div>
                                                     <div v-if="index===0 " class="title-history">
                                                         <span >Installed </span>
@@ -124,13 +124,13 @@
                                                         <span v-if="item.updateStatus===2"> failed</span>
                                                     </div>
                                                     <div v-if="index > 0 " class="title-history">
-                                                        <span v-if="elm.historylist[index-1].updateStatus===1">
+                                                        <span v-if="historydata[index-1].updateStatus===1">
                                                             upgraded to
                                                             <span class="version">{{item.version}}</span>
                                                             <span v-if="item.updateStatus===1"> successfully</span>
                                                             <span v-if="item.updateStatus===2"> failed</span>
                                                         </span>
-                                                        <span v-if="elm.historylist[index-1].updateStatus===2">
+                                                        <span v-if="historydata[index-1].updateStatus===2">
                                                             Installed
                                                             <span class="version">{{item.version}}</span>
                                                             <span v-if="item.updateStatus===1"> successfully</span>
@@ -141,7 +141,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <el-button  slot="reference" type="text">
+                                        <el-button @click="getHistory(elm)"  slot="reference" type="text">
                                             <i class="el-icon-tickets" ></i>
                                         </el-button>
                                     </el-popover>
@@ -194,7 +194,7 @@ export default {
     },
     data() {
         return {
-            radio: 'Site service info.',
+            radio: 'Site service info',
             currentPage: 1, // 当前页
             total: 0, // 表格条数
             tableData: [],
@@ -253,9 +253,9 @@ export default {
                     if (item.federatedSiteModelDos.length > 0) {
                         item.federatedSiteModelDos = item.federatedSiteModelDos.map(elm => {
                             elm.visible = false// 历史记录表格弹框
-                            systemhistory({ id: elm.id, installItems: elm.installItems }).then(res => {
-                                elm.historylist = [...res.data]
-                            })
+                            // systemhistory({ id: elm.id, installItems: elm.installItems }).then(res => {
+                            //     elm.historylist = [...res.data]
+                            // })
                             return elm
                         })
                     }
@@ -306,6 +306,8 @@ export default {
     }
     .content-box{
         padding: 0px 24px;
+        height: 380px;
+        overflow: auto;
         .title-time{
             color: #848C99
         }

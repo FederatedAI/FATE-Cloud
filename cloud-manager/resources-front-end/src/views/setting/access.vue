@@ -90,6 +90,13 @@
             <span class="input-title">admin-level</span>
             <el-checkbox v-model="levelChecked" disabled>senior admin</el-checkbox>
         </div>
+         <div class="add-input" v-if='radio === "FATE Manager"'>
+            <span class="input-title">Invitation Link Type</span>
+            <el-radio-group v-model="protocol">
+                <el-radio label="https://">HTTPS</el-radio>
+                <el-radio label="http://">HTTP</el-radio>
+            </el-radio-group>
+        </div>
         <div class="dialog-foot">
           <el-button type="primary" @click="toOK">OK</el-button>
           <el-button type="info" @click="adddialog=false">Cancel</el-button>
@@ -113,7 +120,8 @@
         <div class="icon">
             <i class="el-icon-success"></i>
         </div>
-        <div  class="line-text-one" >Add successfully !</div>
+        <div v-if="addType==='FATE-Manager-add'" class="line-text-one" >Add successfully !</div>
+        <div v-if="addType==='FATE-Manager-updata'" class="line-text-one" >Modify successfully !</div>
         <div class="line-text-two">the administrator invitation link has been generated as follows:</div>
         <div class="line-text-three">
             <el-popover
@@ -126,8 +134,21 @@
             </el-popover>
             <span class="copy dialogcopy"  @click="toCopy"  :data-clipboard-text="addSuccessText">copy</span>
         </div>
+        <div class="line-text-four">
+            <span>
+                Current invitation link is generated as
+                <span v-if="protocol==='http://'">HTTP</span>
+                <span v-if="protocol==='https://'">HTTPS</span>
+                ，you can click to
+            </span>
+            <span class="regenerate" @click="toUpdata">
+                regenerate link as
+                <span v-if="protocol==='http://'">HTTPS</span>
+                <span v-if="protocol==='https://'">HTTP</span>
+            </span>
+        </div>
         <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="addSuccessdialog=false">OK</el-button>
+                <el-button class="ok-btn" type="primary" @click="initList();addSuccessdialog=false">OK</el-button>
         </div>
     </el-dialog>
   </div>
@@ -139,7 +160,7 @@
 import moment from 'moment'
 import Clipboard from 'clipboard'
 import { mapGetters } from 'vuex'
-import { accessCloudList, accessManagerList, addManager, addCloud, deleteCloud } from '@/api/setting'
+import { accessCloudList, accessManagerList, addManager, addCloud, deleteCloud, updataManager } from '@/api/setting'
 
 export default {
     name: 'access',
@@ -152,12 +173,15 @@ export default {
     data() {
         return {
             institutionName: '',
+            addType: '',
+            fateManagerId: '',
             warn: false,
             adddialog: false,
             deletedialog: false,
             addSuccessdialog: false,
             levelChecked: true,
             radio: 'Cloud Manager',
+            protocol: 'https://',
             currentPage: 1, // 当前页
             total: 0, // 表格条数
             managertableData: [],
@@ -239,13 +263,15 @@ export default {
             } else {
                 let data = {
                     creator: this.loginName, // 当前登录用户
-                    institutions: this.institutionName.trim()
+                    institutions: this.institutionName.trim(),
+                    protocol: this.protocol
                 }
                 addManager(data).then(res => {
-                    this.addSuccessText = res.data
+                    this.addSuccessText = res.data.registrationLink
+                    this.fateManagerId = res.data.fateManagerId
+                    this.protocol = res.data.protocol
                     this.adddialog = false
                     this.addSuccessdialog = true
-                    this.initList()
                 })
             }
         },
@@ -267,12 +293,38 @@ export default {
         // 添加
         toAdd() {
             this.institutionName = ''
+            this.addType = 'FATE-Manager-add'
             this.adddialog = true
         },
         // 激活
         toactivat(row) {
             this.addSuccessText = row.registrationLink
+            this.fateManagerId = row.fateManagerId
+            this.institutionName = row.institutions
+            this.protocol = row.protocol
+            this.addType = ''
             this.addSuccessdialog = true
+        },
+        toUpdata() {
+            let data = {
+                creator: this.loginName,
+                institution: this.institutionName,
+                fateManagerId: this.fateManagerId
+            }
+            if (this.protocol === 'http://') {
+                data.protocol = 'https://'
+            } else if (this.protocol === 'https://') {
+                data.protocol = 'http://'
+            }
+            updataManager(data).then(res => {
+                this.addSuccessdialog = false
+                this.addSuccessText = res.data.registrationLink
+                this.protocol = res.data.protocol
+                setTimeout(() => {
+                    this.addSuccessdialog = true
+                    this.addType = 'FATE-Manager-updata'
+                }, 300)
+            })
         },
         // 翻页
         handleCurrentChange(val) {
