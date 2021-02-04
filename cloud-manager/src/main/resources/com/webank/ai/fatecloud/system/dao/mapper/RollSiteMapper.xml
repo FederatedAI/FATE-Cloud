@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.RollSiteMapper">
+
+    <resultMap id="rollSiteMap" type="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
+        <id property="rollSiteId" column="roll_site_id"></id>
+        <result property="networkAccess" column="network_access"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <result property="exchangeId" column="exchange_id"></result>
+
+        <collection property="partyDos"
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.PartyDo"
+                    javaType="java.util.List">
+            <id property="id" column="id"></id>
+            <result property="partyId" column="party_id"></result>
+            <result property="networkAccess" column="party_network_access"></result>
+            <result property="status" column="status"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+            <result property="rollSiteId" column="roll_site_id"></result>
+        </collection>
+    </resultMap>
+
+    <select id="findMaxBatch"
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo" resultType="long">
+        select max(batch) FROM t_exchange_details where exchange_id = #{exchangeId}
+    </select>
+
+    <select id="findRollSitePage"
+            resultMap="rollSiteMap">
+        select a.*,b.id,b.party_id,b.network_access party_network_access,b.status,b.create_time,b.update_time,b.roll_site_id
+        from (select * FROM t_roll_site where  exchange_id= #{rollSitePageQo.exchangeId} order by update_time desc limit #{startIndex}, #{rollSitePageQo.pageSize}) a,t_party b
+        where a.roll_site_id= b.roll_site_id
+
+    </select>
+
+
+</mapper>

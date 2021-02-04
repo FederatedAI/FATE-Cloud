@@ -1,6 +1,6 @@
 ###Cloud-Manager
 
-CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
+create TABLE IF NOT EXISTS `t_federated_site_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `site_name` varchar(128) DEFAULT NULL COMMENT 'site Name',
   `party_id` bigint(12) DEFAULT NULL COMMENT 'party_id',
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   `fate_serving_version` text DEFAULT NULL COMMENT 'fate serving version',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'site status,1 not joined,2 joined,3 removed',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   `activation_time` timestamp NULL DEFAULT NULL COMMENT 'activation_time',
   `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：not survie，2: survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
@@ -22,18 +22,18 @@ CREATE TABLE IF NOT EXISTS `t_federated_site_manager` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated SITE Manager';
 
-CREATE TABLE IF NOT EXISTS `t_federated_organization` (
+create TABLE IF NOT EXISTS `t_federated_organization` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
   `institution` varchar(128) DEFAULT NULL COMMENT 'Institution Name',
   `status` tinyint(4) DEFAULT '1' COMMENT 'Federated Organization Status 1,valid 2,delete',
   `descriptions` varchar(256) DEFAULT NULL COMMENT 'Federated Organization Descriptions',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Organization Table';
 
-CREATE TABLE IF NOT EXISTS `t_federated_ip_manager` (
+create TABLE IF NOT EXISTS `t_federated_ip_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `case_id` varchar(50) DEFAULT NULL COMMENT 'case id ，每次改动唯一',
   `site_name` varchar(128) DEFAULT NULL COMMENT 'Organization Name',
@@ -47,11 +47,11 @@ CREATE TABLE IF NOT EXISTS `t_federated_ip_manager` (
   `network_access_exits_old` varchar(256) DEFAULT NULL COMMENT 'network access exits',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'log deal status,0:no deal,1:agreed,2:rejected',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated IP Manager';
 
-CREATE TABLE IF NOT EXISTS `t_federated_group_set` (
+create TABLE IF NOT EXISTS `t_federated_group_set` (
   `group_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'group id',
   `group_name` varchar(128) DEFAULT NULL COMMENT 'group name',
   `role` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'role, 1:guest, 2:host',
@@ -60,11 +60,11 @@ CREATE TABLE IF NOT EXISTS `t_federated_group_set` (
   `used` bigint(20) DEFAULT '0' COMMENT 'used party id num',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'group status, 1:valid, 2:delete',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='Federated Group Set';
 
-CREATE TABLE IF NOT EXISTS `t_federated_group_range_detail` (
+create TABLE IF NOT EXISTS `t_federated_group_range_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'group detail id',
   `left_region` bigint(20) NOT NULL DEFAULT '0' COMMENT 'start index',
   `right_region` bigint(20) NOT NULL DEFAULT '0' COMMENT 'end index',
@@ -72,12 +72,12 @@ CREATE TABLE IF NOT EXISTS `t_federated_group_range_detail` (
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'group detail status, 1:valid, 2:delete',
   `use_tag` bigint(20) NOT NULL DEFAULT '0' COMMENT 'use_num,0:not use,use_tag use num',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Group Detail';
 
-CREATE TABLE IF NOT EXISTS `t_federated_site_model` (
+create TABLE IF NOT EXISTS `t_federated_site_model` (
   `model_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'model id',
   `install_items` varchar(128) DEFAULT NULL COMMENT 'model name',
   `version` varchar(128) DEFAULT NULL COMMENT 'model version',
@@ -124,7 +124,7 @@ create table IF NOT EXISTS `t_cloud_manager_user`(
     `creator` varchar(128) NOT NULL COMMENT 'creator for user',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 joined, 2 deleted',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY(`cloud_manager_id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='cloud manager user information';
 
@@ -135,7 +135,7 @@ create table IF NOT EXISTS `t_cloud_manager_origin_user`(
     `password` varchar(256) NOT NULL COMMENT 'password for user',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 joined, 2 deleted',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY(`cloud_manager_origin_id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='cloud manager origin user information';
 
@@ -147,8 +147,9 @@ create table IF NOT EXISTS `t_fate_manager_user`(
     `registration_link` text COMMENT 'federated registration link',
     `creator` varchar(128) NOT NULL COMMENT 'creator for user',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 not activated, 2 activated, 3 deleted',
+    `protocol` varchar(128) NOT NULL  COMMENT 'https:// or http://',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
-    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time'
+    `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
 
 create table IF NOT EXISTS `t_job_statistics`(
@@ -170,17 +171,41 @@ create table IF NOT EXISTS `t_job_statistics`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='jobs statistics for sites';
 
 
-CREATE TABLE IF NOT EXISTS `t_federated_exchange` (
+create TABLE IF NOT EXISTS `t_federated_exchange` (
   `exchange_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-  `exchange_name` varchar(128) unique DEFAULT NULL COMMENT 'exchagne Name',
-  `network_access_entrances` varchar(512) DEFAULT NULL COMMENT 'network access entrances',
-  `network_access_exits` varchar(512) DEFAULT NULL COMMENT 'network access exits',
+  `exchange_name` varchar(128) DEFAULT NULL COMMENT 'exchagne Name',
+  `vip` varchar(512) DEFAULT NULL COMMENT 'exchange vip address',
+--  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1  exist 2  deleted',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`exchange_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
 
-CREATE TABLE IF NOT EXISTS `t_product_version` (
+create TABLE IF NOT EXISTS `t_roll_site` (
+  `roll_site_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `network_access` varchar(512) DEFAULT NULL COMMENT 'network address',
+--  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1  exist 2  deleted',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `exchange_id` bigint(20) NOT NULL COMMENT 'exchange id',
+  PRIMARY KEY (`roll_site_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='roll site details';
+
+
+create TABLE IF NOT EXISTS `t_party` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'party id',
+  `party_id` varchar(128)  DEFAULT NULL COMMENT 'party id',
+  `network_access` varchar(512) DEFAULT NULL COMMENT 'network address',
+--  `batch` bigint(20) NOT NULL  COMMENT 'insert-batch-number of route table',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 publised,2 modified, 3 to be deleted',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `roll_site_id` bigint(20) NOT NULL COMMENT 'roll site id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='party id details';
+
+
+create TABLE IF NOT EXISTS `t_product_version` (
   `product_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `product_name` varchar(128)  not NULL COMMENT 'procuct name',
   `product_version` varchar(128)  not NULL COMMENT 'product version',
@@ -191,20 +216,20 @@ CREATE TABLE IF NOT EXISTS `t_product_version` (
   `kubernetes_chart` varchar(512) DEFAULT NULL COMMENT 'version for kubernetes',
   `public_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 public, 2 private',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   unique key `name_version` (`product_name`, `product_version`),
   PRIMARY KEY (product_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='product version management';
 
 
-CREATE TABLE IF NOT EXISTS `t_component_version` (
+create TABLE IF NOT EXISTS `t_component_version` (
   `component_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `component_name` varchar(128)  not NULL COMMENT 'component name',
   `component_version` varchar(128)  not NULL COMMENT 'component version',
   `image_repository` varchar(128) DEFAULT NULL COMMENT 'image repository',
   `image_tag` varchar(128) DEFAULT NULL COMMENT 'image tag',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   `product_id` bigint(20) NOT NULL COMMENT ' Product Primary Key',
   PRIMARY KEY (component_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='component version management';

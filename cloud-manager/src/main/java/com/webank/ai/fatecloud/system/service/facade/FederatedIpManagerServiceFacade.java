@@ -28,6 +28,7 @@ import com.webank.ai.fatecloud.system.pojo.dto.IpManagerQueryDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedIpManagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,8 +63,13 @@ public class FederatedIpManagerServiceFacade {
     }
 
     public CommonResponse<IpManagerAcceptDto> acceptIpModify(IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) {
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), Dict.FATE_SITE_USER, new int[]{2},2);
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), 2);
+        }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -72,8 +78,14 @@ public class FederatedIpManagerServiceFacade {
     }
 
     public CommonResponse<IpManagerQueryDto> queryIpModify(IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) {
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), 2);
+        }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }

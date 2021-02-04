@@ -27,6 +27,7 @@ import com.webank.ai.fatecloud.system.pojo.qo.FederatedOrganizationRegisterQo;
 import com.webank.ai.fatecloud.system.service.impl.FederatedOrganizationService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedSiteManagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,19 @@ public class FederatedOrganizationServiceFacade {
 
     public CommonResponse<RegisteredOrganizationDto> findRegisteredOrganization(HttpServletRequest httpServletRequest) {
 //        boolean result = checkSignature.checkSignature(httpServletRequest, "",2,3);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 2,3);
+
+//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 2,3);
+//        if (!result) {
+//            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+//        }
+
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 2,3);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, "", 2,3);
+        }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }

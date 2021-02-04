@@ -3,7 +3,7 @@
     <div class="monitor">
       <div class="monitor-header">
         <el-radio-group class="radio" v-model="radio" @change="handleChahe">
-            <el-radio-button label="Today’s active institution"></el-radio-button>
+            <el-radio-button label="Today’s active data"></el-radio-button>
             <el-radio-button label="Cumulative active data"></el-radio-button>
         </el-radio-group>
       </div>
@@ -31,8 +31,7 @@ export default {
     },
     data() {
         return {
-            radio: 'Today’s active institution'
-
+            radio: 'Today’s active data'
         }
     },
     created() {

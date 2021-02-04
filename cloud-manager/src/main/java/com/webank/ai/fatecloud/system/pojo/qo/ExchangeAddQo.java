@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -30,14 +31,14 @@ import java.io.Serializable;
 @ApiModel(value = "exchange add qo")
 public class ExchangeAddQo implements Serializable {
 
+
     @ApiModelProperty(value = "exchange name")
     private String exchangeName;
 
-    @ApiModelProperty(value = "network access entrances")
-    private String networkAccessEntrances;
+    @ApiModelProperty(value = "vip address access ")
+    private String vip;
 
-    @ApiModelProperty(value = "network access exits")
-    private String networkAccessExits;
-
+    @ApiModelProperty(value = "exchange details list")
+    List<RollSiteAddBean> rollSiteAddBeanList;
 
 }

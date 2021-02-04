@@ -8,7 +8,7 @@ import router from '@/router'
 const service = axios.create({
     baseURL: process.env.NODE_ENV === 'mock' ? process.env.VUE_APP_BASE_API : process.env.BASE_API,
     withCredentials: true, // 跨域请求时发送 cookies
-    timeout: 15000 // request timeout
+    timeout: 40000 // request timeout
 })
 
 // request interceptor

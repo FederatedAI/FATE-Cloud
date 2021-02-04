@@ -272,7 +272,7 @@ export function getversion(data) {
 // ip-change列表
 export function getIpchangeList(data) {
     return request({
-        url: '/cloud-manager/api/exchange/page',
+        url: '/cloud-manager/api/exchange/exchange/page',
         method: 'post',
         data
     })
@@ -287,18 +287,60 @@ export function addIpchange(data) {
     })
 }
 
-// ip-change列表编辑
-export function editIpchange(data) {
-    return request({
-        url: '/cloud-manager/api/exchange/update',
-        method: 'post',
-        data
-    })
-}
 // ip-change 列表 删除
 export function deleteIpchange(data) {
     return request({
         url: '/cloud-manager/api/exchange/delete',
+        method: 'post',
+        data
+    })
+}
+// 添加新的RollStie
+export function addRollsite(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/rollsite/add',
+        method: 'post',
+        data
+    })
+}
+
+// 查询Rollsite 表格
+export function getRollsiteList(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/rollsite/page',
+        method: 'post',
+        data
+    })
+}
+// 查询Rollsite Network Access 内部表格
+export function getNetworkAccessList(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/query',
+        method: 'post',
+        data
+    })
+}
+// 点击publish
+export function toPublish(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/rollsite/publish',
+        method: 'post',
+        data
+    })
+}
+// 点击删除rollsite
+export function deleteRollsite(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/rollsite/delete',
+        method: 'post',
+        data
+    })
+}
+
+// 查询更新 rollsite update
+export function rollsiteUpdate(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/rollsite/update',
         method: 'post',
         data
     })
@@ -344,6 +386,15 @@ export function deleteManageList(data) {
 export function getSelect(data) {
     return request({
         url: '/cloud-manager/api/product/version',
+        method: 'post',
+        data
+    })
+}
+
+// 添加或者编辑获取mane下拉
+export function getnameSelect(data) {
+    return request({
+        url: '/cloud-manager/api/product/name',
         method: 'post',
         data
     })

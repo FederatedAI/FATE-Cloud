@@ -4,22 +4,11 @@
       <div class="ip-header">
         <el-radio-group class="radio" v-model="radio">
             <el-radio-button label="IP manage"></el-radio-button>
-            <el-radio-button label="Exchange info."></el-radio-button>
+            <el-radio-button label="Exchange info"></el-radio-button>
         </el-radio-group>
-        <!-- <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID">
-        </el-input>
-        <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
-          <el-option
-            v-for="item in roleTypeSelect"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          ></el-option>
-        </el-select>
-        <el-button class="go" @click="toSearch" type="primary">GO</el-button> -->
       </div>
       <div class="ip-body">
-        <div class="table" v-if="radio==='IP manage'">
+        <div class="ip-manage" v-if="radio==='IP manage'">
             <div class="table-head">
             </div>
           <el-table
@@ -243,7 +232,7 @@ export default {
     data() {
         return {
             dialogVisible: false,
-            radio: 'IP manage',
+            radio: this.$route.query.type ? 'Exchange info' : 'IP manage',
             currentPage1: 1, // 当前页
             total: 0,
             isdot: false,
@@ -284,14 +273,16 @@ export default {
         this.initList()
     },
     mounted() {
-        // 获取需要绑定的table
-        this.dom = this.$refs.table.bodyWrapper
-        // 监听表格滚动
-        this.dom.addEventListener('scroll', () => {
-            this.tableData.forEach(item => {
-                item.visible = false
+        if (this.radio === 'IP manage') {
+            // 获取需要绑定的table
+            this.dom = this.$refs.table.bodyWrapper
+            // 监听表格滚动
+            this.dom.addEventListener('scroll', () => {
+                this.tableData.forEach(item => {
+                    item.visible = false
+                })
             })
-        })
+        }
     },
     methods: {
         initList() {

@@ -25,13 +25,14 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "cloud manager user information")
+@ApiModel(value = "exchange information")
 @TableName("t_federated_exchange")
 public class FederatedExchangeDo implements Serializable {
 
@@ -43,14 +44,13 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "exchange_name")
     private String exchangeName;
 
-    @ApiModelProperty(value = "network access entrances")
-    @TableField(value = "network_access_entrances")
-    private String networkAccessEntrances;
+    @ApiModelProperty(value = "vip address access ")
+    @TableField(value = "vip")
+    private String vip;
 
-    @ApiModelProperty(value = "network access exits")
-    @TableField(value = "network_access_exits")
-    private String networkAccessExits;
-
+//    @ApiModelProperty(value = "status")
+//    @TableField(value = "status")
+//    private int status;
 
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
@@ -60,4 +60,6 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
+    @TableField(exist = false)
+    private List<RollSiteDo> rollSiteDos;
 }

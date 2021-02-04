@@ -1,6 +1,6 @@
 <template>
  <div>
-    <div v-if="type==='Today’s active institution'" class="type-time">
+    <div v-if="type==='Today’s active data'" class="type-time">
         <span>Active institutions today: </span>
         <span style="color:#217AD9">{{activejobs.active}}</span>
     </div>
@@ -8,8 +8,11 @@
         <span class="date">Date</span>
         <el-date-picker
             v-model="timevalue"
+            @change="initi"
+            :clearable="false"
             type="daterange"
             range-separator="~"
+            value-format="timestamp"
             start-placeholder="start"
             end-placeholder="end"
             :picker-options="pickerOptions">
@@ -18,9 +21,10 @@
     <div class="content-item">
         <div class="jobs-complete">
             <span>Federated modeling jobs：</span> <span class="span">{{activejobs.total}}</span>
-            <span>running：</span> <span class="span">{{activejobs.running}} ({{activejobs.running/activejobs.total | toGetFixed}}%)   </span>
-            <span>success：</span> <span class="span">{{activejobs.success}} ({{activejobs.success/activejobs.total | toGetFixed}}%)   </span>
-            <span>failed：</span> <span class="span">{{activejobs.failed}} ({{activejobs.failed/activejobs.total | toGetFixed}}%)</span>
+            <span>waiting：</span> <span class="span">{{activejobs.waiting}} ({{(activejobs.waiting/activejobs.total) | toGetFixed}}%)   </span>
+            <span>running：</span> <span class="span">{{activejobs.running}} ({{(activejobs.running/activejobs.total) | toGetFixed}}%)   </span>
+            <span>success：</span> <span class="span">{{activejobs.success}} ({{(activejobs.success/activejobs.total) | toGetFixed}}%)   </span>
+            <span>failed：</span> <span class="span">{{activejobs.failed}} ({{(1 -(activejobs.waiting/activejobs.total) - (activejobs.running/activejobs.total) - (activejobs.success/activejobs.total)) | toGetFixed}}%)</span>
         </div>
         <div class="institutions-jobs">
             <div class="institutions" >
@@ -37,7 +41,7 @@
                     </span>
                 </div>
                 <div v-else class="item-box no-date-box">
-                    No Date
+                    No Data
                 </div>
                 <div  class="institutions-pagination">
                     <el-pagination
@@ -51,14 +55,17 @@
                 </div>
             </div>
             <div class="jobs">
-                <div v-if="type==='Today’s active institution'" class="jobs-site-title">Active sites today:{{activeSite.active}}</div>
+                <div v-if="type==='Today’s active data'" class="jobs-site-title">Active sites today:{{activeSite.active}}</div>
                 <div class="job-alone-complete">
                     <span>Federated modeling jobs：</span> <span class="span">{{activeSite.total}}</span>
-                    <span >running：</span> <span class="span">{{activeSite.running}} ({{activeSite.running/activeSite.total | toGetFixed}}%)</span>
-                    <span>success：</span> <span class="span">{{activeSite.success}}  ({{activeSite.success/activeSite.total | toGetFixed}}%)</span>
-                    <span>failed：</span> <span class="span">{{activeSite.failed}}  ({{activeSite.failed/activeSite.total | toGetFixed}}%)</span>
+                    <span >waiting：</span> <span class="span">{{activeSite.waiting}} ({{(activeSite.waiting/activeSite.total) | toGetFixed}}%)</span>
+                    <span >running：</span> <span class="span">{{activeSite.running}} ({{(activeSite.running/activeSite.total) | toGetFixed}}%)</span>
+                    <span>success：</span> <span class="span">{{activeSite.success}}  ({{(activeSite.success/activeSite.total) | toGetFixed}}%)</span>
+                    <span>failed：</span> <span class="span">{{activeSite.failed}}  ({{(1 - (activeSite.waiting/activeSite.total) - (activeSite.running/activeSite.total) - (activeSite.success/activeSite.total)) | toGetFixed}}%)</span>
                 </div>
                 <div class="jobs-title">
+                    <span class="waiting"></span>
+                    <span>waiting</span>
                     <span class="running"></span>
                     <span>running</span>
                     <span class="complete"></span>
@@ -73,6 +80,10 @@
                             <overflowtooltip class="jobs-text" :width="'50px'" :content="item.partyId" :placement="'top'"/>
                             <el-tooltip placement="top">
                                 <div slot="content">
+                                    <div>waiting:
+                                        {{(item.waiting )}}
+                                        ({{item.waiting/item.total | toGetFixed}}%)
+                                    </div>
                                     <div>running:
                                         {{(item.running )}}
                                         ({{item.running/item.total | toGetFixed}}%)
@@ -86,20 +97,23 @@
                                         ({{item.failed/item.total | toGetFixed}}%)
                                     </div>
                                 </div>
-                                <div class="jobs-bar" :style="`width:${item.total*sitemWidth/item.max}px`">
-                                    <div class="jobs-bar-complete" :style="`width:${(item.success + item.failed)/item.total*100}%`">
-                                        <div class="jobs-bar-running" :style="`width:${(item.failed/(item.success + item.failed))*100}%`"></div>
+                                <span style="height:24px;vertical-align: bottom">
+                                    <div class="jobs-bar" :style="`width:${item.total*sitemWidth/item.max}px`">
+                                        <div class="jobs-bar-waiting" :style="`width:${item.waiting/item.total*100}%`"></div>
+                                        <div class="jobs-bar-running" :style="`width:${item.running/item.total*100}%`"></div>
+                                        <div class="jobs-bar-success" :style="`width:${item.success/item.total*100}%`"></div>
+                                        <div class="jobs-bar-failed" :style="`width:${item.failed/item.total*100}%`"></div>
                                     </div>
-                                </div>
+                                </span>
                             </el-tooltip>
                             <span class="text" >{{item.total}}</span>
                         </div>
                     </span>
                 </div>
                 <div v-else class="jobs-box no-date-box">
-                    No Date
+                    No Data
                 </div>
-                <div  class="institutions-pagination">
+                <div v-if="type!=='Today’s active data'" style="height:34px">
                     <!-- <el-pagination
                         small
                         background
@@ -121,7 +135,7 @@
             </div>
             <div class="select">
                 <span class="select-text">Institution</span>
-                <el-select v-model="institutionStat" @change="toGetIntSate" placeholder="请选择">
+                <el-select v-model="institutionStat" @change="toGetinstitutions" placeholder="请选择">
                     <el-option
                     v-for="item in institutionsdownList"
                     :key="item.value"
@@ -139,28 +153,33 @@
                     :header-cell-style="{background:'#FAFBFC'}"
                     :cell-style="{background:'#FAFBFC'}"
                     border
-                    height="250">
-                    <el-table-column prop="institutions" fixed align="center" label="" >
+                    max-height="250">
+                    <el-table-column prop="institutions" fixed align="center" :resizable="false" label="" >
                         <template slot-scope="scope">
                             <span style="color:#4E5766;font-weight:bold">{{scope.row.institutions}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="name" label="Jobs" >
+                    <el-table-column prop="name" label="Jobs" :resizable="false"  >
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.total}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Running">
+                    <el-table-column prop="" label="Waiting" :resizable="false">
                         <template slot-scope="scope">
-                            <span style="color:#848C99">{{scope.row.failed}} ({{scope.row.failed/scope.row.total | toGetFixed}}%)</span>
+                            <span style="color:#848C99">{{scope.row.waiting}} ({{scope.row.waiting/scope.row.total | toGetFixed}}%)</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Success">
+                    <el-table-column prop="" label="Running" :resizable="false">
+                        <template slot-scope="scope">
+                            <span style="color:#848C99">{{scope.row.running}} ({{scope.row.running/scope.row.total | toGetFixed}}%)</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="" label="Success" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.success}} ({{scope.row.success/scope.row.total | toGetFixed}}%)</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Failed">
+                    <el-table-column prop="" label="Failed" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.failed}} ({{scope.row.failed/scope.row.total | toGetFixed}}%)</span>
                         </template>
@@ -184,7 +203,7 @@
         <div class="institution-based">
             <div class="statistics">Site based statistics</div>
             <div class="cooperation">
-                Statistics of cooperation between institutions
+                Statistics of cooperation between sites
             </div>
             <div class="select">
                 <span class="select-text">Institution</span>
@@ -207,38 +226,65 @@
                     :header-cell-style="{background:'#FAFBFC'}"
                     :cell-style="{background:'#FAFBFC'}"
                     border
-                    height="250">
-                    <el-table-column prop="" align="center" fixed label="" >
+                    max-height="250">
+                    <el-table-column prop="" align="center"  :resizable="false"  label="" >
                         <template slot-scope="scope">
-                            <span style="color:#4E5766;font-weight:bold">{{scope.row.institutionsName}}</span>
+                            <span style="color:#4E5766;font-weight:bold">{{scope.row.institution}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="siteName" align="center" fixed label="site" show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column v-for="(item, index) in tableIntLabeList" :key="index" align="center" :prop="item"  :label="item">
+                    <el-table-column prop="siteName" align="center"  :resizable="false"  label="site" show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <span v-if="scope.row[item]==='none'" style="opacity:0">{{scope.row[item]}}</span>
-                            <el-tooltip v-else placement="top">
+                            <span >{{scope.row.institutionSiteName}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column v-for="(item, index) in tableIntLabeList" :key="index" align="center"  :resizable="false" :prop="item"  :label="item">
+                        <template slot-scope="scope">
+                            <el-tooltip v-if='scope.row[item]' placement="top">
                                 <div slot="content">
                                     <div>
-                                        <span style="margin-right:5px;">running：{{scope.row[item].running}}  </span>
-                                        <span >({{scope.row[item].running/scope.row[item].total | toGetFixed}}%)</span>
+                                        <span style="margin-right:5px;">running：{{scope.row[item].runningJobs}}  </span>
+                                        <span >({{scope.row[item].runningPercent }})</span>
                                     </div>
                                     <div>
-                                        <span style="margin-right:5px;">success：{{scope.row[item].success}}  </span>
-                                        <span >({{scope.row[item].success/scope.row[item].total | toGetFixed}}%)</span>
+                                        <span style="margin-right:5px;">success：{{scope.row[item].successJobs}}  </span>
+                                        <span >({{scope.row[item].successPercent }})</span>
                                     </div>
                                     <div>
-                                        <span style="margin-right:5px;">failed：{{scope.row[item].failed}}  </span>
-                                        <span>({{scope.row[item].failed/scope.row[item].total | toGetFixed}}%)</span>
+                                        <span style="margin-right:5px;">failed：{{scope.row[item].failedJobs}}  </span>
+                                        <span>({{scope.row[item].failedPercent }})</span>
+                                    </div>
+                                    <div>
+                                        <span style="margin-right:5px;">waiting：{{scope.row[item].waitingJobs}}  </span>
+                                        <span>({{scope.row[item].waitingPercent }})</span>
                                     </div>
                                 </div>
-                                 <span >{{scope.row[item].total}}</span>
+                                <span >{{scope.row[item].totalJobs}}</span>
                             </el-tooltip>
+                            <span v-else>
+                                 <el-tooltip  placement="top">
+                                    <div slot="content">
+                                        <div>
+                                            <span style="margin-right:5px;">running：0  </span>
+                                            <span >(0%)</span>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right:5px;">success：0  </span>
+                                            <span >(0%)</span>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right:5px;">failed：0  </span>
+                                            <span>(0%)</span>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right:5px;">waiting：0  </span>
+                                            <span>(0%)</span>
+                                        </div>
+                                    </div>
+                                    <span >0</span>
+                                </el-tooltip>
+                            </span>
                         </template>
-                        <!-- <template slot="header" slot-scope="scope">
-                            <span>{{item}}</span>
-                        </template> -->
+
                     </el-table-column>
                 </el-table>
                 <div class="paginationInstitutionSize">
@@ -259,19 +305,19 @@
 
 <script>
 import overflowtooltip from '@/components/Tooltip'
+import moment from 'moment'
 import {
     institutionsListToday,
     siteListToday,
     institutionsSataToday,
-    siteSataToday,
     institutionsAllToday,
     siteAllToday,
     institutionsListPeriod,
     siteListPeriod,
     institutionsSataPeriod,
-    siteSataPeriod,
     institutionsAllPeriod,
-    siteAllPeriod } from '@/api/monitor'
+    siteAllPeriod,
+    getSummarySite } from '@/api/monitor'
 
 import { addInstitutionsList } from '@/api/federated'
 
@@ -288,9 +334,8 @@ export default {
     },
     data() {
         return {
-            type: 'Today’s active institution',
-            // dateToday: new Date(),
-            dateToday: 1603987212345,
+            type: 'Today’s active data',
+            dateToday: new Date().getTime(),
             timevalue: [new Date() - 24 * 60 * 60 * 1000, new Date().getTime()],
             instTotal: 0,
             pageSizeInst: 80,
@@ -334,7 +379,7 @@ export default {
                 if (val.length > 0) {
                     this.$nextTick(() => {
                         this.calcinstitution().then(res => {
-                            this.institutionsitemWidth = this.$refs.bar[0].clientWidth - res - 10
+                            this.institutionsitemWidth = this.$refs.bar[0].clientWidth - res - 10 // 最大值的宽度
                         })
                     })
                 }
@@ -346,7 +391,7 @@ export default {
             handler(val) {
                 if (val.length > 0) {
                     this.$nextTick(() => {
-                        this.sitemWidth = this.$refs.jobs[0].clientWidth - 125
+                        this.sitemWidth = this.$refs.jobs[0].clientWidth - 130 // 最大值的宽度
                     })
                 }
             }
@@ -357,17 +402,19 @@ export default {
     },
 
     mounted() {
+        this.getinstitutionsdownList()
         this.initi()
     },
     methods: {
         initi() {
             this.getInstitutionsListToday()
-            this.getinstitutionsdownList()
             // 机构和站点
             this.institutionsAll()
+            this.toGetinstitutions(this.institutionStat)
+            this.toGetIntSite(this.institutionSite, 'type')
         },
         institutionsAll() {
-            if (this.type === 'Today’s active institution') {
+            if (this.type === 'Today’s active data') {
                 let data = {
                     dateToday: this.dateToday,
                     pageNum: this.instpageNum,
@@ -391,11 +438,12 @@ export default {
             let getData = function (res) {
                 let datares = res.data
                 let obj = {}
-                obj.active = datares.institutionsCount
-                obj.running = datares.runningJobCount
-                obj.success = datares.successJobCount
-                obj.failed = datares.failedJobCount
-                obj.total = datares.failedJobCount + datares.successJobCount + datares.runningJobCount
+                obj.active = datares.institutionsCount || 0
+                obj.waiting = datares.waitingJobCount || 0
+                obj.running = datares.runningJobCount || 0
+                obj.success = datares.successJobCount || 0
+                obj.failed = datares.failedJobCount || 0
+                obj.total = datares.failedJobCount + datares.successJobCount + datares.runningJobCount + datares.waitingJobCount
                 that.activejobs = { ...obj }
             }
         },
@@ -410,7 +458,7 @@ export default {
                     this.institutionsdownList.push(obj)
                 })
                 this.institutionSite = this.institutionStat = this.institutionsdownList[0].value
-                this.toGetIntSate(this.institutionStat)
+                this.toGetinstitutions(this.institutionStat)
                 this.toGetIntSite(this.institutionSite, 'type')
             })
         },
@@ -431,16 +479,16 @@ export default {
         // 机构维度翻页
         handleInstitutionCurrentChange(val) {
             this.firstPageNum = val
-            this.toGetIntSate(this.firstTempVal)
+            this.toGetinstitutions(this.institutionStat)
         },
         // 站点维度翻页
         handleSiteCurrentChange(val) {
             this.secondPageNum = val
-            this.toGetIntSite(this.secondTempVal, 'type')
+            this.toGetIntSite(this.institutionSite, 'type')
         },
         // 获取机构维度
         getInstitutionsListToday() {
-            if (this.type === 'Today’s active institution') {
+            if (this.type === 'Today’s active data') {
                 let data = {
                     dateToday: this.dateToday,
                     pageNum: 1,
@@ -466,16 +514,17 @@ export default {
                 that.instTotal = res.data.totalRecord
                 let maxlist = []
                 res.data.list.forEach(element => {
-                    maxlist.push(element.runningJobCount + element.failedJobCount + element.successJobCount)
+                    maxlist.push(element.runningJobCount + element.failedJobCount + element.successJobCount + element.waitingJobCount)
                 })
                 let max = Math.max(...maxlist)
                 that.institutionsList = res.data.list.map(item => {
                     let obj = {}
                     obj.institutions = item.institutions
+                    obj.waiting = item.waitingJobCount
                     obj.running = item.runningJobCount
                     obj.success = item.successJobCount
                     obj.failed = item.failedJobCount
-                    obj.total = item.failedJobCount + item.successJobCount + item.runningJobCount
+                    obj.total = item.failedJobCount + item.successJobCount + item.runningJobCount + item.waitingJobCount
                     obj.max = max
                     obj.show = false
                     return obj
@@ -495,7 +544,7 @@ export default {
                 tempArr.push(item)
             })
             this.institutionsList = [...tempArr]
-            if (this.type === 'Today’s active institution') {
+            if (this.type === 'Today’s active data') {
                 let data = {
                     dateToday: this.dateToday,
                     institutions: row ? row.institutions : ''
@@ -520,17 +569,18 @@ export default {
                 that.getsiteAllToday(row ? row.institutions : '')
                 let maxlist = []
                 res.data.list.forEach(element => {
-                    maxlist.push(element.failedJobCount + element.successJobCount + element.runningJobCount)
+                    maxlist.push(element.failedJobCount + element.successJobCount + element.runningJobCount + element.waitingJobCount)
                 })
                 let max = Math.max(...maxlist)
                 that.siteList = res.data.list.map(item => {
                     let obj = {}
                     obj.partyId = item.partyId
                     obj.site = item.site
+                    obj.waiting = item.waitingJobCount
                     obj.running = item.runningJobCount
                     obj.success = item.successJobCount
                     obj.failed = item.failedJobCount
-                    obj.total = item.failedJobCount + item.successJobCount + item.runningJobCount
+                    obj.total = obj.waiting + obj.running + obj.success + obj.failed
                     obj.max = max
                     return obj
                 })
@@ -538,7 +588,7 @@ export default {
         },
         // 获取站点site总数
         getsiteAllToday(val) {
-            if (this.type === 'Today’s active institution') {
+            if (this.type === 'Today’s active data') {
                 let data = {
                     dateToday: this.dateToday,
                     institutions: val,
@@ -564,11 +614,12 @@ export default {
             let getData = function (res) {
                 let datares = res.data
                 let obj = {}
-                obj.active = datares.siteCount
-                obj.running = datares.runningJobCount
-                obj.success = datares.successJobCount
-                obj.failed = datares.failedJobCount
-                obj.total = datares.failedJobCount + datares.successJobCount + datares.runningJobCount
+                obj.active = datares.siteCount || 0
+                obj.waiting = datares.waitingJobCount || 0
+                obj.running = datares.runningJobCount || 0
+                obj.success = datares.successJobCount || 0
+                obj.failed = datares.failedJobCount || 0
+                obj.total = obj.waiting + obj.running + obj.success + obj.failed
                 that.activeSite = { ...obj }
             }
         },
@@ -584,12 +635,11 @@ export default {
             }
         },
         // 第一个表格下拉选择
-        toGetIntSate(val) {
-            this.firstTempVal = val
-            if (this.type === 'Today’s active institution') {
+        toGetinstitutions(val) {
+            if (this.type === 'Today’s active data') {
                 let data = {
                     dateToday: this.dateToday,
-                    institutions: this.firstTempVal,
+                    institutions: val || this.institutionStat,
                     pageNum: this.firstPageNum,
                     pageSize: 10
                 }
@@ -600,7 +650,7 @@ export default {
                 let data = {
                     beginDate: this.timevalue[0],
                     endDate: this.timevalue[1],
-                    institutions: val
+                    institutions: val || this.institutionStat
                 }
                 institutionsSataPeriod(data).then(res => {
                     getData(res)
@@ -610,34 +660,41 @@ export default {
             let getData = function (res) {
                 that.totalInstitution = res.data.totalRecord
                 that.tableIntSateData = res.data.list.map((item) => {
+                    item.waiting = parseInt(item.waitingJobCountForInstitutions) || 0
                     item.running = parseInt(item.runningJobCountForInstitutions) || 0
                     item.failed = parseInt(item.failedJobCountForInstitutions) || 0
                     item.success = parseInt(item.successJobCountForInstitutions) || 0
-                    item.total = item.failed + item.success + item.running
+                    item.total = item.failed + item.success + item.running + item.waiting
                     return item
                 })
             }
         },
         // 第二个表格下拉选择
         toGetIntSite(val, type) {
-            this.secondTempVal = val
-            if (this.type === 'Today’s active institution') {
+            this.institutionSite = val
+            if (this.type === 'Today’s active data') {
                 let data = {
-                    dateToday: this.dateToday,
-                    institutions: this.secondTempVal,
+                    startDate: moment(this.dateToday).format('YYYY-MM-DD 00:00:00'),
+                    endDate: moment(this.dateToday).format('YYYY-MM-DD 23:59:59'),
+                    institution: val || this.institutionSite,
                     pageNum: this.secondPageNum,
                     pageSize: 10
                 }
-                siteSataToday(data).then(res => {
+                getSummarySite(data).then(res => {
                     this.getsiteSataData(res, type)
                 })
             } else {
                 let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    institutions: val
+                    startDate: moment(this.timevalue[0]).format('YYYY-MM-DD 00:00:00'),
+                    endDate: moment(this.timevalue[1]).format('YYYY-MM-DD 23:59:59'),
+                    institution: val || this.institutionSite,
+                    pageNum: this.secondPageNum,
+                    pageSize: 10
                 }
-                siteSataPeriod(data).then(res => {
+                // siteSataPeriod(data).then(res => {
+                //     this.getsiteSataData(res, type)
+                // })
+                getSummarySite(data).then(res => {
                     this.getsiteSataData(res, type)
                 })
             }
@@ -645,65 +702,36 @@ export default {
         // 第二个下拉表格返回方法
         getsiteSataData(res, type) {
             this.lengthList = [] // 清空空格数据
-            this.tableIntSiteData = [] // 表格总数据
-            this.tableIntLabeList = res.data.sites // 横坐标表头
-            let jobs = res.data.jobStatisticsOfSiteDimensions.list // 纵坐标表头
-            this.totalSitetitution = res.data.jobStatisticsOfSiteDimensions.totalRecord
-            let insList = res.data.institutionsWithSites // 纵坐标合并表头
-            let ArrList = [] // 横坐标临时数据
-            // 纵坐标合并表头数据
-            insList.map(item => {
-                this.lengthList.push(item.sites.length)
-                for (let index = 0; index < item.sites.length - 1; index++) {
-                    this.lengthList.push(0)
-                }
-                item.sites.map(ele => {
-                    let obj = {}
-                    obj.institutionsName = item.institutions
-                    obj.siteName = ele
-                    ArrList.push(obj)
-                })
-            })
-            // 横坐标内容(site)临时数据
-            let jobsArr = []
-            jobs.forEach(item => {
-                item.institutionsWithHostSites.forEach(e => {
-                    e.jobStatisticsList.forEach(m => {
-                        let obj = {}
-                        obj.siteHostName = m.siteHostName
-                        obj.running = parseInt(m.jobRunningCount)
-                        obj.success = parseInt(m.jobSuccessCount)
-                        obj.failed = parseInt(m.jobFailedCount)
-                        obj.total = parseInt(m.jobSuccessCount) + parseInt(m.jobFailedCount) + parseInt(m.jobRunningCount)
-                        obj.siteGuestName = item.siteGuestName
-                        jobsArr.push(obj)
-                    })
-                })
-            })
-            let table = []
-            ArrList.forEach(item => {
-                let obj = {}
-                this.tableIntLabeList.forEach(e => {
-                    obj.institutionsName = item.institutionsName
-                    obj.siteName = item.siteName
-                    obj[e] = 'none'
-                })
-                table.push(obj)
-            })
-            table.forEach((item) => {
-                jobsArr.forEach(e => {
-                    if (item.siteName === e.siteHostName) {
-                        item[e.siteGuestName] = { total: e.total, running: e.running, success: e.success, failed: e.failed }
-                    } else {
-                        item[e.siteGuestName] = 'none'
+            this.totalSitetitution = (res.data && res.data.total) || 0
+            this.tableIntLabeList = res.data && res.data.siteList
+
+            let arr = []
+            res.data && res.data.data.forEach(item => {
+                // 空格位置
+                if (item.institutionSiteList.length > 1) {
+                    this.lengthList.push(item.institutionSiteList.length)
+                    for (let index = 0; index < item.institutionSiteList.length - 1; index++) {
+                        this.lengthList.push(0)
                     }
+                } else {
+                    this.lengthList.push(item.institutionSiteList.length)
+                }
+
+                item.institutionSiteList.forEach((elm, index) => {
+                    let obj = {}
+                    obj.institutionSiteName = elm.institutionSiteName
+                    obj.institution = item.institution
+                    elm.mixSiteModeling.forEach(i => {
+                        obj[i.siteName] = { ...i }
+                    })
+                    arr.push(obj)
                 })
             })
             if (type) {
-                this.tableIntSiteData = [...table]
+                this.tableIntSiteData = [...arr]
             } else {
                 setTimeout(() => {
-                    this.tableIntSiteData = [...table]
+                    this.tableIntSiteData = [...arr]
                 }, 500)
             }
         }
