@@ -96,3 +96,11 @@ export function siteAllPeriod(data) {
         data
     })
 }
+// 新获取site接口
+export function getSummarySite(data) {
+    return request({
+        url: `/${urlType}/api/job/summary/site`,
+        method: 'post',
+        data
+    })
+}

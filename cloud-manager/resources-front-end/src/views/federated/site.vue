@@ -82,7 +82,7 @@
                         <div class="sitenum">
                             <span>{{itm.number}}</span>
                             <span>
-                                <span v-if="itm.number === 1">site</span>
+                                <span v-if="itm.number === 1 || itm.number === 0">site</span>
                                 <span v-else>sites</span>
                                 joined
                             </span>
@@ -98,7 +98,7 @@
                             <span v-else>{{itr}},</span>
                         </span>
                         <el-button  class="btn" @click="toshowcancelAuthor(itm.authoritylist,itm.institutions)" type="text">
-                            Cancal authorization
+                            cancal authorization
                         </el-button>
                     </div>
                     <sitetable ref="sitelist" :institutions="itm.institutions" :condition="data.condition"/>
@@ -238,7 +238,7 @@ export default {
             // 获取sit-auto 状态
             switchState().then(res => {
                 this.siteState = ''
-                res.data.forEach(item => {
+                res.data && res.data.forEach(item => {
                     if (item.functionName === 'Site-Authorization') {
                         this.siteState = item.status === 1
                     }

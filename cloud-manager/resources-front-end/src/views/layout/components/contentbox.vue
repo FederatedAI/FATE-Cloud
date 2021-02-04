@@ -27,7 +27,8 @@ export default {
     watch: {
         $route: {
             handler: function(val) {
-                if (val.name !== 'partyuser' && val.name !== 'siteadd' && val.name !== 'detail') {
+                let routerList = ['partyuser', 'siteadd', 'detail', 'Add an Exchange']
+                if (!routerList.some(item => item === val.name)) {
                     this.$store.dispatch('SiteName', '')
                 }
                 this.toPath()
@@ -47,7 +48,7 @@ export default {
             let name = this.$route.name
             if (name === 'Site Manage' || name === 'siteadd' || name === 'detail') {
                 this.path = ['Federated Site', 'Site Manage']
-            } else if (name === 'IP Manage') {
+            } else if (name === 'IP Manage' || name === 'Add an Exchange') {
                 this.path = ['Federated Site', 'IP Manage']
             } else if (name === 'Service Manage') {
                 this.path = ['Federated Site', 'Service Manage']
@@ -69,6 +70,9 @@ export default {
             }
             if (item === 'Setting' || item === 'Party ID') {
                 this.$router.push({ name: 'Party ID' })
+            }
+            if (item === 'IP Manage') {
+                this.$router.push({ name: 'IP Manage' })
             }
         }
     }

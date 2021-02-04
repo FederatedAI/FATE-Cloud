@@ -1,38 +1,34 @@
 <template>
-    <div class="table">
+    <div class="exchange-info">
         <div class="table-head">
-            <el-button class="route-add" type="text" @click="toAdd">
+            <el-button class="route-add" type="text" @click="toAddExchange">
                 <img src="@/assets/add_ip.png">
                 <span>add</span>
             </el-button>
+            <el-button v-if='exchangeList.length' class="fold" type="text" @click="toFold" >
+                <span v-if='activeName.length>0'>unfold all</span>
+                <span v-else>fold all</span>
+            </el-button>
         </div>
-        <el-table
-            :data="tableData"
-            ref="table"
-            header-row-class-name="tableHead"
-            header-cell-class-name="tableHeadCell"
-            cell-class-name="tableCell"
-            height="100%">
-            <el-table-column prop="" type="index" width="70"  label="Index"  ></el-table-column>
-            <el-table-column prop="exchangeName" label="Exchange"  show-overflow-tooltip></el-table-column>
-            <el-table-column prop="networkAccessEntrances" label="Network Acess Entrance"  show-overflow-tooltip></el-table-column>
-            <el-table-column prop="networkAccessExits" label="Network Acess Exit"  show-overflow-tooltip></el-table-column>
-            <el-table-column prop="updateTime" label="Update Time"  show-overflow-tooltip>
-                <template slot-scope="scope">
-                    <span>{{scope.row.time | dateFormat}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop=""  width="70" label="Action"  show-overflow-tooltip>
-                <template slot-scope="scope">
-                    <el-button type="text">
-                        <i class="el-icon-edit edit" @click="handleEdit(scope.row)"></i>
-                    </el-button>
-                    <el-button type="text" >
-                        <i class="el-icon-delete-solid delete" @click="handleDelete(scope.row)"></i>
-                    </el-button>
-                </template>
-            </el-table-column>
-        </el-table>
+        <span v-if='exchangeList.length'>
+            <el-collapse  class="collapse" v-model="activeName" v-for="(item, index) in exchangeList" :key="index" >
+                <el-collapse-item  :name="item.exchangeName">
+                    <template slot="title">
+                        <span class="collapse-title-name">{{item.exchangeName}}</span>
+                        <span class="collapse-title-vip">VIP：{{item.vip}}</span>
+                        <span class="collapse-title-time">Update Time：{{item.updateTime | dateFormat}}</span>
+                        <el-button   @click.stop="toAddRollsite(item)"  type="text">
+                            add rollsite
+                        </el-button>
+                        <el-button  @click.stop="toDeleteExchangeId(item)"  type="text">
+                            delete
+                        </el-button>
+                    </template>
+                    <ipexchangetable  ref="ipexchangetable"   :exchangeId="item.exchangeId" />
+                </el-collapse-item>
+            </el-collapse>
+        </span>
+        <div class='no-data' v-else>No Data</div>
         <div class="pagination">
             <el-pagination
                 background
@@ -44,52 +40,28 @@
                 :total="total"
             ></el-pagination>
         </div>
-        <!-- 删除 -->
+         <!-- 删除 -->
         <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
             <div class="line-text-one">Are you sure you want to delete this exchange?</div>
             <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="toDelet">Sure</el-button>
-            <el-button class="ok-btn" type="info" @click="deletedialog = false">Cancel</el-button>
+                <el-button class="ok-btn" type="primary" @click="toDelet">Sure</el-button>
+                <el-button class="ok-btn" type="info" @click="deletedialog = false">Cancel</el-button>
             </div>
         </el-dialog>
-        <!-- 添加或编辑 -->
-        <el-dialog :visible.sync="editdialog" class="access-edit-dialog" width="700px">
-            <div class="dialog-title">
-                {{type}}
-                 Exchange
-            </div>
-            <div class="dialog-body">
-                <el-form ref="editform" class="edit-form" :rules="editRules" :model="tempData">
-                    <div class="edit-text">Exchange</div>
-                    <el-form-item label="" prop="exchangeName" :class="{'exchange-warn':exchangewarnshow}">
-                        <el-input @blur="cancelValid('exchange')" @focus="cancelValid('exchange')" v-model="tempData.exchangeName" ></el-input>
-                    </el-form-item>
-                    <div class="edit-text">Network Acess Entrance</div>
-                    <el-form-item label="" prop="networkAccessEntrances" :class="{'entrance-warn':entrancewarnshow}">
-                        <el-input @blur="cancelValid('entrance')" @focus="cancelValid('entrance')" v-model="tempData.networkAccessEntrances"></el-input>
-                    </el-form-item>
-                    <div class="edit-text">Network Acess Exit</div>
-                    <el-form-item label="" prop="networkAccessExits" :class="{'exit-warn':exitwarnshow}">
-                        <el-input @blur="cancelValid('exit')" @focus="cancelValid('exit')" v-model="tempData.networkAccessExits"></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
-            <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="toaction">Sure</el-button>
-            <el-button class="ok-btn" type="info" @click="tocancel">Cancel</el-button>
-            </div>
-        </el-dialog>
+        <ipaddrollsite ref="ipaddrollsite"/>
     </div>
 </template>
 
 <script>
-import { getIpchangeList, addIpchange, editIpchange, deleteIpchange } from '@/api/federated'
+import { getIpchangeList, deleteIpchange } from '@/api/federated'
 
 import moment from 'moment'
+import ipexchangetable from './ipexchangetable'
+import ipaddrollsite from './ipaddrollsite'
 
 export default {
     name: 'Ip',
-    components: {},
+    components: { ipexchangetable, ipaddrollsite },
     filters: {
         dateFormat(value) {
             return moment(value).format('YYYY-MM-DD HH:mm:ss')
@@ -97,100 +69,52 @@ export default {
     },
     data() {
         return {
-            exchangewarnshow: false,
-            entrancewarnshow: false,
-            exitwarnshow: false,
+            activeName: [], // 折叠版激活
+            exchangeList: [],
             deletedialog: false, // 删除框
             editdialog: false,
-            type: '',
+            addSiteNet: false,
+            siteNetIndex: 0,
             currentPage1: 1, // 当前页
-            tableData: [
-                // { exchangeName: '456', networkAccessEntrances: '127.1.1.1', networkAccessExits: '127.1.1.2', updateTime: 1602576243473 },
-                // { exchangeName: '789', networkAccessEntrances: '127.1.1.3', networkAccessExits: '127.1.1.4', updateTime: 1602576243473 }
-            ],
+            tableData: [1, 2, 3], // 表格数据
+            siteNetData: [],
+            tempStatusStr: '{}',
             data: {
                 pageNum: 1,
                 pageSize: 20
             },
             total: 0,
             deleteExchangeId: '',
-            tempData: {},
-            editRules: {
-                exchangeName: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.exchangewarnshow = true
-                                callback(new Error('Please enter the Exchange'))
-                            } else {
-                                this.exchangewarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ],
-                networkAccessEntrances: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.entrancewarnshow = true
-                                callback(new Error('Please enter the Network Acess Entrance'))
-                            } else {
-                                this.entrancewarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ],
-                networkAccessExits: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.exitwarnshow = true
-                                callback(new Error('Please enter the Network Acess Exit'))
-                            } else {
-                                this.exitwarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ]
-            }
+            exchangeData: {
+                networkAccess: '',
+                partyAddBeanList: []
+            }, // 添加数据
+            tempSiteNet: {} // sitenet数据
+
         }
     },
     created() {
-        this.initi()
+        this.initList()
     },
     mounted() {
 
     },
     methods: {
-        initi() {
-            let data = {
-                pageNum: 1,
-                pageSize: 20
-            }
-            getIpchangeList(data).then(res => {
-                this.tableData = res.data.list
+        initList() {
+            getIpchangeList(this.data).then(res => {
+                this.exchangeList = res.data.list
                 this.total = res.data.totalRecord
+                setTimeout(() => {
+                    this.exchangeList.forEach((item, index) => {
+                        this.$refs['ipexchangetable'][index].togetRollsiteList()
+                    })
+                }, 500)
             })
         },
-        handleDelete(row) {
+        // 点击准备删除
+        toDeleteExchangeId(row) {
             this.deleteExchangeId = row.exchangeId
             this.deletedialog = true
-        },
-        handleSizeChange(val) {
-            console.log(`每页 ${val} 条`)
-        },
-        handleCurrentChange(val) {
-            this.data.pageNum = val
-            this.initList()
         },
         // 确认删除
         toDelet() {
@@ -199,52 +123,37 @@ export default {
             }
             deleteIpchange(data).then(res => {
                 this.deletedialog = false
-                this.initi()
+                this.initList()
             })
         },
-        // 编辑
-        handleEdit(row) {
-            this.type = 'Edit'
-            this.tempData = { ...row }
-            this.editdialog = true
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`)
         },
-        // 添加
-        toAdd() {
-            this.type = 'Add'
-            this.tempData = {}
-            this.editdialog = true
+        handleCurrentChange(val) {
+            this.data.pageNum = val
+            this.initList()
         },
-        // 确认
-        toaction() {
-            this.$refs['editform'].validate((valid) => {
-                if (valid) {
-                    let data = { ...this.tempData }
-                    if (this.type === 'Add') {
-                        addIpchange(data).then(res => {
-                            this.tocancel()
-                            this.initi()
-                        })
-                    } else if (this.type === 'Edit') {
-                        editIpchange(data).then(res => {
-                            this.tocancel()
-                            this.initi()
-                        })
-                    }
-                }
+        // 跳转添加Exchange路由
+        toAddExchange() {
+            this.$store.dispatch('SiteName', 'Add an Exchange')
+            this.$router.push({
+                name: 'Add an Exchange',
+                path: '/federated/ipexchange'
             })
         },
-        // 缺认取消
-        tocancel() {
-            this.tempData = {}
-            this.$refs['editform'].resetFields()
-            this.editdialog = false
-            this.exchangewarnshow = false
-            this.entrancewarnshow = false
-            this.exitwarnshow = false
+        // 点击add rollsite
+        toAddRollsite(row) {
+            this.$refs['ipaddrollsite'].exchangeId = row.exchangeId
+            this.$refs['ipaddrollsite'].editdialog = true
+            this.$refs['ipaddrollsite'].rollsiteType = 'add'
         },
-        cancelValid(validtype) {
-            this.$refs['editform'].clearValidate(validtype)
-            this[`${validtype}warnshow`] = false
+        // 展开或者折叠
+        toFold() {
+            if (this.activeName.length > 0) {
+                this.activeName = []
+            } else {
+                this.activeName = this.exchangeList.map(item => item.exchangeName)
+            }
         }
 
     }
