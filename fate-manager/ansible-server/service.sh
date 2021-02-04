@@ -1,5 +1,5 @@
 
-PROJECT_BASE=$(cd "$(dirname "$0")";cd ../;pwd)
+PROJECT_BASE=$(cd "$(dirname "$0")";pwd)
 echo "PROJECT_BASE: "${PROJECT_BASE}
 
 # source init_env.sh
@@ -66,7 +66,7 @@ status() {
     getpid
     if [[ -n ${pid} ]]; then
         echo "status:`ps aux | grep ${pid} | grep -v grep`"
-        lsof -i:${service_config_fateflow_http_port} | grep 'LISTEN'
+        lsof -i:${service_config_ansible_http_port} | grep 'LISTEN'
     else
         echo "service not running"
     fi
