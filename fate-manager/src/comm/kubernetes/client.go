@@ -27,6 +27,10 @@ const (
 
 var ClientSet *KubeClient
 
+/*
+create clientset for connect to kubernetes cluster when
+this package is importing into another package
+*/
 func init() {
 	var err error
 	if ClientSet == nil {
@@ -37,7 +41,9 @@ func init() {
 	}
 }
 
+//basic struct of a clientset
 type KubeClient struct {
+	// client use to connect with k8s cluster
 	clientset *kubernetes.Clientset
 }
 
@@ -69,6 +75,11 @@ func NewKubeClient(path string) (*KubeClient, error) {
 	return &KubeClient{clientset}, nil
 }
 
+/*
+Get all pods that belong to the specified namespace
+If there is no namespace pass into this method, the return value
+will be all the pods in the current kubernetes cluster
+*/
 func (k *KubeClient) GetPods(namespace string) (*v1.PodList, error) {
 	pods, err := k.clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -77,6 +88,11 @@ func (k *KubeClient) GetPods(namespace string) (*v1.PodList, error) {
 	return pods, nil
 }
 
+/*
+Get all pods that belong to the specified namespace then filter pods with
+parameter pattern, the return value will be a list of pod names which has the name that match the
+parameter pattern.
+*/
 func (k *KubeClient) GetPodListWithPattern(namespace, pattern string) ([]string, error) {
 	var podNameList []string
 	pods, err := k.GetPods(namespace)
@@ -91,6 +107,7 @@ func (k *KubeClient) GetPodListWithPattern(namespace, pattern string) ([]string,
 	return podNameList, nil
 }
 
+//Get a single pod name with a specified name which contains pattern.
 func (k *KubeClient) GetPodWithPattern(namespace, pattern string) (string, error) {
 	var podName string
 	pods, err := k.GetPods(namespace)
@@ -105,6 +122,7 @@ func (k *KubeClient) GetPodWithPattern(namespace, pattern string) (string, error
 	return strings.TrimSpace(podName), nil
 }
 
+// Get pod with specified namespace and pod name.
 func (k *KubeClient) GetPodWithNames(namespace, pod string) (*v1.Pod, error) {
 	podinfo, err := k.clientset.CoreV1().Pods(namespace).Get(context.TODO(), pod, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
@@ -120,6 +138,7 @@ func (k *KubeClient) GetPodWithNames(namespace, pod string) (*v1.Pod, error) {
 	return podinfo, nil
 }
 
+// Get nodes list
 func (k *KubeClient) GetNodes() ([]v1.Node, error) {
 	nodeList, err := k.clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -128,6 +147,7 @@ func (k *KubeClient) GetNodes() ([]v1.Node, error) {
 	return nodeList.Items, nil
 }
 
+// Get nodes list except those contain parameter nodeName.
 func (k *KubeClient) GetNodesWithoutSpecNode(nodeName string) ([]v1.Node, error) {
 	var nodes []v1.Node
 	nodeList, err := k.GetNodes()
@@ -135,13 +155,13 @@ func (k *KubeClient) GetNodesWithoutSpecNode(nodeName string) ([]v1.Node, error)
 		return nil, fmt.Errorf("GetNodesWithoutMaster err[%s]", err.Error())
 	}
 	for _, node := range nodeList {
-		var isMaster bool
+		var needFilter bool
 		for k, _ := range node.Labels {
 			if strings.Contains(k, nodeName) {
-				isMaster = true
+				needFilter = true
 			}
 		}
-		if isMaster {
+		if needFilter {
 			continue
 		}
 		nodes = append(nodes, node)
@@ -149,6 +169,7 @@ func (k *KubeClient) GetNodesWithoutSpecNode(nodeName string) ([]v1.Node, error)
 	return nodes, nil
 }
 
+// Set or update labels for a node.
 func (k *KubeClient) SetLabelsForNode(nodes []v1.Node, labels map[string]string) error {
 	for _, node := range nodes {
 		var labelKey, labelVal string
@@ -165,6 +186,7 @@ func (k *KubeClient) SetLabelsForNode(nodes []v1.Node, labels map[string]string)
 	return nil
 }
 
+// Generate labels before set label for node.
 func (k *KubeClient) GenerateFMNodeLabel(nodes []v1.Node, tag, ipType string) map[string]string {
 	nodesLabels := make(map[string]string)
 	for k, node := range nodes {
@@ -190,6 +212,7 @@ func (k *KubeClient) GetNodeLabelOfFM(nodes []v1.Node, labelPrefix string) strin
 	return labelOfFM
 }
 
+// Get pod log and write logs to file.
 func (k *KubeClient) WriteLogsIntoFile(namespace, podname, logpath string, num int64) error {
 	req := k.clientset.CoreV1().Pods(namespace).GetLogs(podname, &v1.PodLogOptions{TailLines: &num})
 	podLogs, err := req.Stream(context.TODO())
@@ -217,6 +240,7 @@ func (k *KubeClient) CreateNamespace(name string) (*v1.Namespace, error) {
 	return ns, nil
 }
 
+// List all namespace which has the status of NAMESPACE_STATUS.
 func (k *KubeClient) ListNamespaceWithPattern(pattern string) ([]string, error) {
 	// List(ctx context.Context, opts metav1.ListOptions) (*v1.NamespaceList, error)
 	var namespaceList []string
