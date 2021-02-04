@@ -400,6 +400,7 @@ type AccountActivateReq struct {
 	AppSecret              string `json:"appSecret"`
 	ActivateUrl            string `json:"activateUrl"`
 	FateManagerId          string `json:"fateManagerId"`
+	Link                   string `json:"link"`
 }
 type Role struct {
 	RoleId   int    `json:"roleId"`

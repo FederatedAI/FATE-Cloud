@@ -191,7 +191,7 @@ func Activate(accountActivateReq entity.AccountActivateReq) (int, error) {
 		return e.ERROR_USERNAME_OR_PASSWORD_FAIL, err
 	}
 
-	ActivateReq := ActivateReq{ActivateUrl: accountActivateReq.ActivateUrl}
+	ActivateReq := ActivateReq{ActivateUrl: accountActivateReq.Link}
 	ActivateReqJson, _ := json.Marshal(ActivateReq)
 	headInfo := util.UserHeaderInfo{
 		UserAppKey:    accountActivateReq.AppKey,
