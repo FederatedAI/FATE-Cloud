@@ -441,6 +441,8 @@ definitions:
         type: string
       institutions:
         type: string
+      link:
+        type: string
       passWord:
         type: string
       subTag:
