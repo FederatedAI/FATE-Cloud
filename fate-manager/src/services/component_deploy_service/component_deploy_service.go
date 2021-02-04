@@ -41,6 +41,16 @@ import (
 	"github.com/axgle/mahonia"
 )
 
+const (
+	KUBE_NAMESPACE    = "kube_fate"
+	KUBE_PREFIX       = "kubefate"
+	KUBE_LOG_PATH     = "./testLog/kubefate.log"
+	KUBE_LOG_ROWS     = 500
+	KUBE_FILTERD_NODE = "master"
+	FM_LABEL_PREFIX   = "fm-node-"
+	NODE_INTERNAL_IP  = "InternalIP"
+)
+
 func GetComponentList(serviceInfoReq entity.ServiceInfoReq) ([]entity.ComponentDeploy, error) {
 	deployComponent := models.DeployComponent{
 		//FederatedId: serviceInfoReq.FederatedId,
@@ -154,11 +164,11 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 	if err != nil || len(deploySiteList) == 0 {
 		return nil, err
 	}
-	result, err := kubernetes.ClientSet.GetPodWithPattern("kube-fate", "kubefate")
+	result, err := kubernetes.ClientSet.GetPodWithPattern(KUBE_NAMESPACE, KUBE_PREFIX)
 	if err != nil {
 		return nil, fmt.Errorf("GetPodWithPattern err[%s]", err.Error())
 	}
-	err = kubernetes.ClientSet.WriteLogsIntoFile("kube-fate", result, "./testLog/kubefate.log", 500)
+	err = kubernetes.ClientSet.WriteLogsIntoFile(KUBE_NAMESPACE, result, KUBE_LOG_PATH, KUBE_LOG_ROWS)
 	if err != nil {
 		logging.Error("kubernetes.ClientSet.WriteLogsIntoFile err[%s]", err.Error())
 	}
@@ -257,13 +267,13 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		item, _ = models.GetKubenetesConf()
 	}
 	if len(item.NodeList) == 0 {
-		nodes, _ := kubernetes.ClientSet.GetNodesWithoutSpecNode("master")
+		nodes, _ := kubernetes.ClientSet.GetNodesWithoutSpecNode(KUBE_FILTERD_NODE)
 		if setting.KubenetesSetting.ModeAlone {
-			nodes, _ = kubernetes.ClientSet.GetNodesWithoutSpecNode("master")
+			nodes, _ = kubernetes.ClientSet.GetNodesWithoutSpecNode(KUBE_FILTERD_NODE)
 		}
-		labels := kubernetes.ClientSet.GenerateFMNodeLabel(nodes, "fm-node-", "InternalIP")
+		labels := kubernetes.ClientSet.GenerateFMNodeLabel(nodes, FM_LABEL_PREFIX, NODE_INTERNAL_IP)
 		kubernetes.ClientSet.SetLabelsForNode(nodes, labels)
-		result := kubernetes.ClientSet.GetNodeLabelOfFM(nodes, "fm-node-")
+		result := kubernetes.ClientSet.GetNodeLabelOfFM(nodes, FM_LABEL_PREFIX)
 		if len(result) > 0 {
 			iplist := result
 			var data = make(map[string]interface{})
