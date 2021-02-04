@@ -65,6 +65,9 @@
                     .el-date-editor{
                         background-color: #fff;
                     }
+                    .el-input__inner {
+                        border: 0;
+                    }
                   
                 }
                 .content-item{
@@ -172,6 +175,7 @@
                             }
                             .jobs-title{
                                 margin: 8px 0;
+                                .waiting,
                                 .running,
                                 .failed,
                                 .complete{
@@ -189,13 +193,18 @@
                                     font-weight: 400;
                                     color: #848C99;
                                 }
-                                .running{
+                                .waiting{
                                     margin-left:0px;
+                                    background: #FF9D00;
+                                }
+                                .running{
+                                    margin-left:15px;
                                     background: #4AA2FF;
                                 }
                                 .failed{
                                     background: #B8BFCC;
                                 }
+                                
                             }
                             .job-alone-complete{
                                 font-size: 14px;
@@ -229,15 +238,27 @@
                                         border-radius: 2px;
                                         vertical-align: middle;
                                         display: inline-block;
-                                        background-color: #4aa2ff;
+                                        background-color: #FAFBFC;
                                         margin-right: 8px;
-                                        .jobs-bar-complete{
+                                        .jobs-bar-waiting{
+                                            float: left;
+                                            background-color: #FF9D00;
+                                            height: 100%;
+                                        }
+                                        .jobs-bar-success{
+                                            float: left;
                                             background-color: #00C99E;
                                             height: 100%;
-                                            .jobs-bar-running{
-                                                background-color: #B8BFCC;
-                                                height: 100%; 
-                                            }
+                                        }
+                                        .jobs-bar-failed{
+                                            float: left;
+                                            background-color: #B8BFCC;
+                                            height: 100%; 
+                                        }
+                                        .jobs-bar-running{
+                                            float: left;
+                                            background-color: #4aa2ff;
+                                            height: 100%; 
                                         }
                                     }
                                     .text{

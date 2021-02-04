@@ -118,7 +118,7 @@
                 </el-table-column>
                 <el-table-column prop="" label="Service Status" min-width="110" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <span>{{scope.row.detectiveStatus==='1'?'Unavailable':'Available'}}</span>
+                        <span>{{scope.row.detectiveStatus===1?'Unavailable':'Available'}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop label="Action" min-width="70" align="center">

@@ -153,7 +153,7 @@ public class FederatedModelService {
     }
 
     //update model status and site status
-    @Scheduled(cron = "0 */5 * * * ?")
+    @Scheduled(cron = "0 */2 * * * ?")
     public void updateModelAndSiteStatus() {
         log.info("start detective");
         long time = new Date().getTime();
@@ -161,7 +161,7 @@ public class FederatedModelService {
         federatedSiteModelDoQueryWrapper.eq("status", 2).eq("detective_status", 2);
         List<FederatedSiteModelDo> federatedSiteModelDos = federatedModelMapper.selectList(federatedSiteModelDoQueryWrapper);
         for (FederatedSiteModelDo federatedSiteModelDo : federatedSiteModelDos) {
-            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 600000) {
+            if (time - federatedSiteModelDo.getLastDetectiveTime().getTime() > 3000) {
                 //update model status
                 federatedSiteModelDo.setDetectiveStatus(1);
                 federatedModelMapper.updateById(federatedSiteModelDo);
@@ -176,6 +176,22 @@ public class FederatedModelService {
                 log.info("site:{} failed", federatedSiteManagerDo);
 
             }
+        }
+
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.select("id", "last_detective_time");
+        ew.eq("status", 2).eq("detective_status", 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
+        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
+            Date lastDetectiveTime = federatedSiteManagerDo.getLastDetectiveTime();
+            if (time - lastDetectiveTime.getTime() > 3000) {
+                FederatedSiteManagerDo federatedSiteManagerDoToUpdate = new FederatedSiteManagerDo();
+                federatedSiteManagerDoToUpdate.setDetectiveStatus(1);
+                QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
+                federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
+                federatedSiteManagerMapper.update(federatedSiteManagerDoToUpdate, ew);
+            }
+            log.info("site:{} failed", federatedSiteManagerDo);
         }
     }
 

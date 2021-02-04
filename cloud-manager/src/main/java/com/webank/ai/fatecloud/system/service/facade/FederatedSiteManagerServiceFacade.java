@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -159,10 +160,21 @@ public class FederatedSiteManagerServiceFacade {
         }
 
 //        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
-        if (!result) {
-            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+//        if (!result) {
+//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+//
+//        }
 
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
+        }
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
 //        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),1);
@@ -172,7 +184,12 @@ public class FederatedSiteManagerServiceFacade {
         }
 
         String registrationLink = site.getRegistrationLink();
-        String finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+        String finalUrl;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+        } else {
+            finalUrl = registrationLink;
+        }
         String registrationLinkFromRequest = siteActivateQo.getRegistrationLink();
 
         log.info("registrationLinkFromRequest:{}", registrationLinkFromRequest);
@@ -190,7 +207,7 @@ public class FederatedSiteManagerServiceFacade {
             return commonResponse;
         }
 
-        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)));
+        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),httpServletRequest);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
 
@@ -292,11 +309,18 @@ public class FederatedSiteManagerServiceFacade {
 
     public CommonResponse updateVersion(VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) {
         //check authority
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(versionUpdateQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(versionUpdateQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(versionUpdateQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(versionUpdateQo), 2);
+        }
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
+
+
         result = federatedSiteManagerService.updateVersion(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest.getHeader(Dict.APP_KEY), versionUpdateQo);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.UPDATE_VERSION_ERROR);
@@ -435,5 +459,20 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsList);
 
 
+    }
+
+    public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
+
+        boolean result = checkSignature.checkSignature(httpServletRequest, "", 1, 2);
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+        HashMap<String, Boolean> stringBooleanHashMap = new HashMap<>();
+        if (federatedSiteManagerService.checkPartyIdForRollSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)))) {
+            stringBooleanHashMap.put("result", true);
+        } else {
+            stringBooleanHashMap.put("result", false);
+        }
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, stringBooleanHashMap);
     }
 }
