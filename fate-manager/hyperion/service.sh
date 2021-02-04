@@ -14,7 +14,7 @@ fi
 
 log_dir=${PROJECT_BASE}/logs
 
-module=ansible_server.py
+module=hyperion_server.py
 
 parse_yaml() {
    local prefix=$2
@@ -37,7 +37,7 @@ getport() {
     if test -f "${service_conf_path}"; then
       echo "found service conf: ${service_conf_path}"
       eval $(parse_yaml ${service_conf_path} "service_config_")
-      echo "ansible http port: ${service_config_ansible_http_port}"
+      echo "hyperion http port: ${service_config_hyperion_http_port}"
       echo
     else
       echo "service conf not found: ${service_conf_path}"
@@ -48,7 +48,7 @@ getport() {
 getport
 
 getpid() {
-    pid1=`lsof -i:${service_config_ansible_http_port} | grep 'LISTEN' | awk '{print $2}'`
+    pid1=`lsof -i:${service_config_hyperion_http_port} | grep 'LISTEN' | awk '{print $2}'`
     if [[ -n ${pid1} ]];then
         pid=$pid1
     else
@@ -66,7 +66,7 @@ status() {
     getpid
     if [[ -n ${pid} ]]; then
         echo "status:`ps aux | grep ${pid} | grep -v grep`"
-        lsof -i:${service_config_ansible_http_port} | grep 'LISTEN'
+        lsof -i:${service_config_hyperion_http_port} | grep 'LISTEN'
     else
         echo "service not running"
     fi
@@ -76,7 +76,7 @@ start() {
     getpid
     if [[ ${pid} == "" ]]; then
         mklogsdir
-        nohup python ${PROJECT_BASE}/ansible_server.py >> "${log_dir}/console.log" 2>>"${log_dir}/error.log" &
+        nohup python ${PROJECT_BASE}/hyperion_server.py >> "${log_dir}/console.log" 2>>"${log_dir}/error.log" &
         for((i=1;i<=100;i++));
         do
             sleep 0.1
