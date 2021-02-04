@@ -79,6 +79,10 @@ export const constantRouterMap = [
                 path: 'ip',
                 component: () => import('@/views/federated/ip')
             }, {
+                name: 'Add an Exchange', //
+                path: 'ipexchange',
+                component: () => import('@/views/federated/ipaddexchange')
+            }, {
                 name: 'Service Manage', //
                 path: 'sys',
                 component: () => import('@/views/federated/system')

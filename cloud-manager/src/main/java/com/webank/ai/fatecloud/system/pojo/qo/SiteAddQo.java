@@ -47,4 +47,10 @@ public class SiteAddQo implements Serializable {
     @ApiModelProperty(value = "network access exits")
     private String networkAccessExits;
 
+    @ApiModelProperty(value = "protocol")
+    private String protocol;
+
+    @ApiModelProperty(value = "encrypt type")
+    private Integer encryptType;
+
 }

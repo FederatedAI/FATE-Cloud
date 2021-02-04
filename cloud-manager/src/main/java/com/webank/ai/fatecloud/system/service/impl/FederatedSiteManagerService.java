@@ -38,6 +38,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -60,10 +61,11 @@ public class FederatedSiteManagerService {
     @Autowired
     FederatedFateManagerUserMapper federatedFateManagerUserMapper;
 
-
     @Value(value = "${cloud-manager.ip}")
     String ip;
 
+//    @Value(value = "${cloud-manager.https.ip}")
+//    String httpsIp;
 
     @Value(value = "${server.servlet.context-path}")
     String prefix;
@@ -119,11 +121,22 @@ public class FederatedSiteManagerService {
 
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
-        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-        String encodedUrl = EncryptUtil.encode(url);
+        String protocol = siteAddQo.getProtocol();
+        String url = "";
+        if ("http://".equals(protocol)) {
+            url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        } else {
+            url = "https://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        }
+        String finalUrl;
+        if (siteAddQo.getEncryptType() == 1) {
+            finalUrl = EncryptUtil.encode(url);
+        } else {
+            finalUrl = url;
+        }
 
         FederatedSiteManagerDo federatedSiteManagerDoUpdate = new FederatedSiteManagerDo();
-        federatedSiteManagerDoUpdate.setRegistrationLink(encodedUrl);
+        federatedSiteManagerDoUpdate.setRegistrationLink(finalUrl);
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
         federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
         federatedSiteManagerMapper.update(federatedSiteManagerDoUpdate, federatedSiteManagerDoQueryWrapper);
@@ -207,9 +220,22 @@ public class FederatedSiteManagerService {
 
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
-        String url = ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-        String encodedUrl = EncryptUtil.encode(url);
-        federatedSiteManagerDo.setRegistrationLink(encodedUrl);
+        String protocol = siteUpdateQo.getProtocol();
+
+        String url = "";
+        if ("http://".equals(siteUpdateQo.getProtocol())) {
+            url = "http://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        } else {
+            url = "https://" + ip + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        }
+        String finalUrl;
+        if (siteUpdateQo.getEncryptType() == 1) {
+            finalUrl = EncryptUtil.encode(url);
+        } else {
+            finalUrl = url;
+        }
+
+        federatedSiteManagerDo.setRegistrationLink(finalUrl);
 
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
@@ -232,16 +258,20 @@ public class FederatedSiteManagerService {
         federatedGroupSetMapper.update(federatedGroupSetDoForRemove, newGroupQWForRemove);
     }
 
-    public void activateSite(Long partyId) {
+    public void activateSite(Long partyId, HttpServletRequest httpServletRequest) {
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
         ew.eq("party_id", partyId).in("status", 1);
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
         Date date = new Date();
         federatedSiteManagerDo.setStatus(2);
         federatedSiteManagerDo.setActivationTime(date);
-        //cancel the set of site survive status
-//        federatedSiteManagerDo.setDetectiveStatus(2);
-//        federatedSiteManagerDo.setLastDetectiveTime(date);
+
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        if (StringUtils.isBlank(fateManagerUserId)) {
+            //cancel the set of site survive status
+            federatedSiteManagerDo.setDetectiveStatus(2);
+            federatedSiteManagerDo.setLastDetectiveTime(date);
+        }
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
     }
 
@@ -433,7 +463,7 @@ public class FederatedSiteManagerService {
 
     public Boolean updateVersion(Long partyId, String appKey, VersionUpdateQo versionUpdateQo) {
 
-        Preconditions.checkArgument(!StringUtils.isAllBlank(versionUpdateQo.getFateServingVersion(), versionUpdateQo.getFateVersion(), versionUpdateQo.getComponentVersion()));
+        Preconditions.checkArgument(!StringUtils.isAllBlank(versionUpdateQo.getFateServingVersion(), versionUpdateQo.getFateVersion()));
 
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
         ew.eq("party_id", partyId);
@@ -522,5 +552,12 @@ public class FederatedSiteManagerService {
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
         List<String> institutionsList = federatedSiteManagerMapper.findInstitutionsInGroup(institutionsInGroup);
         return institutionsList;
+    }
+
+    public boolean checkPartyIdForRollSite(Long partyId) {
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.eq("party_id", partyId).eq("status", 2);
+        Integer integer = federatedSiteManagerMapper.selectCount(ew);
+        return integer > 0;
     }
 }

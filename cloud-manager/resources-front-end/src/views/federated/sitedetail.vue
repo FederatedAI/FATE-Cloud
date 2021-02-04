@@ -120,8 +120,8 @@
                 </div>
                 <div class="body" v-for="(item, index) in form.componentVersion" :key="index">
                     <div class="body-text">{{item.label}}</div>
-                    <div class="body-text">{{item.version}}</div>
-                    <div class="body-text">3</div>
+                    <div class="body-text">{{item.version.version}}</div>
+                    <div class="body-text">{{item.version.address}}</div>
                 </div>
             </div>
         <!-- <el-form ref="form" :model="form" label-position="left" label-width="280px">

@@ -30,46 +30,62 @@
             ref="table"
             height="100%"
             tooltip-effect="light">
-            <el-table-column prop="productName" label="product"  class-name="cell-td-td"  show-overflow-tooltip>
+            <el-table-column prop="productName" label="Product"  class-name="cell-td-td"  show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="productVersion" label="version" class-name="cell-td-td"  show-overflow-tooltip>
+            <el-table-column prop="productVersion" label="Version" class-name="cell-td-td"  show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="kubernetesChart" label="Kubernetes Chart Version" >
+            <el-table-column prop="kubernetesChart" label="Kubernetes Chart Version"  class-name="cell-td-td">
+                 <template slot-scope="scope">
+                    <span v-if="scope.row.kubernetesChart">{{scope.row.kubernetesChart}}</span>
+                    <span v-else>-</span>
+                </template>
             </el-table-column>
-            <el-table-column prop="" label="Component_name" >
+            <el-table-column prop="" label="Component_name" min-width="85">
                 <template slot-scope="scope">
                    <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
-                        <span>{{item.componentName}}</span>
+                        <span v-if="item.componentName">{{item.componentName}}</span>
+                        <span v-else>-</span>
                     </div>
                 </template>
             </el-table-column>
             <el-table-column prop="federatedGroupSetDo"  min-width="100" label="Component_version" >
                 <template slot-scope="scope">
                    <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
-                        <span>{{item.componentVersion}}</span>
+                        <span v-if="item.componentVersion">{{item.componentVersion}}</span>
+                        <span v-else>-</span>
                     </div>
                 </template>
             </el-table-column>
             <el-table-column prop="" label="Image Info."  align="center" >
-                <el-table-column prop="federatedGroupSetDo" label="reposity" >
+                <el-table-column prop="federatedGroupSetDo" label="Repository" >
                     <template slot-scope="scope">
                         <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
-                            <span>{{item.imageRepository}}</span>
+                            <span v-if='item.imageRepository'>{{item.imageRepository}}</span>
+                            <span v-else>-</span>
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="" label="tag" >
+                <el-table-column prop="" label="Tag" >
                     <template slot-scope="scope">
                         <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
-                            <span>{{item.imageTag}}</span>
+                            <span v-if="item.imageTag">{{item.imageTag}}</span>
+                            <span v-else>-</span>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="imageDownloadUrl" label="Download_URL" class-name="cell-td-td"  show-overflow-tooltip >
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.imageDownloadUrl">{{scope.row.imageDownloadUrl}}</span>
+                        <span v-else>-</span>
+                    </template>
                 </el-table-column>
             </el-table-column>
             <el-table-column prop="" label="Package Info."  >
                 <el-table-column prop="packageDownloadUrl" label="Download_URL" class-name="cell-td-td" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.packageDownloadUrl">{{scope.row.packageDownloadUrl}}</span>
+                        <span v-else>-</span>
+                    </template>
                 </el-table-column>
             </el-table-column>
             <el-table-column prop="publicStatus" align="center"  label="Publish_status" >
@@ -101,13 +117,17 @@
             </el-pagination>
         </div>
         <!-- 添加或编辑 -->
-        <el-dialog :visible.sync="editdialog" class="sys-edit-dialog" width="700px">
+        <el-dialog :visible.sync="editdialog" class="sys-edit-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="dialog-title">
                 {{type}}
             </div>
             <div class="dialog-body">
                 <el-form label-position="left" ref="editform" class="edit-form" :rules="editRules"   label-width="190px"  :model="editFormData">
-                    <el-form-item label="productName" prop="productName" >
+                    <el-form-item label="product" prop="productName" >
+                        <span slot="label">
+                            <span>product</span>
+                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        </span>
                         <el-select class="version input-placeholder" v-model="editFormData.productName" placeholder=" ">
                             <el-option
                                 v-for="item in productName"
@@ -118,6 +138,10 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="Version" prop="productVersion" >
+                        <span slot="label">
+                            <span>Version</span>
+                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        </span>
                         <el-input @focus="cancelValid('productVersion')" v-model="editFormData.productVersion"></el-input>
                     </el-form-item>
                     <el-form-item label="Kubernetes Chart Version" prop="kubernetesChart" >
@@ -170,23 +194,39 @@
                         <el-checkbox v-model="checkedImage">Image Download</el-checkbox>
                     </div>
                     <el-form-item label="Download_name" prop="imageName" >
+                        <span slot="label">
+                            <span>Download_name</span>
+                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                        </span>
                         <el-input @focus="cancelValid('imageName')" :disabled="!checkedImage" v-model="editFormData.imageName"></el-input>
                     </el-form-item>
                     <el-form-item label="Download_URL" prop="imageDownloadUrl" >
+                        <span slot="label">
+                            <span>Download_URL</span>
+                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                        </span>
                         <el-input @focus="cancelValid('imageDownloadUrl')" :disabled="!checkedImage" v-model="editFormData.imageDownloadUrl"></el-input>
                     </el-form-item>
                     <div class="checked-box">
                         <el-checkbox v-model="checkedPackage">Package Download</el-checkbox>
                     </div>
                     <el-form-item label="Download_name" prop="packageName" >
+                        <span slot="label">
+                            <span>Download_name</span>
+                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                        </span>
                         <el-input @focus="cancelValid('packageName')" :disabled="!checkedPackage" v-model="editFormData.packageName"></el-input>
                     </el-form-item>
                     <el-form-item label="Download_URL" prop="packageDownloadUrl" >
+                        <span slot="label">
+                            <span>Download_URL</span>
+                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                        </span>
                         <el-input @focus="cancelValid('packageDownloadUrl')" :disabled="!checkedPackage" v-model="editFormData.packageDownloadUrl"></el-input>
                     </el-form-item>
                     <div class="title-body">
                         <span>Publish_status</span>
-                        <el-switch style="margin-left: 15px;" v-model="editFormData.status"> </el-switch>
+                        <el-switch style="margin-left: 78px;" v-model="editFormData.status"> </el-switch>
                     </div>
                 </el-form>
             </div>
@@ -200,9 +240,17 @@
                         <span>Component</span>
                     </div>
                     <el-form-item label="Component_Name" prop="componentName" >
+                        <span slot="label">
+                        <span>Component_Name</span>
+                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        </span>
                         <el-input @focus="cancelValid('componentName')"  v-model="tempEditComponent.componentName"></el-input>
                     </el-form-item>
                     <el-form-item label="Component_Version" prop="componentVersion" >
+                        <span slot="label">
+                        <span>Component_Version</span>
+                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        </span>
                         <el-input @focus="cancelValid('componentVersion')"  v-model="tempEditComponent.componentVersion"></el-input>
                     </el-form-item>
                     <el-form-item label="Repository" prop="imageRepository" >
@@ -218,6 +266,7 @@
                 </div>
             </el-dialog>
         </el-dialog>
+        <!-- 确认删除 -->
         <el-dialog class="sys-delete" width="700px" :visible.sync="deleteVisible">
             <div class="title">
                 Are you sure you want to delete it ?
@@ -231,7 +280,7 @@
 </template>
 
 <script>
-import { serviceManageList, addManageList, updateManageList, deleteManageList, getSelect } from '@/api/federated'
+import { serviceManageList, addManageList, updateManageList, deleteManageList, getSelect, getnameSelect } from '@/api/federated'
 import { deepClone } from '@/utils/deepClone'
 import moment from 'moment'
 import { setTimeout } from 'timers'
@@ -248,7 +297,7 @@ export default {
     },
     data() {
         return {
-            radio: 'Site service info.',
+            radio: 'Site service info',
             editdialog: false,
             currentPage: 1, // 当前页
             total: 0, // 表格条数
@@ -292,7 +341,7 @@ export default {
                 componentName: [{ required: true, message: 'The field is required !', trigger: 'change' }],
                 componentVersion: [{
                     required: true,
-                    trigger: 'change',
+                    trigger: 'blur',
                     validator: (rule, value, callback) => {
                         let versionReg = new RegExp(/^\d(\.\d+)+$/)
                         if (!value) {
@@ -303,9 +352,9 @@ export default {
                             callback()
                         }
                     }
-                }],
-                imageRepository: [{ required: true, message: 'The field is required !', trigger: 'change' }],
-                imageTag: [{ required: true, message: 'The field is required !', trigger: 'change' }]
+                }]
+                // imageRepository: [{ required: true, message: 'The field is required !', trigger: 'change' }],
+                // imageTag: [{ required: true, message: 'The field is required !', trigger: 'change' }]
             }
         }
     },
@@ -378,13 +427,20 @@ export default {
                     obj.value = item
                     obj.label = item
                     this.productSelect.push(obj)
-                    this.productName.push(obj)
                 })
                 res.data.productVersionList.forEach(item => {
                     let obj = {}
                     obj.value = item
                     obj.label = item
                     this.versionSelect.push(obj)
+                })
+            })
+            getnameSelect().then(res => {
+                res.data.forEach(item => {
+                    let obj = {}
+                    obj.value = item
+                    obj.label = item
+                    this.productName.push(obj)
                 })
             })
         },
