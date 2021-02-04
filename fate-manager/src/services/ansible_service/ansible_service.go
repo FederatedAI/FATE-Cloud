@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ansible_service
 
 import (
@@ -79,13 +94,24 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			deploySite.ClickType = conf.ClickType
 		}
 		clickTag := false
+		config := ClusterInstallByAnsible{
+			PartyId:     ansibleReq.PartyId,
+			FateVersion: connectResp.Data.FateVersion,
+			Role:        connectResp.Data.Role,
+		}
+		var modules []string
 		for i := 0; i < len(connectResp.Data.List); i++ {
 			connectItem := connectResp.Data.List[i]
 			if connectItem.Module == "fateflow" || connectItem.Module == "fateboard" || connectItem.Module == "mysql" ||
 				connectItem.Module == "clustermanager" || connectItem.Module == "nodemanager" || connectItem.Module == "rollsite" {
+				modules = append(modules,connectItem.Module)
 				address := ""
+				var addressList []string
+				var port int
 				clickTag = true
 				for j := 0; j < len(connectItem.Ips); j++ {
+					addressList = append(addressList,connectItem.Ips[j])
+					port = connectItem.Port
 					ipport := fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
 					if connectItem.Module == "fateflow" {
 						ipport = fmt.Sprintf("%s:%d", connectItem.Ips[j], connectItem.Port)
@@ -94,6 +120,59 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 					if j < len(connectItem.Ips)-1 {
 						address = fmt.Sprintf("%s,%s", address, ipport)
 					}
+				}
+				IpNode := IpNode{
+					//Enable: true,
+					Ip:   addressList,
+					Port: port,
+				}
+				Java := Java{
+					Ip: addressList,
+				}
+				if connectItem.Module == "mysql" {
+					config.Modules.Mysql.IpNode = IpNode
+					config.Modules.Mysql.Password = "fate_pass"
+					config.Modules.Mysql.User = "fate_user"
+					//req.Modules.Base.Ip = address
+				} else if connectItem.Module == "clustermanager" {
+					config.Modules.Clustermanager = IpNode
+				} else if connectItem.Module == "nodemanager" {
+					config.Modules.Nodemanager = IpNode
+				} else if connectItem.Module == "fateflow" {
+					config.Modules.Flow.Ip = addressList
+					config.Modules.Flow.Dbname = "fate_flow"
+					//req.Modules.Flow.Enable = true
+					config.Modules.Flow.GrpcPort = 9360
+					config.Modules.Flow.HttpPort = port
+					//req.Modules.Python.Enable = true
+					config.Modules.Python.Ip = addressList
+				} else if connectItem.Module == "fateboard" {
+					config.Modules.Fateboard = Fateboard{
+						Dbname: "fate_flow",
+						IpNode: IpNode,
+					}
+					config.Modules.Java.Ip = IpNode.Ip
+					config.Modules.Java = Java
+					config.Modules.Supervisor.Ip = addressList
+					//req.Modules.Supervisor.Enable = true
+				} else if connectItem.Module == "rollsite" {
+					config.Modules.Rollsite.IpNode = IpNode
+					config.Modules.Rollsite.Port = port
+					rule := Rule{
+						Name: "default",
+						Ip:   setting.DeploySetting.ExchangeIp,
+						Port: setting.DeploySetting.ExchangePort,
+					}
+					config.Modules.Rollsite.DefaultRules = append(config.Modules.Rollsite.DefaultRules, rule)
+					rule.Ip = addressList[0]
+					rule.Port = port
+					config.Modules.Rollsite.Rules = append(config.Modules.Rollsite.Rules, rule)
+					rule.Name = "fateflow"
+					rule.Port = 9360
+					config.Modules.Rollsite.Rules = append(config.Modules.Rollsite.Rules, rule)
+					config.Modules.Eggroll.Ip = addressList
+					config.Modules.Eggroll.Dbname = "eggroll_meta"
+					config.Modules.Eggroll.Egg = setting.DeploySetting.SessionProcessorsPerNode
 				}
 
 				deployComponent := models.DeployComponent{
@@ -160,6 +239,15 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			if clickTag {
 				deploySite.ClickType = int(enum.AnsibleClickType_INSTALL)
 				deploySite.DeployStatus = int(enum.ANSIBLE_DeployStatus_INSTALLED)
+				if len(config.Role) ==0{
+					siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+					siteInfoList,_ := models.GetSiteList(&siteInfo)
+					if len(siteInfoList)>0{
+						config.Role = enum.GetRoleString(enum.RoleType(siteInfoList[0].Role))
+					}
+				}
+				reqs, _ := json.Marshal(config)
+				deploySite.Config = string(reqs)
 
 				deployJob :=models.DeployJob{
 					JobId:       fmt.Sprintf("%d_connect",ansibleReq.PartyId),
@@ -178,6 +266,10 @@ func ConnectAnsible(ansibleReq entity.AnsibleConnectReq) (int, error) {
 			}
 
 			models.AddDeploySite(&deploySite)
+			siteInfo :=models.SiteInfo{PartyId:deploySite.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+			var data = make(map[string]interface{})
+			data["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+			models.UpdateSiteByCondition(data,siteInfo)
 		}
 		return e.SUCCESS, nil
 	}
@@ -660,6 +752,7 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 				StartTime:        time.Now(),
 				VersionIndex:     componentVersionList[i].VersionIndex,
 				Address:          nodelist[0] + ":" + strconv.Itoa(models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_ANSIBLE)),
+				Status:           int(enum.SITE_RUN_STATUS_UNKNOWN),
 				DeployStatus:     int(enum.ANSIBLE_DeployStatus_UNDER_INSTALLATION),
 				DeployType:       int(enum.DeployType_ANSIBLE),
 				IsValid:          int(enum.IS_VALID_YES),
@@ -690,6 +783,11 @@ func UpgradeByAnsible(upgradeReq entity.UpgradeReq) (int, error) {
 		}
 
 		models.AddDeployJob(&deployJob)
+
+		data = make(map[string]interface{})
+		data["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+		site := models.SiteInfo{PartyId:req.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+		models.UpdateSiteByCondition(data,site)
 	}
 
 	return e.SUCCESS, nil
@@ -1068,7 +1166,7 @@ func AutoTest(autoTestReq entity.AnsibleAutoTestReq) (int, error) {
 				var deployData = make(map[string]interface{})
 				if ansibleAutoTestRespItem.Status == "running" {
 					data["status"] = int(enum.TEST_STATUS_YES)
-					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_PASSED)
+					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_IN_TESTING)
 				} else {
 					deployData["deploy_status"] = int(enum.ANSIBLE_DeployStatus_TEST_FAILED)
 					data["status"] = int(enum.TEST_STATUS_NO)

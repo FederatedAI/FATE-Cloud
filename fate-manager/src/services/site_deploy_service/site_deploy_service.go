@@ -368,6 +368,7 @@ func Upgrade(upgradeReq entity.UpgradeReq) (int, error) {
 		KubenetesId:  deploySiteList[0].KubenetesId,
 		PythonPort:   deploySiteList[0].PythonPort,
 		RollsitePort: deploySiteList[0].RollsitePort,
+		DeployType:   int(enum.DeployType_K8S),
 		IsValid:      int(enum.IS_VALID_YES),
 		ClickType:    int(enum.ClickType_PAGE),
 		ClusterId:    deploySiteList[0].ClusterId,
@@ -827,6 +828,7 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 
 				var deployData = make(map[string]interface{})
 				deployData["deploy_status"] = int(enum.DeployStatus_TEST_PASSED)
+				deployData["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 				deployComponent := models.DeployComponent{
 					FederatedId: autoTestReq.FederatedId,
 					PartyId:     autoTestReq.PartyId,
@@ -834,6 +836,11 @@ func DoAutoTest(autoTestReq entity.AutoTestReq) {
 					IsValid:     int(enum.IS_VALID_YES),
 				}
 				models.UpdateDeployComponent(deployData, deployComponent)
+
+				var data = make(map[string]interface{})
+				data["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+				siteInfo := models.SiteInfo{PartyId:autoTestReq.PartyId,Status:int(enum.SITE_STATUS_JOINED)}
+				models.UpdateSiteByCondition(data,siteInfo)
 			}
 		}
 	} else {
@@ -1103,12 +1110,12 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 				DeployType:       entity.IdPair{Code: deployComponentList[j].DeployType, Desc: enum.GetDeployTypeString(enum.DeployType(deployComponentList[j].DeployType))},
 				ServiceStatus:    entity.IdPair{Code: int(enum.SERVICE_STATUS_UNAVAILABLE), Desc: enum.GetServiceStatusString(enum.SERVICE_STATUS_UNAVAILABLE)},
 			}
-			if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING) {
+			if deployComponentList[j].Status == int(enum.SITE_RUN_STATUS_RUNNING) && (deployComponentList[j].DeployStatus == int(enum.DeployStatus_TEST_PASSED) ||
+				deployComponentList[j].DeployStatus == int(enum.DeployStatus_SUCCESS)) {
 				installItem.ServiceStatus = entity.IdPair{Code: int(enum.SERVICE_STATUS_AVAILABLE), Desc: enum.GetServiceStatusString(enum.SERVICE_STATUS_AVAILABLE)}
 			}
 
 			deployJob := models.DeployJob{
-				FederatedId: siteList[i].FederatedId,
 				PartyId:     siteList[i].PartyId,
 				ProductType: int(enum.PRODUCT_TYPE_FATE),
 			}
@@ -1129,8 +1136,6 @@ func GetServiceOverview(overViewReq entity.OverViewReq) ([]entity.OverViewRspIte
 						jobMap[deployJobList[k].JobId] = deployJobList[k]
 					}
 				}
-			}else{
-				installItem.InstallTime = deployComponentList[j].EndTime.UnixNano() / 1e6
 			}
 			deployComponent := models.DeployComponent{
 				//FederatedId:   deployComponentList[j].FederatedId,
@@ -1313,6 +1318,7 @@ func Click(req entity.ClickReq) bool {
 		data["duration"] = time.Now().UnixNano()/1e6 - deploySiteList[0].CreateTime.UnixNano()/1e6
 		data["finish_time"] = time.Now()
 		data["deploy_status"] = int(enum.DeployStatus_SUCCESS)
+		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
 		models.UpdateDeployComponent(data, deployComponent)
 
 		deploySite := models.DeploySite{
