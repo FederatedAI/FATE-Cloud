@@ -37,17 +37,17 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 # logger
 log_utils.LoggerFactory.LEVEL = 10
 # {CRITICAL: 50, FATAL:50, ERROR:40, WARNING:30, WARN:30, INFO:20, DEBUG:10, NOTSET:0}
-STAT_LOG_DIR = os.path.join(get_project_base_directory(), 'logs', 'ansible')
-STAT_LOGGER_NAME = "ansible_stat"
+STAT_LOG_DIR = os.path.join(get_project_base_directory(), 'logs', 'hyperion')
+STAT_LOGGER_NAME = "hyperion_stat"
 log_utils.LoggerFactory.set_directory(STAT_LOG_DIR)
 stat_logger = log_utils.getLogger(STAT_LOGGER_NAME)
-detect_logger = log_utils.getLogger("ansible_detect")
+detect_logger = log_utils.getLogger("hyperion_detect")
 
 
 # Constants
-ANSIBLE_SERVICE_NAME = 'ansible'
-IP = get_base_config(ANSIBLE_SERVICE_NAME, {}).get("host", "127.0.0.1")
-PORT = get_base_config(ANSIBLE_SERVICE_NAME, {}).get("http_port")
+HYPERION_SERVICE_NAME = 'hyperion'
+IP = get_base_config(HYPERION_SERVICE_NAME, {}).get("host", "127.0.0.1")
+PORT = get_base_config(HYPERION_SERVICE_NAME, {}).get("http_port")
 API_VERSION ='v1'
 
 
