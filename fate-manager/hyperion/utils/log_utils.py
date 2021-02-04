@@ -117,7 +117,6 @@ class LoggerFactory(object):
                 log_file = os.path.join(log_dir, "{}.log".format(class_name))
                 schedule_logger('test').info(log_file)
         else:
-            # log_file = os.path.join(log_dir, "ansible_{}.log".format(log_type) if level == LoggerFactory.LEVEL else 'ansible_{}_error.log'.format(log_type))
             log_file = os.path.join(log_dir, "{}.log".format(log_type) if level == LoggerFactory.LEVEL else '{}_error.log'.format(log_type))
         if formatter_disable:
             formatter = logging.Formatter(LoggerFactory.NO_FORMAT)
@@ -172,17 +171,17 @@ class LoggerFactory(object):
 
     @staticmethod
     def get_schedule_logger(job_id='', log_type='schedule', formatter_disable=False):
-        ansible_log_dir = os.path.abspath(os.path.join(get_project_base_directory(), 'logs', 'ansible'))
+        hyperion_log_dir = os.path.abspath(os.path.join(get_project_base_directory(), 'logs', 'hyperion'))
         job_log_dir = os.path.abspath(os.path.join(get_project_base_directory(), 'logs', job_id))
         if not job_id:
-            log_dirs = [ansible_log_dir]
+            log_dirs = [hyperion_log_dir]
         else:
             if log_type == 'audit':
-                log_dirs = [job_log_dir, ansible_log_dir]
+                log_dirs = [job_log_dir, hyperion_log_dir]
             else:
                 log_dirs = [job_log_dir]
         os.makedirs(job_log_dir, exist_ok=True)
-        os.makedirs(ansible_log_dir, exist_ok=True)
+        os.makedirs(hyperion_log_dir, exist_ok=True)
         logger = logging.getLogger('{}_{}'.format(job_id, log_type))
         logger.setLevel(LoggerFactory.LEVEL)
         for job_log_dir in log_dirs:
@@ -200,7 +199,6 @@ class LoggerFactory(object):
 
     @staticmethod
     def get_host_logger(job_id, host):
-        # ansible_log_dir = os.path.abspath(os.path.join(file_utils.get_project_base_directory(), 'logs', 'ansible'))
         job_log_dir = os.path.abspath(os.path.join(get_project_base_directory(), 'logs', job_id))
         os.makedirs(job_log_dir, exist_ok=True)
         logger = logging.getLogger(f"{job_id}_{host}")
@@ -235,7 +233,7 @@ def getLogger(className=None, useLevelFile=False):
 
 def schedule_logger(job_id=None, delete=False):
     if not job_id:
-        return getLogger("ansible_schedule")
+        return getLogger("hyperion_schedule")
     else:
         if delete:
             with LoggerFactory.lock:
@@ -251,15 +249,6 @@ def schedule_logger(job_id=None, delete=False):
             return LoggerFactory.schedule_logger_dict[key]
         return LoggerFactory.get_schedule_logger(job_id)
 
-#
-# def host_logger(job_id, host):
-#     if not isinstance(host, str):
-#         host = str(host)
-#     key = job_id + host
-#     if key in LoggerFactory.host_logger_dict:
-#         return LoggerFactory.host_logger_dict[key]
-#     return LoggerFactory.get_host_logger(job_id, host)
-
 
 def host_logger(job_id, host):
     if not isinstance(host, str):
@@ -268,26 +257,6 @@ def host_logger(job_id, host):
     if key in LoggerFactory.schedule_logger_dict:
         return LoggerFactory.schedule_logger_dict[key]
     return LoggerFactory.get_schedule_logger(job_id=job_id, log_type=host, formatter_disable=True)
-
-# def audit_logger(job_id='', log_type='audit'):
-#     key = job_id + log_type
-#     if key in LoggerFactory.schedule_logger_dict.keys():
-#         return LoggerFactory.schedule_logger_dict[key]
-#     return LoggerFactory.get_schedule_logger(job_id=job_id, log_type=log_type)
-#
-#
-# def sql_logger(job_id='', log_type='sql'):
-#     key = job_id + log_type
-#     if key in LoggerFactory.schedule_logger_dict.keys():
-#         return LoggerFactory.schedule_logger_dict[key]
-#     return LoggerFactory.get_schedule_logger(job_id=job_id, log_type=log_type)
-#
-#
-# def detect_logger(job_id='', log_type='detect'):
-#     key = job_id + log_type
-#     if key in LoggerFactory.schedule_logger_dict.keys():
-#         return LoggerFactory.schedule_logger_dict[key]
-#     return LoggerFactory.get_schedule_logger(job_id=job_id, log_type=log_type)
 
 
 def exception_to_trace_string(ex):
