@@ -106,8 +106,10 @@ module.exports = {
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
             '/cloud-manager': {
-                target: 'http://172.16.153.9:8086',
+                // target: 'http://172.16.153.9:8086',
                 // target: 'http://10.36.16.100:8080',
+                target: 'http://172.16.153.21:8998',
+                // target: 'http://172.16.153.9:8088/',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

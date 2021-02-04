@@ -83,7 +83,7 @@ public class FederatedFateManagerUserServiceFacade {
     }
 
     public CommonResponse activateFateManagerUser(SiteActivateQo siteActivateQo,HttpServletRequest httpServletRequest) {
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_MANAGER_USER, new int[]{1}, null);
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_MANAGER_USER, new int[]{1}, null);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
