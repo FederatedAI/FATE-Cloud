@@ -188,7 +188,7 @@ func CheckSite(c *gin.Context) {
 // @Tags SiteController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.SiteDetailReq true "request param"
+// @Param request body entity.SecretInfoReq true "request param"
 // @Success 200 {object} app.SiteSecretResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/site/secretinfo [post]
@@ -199,12 +199,12 @@ func GetSecretInfo(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
 		return
 	}
-	var siteDetailReq entity.SiteDetailReq
-	if jsonError := json.Unmarshal(body, &siteDetailReq); jsonError != nil {
+	var secretInfoReq entity.SecretInfoReq
+	if jsonError := json.Unmarshal(body, &secretInfoReq); jsonError != nil {
 		logging.Error("JSONParse Error")
 		panic("JSONParse Error")
 	}
-	result, err := site_service.GetSecretInfo(siteDetailReq)
+	result, err := site_service.GetSecretInfo(secretInfoReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GET_SECRET_INFO_FAIL, nil)
 		return

@@ -144,6 +144,10 @@ type RegisterReq struct {
 type SiteDetailReq struct {
 	FederatedSite
 }
+type SecretInfoReq struct {
+	PartyId     string `json:"partyId"`
+	FederatedId string `json:"federatedId"`
+}
 
 type SiteSecretResp struct {
 	AppKey    string `json:"appKey"`

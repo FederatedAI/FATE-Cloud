@@ -1,15 +1,35 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package monitor_service
 
 import (
 	"fate.manager/comm/enum"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/user_service"
 	"fmt"
 	"strconv"
 )
 
 func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, error) {
-	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return nil, err
+	}
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions, monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +51,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 		itemBase := models.MonitorBase{
 			Total:   monitorBySite.Total,
 			Success: monitorBySite.Success,
-			Failed:  monitorBySite.Failed + monitorBySite.Timeout,
+			Failed:  monitorBySite.Failed + monitorBySite.Timeout + monitorBySite.Canceled,
 			Running: monitorBySite.Running,
 			Waiting: monitorBySite.Waiting,
 			Timeout: monitorBySite.Timeout,
@@ -55,7 +75,33 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 			} else {
 				monitorBaseMap[sitePair] = itemBase
 			}
-			continue
+			if monitorBySite.GuestPartyId != monitorBySite.HostPartyId {
+				siteInfo.PartyId = monitorBySite.HostPartyId
+				siteInfoList, err = models.GetSiteList(&siteInfo)
+				if err != nil {
+					continue
+				}
+				if len(siteInfoList) > 0 {
+					sitePair = entity.SitePair{
+						PartyId:     monitorBySite.HostPartyId,
+						SiteName:    monitorBySite.HostSiteName,
+						Institution: monitorBySite.HostInstitution,
+					}
+					_, ok := monitorBaseMap[sitePair]
+					if ok {
+						itemBaseTmp := monitorBaseMap[sitePair]
+						itemBaseTmp.Total += itemBase.Total
+						itemBaseTmp.Success += itemBase.Success
+						itemBaseTmp.Running += itemBase.Running
+						itemBaseTmp.Waiting += itemBase.Waiting
+						itemBaseTmp.Failed += itemBase.Failed
+						itemBaseTmp.Timeout += itemBase.Timeout
+						monitorBaseMap[sitePair] = itemBaseTmp
+					} else {
+						monitorBaseMap[sitePair] = itemBase
+					}
+				}
+			}
 		} else {
 			sitePair := entity.SitePair{
 				PartyId:     monitorBySite.HostPartyId,
@@ -90,7 +136,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Running)/float64(v.Total)), 64)
 		WaitingPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Waiting)/float64(v.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Timeout)/float64(v.Total)), 64)
-		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout))/float64(v.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout+v.Canceled))/float64(v.Total)), 64)
 		siteModelingItem := entity.SiteModelingItem{
 			PartyId:  k.PartyId,
 			SiteName: k.SiteName,
@@ -104,7 +150,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 				WaitingPercent: WaitingPercent,
 				TimeoutJobs:    v.Timeout,
 				TimeoutPercent: TimeoutPercent,
-				FailedJobs:     v.Failed + v.Timeout,
+				FailedJobs:     v.Failed + v.Timeout + v.Canceled,
 				FailedPercent:  FailedPercent,
 			},
 		}
@@ -115,7 +161,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Running)/float64(monitorBase.Total)), 64)
 		WaitingPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Waiting)/float64(monitorBase.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Timeout)/float64(monitorBase.Total)), 64)
-		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout))/float64(monitorBase.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout+monitorBase.Canceled))/float64(monitorBase.Total)), 64)
 		monitorTotalResp := entity.MonitorTotalResp{
 			ActiveData: monitorBase.ActiveData,
 			JobBase: entity.JobBase{
@@ -128,7 +174,7 @@ func GetMonitorTotal(monitorReq entity.MonitorReq) (*entity.MonitorTotalResp, er
 				WaitingPercent: WaitingPercent,
 				TimeoutJobs:    monitorBase.Timeout,
 				TimeoutPercent: TimeoutPercent,
-				FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
+				FailedJobs:     monitorBase.Failed + monitorBase.Timeout + monitorBase.Canceled,
 				FailedPercent:  FailedPercent,
 			},
 			SiteModeling: data,
@@ -143,7 +189,11 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 		monitorReq.PageSize = 15
 		monitorReq.PageNum = 1
 	}
-	monitorBase, err := models.GetTotalMonitorByRegion(monitorReq)
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return nil, err
+	}
+	monitorBase, err := models.GetTotalMonitorByRegion(accountInfo.Institutions, monitorReq)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +209,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Running)/float64(v.Total)), 64)
 		WaitingPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Waiting)/float64(v.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(v.Timeout)/float64(v.Total)), 64)
-		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout))/float64(v.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((v.Failed+v.Timeout+v.Canceled))/float64(v.Total)), 64)
 		institutionModelingItem := entity.InstitutionModelingItem{
 			Institution: v.Institution,
 			JobBase: entity.JobBase{
@@ -172,7 +222,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 				WaitingPercent: WaitingPercent,
 				TimeoutJobs:    v.Timeout,
 				TimeoutPercent: TimeoutPercent,
-				FailedJobs:     v.Failed + v.Timeout,
+				FailedJobs:     v.Failed + v.Timeout + v.Canceled,
 				FailedPercent:  FailedPercent,
 			},
 		}
@@ -183,7 +233,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 		RunningPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Running)/float64(monitorBase.Total)), 64)
 		WaitingPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Waiting)/float64(monitorBase.Total)), 64)
 		TimeoutPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64(monitorBase.Timeout)/float64(monitorBase.Total)), 64)
-		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout))/float64(monitorBase.Total)), 64)
+		FailedPercent, _ := strconv.ParseFloat(fmt.Sprintf("%.4f", float64((monitorBase.Failed+monitorBase.Timeout+monitorBase.Canceled))/float64(monitorBase.Total)), 64)
 		monitorTotalResp := entity.InstitutionBaseStaticsResp{
 			JobBase: entity.JobBase{
 				TotalJobs:      monitorBase.Total,
@@ -195,7 +245,7 @@ func GetInstitutionBaseStatics(monitorReq entity.MonitorReq) (*entity.Institutio
 				WaitingPercent: WaitingPercent,
 				TimeoutJobs:    monitorBase.Timeout,
 				TimeoutPercent: TimeoutPercent,
-				FailedJobs:     monitorBase.Failed + monitorBase.Timeout,
+				FailedJobs:     monitorBase.Failed + monitorBase.Timeout + monitorBase.Canceled,
 				FailedPercent:  FailedPercent,
 			},
 			InstitutionModeling: data,
@@ -253,7 +303,7 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) (*entity.InsitutionSite
 			Running: siteMonitorByRegion.Running,
 			Waiting: siteMonitorByRegion.Waiting,
 			Timeout: siteMonitorByRegion.Timeout,
-			Failed:  siteMonitorByRegion.Failed + siteMonitorByRegion.Timeout,
+			Failed:  siteMonitorByRegion.Failed + siteMonitorByRegion.Timeout + siteMonitorByRegion.Canceled,
 		}
 		siteMonitor := SiteMonitor{
 			SiteName:    siteName,
@@ -268,8 +318,7 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) (*entity.InsitutionSite
 			} else {
 				var SiteMonitorList []SiteMonitor
 				SiteMonitorList = append(SiteMonitorList, siteMonitor)
-				var siteMonitorMap = make(map[string][]SiteMonitor)
-				siteMonitorMap[institutionSiteName] = SiteMonitorList
+				data[institution][institutionSiteName] = SiteMonitorList
 			}
 		} else {
 			var SiteMonitorList []SiteMonitor
@@ -306,7 +355,7 @@ func GetSiteBaseStatistics(monitorReq entity.MonitorReq) (*entity.InsitutionSite
 						WaitingPercent: WaitingPercent,
 						TimeoutJobs:    siteMonitor.Timeout,
 						TimeoutPercent: TimeoutPercent,
-						FailedJobs:     siteMonitor.Failed + siteMonitor.Timeout,
+						FailedJobs:     siteMonitor.Failed + siteMonitor.Timeout + siteMonitor.Canceled,
 						FailedPercent:  FailedPercent,
 					},
 				}
