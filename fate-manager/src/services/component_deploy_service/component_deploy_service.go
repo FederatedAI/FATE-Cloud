@@ -173,7 +173,7 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 		logging.Error("kubernetes.ClientSet.WriteLogsIntoFile err[%s]", err.Error())
 	}
 
-	file, err := os.Open("./testLog/kubefate.log")
+	file, err := os.Open(KUBE_LOG_PATH)
 	if err != nil {
 		log.Fatal(err)
 	}
