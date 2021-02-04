@@ -104,7 +104,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/exchange/page/fatemanager")
         ;
 
-//        registry.addInterceptor(getReferrerInterceptor());
+        registry.addInterceptor(getReferrerInterceptor());
 
     }
 
