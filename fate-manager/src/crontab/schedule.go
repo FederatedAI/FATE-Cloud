@@ -63,6 +63,7 @@ func SetUp() {
 	go AutotestTask()
 	go VersionUpdateTask(accountInfo)
 }
+
 func SiteStatusTask() {
 	ticker := time.NewTicker(time.Second * time.Duration(SiteStatusTimer))
 	for {
