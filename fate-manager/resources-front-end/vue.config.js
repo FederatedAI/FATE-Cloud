@@ -115,7 +115,7 @@ module.exports = {
         proxy: {
             '/fate-manager': {
                 target: 'http://172.16.153.88:9090',
-                // target: 'http://***REMOVED***:9090/',
+                // target: 'http://10.107.116.21:9090/',
 
                 changeOrigin: true,
                 pathRewrite: {

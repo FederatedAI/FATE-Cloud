@@ -318,7 +318,7 @@ nohup ./bin/mysqld_safe --defaults-file=./conf/my.cnf --user=app >>logs/mysqld.l
 
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
-./bin/mysqladmin -h 127.0.0.1 -P 3306 -S ./run/mysql.sock -u root -p password "***REMOVED***"
+./bin/mysqladmin -h 127.0.0.1 -P 3306 -S ./run/mysql.sock -u root -p password "fate_dev"
 Enter Password:【输入root初始密码】
 ```
 - **验证登陆**
@@ -326,7 +326,7 @@ Enter Password:【输入root初始密码】
 ```
 cd /data/projects/fate-cloud/common/mysql/mysql-8.0.13/
 ./bin/mysql -u root -p -S ./run/mysql.sock
-Enter Password:【输入root修改后密码:***REMOVED***】
+Enter Password:【输入root修改后密码:fate_dev】
 ```
 部署成功！
 
@@ -359,7 +359,7 @@ doc-sql：db建表语句及初始化配置信息
 ```
 cd /data/projects/fate/common/mysql/mysql-8.0.13/
 ./bin/mysql -u root -p -S ./run/mysql.sock
-Enter Password:【***REMOVED***】
+Enter Password:【fate_dev】
 
 #创建fate-manager库表及初始化配置信息
 mysql>source /data/projects/fate-cloud/fate-manager/doc-sql/create-fate-manager-tables.sql;
@@ -399,7 +399,7 @@ Test = 30                                      #单边、双边及最小化验�
 
 [kubenetes]                                    #kuberbetes配置
 KubeFateUrl=http://kubefate.net:30732          #kubefate服务地址
-ExchangeIp=172.16.153.131                      #路由服务出入口ip
+ExchangeIp=0.0.0.0                             #路由服务出入口ip
 ExchangePort=30001                             #路由服务出入口端口
 NodeManager=0                                  #nodemanger的个数，0代表1个
 Registry=                                      #镜像地址配置，可以配置私有镜像源

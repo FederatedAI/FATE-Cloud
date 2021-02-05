@@ -114,7 +114,7 @@ func GetClusterConfig(site models.DeploySite, versionIndex int, name string, nam
 			ExistingClaim: "",
 			Ip:            "mysql",
 			NodeSelector:  entity.NodeSelector{},
-			Password:      "***REMOVED***",
+			Password:      "fate_dev",
 			Port:          version_service.GetDefaultPort("mysql"),
 			Size:          "1Gi",
 			StorageClass:  "mysql",

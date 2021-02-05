@@ -187,7 +187,7 @@ java_dir=/data/projects/common/jdk/jdk1.8.0_192
 cloud_db_ip=192.168.0.2
 cloud_db_name=cloud_manager
 cloud_db_user=root
-cloud_db_password=***REMOVED***
+cloud_db_password=fate_dev
 cloud_db_dir=/data/projects/fate/common/mysql/mysql-8.0.13
 cloud_db_sock_path=/data/projects/fate/common/mysql/mysql-8.0.13/mysql.sock
 ```
