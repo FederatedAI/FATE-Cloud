@@ -59,7 +59,7 @@ type FlowJobQueryResp struct {
 	Data []FlowJobQuery `json:"data"`
 }
 type FlowVersionQuery struct {
-	Version string `json:"module"`
+	Version string `json:"FATE"`
 }
 type FlowVersionQueryResp struct {
 	Code int                `json:"retcode"`
