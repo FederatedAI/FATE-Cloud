@@ -70,6 +70,7 @@ type Server struct {
 	TimeFormat   string
 	ProxyUrl     string
 	IfProxy      bool
+	IfSSL        bool
 }
 
 var ServerSetting = &Server{}
