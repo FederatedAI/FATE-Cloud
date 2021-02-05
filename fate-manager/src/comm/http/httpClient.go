@@ -18,6 +18,7 @@ package http
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/tls"
 	"encoding/json"
 	"fate.manager/comm/logging"
 	"fate.manager/comm/setting"
@@ -101,7 +102,10 @@ func (r req) do(method string, url Url, param Param, header Header) (ret *result
 	}
 	r.setHeader(reqs, header)
 	defer reqs.Body.Close()
-	client := &http.Client{Timeout: 20 * time.Second}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: setting.ServerSetting.IfSSL},
+	}
+	client := &http.Client{Timeout: 20 * time.Second, Transport: tr}
 	if setting.ServerSetting.IfProxy {
 		client = GetProxy()
 	}

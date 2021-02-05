@@ -27,7 +27,6 @@ import (
 	"io/ioutil"
 	"net/http"
 )
-
 // @Summary Connect To Ansible Server
 // @Tags AnsibleDeployController
 // @Accept  json
