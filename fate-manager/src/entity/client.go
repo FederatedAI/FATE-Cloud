@@ -400,6 +400,7 @@ type AccountActivateReq struct {
 	AppSecret              string `json:"appSecret"`
 	ActivateUrl            string `json:"activateUrl"`
 	FateManagerId          string `json:"fateManagerId"`
+	Link                   string `json:"link"`
 }
 type Role struct {
 	RoleId   int    `json:"roleId"`
@@ -576,12 +577,10 @@ type MonitorReq struct {
 }
 
 type ExchangeItem struct {
-	ExchangeId   int    `json:"exchangeId"`
 	ExchangeName string `json:"exchangeName"`
-	Address      string `json:"address"`
+	Vip          string `json:"vip"`
 	UpdateTime   string `json:"updateTime"`
 }
 type ExchangeResponse struct {
-	ExchangeVip   []ExchangeItem `json:"exchangeVip"`
-	ExchangeExits []ExchangeItem `json:"exchangeExits"`
+	ExchangeVip []ExchangeItem `json:"exchangeVip"`
 }
