@@ -47,6 +47,8 @@ public class FederatedAuthorityController {
     @PostMapping(value = "/institutions")
     @ApiOperation(value = "find all the institutions for site")
     public CommonResponse<PageBean<InstitutionsForFateDto>> findInstitutionsForSite(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+//        log.warn("findInstitutionsForSite:{}",authorityInstitutionsQo);
+//         log.warn("findInstitutionsForSite:{}",federatedAuthorityServiceFacade.findInstitutionsForSite(authorityInstitutionsQo, httpServletRequest));
 
         return federatedAuthorityServiceFacade.findInstitutionsForSite(authorityInstitutionsQo, httpServletRequest);
     }
@@ -54,13 +56,16 @@ public class FederatedAuthorityController {
     @PostMapping(value = "/institutions/approved")
     @ApiOperation(value = "find all the institutions for site")
     public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
-
+//        log.warn("findApprovedInstitutions:{}",authorityInstitutionsQo);
+//        log.warn("findApprovedInstitutions:{}",federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest));
         return federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest);
     }
 
     @PostMapping(value = "/apply")
     @ApiOperation(value = "apply access-authority of other institutions for site")
     public CommonResponse applyForAuthorityOfInstitutions(@RequestBody AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) {
+//        log.warn("applyForAuthorityOfInstitutions:{}",authorityApplyQo);
+//        log.warn("applyForAuthorityOfInstitutions:{}",federatedAuthorityServiceFacade.applyForAuthorityOfInstitutions(authorityApplyQo, httpServletRequest));
 
         return federatedAuthorityServiceFacade.applyForAuthorityOfInstitutions(authorityApplyQo, httpServletRequest);
     }
@@ -69,7 +74,8 @@ public class FederatedAuthorityController {
     @PostMapping(value = "/applied")
     @ApiOperation(value = "find institutions applying for this institutions")
     public CommonResponse<List<String>> findAuthorizedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
-
+//        log.warn("findAuthorizedInstitutions:{}",authorityApplyResultsQo);
+//        log.warn("findAuthorizedInstitutions:{}",federatedAuthorityServiceFacade.findAuthorizedInstitutions(authorityApplyResultsQo, httpServletRequest));
         return federatedAuthorityServiceFacade.findAuthorizedInstitutions(authorityApplyResultsQo, httpServletRequest);
     }
 
@@ -135,7 +141,8 @@ public class FederatedAuthorityController {
     @PostMapping(value = "/check/partyId")
     @ApiOperation(value = "check institutions of the partyId has the authority of the institutions")
     public CommonResponse<Boolean> checkPartyIdAuthority(@RequestBody PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) {
-
+//        log.warn("checkPartyIdAuthority:{}",partyIdCheckQo);
+//        log.warn("checkPartyIdAuthority:{}",federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo, httpServletRequest));
         return federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo,httpServletRequest);
     }
 

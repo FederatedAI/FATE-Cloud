@@ -236,4 +236,10 @@ public class FederatedSiteController {
     public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
         return federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
     }
+
+    @PostMapping(value = "/institutions/all/dropdown")
+    @ApiOperation(value = "find all institutions for drop down")
+    public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
+        return federatedSiteManagerServiceFacade.findAllInstitutionsForDropdown();
+    }
 }
