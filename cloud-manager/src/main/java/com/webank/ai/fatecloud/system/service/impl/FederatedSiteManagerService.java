@@ -560,4 +560,18 @@ public class FederatedSiteManagerService {
         Integer integer = federatedSiteManagerMapper.selectCount(ew);
         return integer > 0;
     }
+
+    public InstitutionsDropdownDto findAllInstitutionsForDropdown() {
+        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+        federatedFateManagerUserDoQueryWrapper.eq("status", 2);
+        List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
+
+        HashSet<String> institutionsSet = new HashSet<>();
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
+            institutionsSet.add(federatedFateManagerUserDo.getInstitutions());
+        }
+        InstitutionsDropdownDto institutionsDropdownDto = new InstitutionsDropdownDto();
+        institutionsDropdownDto.setInstitutionsSet(institutionsSet);
+        return institutionsDropdownDto;
+    }
 }
