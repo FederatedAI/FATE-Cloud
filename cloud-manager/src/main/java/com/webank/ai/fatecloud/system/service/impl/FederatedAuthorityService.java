@@ -54,11 +54,12 @@ public class FederatedAuthorityService {
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
         long institutionsCount = federatedFateManagerUserDos.size();
 
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
+//        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), institutionsCount, institutionsCount);
+//        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
-        List<FederatedFateManagerUserDo> pagedInstitutions = federatedFateManagerUserMapper.findPagedInstitutions(authorityInstitutionsQo, startIndex);
+//        List<FederatedFateManagerUserDo> pagedInstitutions = federatedFateManagerUserMapper.findPagedInstitutions(authorityInstitutionsQo, startIndex);
 
 
         //get authority institutions for one site to apply
@@ -73,7 +74,7 @@ public class FederatedAuthorityService {
 
         //get institutionsForFateDto list to return
         ArrayList<InstitutionsForFateDto> institutionsForFateDtos = new ArrayList<>();
-        for (FederatedFateManagerUserDo federatedFateManagerUserDo : pagedInstitutions) {
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
             InstitutionsForFateDto institutionsForFateDto = new InstitutionsForFateDto(federatedFateManagerUserDo);
             if (authorityInstitutionsList.contains(federatedFateManagerUserDo.getInstitutions())) {
                 institutionsForFateDto.setStatus(2);
