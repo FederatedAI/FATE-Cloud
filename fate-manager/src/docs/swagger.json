@@ -3999,6 +3999,9 @@
                 "institutions": {
                     "type": "string"
                 },
+                "link": {
+                    "type": "string"
+                },
                 "passWord": {
                     "type": "string"
                 },
@@ -4458,16 +4461,13 @@
         "entity.ExchangeItem": {
             "type": "object",
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "exchangeId": {
-                    "type": "integer"
-                },
                 "exchangeName": {
                     "type": "string"
                 },
                 "updateTime": {
+                    "type": "string"
+                },
+                "vip": {
                     "type": "string"
                 }
             }
@@ -4475,12 +4475,6 @@
         "entity.ExchangeResponse": {
             "type": "object",
             "properties": {
-                "exchangeExits": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.ExchangeItem"
-                    }
-                },
                 "exchangeVip": {
                     "type": "array",
                     "items": {
