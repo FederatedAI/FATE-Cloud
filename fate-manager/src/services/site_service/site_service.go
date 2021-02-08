@@ -454,17 +454,15 @@ func CheckSite(checkSiteReq entity.CheckSiteReq) (int, error) {
 func GetSecretInfo(siteDetailReq entity.SecretInfoReq) (*entity.SiteSecretResp, error) {
 	partyId, _ := strconv.Atoi(siteDetailReq.PartyId)
 	federatedId, _ := strconv.Atoi(siteDetailReq.PartyId)
-	federatedInfo, err := federated_service.GetPartyIdInfo(partyId, federatedId)
+	//federatedInfo, err := federated_service.GetPartyIdInfo(partyId, federatedId)
+	siteInfo,err := models.GetSiteInfo(partyId,federatedId)
 	if err != nil {
 		return nil, err
 	}
-	if len(federatedInfo) == 0 {
-		return nil, nil
-	}
 	siteSecretResp := entity.SiteSecretResp{
-		AppKey:    federatedInfo[0].AppKey,
-		AppSecret: federatedInfo[0].AppSecret,
-		Role:      enum.GetRoleString(enum.RoleType(federatedInfo[0].Role)),
+		AppKey:    siteInfo.AppKey,
+		AppSecret: siteInfo.AppSecret,
+		Role:      enum.GetRoleString(enum.RoleType(siteInfo.Role)),
 	}
 	return &siteSecretResp, nil
 }
@@ -1091,22 +1089,18 @@ func GetExchangeInfo() (*entity.ExchangeResponse, error) {
 	}
 	if resp.Code == e.SUCCESS {
 		var vip []entity.ExchangeItem
-		var exits []entity.ExchangeItem
 		for i := 0; i < len(resp.Data.List); i++ {
 			exchangeDataItem := resp.Data.List[i]
 			ExchangeItem := entity.ExchangeItem{
-				ExchangeId:   exchangeDataItem.ExchangeId,
 				ExchangeName: exchangeDataItem.ExchangeName,
-				Address:      exchangeDataItem.NetworkAccessEntrances,
+				Vip:          exchangeDataItem.Vip,
 				UpdateTime:   exchangeDataItem.UpdateTime,
 			}
 			vip = append(vip, ExchangeItem)
-			ExchangeItem.Address = exchangeDataItem.NetworkAccessExits
-			exits = append(exits, ExchangeItem)
 		}
 		ExchangeResponse := entity.ExchangeResponse{
-			ExchangeVip:   vip,
-			ExchangeExits: exits,
+			ExchangeVip: vip,
+
 		}
 		return &ExchangeResponse, nil
 	}
