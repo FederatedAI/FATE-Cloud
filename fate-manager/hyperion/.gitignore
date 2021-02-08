@@ -4,14 +4,11 @@
 *.idea
 logs/
 runtime/
-conf/
-conf/*
 *.ini
 
 # Log file
 *.log
 
-bin
 
 # Package Files #
 *.war

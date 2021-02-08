@@ -1084,7 +1084,6 @@ func MonitorTask(accountInfo *models.AccountInfo) {
 				}
 			}
 		}
-
 		flowVersionQuery := FlowVersionQuery{Module: "FATE"}
 		result, err = http.POST(http.Url("http://"+flowAddressList[i].Address+setting.FlowVersion), flowVersionQuery, nil)
 		if err != nil {

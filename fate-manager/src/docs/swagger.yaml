@@ -441,6 +441,8 @@ definitions:
         type: string
       institutions:
         type: string
+      link:
+        type: string
       passWord:
         type: string
       subTag:
@@ -739,21 +741,15 @@ definitions:
     type: object
   entity.ExchangeItem:
     properties:
-      address:
-        type: string
-      exchangeId:
-        type: integer
       exchangeName:
         type: string
       updateTime:
         type: string
+      vip:
+        type: string
     type: object
   entity.ExchangeResponse:
     properties:
-      exchangeExits:
-        items:
-          $ref: '#/definitions/entity.ExchangeItem'
-        type: array
       exchangeVip:
         items:
           $ref: '#/definitions/entity.ExchangeItem'
