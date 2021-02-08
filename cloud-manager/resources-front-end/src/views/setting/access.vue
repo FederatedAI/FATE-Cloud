@@ -118,7 +118,7 @@
     <!-- 添加成功弹框 -->
     <el-dialog :visible.sync="addSuccessdialog"  class="add-success-dialog">
         <div class="icon">
-            <i class="el-icon-success"></i>
+            <!-- <i  v-if="addType==='FATE-Manager-add' || addType==='FATE-Manager-updata'" class="el-icon-success"></i> -->
         </div>
         <div v-if="addType==='FATE-Manager-add'" class="line-text-one" >Add successfully !</div>
         <div v-if="addType==='FATE-Manager-updata'" class="line-text-one" >Modify successfully !</div>
@@ -235,12 +235,12 @@ export default {
             if (this.radio === 'Cloud Manager') {
                 accessCloudList(this.data).then(res => {
                     this.cloudtableData = res.data.list
-                    this.total = this.cloudtableData.length
+                    this.total = res.data.totalRecord
                 })
             } else if (this.radio === 'FATE Manager') {
                 accessManagerList(this.data).then(res => {
                     this.managertableData = res.data.list
-                    this.total = this.managertableData.length
+                    this.total = res.data.totalRecord
                 })
             }
         },

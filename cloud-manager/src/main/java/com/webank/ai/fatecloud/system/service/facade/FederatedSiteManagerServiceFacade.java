@@ -26,6 +26,7 @@ import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupDetailDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
+import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDropdownDto;
 import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto;
 import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
 import com.webank.ai.fatecloud.system.pojo.dto.UsedSiteDto;
@@ -474,5 +475,11 @@ public class FederatedSiteManagerServiceFacade {
             stringBooleanHashMap.put("result", false);
         }
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, stringBooleanHashMap);
+    }
+
+    public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
+        InstitutionsDropdownDto institutionsDropdownDto=  federatedSiteManagerService.findAllInstitutionsForDropdown();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsDropdownDto);
+
     }
 }
