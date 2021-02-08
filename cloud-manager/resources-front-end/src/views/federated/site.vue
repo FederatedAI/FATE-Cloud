@@ -105,12 +105,13 @@
 
                 </el-collapse-item>
             </el-collapse>
+            <div class="no-data" v-if="institutionsItemList.length===0">No Data</div>
             <div class="pagination">
                 <el-pagination
                     background
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page.sync="currentPage1"
+                    :current-page.sync="currentPage"
                     :page-size="data.pageSize"
                     layout="total, prev, pager, next, jumper"
                     :total="total"
@@ -133,7 +134,11 @@
             <div class="line-text-one">the authorization, and the others will be reject:</div>
              <div class="dialog-main">
                 <el-checkbox-group v-model="tipstempData.institucheckList">
-                    <div v-for="(item, index) in tipstempData.institucheckboxList" :key="index"> <el-checkbox :label="item"></el-checkbox></div>
+                    <div v-for="(item, index) in tipstempData.institucheckboxList" :key="index">
+                        <el-checkbox :label="item">
+                            <tooltip :width="'255px'" style="vertical-align: top;" :content="item" :placement="'top'"/>
+                        </el-checkbox>
+                     </div>
                 </el-checkbox-group>
             </div>
             <div class="dialog-footer">
@@ -148,7 +153,11 @@
              <div class="dialog-main">
                 <el-checkbox style="margin-bottom:10px" :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">all</el-checkbox>
                 <el-checkbox-group v-model="canceltempData.cancelAuthorList"  @change="handleCheckedCitiesChange">
-                    <div v-for="(item, index) in canceltempData.cancelcheckboxList" :key="index"> <el-checkbox :label="item"></el-checkbox></div>
+                    <div v-for="(item, index) in canceltempData.cancelcheckboxList" :key="index">
+                        <el-checkbox :label="item" >
+                            <tooltip :width="'255px'" style="vertical-align: top;" :content="item" :placement="'top'"/>
+                        </el-checkbox>
+                    </div>
                 </el-checkbox-group>
             </div>
             <div class="dialog-footer">
@@ -165,6 +174,7 @@
 import {
     getinstitutionsHistory,
     institutionsList,
+    institutionsListDropdown,
     institutionsStatus,
     institutionsDetails,
     institutionsReview,
@@ -175,10 +185,12 @@ import moment from 'moment'
 import { mapGetters } from 'vuex'
 import sitetable from './siteaatable'
 import { setTimeout } from 'timers'
+import tooltip from '@/components/Tooltip'
 
 export default {
     name: 'Site',
     components: {
+        tooltip,
         sitetable
     },
     filters: {
@@ -190,7 +202,7 @@ export default {
         return {
             activeName: [], // 折叠版激活
             loading: true,
-            currentPage1: 1, // 当前页
+            currentPage: 1, // 当前页
             total: 0,
             tipsVisible: false, // 提示弹框
             tipstempData: {
@@ -247,15 +259,11 @@ export default {
         },
         // 站点下拉接口
         async getinsSelectList() {
-            let data = {
-                pageNum: 1,
-                pageSize: 100
-            }
-            let res = await institutionsList(data)
-            res.data.list.forEach((item, index) => {
+            let res = await institutionsListDropdown()
+            res.data.institutionsSet.forEach((item, index) => {
                 let obj = {}
-                obj.value = item.institutions
-                obj.label = item.institutions
+                obj.value = item
+                obj.label = item
                 this.institutionsSelectList.push(obj)
             })
         },
@@ -271,7 +279,7 @@ export default {
                 }
             }
             await institutionsList(this.data).then(resl => {
-                this.total = resl.data.totalRecord
+                this.total = resl.data && resl.data.totalRecord
                 this.institutionsItemList = [] // 清空记录
                 let Arr = []
                 resl.data.list.forEach(async (item, index) => {
@@ -346,7 +354,6 @@ export default {
             this.data.pageNum = 1
             this.getinitinstitutions().then(res => {
                 res.forEach((item, index) => {
-                    console.log('index==>>', index)
                     this.$refs['sitelist'][index].initList()
                 })
             })
@@ -356,6 +363,11 @@ export default {
         },
         handleCurrentChange(val) {
             this.data.pageNum = val
+            this.getinitinstitutions().then(res => {
+                res.forEach((item, index) => {
+                    this.$refs['sitelist'][index].initList()
+                })
+            })
         },
         // 添加站点
         addsite() {
@@ -398,8 +410,11 @@ export default {
         },
         // 取消授权
         toshowcancelAuthor(val, item) {
+            this.isIndeterminate = false
             this.canceltempData.institutions = item
             this.canceltempData.cancelcheckboxList = []
+            this.canceltempData.cancelAuthorList = []
+            // console.log('canceltempData==>>', this.canceltempData)
             val.forEach(item => {
                 this.canceltempData.cancelcheckboxList.push(item)
             })
@@ -407,6 +422,7 @@ export default {
         },
         // 确定取消授权
         tocancelAuthor() {
+            // console.log('canceltempData==>>', this.canceltempData)
             let data = {
                 canceledInstitutionsList: this.canceltempData.cancelAuthorList,
                 institutions: this.canceltempData.institutions

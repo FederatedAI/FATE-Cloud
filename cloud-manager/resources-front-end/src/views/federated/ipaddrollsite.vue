@@ -184,8 +184,10 @@ export default {
                         validator: (rule, value, callback) => {
                             value = value || ''
                             let val = value.trim()
-                            if (!val || !checkip(val)) {
+                            if (!val) {
                                 callback(new Error(' '))
+                            } else if (!checkip(val)) {
+                                callback(new Error('The router network access invalid input '))
                             } else {
                                 callback()
                             }
