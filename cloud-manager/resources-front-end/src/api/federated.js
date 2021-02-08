@@ -186,6 +186,16 @@ export function institutionsList(data) {
         data
     })
 }
+
+// 获取institutions下拉
+export function institutionsListDropdown(data) {
+    return request({
+        url: '/cloud-manager/api/site/institutions/all/dropdown',
+        method: 'post',
+        data
+    })
+}
+
 // 取消权限
 
 export function cancelAuthority(data) {

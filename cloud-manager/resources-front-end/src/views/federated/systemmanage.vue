@@ -403,7 +403,7 @@ export default {
                 }
             }
             serviceManageList(this.data).then(res => {
-                this.total = res.data.totalRecord || 0
+                this.total = res.data.totalRecord
                 res.data.list.forEach(item => {
                     item.status = item.publicStatus === 1
                     this.tableData.push(item)
@@ -452,6 +452,7 @@ export default {
         // 翻页
         handleCurrentChange(val) {
             this.data.pageNum = val
+            this.initList()
         },
         // 添加行
         toAdd() {
@@ -470,8 +471,6 @@ export default {
         // 编辑行
         toEditRow(row) {
             this.type = 'Edit'
-            console.log('row.imageDownloadUrl==>>', row.imageDownloadUrl)
-
             if (row.imageDownloadUrl) {
                 this.checkedImage = true
             } else {

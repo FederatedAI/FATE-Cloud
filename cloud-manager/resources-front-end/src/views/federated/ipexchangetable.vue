@@ -56,10 +56,15 @@
                     max-height="250" >
                     <el-table-column type="index" label="Index" width="200" >
                     </el-table-column>
-                    <el-table-column prop="partyId" label="Party ID">
+                    <el-table-column prop="partyId" label="Party ID" >
                     </el-table-column>
                     <el-table-column  prop="networkAccess" label="Router Network Access" >
                     </el-table-column>
+                    <!-- <el-table-column  prop="updateTime" label="Update Time" >
+                        <template slot-scope="scope">
+                            <span>{{scope.row.updateTime | dateFormat}}</span>
+                        </template>
+                    </el-table-column> -->
                 </el-table>
             </div>
         </el-dialog>
@@ -142,8 +147,6 @@ export default {
             })
         },
         initList() {
-            console.log('==>>', this.$parent)
-
             this.$parent.$parent.$parent.initList()
         },
         handleSizeChange(val) {
@@ -165,7 +168,7 @@ export default {
             }
             deleteRollsite(data).then(res => {
                 this.deletedialog = false
-                this.togetRollsiteList()
+                this.initList()
             })
         },
         // 编辑rollsite
@@ -193,7 +196,8 @@ export default {
             }
             toPublish(data).then(res => {
                 this.publishdialog = false
-                this.togetRollsiteList()
+                // this.togetRollsiteList()
+                this.initList()
             })
         }
 
