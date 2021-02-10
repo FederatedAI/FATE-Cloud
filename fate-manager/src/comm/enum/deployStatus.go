@@ -18,7 +18,7 @@ package enum
 import "fate.manager/entity"
 
 type DeployStatusType int32
-
+type AnsibleDeployStatusType int32
 const (
 	DeployStatus_UNKNOWN            DeployStatusType = -1
 	DeployStatus_SUCCESS            DeployStatusType = 0
@@ -32,6 +32,20 @@ const (
 	DeployStatus_IN_TESTING         DeployStatusType = 8
 	DeployStatus_TEST_PASSED        DeployStatusType = 9
 	DeployStatus_TEST_FAILED        DeployStatusType = 10
+)
+const (
+	ANSIBLE_DeployStatus_UNKNOWN            AnsibleDeployStatusType = -1
+	ANSIBLE_DeployStatus_SUCCESS            AnsibleDeployStatusType = 0
+	ANSIBLE_DeployStatus_LOADING            AnsibleDeployStatusType = 1
+	ANSIBLE_DeployStatus_LOADED             AnsibleDeployStatusType = 2
+	ANSIBLE_DeployStatus_LOAD_FAILED        AnsibleDeployStatusType = 3
+	ANSIBLE_DeployStatus_UNDER_INSTALLATION AnsibleDeployStatusType = 4
+	ANSIBLE_DeployStatus_INSTALLING         AnsibleDeployStatusType = 5
+	ANSIBLE_DeployStatus_INSTALLED          AnsibleDeployStatusType = 6
+	ANSIBLE_DeployStatus_INSTALLED_FAILED   AnsibleDeployStatusType = 7
+	ANSIBLE_DeployStatus_IN_TESTING         AnsibleDeployStatusType = 8
+	ANSIBLE_DeployStatus_TEST_PASSED        AnsibleDeployStatusType = 9
+	ANSIBLE_DeployStatus_TEST_FAILED        AnsibleDeployStatusType = 10
 )
 
 func GetDeployStatusString(p DeployStatusType) string {
@@ -62,11 +76,47 @@ func GetDeployStatusString(p DeployStatusType) string {
 		return "unknown"
 	}
 }
+func GetAnsibleDeployStatusString(p AnsibleDeployStatusType) string {
+	switch p {
+	case ANSIBLE_DeployStatus_SUCCESS:
+		return "success"
+	case ANSIBLE_DeployStatus_LOADING:
+		return "Loading Package"
+	case ANSIBLE_DeployStatus_LOADED:
+		return "Loaded Package"
+	case ANSIBLE_DeployStatus_LOAD_FAILED:
+		return "Load Package failed"
+	case ANSIBLE_DeployStatus_UNDER_INSTALLATION:
+		return "Under installation"
+	case ANSIBLE_DeployStatus_INSTALLING:
+		return "Installing"
+	case ANSIBLE_DeployStatus_INSTALLED:
+		return "Installed"
+	case ANSIBLE_DeployStatus_INSTALLED_FAILED:
+		return "Installed failed"
+	case ANSIBLE_DeployStatus_IN_TESTING:
+		return "In testing"
+	case ANSIBLE_DeployStatus_TEST_PASSED:
+		return "Test passed"
+	case ANSIBLE_DeployStatus_TEST_FAILED:
+		return "Test failed"
+	default:
+		return "unknown"
+	}
+}
 
 func GetDeployStatusList() []entity.IdPair {
 	var idPairList []entity.IdPair
 	for i := 0; i < 11; i++ {
 		idPair := entity.IdPair{i, GetDeployStatusString(DeployStatusType(i))}
+		idPairList = append(idPairList, idPair)
+	}
+	return idPairList
+}
+func GetAnsibleDeployStatusList() []entity.IdPair {
+	var idPairList []entity.IdPair
+	for i := 0; i < 11; i++ {
+		idPair := entity.IdPair{i, GetAnsibleDeployStatusString(AnsibleDeployStatusType(i))}
 		idPairList = append(idPairList, idPair)
 	}
 	return idPairList

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -26,6 +41,7 @@ public class FederatedSiteModelDo implements Serializable {
         this.type = modelAddQo.getType();
         this.id = modelAddQo.getId();
         this.updateStatus=modelAddQo.getUpdateStatus();
+        this.detectiveStatus=modelAddQo.getDetectiveStatus();
     }
 
     @ApiModelProperty(value = "primary key")
@@ -55,6 +71,14 @@ public class FederatedSiteModelDo implements Serializable {
     @ApiModelProperty(value = "model update status")
     @TableField(value = "update_status")
     private Integer updateStatus;
+
+    @ApiModelProperty(value = "model detective status")
+    @TableField(value = "detective_status")
+    private Integer detectiveStatus;
+
+    @ApiModelProperty(value = "model detective time")
+    @TableField(value = "last_detective_time")
+    private Date lastDetectiveTime;
 
     @ApiModelProperty(value = "system type")
     @TableField(value = "type")

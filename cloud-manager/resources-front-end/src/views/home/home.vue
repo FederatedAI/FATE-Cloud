@@ -2,7 +2,7 @@
   <div class="home">
     <el-header>
         <div class="begin" @click="toHome">
-            <img src="@/assets/logo.png">
+            <!-- <img src="@/assets/logo.png"> -->
             <span>FATE Cloud</span>
         </div>
         <div class="right-bar">

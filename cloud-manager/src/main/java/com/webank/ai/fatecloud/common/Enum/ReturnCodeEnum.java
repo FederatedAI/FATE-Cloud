@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.common.Enum;
 
 public enum ReturnCodeEnum {
@@ -39,6 +54,12 @@ public enum ReturnCodeEnum {
     FATE_MANAGER_USER_ERROR(134, "The institution has been used!"),
     MEMORY_ERROR(135, "Memory has error!"),
     CANCEL_ERROR(136, "Institutions to cancel authority doesn't exist!"),
+    ROLLSITE_GRPC_ERROR(137, "Connect this rollsite error!"),
+    ROLLSITE_EXIST_ERROR(138, "This rollsite already exist!"),
+    EXCHANGE_NAME_REPEAT(139, "This exchange name already exist!"),
+    ROLLSITE_NETWORK_REPEAT(140, "There are duplicated roll site networks!"),
+    FATE_MANAGER_STATUS_ERROR(141, "The institution can't edit!"),
+    FATE_MANAGER_URL_ERROR(142, "The institution activate url has changed!"),
 
     ;
     private int code;

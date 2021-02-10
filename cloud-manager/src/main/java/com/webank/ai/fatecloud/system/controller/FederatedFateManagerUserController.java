@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.controller;
 
 
@@ -27,9 +42,17 @@ public class FederatedFateManagerUserController {
 
     @PostMapping(value = "/add")
     @ApiOperation(value = "add fate manager to cloud manager")
-    public CommonResponse<String> addFateManagerUser(@RequestBody FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
+    public CommonResponse<FederatedFateManagerUserDo> addFateManagerUser(@RequestBody FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
         log.info("RequestBody:{}", fateManagerUserAddQo);
         return federatedFateManagerUserServiceFacade.addFateManagerUser(fateManagerUserAddQo);
+
+    }
+
+    @PostMapping(value = "/update")
+    @ApiOperation(value = "update fate manager to cloud manager")
+    public CommonResponse<FederatedFateManagerUserDo> updateFateManagerUser(@RequestBody FateManagerUserUpdateQo fateManagerUserUpdateQo) throws UnsupportedEncodingException {
+        log.info("RequestBody:{}", fateManagerUserUpdateQo);
+        return federatedFateManagerUserServiceFacade.updateFateManagerUser(fateManagerUserUpdateQo);
 
     }
 
@@ -44,9 +67,9 @@ public class FederatedFateManagerUserController {
 
     @PostMapping(value = "/activate")
     @ApiOperation(value = "activate fate manager user")
-    public CommonResponse activateFateManagerUser(HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", httpServletRequest);
-        return federatedFateManagerUserServiceFacade.activateFateManagerUser(httpServletRequest);
+    public CommonResponse activateFateManagerUser(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        log.info("RequestBody:{}|{}", httpServletRequest,siteActivateQo);
+        return federatedFateManagerUserServiceFacade.activateFateManagerUser(siteActivateQo,httpServletRequest);
 
     }
 

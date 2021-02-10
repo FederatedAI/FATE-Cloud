@@ -84,34 +84,6 @@ func DoAcation(c *gin.Context) {
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }
 
-// @Summary Component Install Log
-// @Tags ServiceController
-// @Accept  json
-// @Produce  json
-// @Param request body entity.LogReq true "request param"
-// @Success 200 {object} app.LogResponse
-// @Failure 500 {object} app.Response
-// @Router /fate-manager/api/service/log [post]
-func GetLog(c *gin.Context) {
-	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var logReq entity.LogReq
-	if jsonError := json.Unmarshal(body, &logReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	logResponse, err := component_deploy_service.GetLog(logReq)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.ERROR_GET_LOG_FAIL, nil)
-		return
-	}
-	appG.Response(http.StatusOK, e.SUCCESS, logResponse)
-}
-
 // @Summary Get PartyId If Install
 // @Tags ServiceController
 // @Accept  json
@@ -138,34 +110,6 @@ func InstallStatus(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, ret)
-}
-
-// @Summary Connect Exists Kubernetes
-// @Tags ServiceController
-// @Accept  json
-// @Produce  json
-// @Param request body entity.KubeReq true "request param"
-// @Success 200 {object} app.CommResp
-// @Failure 500 {object} app.Response
-// @Router /fate-manager/api/service/connectkubefate [post]
-func ConnectKubeFate(c *gin.Context) {
-	appG := app.Gin{C: c}
-	body, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
-		return
-	}
-	var kubeReq entity.KubeReq
-	if jsonError := json.Unmarshal(body, &kubeReq); jsonError != nil {
-		logging.Error("JSONParse Error")
-		panic("JSONParse Error")
-	}
-	ret, err := component_deploy_service.ConnectKubeFate(kubeReq)
-	if err != nil {
-		appG.Response(http.StatusInternalServerError, ret, nil)
-		return
-	}
-	appG.Response(http.StatusOK, ret, nil)
 }
 
 // @Summary Get Service Overview List

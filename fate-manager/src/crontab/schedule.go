@@ -17,7 +17,6 @@ package crontab
 
 import (
 	"fate.manager/comm/logging"
-	"fate.manager/comm/setting"
 	"fate.manager/models"
 	"fate.manager/services/changelog_service"
 	"fate.manager/services/job_service"
@@ -26,7 +25,21 @@ import (
 	"time"
 )
 
-var AutoTestCheck = true
+var (
+	AutoTestCheck   = true
+	SiteStatusTimer = 30
+	IpManagerTimer  = 30
+	HeartTimer      = 30
+	JobTimer        = 30
+	TestOnlyTimer   = 30
+	ComponentTimer  = 30
+	ApplyTimer      = 10
+	AllowApplyTimer = 30
+	MonitorTimer    = 120
+	PageckageTimer  = 30
+	AutotestTimer   = 60
+	VersionTimer    = 300
+)
 
 func SetUp() {
 	accountInfo, err := user_service.GetAdminInfo()
@@ -42,13 +55,17 @@ func SetUp() {
 	go ApplyResultTask(accountInfo)
 	go AllowApplyTask(accountInfo)
 	if AutoTestCheck {
-		AutoTestTask()
+		AutoTestTaskOne()
 		AutoTestCheck = false
 	}
+	go MonitorTask(accountInfo)
+	go PackageStatusTask()
+	go AutotestTask()
+	go VersionUpdateTask(accountInfo)
 }
 
 func SiteStatusTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))
+	ticker := time.NewTicker(time.Second * time.Duration(SiteStatusTimer))
 	for {
 		logging.Debug("SiteStatusTask start...")
 		site_service.GetHomeSiteList()
@@ -56,9 +73,8 @@ func SiteStatusTask() {
 		<-ticker.C
 	}
 }
-
 func IpManagerTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(IpManagerTimer))
 	for {
 		logging.Info("IpManagerTask start...")
 		changelog_service.GetChangeLogTask()
@@ -66,9 +82,8 @@ func IpManagerTask() {
 		<-ticker.C
 	}
 }
-
 func HeartTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Heart))
+	ticker := time.NewTicker(time.Second * time.Duration(HeartTimer))
 	for {
 		logging.Debug("HeartTask start...")
 		site_service.HeartTask()
@@ -76,9 +91,8 @@ func HeartTask() {
 		<-ticker.C
 	}
 }
-
 func JobTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Job))
+	ticker := time.NewTicker(time.Second * time.Duration(JobTimer))
 	for {
 		logging.Debug("JobTask start...")
 		job_service.JobTask()
@@ -86,9 +100,8 @@ func JobTask() {
 		<-ticker.C
 	}
 }
-
 func TestOnlyTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.Test))
+	ticker := time.NewTicker(time.Second * time.Duration(TestOnlyTimer))
 	for {
 		logging.Debug("TestOnlyTask start...")
 		job_service.TestOnlyTask()
@@ -96,9 +109,8 @@ func TestOnlyTask() {
 		<-ticker.C
 	}
 }
-
 func ApplyResultTask(accountInfo *models.AccountInfo) {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(ApplyTimer))
 	for {
 		logging.Debug("ApplyResultTask start...")
 		job_service.ApplyResultTask(accountInfo)
@@ -107,7 +119,7 @@ func ApplyResultTask(accountInfo *models.AccountInfo) {
 	}
 }
 func AllowApplyTask(accountInfo *models.AccountInfo) {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(AllowApplyTimer))
 	for {
 		logging.Debug("AllowApplyTask start...")
 		job_service.AllowApplyTask(accountInfo)
@@ -116,7 +128,7 @@ func AllowApplyTask(accountInfo *models.AccountInfo) {
 	}
 }
 func ComponentStatusTask() {
-	ticker := time.NewTicker(time.Second * time.Duration(setting.ScheduleSetting.IpManager))
+	ticker := time.NewTicker(time.Second * time.Duration(ComponentTimer))
 	for {
 		logging.Debug("ComponentStatusTask start...")
 		job_service.ComponentStatusTask()
@@ -124,8 +136,44 @@ func ComponentStatusTask() {
 		<-ticker.C
 	}
 }
-func AutoTestTask() {
+func AutoTestTaskOne() {
 	logging.Debug("AutoTestTask start...")
 	job_service.AutoTestTask()
 	logging.Debug("AutoTestTask end...")
+}
+func MonitorTask(accountInfo *models.AccountInfo) {
+	ticker := time.NewTicker(time.Second * time.Duration(MonitorTimer))
+	for {
+		logging.Debug("MonitorTask start...")
+		job_service.MonitorTask(accountInfo)
+		logging.Debug("MonitorTask end...")
+		<-ticker.C
+	}
+}
+func PackageStatusTask() {
+	ticker := time.NewTicker(time.Second * time.Duration(PageckageTimer))
+	for {
+		logging.Debug("PackageStatusTask start...")
+		job_service.PackageStatusTask()
+		logging.Debug("PackageStatusTask end...")
+		<-ticker.C
+	}
+}
+func AutotestTask() {
+	ticker := time.NewTicker(time.Second * time.Duration(AutotestTimer))
+	for {
+		logging.Debug("AutotestTask start...")
+		job_service.AutotestTask()
+		logging.Debug("AutotestTask end...")
+		<-ticker.C
+	}
+}
+func VersionUpdateTask(accountInfo *models.AccountInfo) {
+	ticker := time.NewTicker(time.Second * time.Duration(VersionTimer))
+	for {
+		logging.Debug("VersionUpdateTask start...")
+		job_service.VersionUpdateTask(accountInfo)
+		logging.Debug("VersionUpdateTask end...")
+		<-ticker.C
+	}
 }

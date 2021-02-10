@@ -30,7 +30,7 @@ import (
 )
 
 // @Summary Get Prepare Details
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} app.PrepareResponse
@@ -47,7 +47,7 @@ func GetPrepare(c *gin.Context) {
 }
 
 // @Summary Get Pull Site Component List
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.PullComponentListReq true "request param"
@@ -75,7 +75,7 @@ func GetPullComponentList(c *gin.Context) {
 }
 
 // @Summary Pull Fate Series Image
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.PullReq true "request param"
@@ -99,7 +99,7 @@ func Pull(c *gin.Context) {
 }
 
 // @Summary Commit Pull Images
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.CommitImagePullReq true "request param"
@@ -127,7 +127,7 @@ func CommitImagePull(c *gin.Context) {
 }
 
 // @Summary Get Pull Site Component List
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.InstallComponentListReq true "request param"
@@ -155,7 +155,7 @@ func GetInstallComponentList(c *gin.Context) {
 }
 
 // @Summary Install Fate All Component
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.InstallReq true "request param"
@@ -183,7 +183,7 @@ func Install(c *gin.Context) {
 }
 
 // @Summary Uprade Site
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.UpgradeReq true "request param"
@@ -211,7 +211,7 @@ func Upgrade(c *gin.Context) {
 }
 
 // @Summary Update Component Ip Address
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.UpdateReq true "request param"
@@ -239,7 +239,7 @@ func Update(c *gin.Context) {
 }
 
 // @Summary Get Auto Test Site List
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoTestListReq true "request param"
@@ -267,7 +267,7 @@ func GetAutoTestList(c *gin.Context) {
 }
 
 // @Summary Do Auto Test Start
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.AutoTestReq true "request param"
@@ -295,7 +295,7 @@ func AutoTest(c *gin.Context) {
 }
 
 // @Summary Get Toy Test Result
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.TestResultReq true "request param"
@@ -323,7 +323,7 @@ func TestResult(c *gin.Context) {
 }
 
 // @Summary Click page
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.ClickReq true "request param"
@@ -351,7 +351,7 @@ func Click(c *gin.Context) {
 }
 
 // @Summary Get Toy Test Only Read
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.ToyResultReadReq true "request param"
@@ -379,7 +379,7 @@ func ToyResultRead(c *gin.Context) {
 }
 
 // @Summary Autotest Log
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.LogReq true "request param"
@@ -407,7 +407,7 @@ func GetTestLog(c *gin.Context) {
 }
 
 // @Summary Get Fateboard Url
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.FederatedSite true "request param"
@@ -435,7 +435,7 @@ func GetFateBoardUrl(c *gin.Context) {
 }
 
 // @Summary Get Install Version
-// @Tags DeployController
+// @Tags KubernetesDeployController
 // @Accept  json
 // @Produce  json
 // @Param request body entity.FederatedSite true "request param"
@@ -460,4 +460,60 @@ func GetInstallVersion(c *gin.Context) {
 		return
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, result)
+}
+
+// @Summary Connect Exists Kubernetes
+// @Tags KubernetesDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.KubeReq true "request param"
+// @Success 200 {object} app.CommResp
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/service/connectkubefate [post]
+func ConnectKubeFate(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var kubeReq entity.KubeReq
+	if jsonError := json.Unmarshal(body, &kubeReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, err := component_deploy_service.ConnectKubeFate(kubeReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, ret, nil)
+		return
+	}
+	appG.Response(http.StatusOK, ret, nil)
+}
+
+// @Summary Component Install Log
+// @Tags KubernetesDeployController
+// @Accept  json
+// @Produce  json
+// @Param request body entity.LogReq true "request param"
+// @Success 200 {object} app.LogResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/service/log [post]
+func GetLog(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var logReq entity.LogReq
+	if jsonError := json.Unmarshal(body, &logReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	logResponse, err := component_deploy_service.GetLog(logReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_LOG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, logResponse)
 }

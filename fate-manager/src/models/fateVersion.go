@@ -21,14 +21,16 @@ import (
 )
 
 type FateVersion struct {
-	Id           int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
-	FateVersion  string
-	ProductType  int
-	ChartVersion string
-	VersionIndex int
-	PullStatus   int
-	CreateTime   time.Time
-	UpdateTime   time.Time
+	Id            int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
+	FateVersion   string
+	ProductType   int
+	ChartVersion  string
+	VersionIndex  int
+	PullStatus    int
+	PackageStatus int
+	PackageUrl    string
+	CreateTime    time.Time
+	UpdateTime    time.Time
 }
 
 func GetFateVersionList(fateVersion *FateVersion) ([]*FateVersion, error) {
@@ -49,6 +51,9 @@ func GetFateVersionList(fateVersion *FateVersion) ([]*FateVersion, error) {
 	if len(fateVersion.ChartVersion) > 0 {
 		Db = Db.Where("chart_version = ?", fateVersion.ChartVersion)
 	}
+	if fateVersion.PackageStatus > 0 {
+		Db = Db.Where("package_status = ?", fateVersion.PackageStatus)
+	}
 	err := Db.Group("fate_version").Find(&fateVersionList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
@@ -56,6 +61,19 @@ func GetFateVersionList(fateVersion *FateVersion) ([]*FateVersion, error) {
 	return fateVersionList, nil
 }
 
+func UpdateFateVersion(condition map[string]interface{}, info *FateVersion) error {
+	Db := db
+	if len(info.FateVersion) > 0 {
+		Db = Db.Where("fate_version = ?", info.FateVersion)
+	}
+	if info.ProductType > 0 {
+		Db = Db.Where("product_type = ?", info.ProductType)
+	}
+	if err := Db.Model(&FateVersion{}).Updates(condition).Error; err != nil {
+		return err
+	}
+	return nil
+}
 func AddFateVersion(fateVersion *FateVersion) error {
 	if err := db.Create(&fateVersion).Error; err != nil {
 		return err

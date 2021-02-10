@@ -1,0 +1,25 @@
+
+base_dir: "/etc/ansible"
+
+base: "/data"
+pbase: "/data/projects"
+cbase: "/data/projects/common"
+sbase: "/data/projects/snmp"
+lbase: "/data/logs"
+tbase: "/data/temp"
+
+init:
+  dirs:
+  - "common"
+  - "snmp"
+
+supervisord:
+  account:
+    name: "root"
+    password: "password"
+  service:
+    owner: "app"
+    group: "apps"
+    ip: "127.0.0.1"
+    port: 9001
+

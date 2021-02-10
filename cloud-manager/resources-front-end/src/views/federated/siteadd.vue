@@ -74,7 +74,7 @@
         </el-form-item>
         <el-form-item v-show="(type==='siteadd' || type==='siteUpdate') && partyidSelect" >
           <div class="dropdown">
-            <i @click="downtext" class="el-icon-arrow-down down"></i>
+            <i @click="downshow=!downshow" class="el-icon-arrow-down down"></i>
             <el-input v-if="downshow" v-model="groupRange" disabled autosize type="textarea" />
             <div v-if="!downshow" class="down-text">{{groupRange}}</div>
           </div>
@@ -89,7 +89,6 @@
             placeholder="Type the Party ID"
           ></el-input>
         </el-form-item>
-
         <el-form-item label="Network Acess Entrances" prop="networkAccessEntrances">
           <span v-if="type==='siteinfo'" class="info-text">
             <div v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>{{item}}</div>
@@ -124,12 +123,36 @@
             </el-input>
         </el-form-item>
         <el-form-item v-if="type==='siteinfo'" label="Federation Key">
-           <span v-if="keyViewDefault" class="info-text">{{form.secretInfo.key}} <img src="@/assets/view_show.png" @click="keyShowView" class="view" ></span>
-            <span  v-if="!keyViewDefault" class="info-text">***********************<img src="@/assets/view_hide.png" @click="keyShowView" class="view" ></span>
+           <span v-if="keyViewDefault" class="info-text">{{form.secretInfo.key}} <img src="@/assets/view_hide.png" @click="keyViewDefault=!keyViewDefault" class="view" ></span>
+            <span  v-if="!keyViewDefault" class="info-text">***********************<img src="@/assets/view_show.png" @click="keyViewDefault=!keyViewDefault" class="view" ></span>
         </el-form-item>
         <el-form-item v-if="type==='siteinfo'" label="Federation Secret">
-            <span v-if="sansViewDefault" class="info-text">{{form.secretInfo.secret}} <img src="@/assets/view_hide.png" @click="sansShowView" class="view" ></span>
-            <span  v-if="!sansViewDefault" class="info-text">***********************<img src="@/assets/view_show.png" @click="sansShowView" class="view" ></span>
+            <span v-if="sansViewDefault" class="info-text">{{form.secretInfo.secret}} <img src="@/assets/view_hide.png" @click="sansViewDefault=!sansViewDefault" class="view" ></span>
+            <span  v-if="!sansViewDefault" class="info-text">***********************<img src="@/assets/view_show.png" @click="sansViewDefault=!sansViewDefault" class="view" ></span>
+        </el-form-item>
+        <el-form-item v-if="type==='siteadd' || type==='siteUpdate'" label="Registration Link Type" prop="protocol">
+            <!-- <span class="info-text"  v-if="type==='siteinfo'">
+               <span v-if="form.protocol==='http://'">HTTP</span>
+               <span v-else>HTTPS</span>
+            </span> -->
+            <span  >
+                <el-radio-group  v-model="form.protocol">
+                    <el-radio label="https://">HTTPS</el-radio>
+                    <el-radio label="http://">HTTP</el-radio>
+                </el-radio-group>
+            </span>
+        </el-form-item>
+        <el-form-item v-if="type==='siteadd' || type==='siteUpdate'" label="Encryption Type" prop="encryptType">
+            <!-- <span class="info-text"  v-if="type==='siteinfo'">
+               <span v-if="form.encryptType===1">Encryption</span>
+               <span v-else>Unencrypted</span>
+            </span> -->
+            <span v-if="type==='siteadd' || type==='siteUpdate'">
+                <el-radio-group  v-model="form.encryptType">
+                    <el-radio :label="1">Encryption</el-radio>
+                    <el-radio :label="2">Unencrypted</el-radio>
+                </el-radio-group>
+            </span>
         </el-form-item>
         <el-form-item v-if="type==='siteinfo'" label="Registration Link">
             <el-popover
@@ -229,7 +252,8 @@ export default {
                     secret: ''
                 },
                 exits: '',
-                aa: '',
+                protocol: 'https://',
+                encryptType: 1,
                 registrationLink: ''
             },
             roleOp: [
@@ -449,20 +473,20 @@ export default {
         submitAction() {
             // 去除前后空格
             this.form.siteName = this.form.siteName.trim()
+            // console.log('this.form==', this.form)
             if (this.type === 'siteadd') {
                 this.$refs['infoform'].validate((valid) => {
                     if (valid) {
                         let data = { ...this.form }
                         siteAdd(data).then(res => {
-                            this.isleave = true
-                            if (res.data) {
+                            if (res.code === 0) {
+                                this.isleave = true
                                 this.id = res.data// 获取id赋值
+                                this.okdialog = true
+                                setTimeout(() => {
+                                    this.getKeySansLink()
+                                }, 300)
                             }
-                            setTimeout(() => {
-                                this.getKeySansLink()
-                            }, 300)
-                        }).catch(err => {
-                            console.log(err)
                         })
                     }
                 })
@@ -474,12 +498,11 @@ export default {
                             if (res.code === 0) {
                                 this.isleave = true
                                 this.id = this.$route.query.id
+                                this.okdialog = true
                                 setTimeout(() => {
                                     this.getKeySansLink()
                                 }, 300)
                             }
-                        }).catch(err => {
-                            console.log(err)
                         })
                     }
                 })
@@ -553,25 +576,9 @@ export default {
         toPartyid() {
             this.$router.push({
                 name: 'Party ID'
-                // path: '/federated/siteadd',
-                // query: {
-                //     type: 'siteinfo'
-                // }
             })
         },
-        // 显示下拉文字
-        downtext() {
-            this.downshow = !this.downshow
-        },
 
-        // 显示sans
-        sansShowView() {
-            this.sansViewDefault = !this.sansViewDefault
-        },
-        // 显示key
-        keyShowView() {
-            this.keyViewDefault = !this.keyViewDefault
-        },
         // 下拉显示groupname
         getPartyid(role) {
             let data = {
@@ -612,16 +619,21 @@ export default {
                 id: this.id ? parseInt(this.id) : parseInt(this.$route.query.id)
             }
             getSiteInfo(data).then(res => {
-                this.form = { ...res.data }
+                if (this.type === 'siteinfo') {
+                    let data = { ...res.data }
+                    if (!res.data.protocol && !res.data.encryptType) {
+                        data.protocol = 'https://'
+                        data.encryptType = 1
+                    }
+                    this.form = { ...data }
+                } else {
+                    this.form.registrationLink = res.data.registrationLink
+                }
                 this.partyidSelect = res.data.groupName // groupName范围下拉
                 this.getPartyid(res.data.role)// role下拉获取数据
                 setTimeout(() => {
                     this.selectPartyid(res.data.groupName)// groupName范围赋值
                 }, 500)
-
-                if (this.id) {
-                    this.okdialog = true
-                }
             })
         },
         // 复制

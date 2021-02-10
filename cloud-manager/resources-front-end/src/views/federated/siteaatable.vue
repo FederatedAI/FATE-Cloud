@@ -98,9 +98,9 @@
                     label="FATE Serving"
                     min-width="110" show-overflow-tooltip></el-table-column> -->
                 <el-table-column prop="activationTime" label="Activation Time" min-width="125" show-overflow-tooltip>
-                <template slot-scope="scope">
-                    <span>{{scope.row.activationTime | dateFormat}}</span>
-                </template>
+                    <template slot-scope="scope">
+                        <span>{{scope.row.activationTime | dateFormat}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     :filters="siteStatusSelect"
@@ -114,6 +114,11 @@
                         <span v-if="scope.row.status===1">Not Joined</span>
                         <span v-if="scope.row.status===2">Joined</span>
                         <span v-if="scope.row.status===3">Deleted</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="" label="Service Status" min-width="110" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span>{{scope.row.detectiveStatus===1?'Unavailable':'Available'}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop label="Action" min-width="70" align="center">

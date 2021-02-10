@@ -59,6 +59,20 @@ type UserSignature struct {
 	Body          string
 }
 
+func Base64EncodeOld(signature Signature) string {
+	partyId := strconv.Itoa(signature.PartyId)
+	role := strconv.Itoa(signature.Role)
+	time := strconv.FormatInt(signature.Time, 10)
+	str := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s\n%s",partyId, role, signature.AppKey, time, signature.Nonce, signature.Uri, signature.Body)
+	logstr := fmt.Sprintf("partyId:%s,role:%s,AppKey:%s,time:%s,Nonce:%s,Uri:%s,Body:%s",
+		partyId, role, signature.AppKey, time, signature.Nonce, signature.Uri, signature.Body)
+	logging.Debug(logstr)
+	key_for_sign := []byte(signature.AppSecret)
+	h := hmac.New(sha1.New, key_for_sign)
+	h.Write([]byte(str))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
 func Base64EncodeWithString(signature Signature) string {
 	partyId := strconv.Itoa(signature.PartyId)
 	role := strconv.Itoa(signature.Role)

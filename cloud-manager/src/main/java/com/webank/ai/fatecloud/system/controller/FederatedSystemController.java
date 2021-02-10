@@ -1,13 +1,25 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.controller;
 
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteModelDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelHistoryQo;
-import com.webank.ai.fatecloud.system.pojo.qo.OneSiteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.SiteListWithModelsQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedModelServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +47,13 @@ public class FederatedSystemController {
     public CommonResponse addModelNew(@RequestBody ArrayList<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest){
         log.info("RequestBody:{} Http:{}", modelAddQos,httpServletRequest);
         return federatedModelServiceFacade.addModelNew(modelAddQos,httpServletRequest);
+    }
+
+    @PostMapping(value = "/heart")
+    @ApiOperation(value = "update model status")
+    public CommonResponse modelHeart(@RequestBody ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest){
+        log.info("RequestBody:{} Http:{}", modelHeartQos,httpServletRequest);
+        return federatedModelServiceFacade.modelHeart(modelHeartQos,httpServletRequest);
     }
 
     @PostMapping(value = "/page")
