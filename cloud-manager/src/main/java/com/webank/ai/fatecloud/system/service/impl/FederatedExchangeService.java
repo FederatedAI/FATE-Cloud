@@ -85,6 +85,7 @@ public class FederatedExchangeService implements Serializable {
             for (PartyAddBean partyAddBean : partyAddBeanList) {
                 PartyDo partyDo = new PartyDo();
                 partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                partyDo.setSecureStatus(partyAddBean.getSecureStatus());
                 partyDo.setPartyId(partyAddBean.getPartyId());
                 partyDo.setStatus(1);
                 partyDo.setRollSiteId(rollSiteDo.getRollSiteId());
@@ -150,6 +151,12 @@ public class FederatedExchangeService implements Serializable {
             JSONArray netWorkList = partyIdValue.getJSONArray("default");
             JSONObject netWorkJSONObject = netWorkList.getJSONObject(0);
             partyDo.setNetworkAccess(netWorkJSONObject.get("ip") + ":" + netWorkJSONObject.get("port"));
+            Object is_secure = netWorkJSONObject.get("is_secure");
+            if (is_secure != null && "false".equals(String.valueOf(is_secure))) {
+                partyDo.setSecureStatus(2);
+            } else {
+                partyDo.setSecureStatus(1);
+            }
             partyDo.setStatus(1);
             partyDo.setUpdateTime(new Date());
 
@@ -179,7 +186,7 @@ public class FederatedExchangeService implements Serializable {
         }
 
 
-        ArrayList<PartyDo> partyDos = this.buildPartyList(routerTableString);
+        ArrayList<PartyDo> partyDos = buildPartyList(routerTableString);
 
 
         //find roll site in roll site table
@@ -198,14 +205,18 @@ public class FederatedExchangeService implements Serializable {
             for (PartyDo partyDo : partyDos) {
                 String partyId = partyDo.getPartyId();
                 String networkAccess = partyDo.getNetworkAccess();
+                Integer secureStatus = partyDo.getSecureStatus();
 
                 boolean exist = false;
                 for (PartyDo existPartyDo : partyDosExisted) {
                     String existPartyId = existPartyDo.getPartyId();
+                    String existNetworkAccess = existPartyDo.getNetworkAccess();
+                    Integer existSecureStatus = existPartyDo.getSecureStatus();
                     if (partyId.equals(existPartyId)) {
                         exist = true;
-                        if (existPartyDo.getStatus() == 1 && (!existPartyDo.getNetworkAccess().equals(networkAccess))) {
+                        if (existPartyDo.getStatus() == 1 && (!existNetworkAccess.equals(networkAccess) || !existSecureStatus.equals(secureStatus))) {
                             existPartyDo.setNetworkAccess(networkAccess);
+                            existPartyDo.setSecureStatus(secureStatus);
                             existPartyDo.setUpdateTime(new Date());
                             partyMapper.updateById(existPartyDo);
                         }
@@ -270,7 +281,7 @@ public class FederatedExchangeService implements Serializable {
                 continue;
             }
 
-            ArrayList<PartyDo> partyDos = this.buildPartyList(grpcBody);
+            ArrayList<PartyDo> partyDos = buildPartyList(grpcBody);
 
             //update party table
             Long rollSiteId = rollSiteDo.getRollSiteId();
@@ -281,14 +292,18 @@ public class FederatedExchangeService implements Serializable {
             for (PartyDo partyDo : partyDos) {
                 String partyId = partyDo.getPartyId();
                 String networkAccess = partyDo.getNetworkAccess();
+                Integer secureStatus = partyDo.getSecureStatus();
 
                 boolean exist = false;
                 for (PartyDo existPartyDo : partyDosExisted) {
                     String existPartyId = existPartyDo.getPartyId();
                     if (partyId.equals(existPartyId)) {
                         exist = true;
-                        if (existPartyDo.getStatus() == 1 && (!existPartyDo.getNetworkAccess().equals(networkAccess))) {
+                        if (existPartyDo.getStatus() == 1
+                                && ((!existPartyDo.getNetworkAccess().equals(networkAccess))||(!existPartyDo.getSecureStatus().equals(secureStatus)))
+                        ) {
                             existPartyDo.setNetworkAccess(networkAccess);
+                            existPartyDo.setSecureStatus(secureStatus);
                             existPartyDo.setUpdateTime(new Date());
                             partyMapper.updateById(existPartyDo);
                         }
@@ -342,6 +357,7 @@ public class FederatedExchangeService implements Serializable {
             PartyDo partyDo = new PartyDo();
             partyDo.setRollSiteId(rollSiteDo.getRollSiteId());
             partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+            partyDo.setSecureStatus(partyAddBean.getSecureStatus());
             partyDo.setStatus(partyAddBean.getStatus());
             partyDo.setPartyId(partyAddBean.getPartyId());
             partyMapper.insert(partyDo);
@@ -365,6 +381,7 @@ public class FederatedExchangeService implements Serializable {
                 PartyDo partyDo = new PartyDo();
                 partyDo.setPartyId(partyAddBean.getPartyId());
                 partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                partyDo.setSecureStatus(partyAddBean.getSecureStatus());
                 partyDo.setStatus(partyAddBean.getStatus());
                 partyDo.setRollSiteId(rollSiteId);
                 partyDo.setCreateTime(date);
@@ -374,8 +391,9 @@ public class FederatedExchangeService implements Serializable {
             } else {
                 for (PartyDo partyDo : partyDos) {
 
-                    if ((!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess())) || (!partyDo.getStatus().equals(partyAddBean.getStatus()))) {
+                    if ((!partyDo.getNetworkAccess().equals(partyAddBean.getNetworkAccess())) || (!partyDo.getSecureStatus().equals(partyAddBean.getSecureStatus())) || (!partyDo.getStatus().equals(partyAddBean.getStatus()))) {
                         partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
+                        partyDo.setSecureStatus(partyAddBean.getSecureStatus());
                         partyDo.setStatus(partyAddBean.getStatus());
                         partyDo.setUpdateTime(date);
                         partyMapper.updateById(partyDo);
@@ -502,6 +520,11 @@ public class FederatedExchangeService implements Serializable {
             NetworkBean networkBean = new NetworkBean();
             networkBean.setIp(partIdNetwork[0]);
             networkBean.setPort(Integer.valueOf(partIdNetwork[1]));
+            if (partyDo.getSecureStatus() == 1) {
+                networkBean.setIs_secure(true);
+            } else {
+                networkBean.setIs_secure(false);
+            }
 
             ArrayList<NetworkBean> networkBeans = new ArrayList<>();
             networkBeans.add(networkBean);
@@ -602,7 +625,7 @@ public class FederatedExchangeService implements Serializable {
                 continue;
             }
 
-            ArrayList<PartyDo> partyDos = this.buildPartyList(routerTableString);
+            ArrayList<PartyDo> partyDos = buildPartyList(routerTableString);
             rollSitePageDto.setPartyDos(partyDos);
             rollSitePageDto.setCount(partyDos.size());
         }

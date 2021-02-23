@@ -47,6 +47,10 @@ public class PartyDo implements Serializable {
     @TableField(value = "network_access")
     private String networkAccess;
 
+    @ApiModelProperty(value = "secure status")
+    @TableField(value = "secure_status")
+    private Integer secureStatus;
+
     @ApiModelProperty(value = "status")
     @TableField(value = "status")
     private Integer status;
