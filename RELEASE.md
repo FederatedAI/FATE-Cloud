@@ -21,7 +21,7 @@
 **Admin access**
 - Supports for generation options of invitation link, include generating as a HTTPS or HTTP link.
 
-** Authentication **
+**Authentication**
 - Supports authentication for exchange(rollsite) polling mode.
 
 
