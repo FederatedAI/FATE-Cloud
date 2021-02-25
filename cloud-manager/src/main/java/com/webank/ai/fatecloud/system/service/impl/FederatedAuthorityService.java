@@ -55,7 +55,7 @@ public class FederatedAuthorityService {
         long institutionsCount = federatedFateManagerUserDos.size();
 
 //        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), institutionsCount, institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
 //        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
@@ -294,14 +294,17 @@ public class FederatedAuthorityService {
 
     public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status", 2, 4).eq("generation", 1);
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).ne("status", 1).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         long institutionsCount = federatedSiteAuthorityDos.size();
 
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+//        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
         long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
+        authorityInstitutionsQo.setPageNum(1);
+        authorityInstitutionsQo.setPageSize((int)institutionsCount);
         List<InstitutionsForFateDto> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
         institutionsForFateDtoPageBean.setList(approvedInstitutions);
 
