@@ -196,7 +196,7 @@ create TABLE IF NOT EXISTS `t_party` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'party id',
   `party_id` varchar(128)  DEFAULT NULL COMMENT 'party id',
   `network_access` varchar(512) DEFAULT NULL COMMENT 'network address',
-  `secure_status` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'secure status, 1 true, 2 false',
+  `secure_status` tinyint(4) NOT NULL DEFAULT 2 COMMENT 'secure status, 1 true, 2 false',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 publised,2 modified, 3 to be deleted',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
