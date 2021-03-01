@@ -152,10 +152,10 @@ public class FederatedExchangeService implements Serializable {
             JSONObject netWorkJSONObject = netWorkList.getJSONObject(0);
             partyDo.setNetworkAccess(netWorkJSONObject.get("ip") + ":" + netWorkJSONObject.get("port"));
             Object is_secure = netWorkJSONObject.get("is_secure");
-            if (is_secure != null && "false".equals(String.valueOf(is_secure))) {
-                partyDo.setSecureStatus(2);
-            } else {
+            if (is_secure != null && "true".equals(String.valueOf(is_secure))) {
                 partyDo.setSecureStatus(1);
+            } else {
+                partyDo.setSecureStatus(2);
             }
             partyDo.setStatus(1);
             partyDo.setUpdateTime(new Date());
@@ -224,7 +224,7 @@ public class FederatedExchangeService implements Serializable {
                     }
                 }
 
-                //party not exist  insert
+                //party not exist insert
                 if (!exist) {
                     partyDo.setRollSiteId(rollSiteId);
                     Date date = new Date();
