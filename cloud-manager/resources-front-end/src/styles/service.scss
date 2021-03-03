@@ -1,0 +1,254 @@
+.service {
+
+
+
+    .service-box {
+        position: absolute;
+        background: #F5F8FA;
+        width: 100%;
+        height: calc(100% - 105px);
+        padding-top: 12px;
+        .row-content {
+            margin: 0 auto;
+            height: 36px;
+            width: 1400px;
+            background-color: #F5F8FA;
+            .radio{
+                float: left;
+                .el-radio-button__inner{
+                    padding: 7px 20px;
+                    font-size: 18px;
+                    height: 36px;
+                    border-left: 0px solid #DCDFE6;
+                    border-radius:0;
+                    border:0;
+                    line-height: 23px;
+                    min-width: 180px;
+                }
+                .el-radio-button{
+                    
+                    .el-radio-button__inner{
+                        color: #217AD9;
+                        background-color: #E6EBF0 !important;
+                    }
+                }
+                .is-active{
+                    .el-radio-button__inner{
+                        color: #fff;
+                        background-color: #217AD9 !important;
+                    }
+                }
+            }
+            .inline { 
+                float:right;
+                height: 36px;
+                line-height: 36px;
+                
+                .el-form-item {
+                    
+                    margin-bottom: 0px
+                }
+
+                .el-input--mini .el-input__inner {
+                    border: 0;
+                    height: 24px;
+                    line-height: 24px;
+                    max-width: 110px;
+                }
+
+                .el-input--mini .el-input__icon {
+                    line-height: 24px;
+                }
+
+                .el-form-item__label {
+                    color: #4E5766;
+                    line-height: 24px;
+                }
+
+                .el-form-item__content {
+                    text-align: right;
+                    vertical-align: middle;
+                    line-height: 24px;
+                    min-width: 90px;
+                    .el-input__inner {
+                        color: #217AD9;
+                        font-size: 14px;
+                        background: #F5F8FA;
+                        border-bottom: 2px solid #B8BFCC
+                    }
+                }
+               
+            }
+        }
+        .serve-content {
+            text-align: right;
+            margin: 0 auto;
+            height: 40px;
+            width: 1400px;
+            background-color: #FFF;
+            border-bottom: 2px solid #E6EBF0;
+           
+            .continue,
+            .empty,
+            .toy-test,
+            .log,
+            .upfate-default,
+            .upfate-activa{
+                vertical-align: top;
+                display: inline-block;
+                line-height: 40px;
+                height: 40px;
+                text-align: center;
+                font-size: 18px;
+            }
+            .continue{
+                text-align: right;
+            }
+            .toy-test,
+            .log{
+                line-height: 40px;
+                cursor: pointer;
+                margin-left: 12px;
+                color: #217AD9;
+            
+            }
+            .toy-test{
+                width: 110px;
+            }
+            .log {
+                width: 78px;
+            }
+            .upfate-default,.upfate-activa{
+                margin-left: 12px;
+                width: 240px;
+                color: #FFFFFF;
+            }
+            .upfate-activa:hover{
+                opacity: 0.8;
+            }
+            .upfate-default{
+                color:#B8BFCC;
+            }
+            .upfate-activa{
+                cursor: pointer;
+                line-height: 40px;
+                color: #217AD9;
+                .is-dot{
+                    right:-2px;
+                    top:8px
+                }
+                .el-badge__content{
+                    background-color:#FF9D00;
+                    border:0px solid #fff
+                }
+            }
+            .continue{
+                margin-left: 12px;
+                width: 450px;
+                background-color: #FFF;
+                color: #217AD9;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+           
+        }
+        .progress{
+            width: 100%;
+            height: 400px;
+            font-size: 18px;
+            color: #2D3642;
+            font-weight: bold;
+            line-height: 200px;
+            text-align: center;
+            background-image: linear-gradient(#FAFBFC, #fff);
+        }
+        .service-body {
+            margin: 0 auto;
+            width: 1400px;
+            height: calc(100% - 80px);
+            .table {
+               height: 100%;
+                .el-table {
+                    padding: 0 24px;
+                    height: 100% !important;
+                    img{
+                        position: absolute;
+                        top:15px;
+                        right: 11px;
+                    }
+                    img:hover{
+                        opacity: 0.7;
+                    }
+                    .el-button{
+                        padding:0
+                    }
+                    
+                    .cell-box{
+                        display: inline-block;
+                        margin-right: 15px;
+                        width: 55px;
+                        font-size: 15px;
+                        .el-badge__content{
+                            top: 5px;
+                            right: 0px;
+                        }
+                        i {
+                            color: #217AD9;
+                        }
+                    }
+                }
+
+            }
+            .el-table::before {
+                background-color: #fff; 
+            }
+        }
+    }
+
+    .service-dialog {
+        .el-dialog__header {
+            display: none;
+        }
+
+        .el-dialog__body {
+            padding: 0;
+        }
+
+        .dialog-box {
+            padding: 36px;
+
+            .dialog-title {
+                font-size: 32px;
+                color: #217AD9;
+                font-weight: bold;
+
+            }
+
+            .input {
+                margin-top: 36px;
+
+                .el-input__inner {
+                    background-color: #fff;
+                    height: 32px;
+                    border-bottom: 2px solid #E6EBF0;
+                    font-size: 18px;
+                    color: #217AD9;
+                }
+            }
+
+            .dialog-foot {
+                text-align: center;
+                margin: 48px 0 12px 0;
+
+                .el-button {
+                    height: 36px;
+                    width: 200px;
+                    padding: 0;
+                    font-size: 18px;
+
+                }
+            }
+
+        }
+    }
+}

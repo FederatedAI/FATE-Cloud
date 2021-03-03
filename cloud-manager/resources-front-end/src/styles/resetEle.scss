@@ -8,15 +8,12 @@ button, input {
 
 .el-input__icon {
     color: #848C99;
-    line-height: 36px;
 }
 .el-input__inner {
     // background-color: #E6EBF0;
     color: #848C99;
     // border: 0px;
     outline: none;
-    height: 36px;
-    line-height: 36px;
     border-radius: 0;
 }
 
@@ -29,11 +26,11 @@ button, input {
     color: #848C99;
 }
 
-.table {
-    .el-table {
-        margin: 24px 36px;
-    }
-}
+// .table {
+//     .el-table {
+//         margin: 24px 36px;
+//     }
+// }
 
 .tableHead {
     color: #4E5766;
@@ -42,23 +39,9 @@ button, input {
 .tableHeadCell,.tableCell {
     border-bottom: 2px solid #F5F7FA!important;
 }
-.add {
-    float: left;
-    width: 125px;
-    font-size: 18px;
-}
-.go {
-    float: right;
-    width: 65px;
-    margin-left: 16px;
-    font-size: 16px;
-}
-.el-button{
-    padding: 0;
-    height: 36px;
-    line-height: 36px;
-}
-
+// .tableHeadCell {
+//     border-bottom: 2px solid #4E5766!important;
+// }
 .pagination {
     position: absolute;
     bottom: 26px;
@@ -68,6 +51,12 @@ button, input {
     // background-color: #fff; //鼠标悬停每一行变色
     background-color: rgb(74, 162, 255, 0.1);
 }
+.el-badge__content{
+    background-color:#FF9D00;
+    border:0px solid #fff;
+}
+
+
 //弹框居中
 .el-dialog {
     display: flex;

@@ -1,5 +1,5 @@
 # fate cloud manager
-cloud-manager
+fate-manager
 
 ## Build Setup
 

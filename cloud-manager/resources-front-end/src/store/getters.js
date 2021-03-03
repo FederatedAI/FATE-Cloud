@@ -1,10 +1,14 @@
 const getters = {
-    siteName: state => state.user.siteName,
-    getInfo: state => state.user.getInfo,
-    loginName: state => state.user.loginName,
     siteStatus: state => state.user.siteStatus,
-    sidebar: state => state.app.sidebar,
-    sitestatus: state => state.app.sitestatus,
-    autostatus: state => state.app.autostatus
+    role: state => state.user.role,
+    userId: state => state.user.userId,
+    userName: state => state.user.userName,
+    permissionList: state => state.user.permissionList,
+    organization: state => state.app.organization,
+    partyId: state => state.app.partyId,
+    version: state => state.app.version,
+    autoState: state => state.app.autoState,
+    siteState: state => state.app.siteState,
+    language: state => state.app.language
 }
 export default getters

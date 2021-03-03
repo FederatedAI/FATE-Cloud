@@ -1,23 +1,44 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
+// import router from '@/router'
 import store from '@/store'
-import router from '@/router'
-
+import { getToken } from '@/utils/auth'
 // axios.defaults.headers.common['Authorization'] = getToken()
 // create an axios instance
 const service = axios.create({
     baseURL: process.env.NODE_ENV === 'mock' ? process.env.VUE_APP_BASE_API : process.env.BASE_API,
     withCredentials: true, // 跨域请求时发送 cookies
-    timeout: 40000 // request timeout
+    timeout: 15000 // request timeout
 })
-
+// 不开启loading的接口
+let URL = [
+    '/fate-manager/api/service/toy',
+    '/fate-manager/api/site/getmsg',
+    '/fate-manager/api/deploy/installlist',
+    '/fate-manager/api/deploy/pulllist',
+    '/fate-manager/api/deploy/testlist',
+    '/fate-manager/api/service/test',
+    '/fate-manager/api/deploy/testresult',
+    '/fate-manager/api/site/function',
+    '/fate-manager/api/ansible/testlist',
+    '/fate-manager/api/ansible/getcheck',
+    '/fate-manager/api/ansible/installlist'
+]
 // request interceptor
 // 请求拦截
 service.interceptors.request.use(
     config => {
         // 开启全局loading
-        let loading = document.getElementById('ajaxLoading')
-        loading.style.display = 'block'
+        if (!URL.includes(config.url)) {
+            let loading = document.getElementById('ajaxLoading')
+            loading.style.display = 'block'
+        }
+        // if (store.getters.token) {
+        //     config.headers['token'] = getToken()
+        // }
+        // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
+        // config.headers['Authorization'] = getToken()
+        config.headers['token'] = getToken()
         // Do something before request is sent
         return config
     },
@@ -42,22 +63,21 @@ service.interceptors.response.use(
    */
     response => {
         // 关闭全局loading
-        let loading = document.getElementById('ajaxLoading')
-        loading.style.display = 'none'
-        const res = response.data
+        let res = response.data
+        let url = response.config.url
+        // 关闭全局loading
+        if (!URL.includes(url)) {
+            let loading = document.getElementById('ajaxLoading')
+            loading.style.display = 'none'
+        };
         if (res.code === 0) {
             return res
+        } else if (res.code === 10066) {
+            store.dispatch('LogOut').then(() => {
+                location.reload() // 为了重新实例化vue-router对象 避免bug
+            })
         } else if (msgCode(res.code)) {
             return Promise.reject(res)
-        } else if (res.code === 110 || res.code === 130) {
-            // code=110 系统错误 130 请先登录
-            // 退出登录
-            store.dispatch('setloginname', '').then(r => {
-                localStorage.setItem('name', r)
-                router.push({
-                    path: '/home/welcome'
-                })
-            })
         } else {
             Message({
                 message: `${res.msg ? res.msg : 'http reqest failed!'}`,
@@ -66,10 +86,9 @@ service.interceptors.response.use(
             })
             return Promise.reject(res)
         }
-
         function msgCode(code) {
             // code 解析
-            let arr = [101, 102, 103, 108, 109, 122, 123, 124, 125]
+            let arr = [400, 10056, 10064]
             return arr.includes(code)
         }
     },
@@ -82,14 +101,15 @@ service.interceptors.response.use(
             type: 'error',
             duration: 5 * 1000
         })
+
         // 服务端发生错误退出
-        store.dispatch('setloginname', '').then(r => {
-            localStorage.setItem('name', r)
-            router.push({
-                path: '/home/welcome'
-            })
-            location.reload() // 为了重新实例化vue-router对象 避免bug
-        })
+        // setTimeout(() => {
+        //     router.push({
+        //         path: '/welcome/login'
+        //     })
+        //     location.reload() // 为了重新实例化vue-router对象 避免bug
+        // }, 1500)
+
         return Promise.reject(error)
     }
 )
