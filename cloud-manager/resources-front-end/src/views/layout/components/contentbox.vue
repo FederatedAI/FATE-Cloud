@@ -1,22 +1,22 @@
 <template>
   <div class="contentbox">
-      <div class="breadcrumb">
-        <el-breadcrumb separator="/">
-            <el-breadcrumb-item v-for="(item,index) in path" :key="index">
-                <span style="margin-left:10px" class="item" v-if="index===0" @click="toroute(item)">{{$t(`${item}`)}}</span>
-                <span v-else :class="{item:true,active:!$route.query.groupName}" @click="toroute(item)">{{$t(`${item}`)}}</span>
-            </el-breadcrumb-item>
-            <el-breadcrumb-item v-if="$route.query.groupName">
-                <span class="active">{{$route.query.groupName}}</span>
-            </el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
+    <div class="breadcrumb">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item v-for="(item,index) in path" :key="index">
+          <span class="item" v-if="index===0" @click="toroute(item)">{{item}}</span>
+          <span v-else class="item active" @click="toroute(item)">{{item}}</span>
+        </el-breadcrumb-item>
+        <el-breadcrumb-item v-if="siteName">
+          <span class="item">{{siteName}}</span>
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <router-view />
   </div>
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 export default {
     name: 'contentbox',
     data() {
@@ -26,75 +26,93 @@ export default {
     },
     watch: {
         $route: {
-            handler() {
+            handler: function(val) {
+                let routerList = ['partyuser', 'siteadd', 'detail', 'Add an Exchange']
+                if (!routerList.some(item => item === val.name)) {
+                    this.$store.dispatch('SiteName', '')
+                }
                 this.toPath()
-            }
+            },
+            immediate: true
         }
     },
-
+    computed: {
+        ...mapGetters(['siteName'])
+    },
+    // 防止刷新
     created() {
         this.toPath()
     },
     methods: {
         toPath() {
             let name = this.$route.name
-            if (name === 'sitemanage' || name === 'siteinfo') {
-                this.path = ['Manage', 'Site Manage']
-            } else if (name === 'access') {
-                this.path = ['Manage', 'User Access']
-            } else if (name === 'overview') {
-                this.path = ['Auto-deploy', 'Overview']
-            } else if (name === 'service') {
-                this.path = ['Auto-deploy', 'Site Service Management']
-            } else if (name === 'cooperation') {
-                this.path = ['Monitor', 'Site Cooperation']
-            } else if (name === 'jobmonitor') {
-                this.path = ['Monitor', 'job Monitor']
+            if (name === 'Site Manage' || name === 'siteadd' || name === 'detail') {
+                this.path = ['Federated Site', 'Site Manage']
+            } else if (name === 'IP Manage' || name === 'Add an Exchange') {
+                this.path = ['Federated Site', 'IP Manage']
+            } else if (name === 'Service Manage') {
+                this.path = ['Federated Site', 'Service Manage']
+            } else if (name === 'Site Monitor') {
+                this.path = ['Federated Site', 'Site Monitor']
+            } else if (name === 'Party ID' || name === 'partyuser') {
+                this.path = ['Setting', 'Party ID']
+            } else if (name === 'Repository') {
+                this.path = ['Setting', 'Repository']
             } else if (name === 'Admin Access') {
-                this.path = ['Setting', 'Admin Access']
+                this.path = ['Setting', 'User Access']
             } else if (name === 'System Function Switch') {
                 this.path = ['Setting', 'System Function Switch']
             }
         },
         toroute(item) {
-            if (item === 'Manage') {
-                this.$router.push({ name: 'sitemanage' })
+            if (item === 'Federated Site' || item === 'Site Manage') {
+                this.$router.push({ name: 'Site Manage' })
             }
-            if (item === 'Auto Deploy') {
-                this.$router.push({ name: 'overview' })
+            if (item === 'Setting' || item === 'Party ID') {
+                this.$router.push({ name: 'Party ID' })
             }
-            if (item === 'Monitor') {
-                this.$router.push({ name: 'cooperation' })
+            if (item === 'IP Manage') {
+                this.$router.push({ name: 'IP Manage' })
             }
         }
     }
-
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" >
-.breadcrumb{
-    background-color: #F5F8FA;
-
-    .el-breadcrumb{
-        background-color: #E6EBF0;
+.contentbox {
+    position: absolute;
+    top: 65px;
+    left: 300px;
+    background: #f5f8fa;
+    height: calc(100% - 65px);
+    width: calc(100% - 300px);
+    // .el-icon-arrow-right {
+    //     margin: 0 !important;
+    // }
+    .breadcrumb {
+        height: 32px;
+        margin-left: 36px;
         font-size: 14px;
-        height: 28px;
-        line-height: 28px;
-        margin: 0 auto;
-        width: 1400px;
-        .item {
-            font-size: 14px;
-            cursor: pointer;
-            color: #848c99;
-        }
-        .item:hover {
-            color: #217ad9;
-        }
-        .active {
-            color: #4E5766;
+        width: calc(100% - 72px);
+        background-color: #e6ebf0;
+        .el-breadcrumb {
+            line-height: 32px;
+            margin: 0 10px;
+
+            .item {
+                font-size: 14px;
+                font-weight: 550;
+                cursor: pointer;
+                color: #848c99;
+            }
+            .item:hover {
+                color: #217ad9;
+            }
+            .active {
+                color: #217ad9;
+            }
         }
     }
-
 }
 </style>

@@ -2,50 +2,69 @@ import router from './router'
 import store from '@/store'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // getToken from cookie
-import { Message } from 'element-ui'
+import { find } from '@/api/welcomepage'
 NProgress.configure({ showSpinner: false })// NProgress configuration
 
 // 不重定向白名单
 const whiteList =
   [
-      '/welcome/login'
+      '/home/login',
+      '/home/welcome',
+      '/home/register'
   ]
 router.beforeEach((to, from, next) => {
     NProgress.start()
-    // 有Token值
-    if (getToken()) {
-        if (!store.getters.userName) {
-            // 拉登录用户信息取用户信息
-            store.dispatch('GetInfo').then(res => {
-                next()
-            }).catch((err) => {
-                store.dispatch('LogOut').then(() => {
-                    Message.error(err || 'Verification failed, please login again')
-                    next({ path: '/welcome/login' })
-                    location.reload() // 为了重新实例化vue-router对象 避免bug
-                })
-                NProgress.done() // 结束Progress
-            })
+    if (localStorage.getItem('name')) {
+        if (!store.getters.siteStatus) {
+            getStatus(to, from, next)
         } else {
-            // 有登录用户信息，执行下一步
-            if (to.path === '/welcome/login') {
-                next({ path: '/home/sitemanage' })
-                NProgress.done()
-            } else {
-                next()
-            }
+            routeHandler(to, from, next)
         }
-        // 没有Token值 回到登录
     } else {
         if (whiteList.indexOf(to.path) !== -1) {
             next()
         } else {
-            next({ path: '/welcome/login' })
+            next({ path: '/home/welcome' })
             NProgress.done()
         }
     }
 })
+
+const getStatus = (to, from, next) => {
+    find().then(res => {
+        if (res.data && res.data.name) {
+            store.dispatch('getInfo', res.data)
+            store.dispatch('setSiteStatus', 'registered')
+        } else {
+            store.dispatch('setSiteStatus', 'unregistered')
+        }
+        routeHandler(to, from, next)
+    }).catch(() => {
+        routeHandler(to, from, next)
+    })
+}
+
+const routeHandler = (to, from, next) => {
+    if (store.getters.siteStatus === 'registered') {
+        if (to.path === '/home/welcome' || to.path === '/home/register' || to.path === '/home/login') {
+            next({ path: '/federated/site' })
+            NProgress.done()
+        } else {
+            next()
+        }
+    } else {
+        // 清除登录缓存
+        store.dispatch('setloginname', '').then(r => {
+            localStorage.setItem('name', r)
+        })
+        if (whiteList.indexOf(to.path) !== -1) {
+            next()
+        } else {
+            next({ path: '/home/welcome' })
+            NProgress.done()
+        }
+    }
+}
 
 router.afterEach(() => {
     NProgress.done() // 结束Progress
