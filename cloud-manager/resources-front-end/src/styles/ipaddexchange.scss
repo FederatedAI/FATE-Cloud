@@ -1,0 +1,269 @@
+.ipaddexchange-box{
+    margin: 24px 36px;
+    background-color: #fff;
+    .add-exchange{
+        position: absolute;
+        height: calc(100% - 56px);
+        width: calc(100% - 72px);
+        background: #fff;
+        overflow: auto;
+        .exchange-title{
+            text-align: center;
+            color: #217AD9;
+            font-size: 32px;
+            margin: 64px 0 36px 0;
+            font-weight: bold;
+        }
+        .edit-form{
+            margin: 0 auto;
+            width: 760px;  
+            .edit-text{
+                height: 42px;
+                line-height: 42px;
+                background-color: #ECF6FF;
+                font-size: 18px;
+                color: #217AD9;
+                margin: 40px 0 20px 0;
+                span{
+                    margin: 0 10px; 
+                }
+                .el-button{
+                    font-size: 16px;
+                    float: right;
+                    height: 42px;
+                    margin: 0 10px;
+                }
+            }
+            .rollsite-text{
+                .router-info{
+                    height: 36px;
+                    line-height: 36px;
+                    color: #4E5766;
+                    font-size: 18px;
+                    margin-bottom: 10px;
+                    width: 95%;
+                    .el-button{
+                        float: right;
+                    }
+                }
+                .inputwarn{
+                    .el-input__inner{
+                        border-color: #FF9D00;
+                    }
+                }
+                .edit-table{
+                    width: 95%;
+                    .el-table{
+                        background-color: #FAFBFC;
+                        width: initial !important;
+                        margin:0 !important;
+                        th,td{
+                            padding: 3px 0;
+                            background-color: #FAFBFC;
+                        }
+                        td{
+                            border-bottom:0;
+                        }
+                    }
+                    .el-table::before{
+                        background-color: #fff;
+                    }
+                }
+                .el-form-item__label{
+                    width: 200px !important;
+                }
+                .el-input{
+                    width: 76%;
+                }
+                .el-button{
+                    font-size: 16px;
+                    height: 40px;
+                    margin: 0 5px;
+                }
+                .remove{
+                    color: #FF9D00;
+                }
+                .remove:hover{
+                    opacity: 0.85;
+                }
+            }
+            .el-input__inner{
+                color: #848C99;
+                border: 0px;
+                border-bottom: 1px solid #E6EBF0;
+                background: #fff;
+            }
+            .is-error .el-input__inner{
+                border-color:#FF9D00 !important;
+            }
+            .el-form-item{
+                margin-bottom: 10px;  
+            }
+            .el-form-item__error{
+                top:95%;
+                color: #FF9D00;
+                font-size: 14px;
+            }
+            .el-form-item__label:before{
+                display: none;
+                color: #fff;
+            }
+            .el-form-item__label{
+                font-size: 16px;
+                color: #848c99;
+            }
+            .el-icon-star-on{
+                position: relative;
+            }
+            .el-icon-star-on:before{
+                content: '*';
+                color: #FF9D00;
+                top: -10px;
+                position: absolute;
+            }
+            .star-not-active:before{
+                color: #B8BFCC;
+            }
+            
+            
+        }
+        
+        .exchange-footer{
+            margin: 30px 0;
+            text-align: center;
+            .ok-btn {
+                width: 180px;
+                font-size: 18px;
+            }
+        }
+    }
+    .add-site-dialog{
+        //弹框居中
+        .el-dialog {
+           display: flex;
+           flex-direction: column;
+           margin: 0 !important;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           max-height: calc(100% - 30px);
+           max-width: calc(100% - 30px);
+       }
+
+       .el-dialog__body {
+           padding: 64px 20px 36px 20px;
+       }
+       .el-dialog__header {
+           display: none;
+       }
+       .el-button{
+           padding: 0;
+           height: 36px;
+           line-height: 36px;
+       }
+       .site-net-title{
+           color: #217AD9;
+           font-weight: bold;
+           font-size: 24px;
+           margin: 0 24px;
+           margin-top: -25px;
+           height: 42px;
+       }
+       .edit-form{
+           margin:0 24px;
+           .el-input__inner{
+               border: 0px;
+               border-bottom: 1px solid #E6EBF0;
+               background: #fff;
+           }
+           .is-error .el-input__inner{
+               border-color:#FF9D00 !important;
+           }
+           .el-form-item__error{
+               top:95%;
+               color: #FF9D00;
+               font-size: 14px;
+           }
+       }
+       .el-form-item{
+           margin-bottom:1px;
+           font-size: 14px;
+           color: #848C99;
+           
+           .el-icon-star-on{
+               position: relative;
+           }
+           .el-icon-star-on:before{
+               content: '*';
+               color: #F56C6C;
+               top: -8px;
+               position: absolute;
+           }
+           .star-not-active:before{
+               color: #B8BFCC;
+           }
+           .el-form-item__label{
+               font-size: 16px;
+               color: #848c99;
+           }
+       }
+       .el-form-item__label:before{
+           display: none;
+           color: #fff;
+       }
+       
+       .dialog-footer{
+           margin-top: 30px;
+           text-align: center;
+           .ok-btn {
+               width: 180px;
+               font-size: 18px;
+           }
+       }
+   }
+   .site-toleave-dialog {
+
+    //弹框居中
+    .el-dialog {
+            height: 284px; //弹框宽度
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+        }
+
+        .el-dialog__body {
+            padding: 64px 20px;
+        }
+
+        .el-dialog__header {
+            display: none;
+        }
+
+        text-align: center;
+
+        .line-text-one {
+            font-size: 24px;
+            color: #2D3642;
+            margin-bottom: 24px
+        }
+
+        .line-text-two {
+            font-size: 18px;
+            color: #848C99;
+            margin-bottom: 48px
+        }
+
+        .sure-btn {
+            width: 180px;
+            font-size: 18px
+        }
+
+    }
+}
