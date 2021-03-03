@@ -1,134 +1,114 @@
-.access {
-    position: absolute;
-    height: calc(100% - 105px);
-    width: 100%;
-    
-    background: #F5F8FA;
-    padding-top: 12px;
- 
-    .access-box {
-        box-sizing: border-box;
-        background: #fff;
-        width: 1400px;
-        height: 100%;
-        margin: 0 auto;
-        overflow: auto;
-        .partyid-header {
-            height: 40px;
-            // padding: 12px 0;
-            text-align: right;
-            border-bottom: 2px solid #E6EBF0;
-           
-            .el-button{
-                padding: 0;
+
+.access-box {
+    margin: 24px 36px;
+    .system-header {
+        height: 34px;
+        margin-bottom: 24px;
+        text-align: right;
+        .radio{
+            float: left;
+            .el-radio-button__inner{
+                padding: 8px 0px;
+                font-size: 18px;
+                width: 180px;
                 height: 36px;
-                line-height: 36px;
+                border-left: 0px solid #DCDFE6;
+                border-radius:0;
+                border:0;
+                line-height: 23px;
+
             }
-            .el-input__icon {
-                color: #848C99;
-                line-height: 36px;
-            }
-            .el-input__inner {
-               
-                height: 36px;
-                line-height: 36px;
-            }
-            .add{
-                span{
-                    color: #217AD9;
-                    vertical-align: 5px;
-                }
-                float: left;
-                margin-top: 2px;
-                font-size: 16px;
-                margin-left: 24px;
-            }
-            .add:hover{
-                opacity: 0.85;
-            }
-            .input {
-                margin-top: 2px;
-                width: 250px;
-                margin-left: 16px;
-                .search {
-                    cursor: pointer;
-                }
-            }
-            .go{
-                float: right;
-                width: 64px;
-                margin-left: 16px;
-                margin-right: 24px;
-                font-size: 16px;
-                margin-top: 2px;
+            .el-radio-button{
                 
+                .el-radio-button__inner{
+                    color: #217AD9;
+                    background-color: #E6EBF0 !important;
+                }
             }
-            .sel-institutions {
-                margin-top: 2px;
-                width: 115px;
-                margin-left: 16px;
+            .is-active{
+                .el-radio-button__inner{
+                    color: #fff;
+                    background-color: #217AD9 !important;
+                }
             }
         }
+        
+      
+      
+    }
+    .row-add{
+        background-color: #fff;
+        width: 100%;
+        .btn-add{
+            height: 42px;
+            width: calc(100% - 72px);
+            margin: 0 36px;
+            border-bottom: 2px solid #E6EBF0;
+        }
+        .access-add{
+            height: 42px;
+            font-size: 16px;
+            color: #217AD9;
+            text-align: center;
+            line-height: 42px;
+            cursor: pointer;
+            span{
+                margin-left: 3px;
+                vertical-align: 5px;
+            }
+        }
+        .access-add:hover{
+            opacity: 0.85;
+        }
+        .input {
+            margin-top: 3px;
+            width: 250px;
+            float: right;
+            .el-input__inner{
+                padding-left: 40px
+            }
+            .search {
+                cursor: pointer;
+                margin-right: 0px
+            }
+            .el-input__prefix{
+                color: #848C99;
+            }
+            .search {
+                left: 9px;
+                position: absolute;
+                top:12px;
+                cursor: pointer;
+            }
+        }
+    }
 
+    .system-body {
+        background-color: #fff;
+        position: absolute;
+        width: calc(100% - 72px);
+        height: calc(100% - 158px);
         .table {
-            height: calc(100% - 104px);
-            padding: 0 24px;
+            height: calc(100% - 82px);
             .el-table {
-                width: 100%;
-                height:calc(100% + 50px) !important;
-                th,
-                td{
-                    padding: 9px 0;
-                }
+                width: calc(100% - 72px);
+                height:100% !important;
+                margin: 0px 36px;
                 .el-button{
                     padding:0;
                     height: initial;
                     line-height: initial;
                 }
-
-                .edit {
-                    margin-right: 10px;
-                    cursor: pointer;
-                    color: #217AD9
-                }
-
-                .delete {
-                    cursor: pointer;
-                    color: #217AD9
+                .el-table__row>.cell-td-td>.cell{
+                    position: absolute;
+                    top:12px;
+                    display: inline-block;
                 }
             }
+
         }
     }
-    .access-delete-dialog {
-        .el-dialog__body{
-            padding: 40px;
-        }
-        .el-button{
-            padding: 0;
-            height: 36px;
-            line-height: 36px;
-        }
-
-
-        .el-dialog__header {
-            display: none;
-        }
-
-        text-align: center;
-
-        .line-text-one {
-            font-size: 24px;
-            color: #4E5766;
-            margin-bottom: 48px
-        }
-
-        .ok-btn {
-            width: 180px;
-            font-size: 18px;
-        }
-
-    }
-    .access-add-dialog {
+    .auto-dialog {
         .el-dialog__header {
             display: none;
         }
@@ -144,104 +124,48 @@
                 font-size: 32px;
                 color: #217AD9;
                 font-weight: bold;
-                margin-bottom: 48px
             }
-            .el-form-item{
-                margin-bottom: 10px;
+            .dialog-line{
+                margin: 12px 0;
+                font-size: 18px;
             }
             .add-input {
-                margin-top: 12px;
+                margin-top: 24px;
                 position: relative;
-                height: 36px;
-                line-height: 36px;
                 .input-title{
                     display:inline-block;
-                    width: 20%;
+                    width: 35%;
                     font-size: 18px;
                     color: #848C99;
-                    margin-bottom: 24px;
                 }
                 .el-input{
-                    border-bottom: 1px solid #E6EBF0;
-                    width: 75%;
+                    border-bottom: 2px solid #E6EBF0;
+                    width: 60%;
                 }
-                .el-select{
-                    width: 75%;
-                    .el-input{
-                        border-bottom: 1px solid #E6EBF0;
-                        width: 100%;
-                    }
-                }
-                .el-input__icon {
-                    color: #848C99;
-                    line-height: 36px;
+                .input-warn{
+                    border-bottom: 2px solid #FF9D00;
                 }
                 .el-input__inner {
+                     border: 0px;
                     background-color: #fff;
-                    color: #2D3642;
-                    border: 0px;
-                    outline: none;
-                    height: 36px;
-                    line-height: 36px;
-                    border-radius: 0;
-                    font-size: 16px
-                }
-                .el-radio-group{
-                    .el-radio__label{
-                        font-size: 16px
-                    }
-                    .el-radio__inner::after {
-                        transition: none!important;
-                    }        
-                }
-                .el-form-item__error{
-                    top: 42px;
-                    left: 140px;
-                    color:#FF9D00;
-                    font-size: 14px;
-                    
-                }
-                // .input-warn{
-                //     border-bottom: 2px solid #FF9D00;
-                // }
-                // .text-warn{
-                //     position: absolute;
-                //     top:30px;
-                //     left: 140px;
-                //     color:#FF9D00
-                // }
-            }
-            .permission{
-                line-height: 36px;
-                margin-top: 15px;
-                .input-title{
-                    display:inline-block;
-                    width: 20%;
+                    height: 32px;
                     font-size: 18px;
-                    color: #848C99;
-                    margin-bottom: 24px;
+                    color: #217AD9;
                 }
-                .item{
-                    display: inline-block;
-                    vertical-align: top;
-                    div{
-                        line-height: 36px;
-                        font-size: 16px;
-                        
+                .el-checkbox{
+                    .el-checkbox__label{
+                        font-size: 18px;
                     }
-                    .show-item{
-                        color: #217AD9;
-                        i{
-                            font-weight: bold;
-                            margin-right: 5px;
-                        }
+                    .el-checkbox__inner::after {
+                        transition: none!important;
                     }
-                    .hide-item{
-                        color: #B8BFCC;
-                        span{
-                            margin-left: 24px;
-                        }
-                    }
+                }
+                
+                .text-warn{
+                    position: absolute;
+                    top:35px;
+                    left: 140px;
+                    color:#FF9D00
                 }
             }
             .line-text-one{
@@ -253,15 +177,90 @@
 
             .dialog-foot {
                 text-align: center;
-                margin: 36px 0 12px 0;
+                margin: 48px 0 12px 0;
+
                 .el-button {
                     height: 36px;
                     width: 200px;
                     padding: 0;
                     font-size: 18px;
+
                 }
             }
 
         }
     }
+    .add-success-dialog {
+        text-align: center;
+
+        //弹框居中
+        .el-dialog {
+            width: 700px;
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+
+            .el-dialog__header {
+                display: none
+            }
+
+            .icon {
+                height: 35px;
+                font-size: 80px;
+                color: #217AD9;
+            }
+
+            .line-text-one {
+                font-size: 32px;
+                margin-top: 15px;
+                margin-bottom: 35px;
+                color: #217AD9;
+                font-weight: 700;
+            }
+
+            .line-text-two {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .line-text-three {
+                font-size: 18px;
+                color: #217AD9;
+                margin-bottom: 48px;
+                vertical-align: middle;
+                .copy-link{
+                    display:inline-block;
+                    width: 530px;
+                    white-space: nowrap; //文本强制不换行；
+                    text-overflow:ellipsis; //文本溢出显示省略号；
+                    overflow:hidden; //溢出的部分隐藏；
+                }
+                .copy {
+                    margin-left: 20px;
+                    cursor: pointer;
+                    vertical-align:top
+                }
+            }
+            .line-text-four {
+                color: #848C99;
+                margin-bottom: 48px;
+            }
+            .regenerate{
+                color: #217AD9;
+                cursor: pointer;
+            }
+            .ok-btn {
+                width: 200px;
+                font-size: 18px;
+                margin-bottom: 34px;
+            }
+        }
+    }
 }
+

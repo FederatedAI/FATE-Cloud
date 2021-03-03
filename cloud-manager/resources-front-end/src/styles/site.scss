@@ -1,0 +1,307 @@
+.site-box {
+    
+    .site {
+        margin: 22px 36px;
+        margin-bottom: 0;
+        width: calc(100% - 72px);
+        height: calc(100% - 54px);
+        background: #fff;
+        position: absolute;
+        .site-header {
+            padding:24px 24px;
+            height: 36px;
+            text-align: right;
+            background-color: #fff;
+            .input {
+                display:inline-block;
+                margin-left: 16px;
+                max-width: 250px;
+                .search {
+                    cursor: pointer;
+                }
+            }
+            .sel-role {
+                margin-left: 16px;
+            }
+            .add{
+                width: initial;
+                color: #217AD9;
+                height: 36px;
+                vertical-align: middle;
+                font-size: 14px;
+                img{
+                    margin-right: 2px;
+                    vertical-align: -7px
+                }
+            }
+            .add:hover{
+                opacity: 0.85;
+            }
+            
+        }
+        .el-collapse{
+            // border-top: 2px solid #EBEEF5;
+            // border-bottom: 2px solid #EBEEF5;
+            .el-collapse-item:last-child{
+                margin-bottom: -2px
+            }
+           
+        }
+        .collapse{
+            padding: 0 24px;
+            background: #fff;
+            height: calc(100% - 164px);
+            width: calc(100% - 48px);
+            overflow: auto;
+            .el-collapse-item__header:hover{
+                background-color: #f5f8fa;
+            }
+            .el-collapse-item__header{
+                height: 42px;
+                font-size: 14px;
+                color: #217AD9;
+                position: relative;
+                .ins{
+                    font-weight: bold;
+                    margin-right: 5px
+                }
+                .el-icon-arrow-right{
+                    font-weight: bold;
+                    color: #848C99
+                }
+                text-align: right;
+                .tickets{
+                    position: absolute;
+                    right: 70px;
+                    margin-top: -10px;
+                }
+                .disable{
+                    position: absolute;
+                    right: 70px;
+                    margin-top: -10px;
+                    cursor: not-allowed;
+        
+                }
+                .sitenum{
+                    position: absolute;
+
+                    right: 120px;
+                    span{
+                        color: #848C99;
+                        margin: 5px
+                    }
+                    z-index: 0;
+                }
+    
+            }
+            .msg-warn{
+                color:#848C99;
+                font-size: 14px;
+                margin-left: 24px;
+                .btn{
+                    margin-left: 10px
+                }
+            }
+            .site-body {
+                padding: 0 24px;
+                // height: calc(100% - 284px);
+                // max-height: 301px;
+                .table {
+                    width: 100%;
+                    // height: calc(100% - 57px);
+                    .el-table::before {
+                        background-color: #fff; 
+                    }
+                    .el-table {
+                        margin: 0px 0px ;
+                        // width: calc(100% - 72px);
+                        // background-color: pink;
+                        // max-height:255px;
+                        .el-button{
+                            padding:0;
+                            height: initial;
+                            line-height: initial;
+                        }
+                        .has-gutter {
+                            color: #4E5766;
+                        }
+    
+                        .todetail {
+                            cursor: pointer;
+                            color: #217AD9;
+                        }
+    
+                        .delete {
+                            cursor: pointer;
+                            color: #217AD9
+                        }
+    
+                        .el-input__inner {
+                            background-color: #fff;
+                            width: 150px;
+                        }
+                        //小箭头旋转
+                        .el-icon-caret-bottom{
+                            transition:.3s;
+                        }
+                        .icon-caret:hover{
+                            .el-icon-caret-bottom{
+                                transform: rotate(180deg);
+                            }
+                        }
+                    }
+                }
+            }
+            .pagina {
+               margin-top: 25px;
+               text-align: right;
+            }
+            
+        }
+        .no-data{
+            line-height: 100px;
+            text-align: center;
+            color: #909399;
+            font-size: 14px;
+        }
+        
+    }
+    .site-delete-dialog {
+
+        .el-dialog__body {
+            padding: 64px 20px;
+        }
+
+        .el-dialog__header {
+            display: none;
+        }
+
+        text-align: center;
+
+        .line-text-one {
+            font-size: 24px;
+            color: #2D3642;
+            margin-bottom: 24px;
+            white-space: nowrap; //文本强制不换行；
+            text-overflow:ellipsis; //文本溢出显示省略号；
+            overflow:hidden; //溢出的部分隐藏；
+        }
+
+        .line-text-two {
+            font-size: 18px;
+            color: #848C99;
+            margin-bottom: 48px
+        }
+        
+        .ok-btn {
+            width: 126px;
+            font-size: 18px;
+            line-height: inherit;
+            height: 38px;
+        }
+
+    }
+    .add-author-dialog{
+        .el-dialog__body {
+            padding: 64px 20px;
+        }
+
+        .el-dialog__header {
+            display: none;
+        }
+
+        text-align: center;
+
+        .line-text-one {
+            font-size: 24px;
+            color: #2D3642;
+            margin-bottom: 24px;
+            white-space: nowrap; //文本强制不换行；
+            text-overflow:ellipsis; //文本溢出显示省略号；
+            overflow:hidden; //溢出的部分隐藏；
+        }
+
+        .line-text-two {
+            font-size: 18px;
+            color: #848C99;
+            margin-bottom: 48px
+        }
+        .dialog-main{
+            text-align: left;
+            padding: 12px 24px;
+            margin: 24px;
+            max-height: 248px;
+            overflow:auto;
+            background: #F5F8FA;
+            overflow: auto;
+            .el-checkbox-group{
+                width: 100%;
+                div{
+                    line-height: 24px;
+                    display: inline-block;
+                    width: 50%;
+                    .el-checkbox__inner::after {
+                        transition: none!important;
+                    }
+        
+                }
+            }
+        }
+        .ok-btn {
+            width: 126px;
+            font-size: 18px;
+            line-height: inherit;
+            height: 38px;
+        }
+    }
+    .cancel-author-dialog{
+        .el-dialog__body {
+            padding: 48px 20px 24px 20px;;
+        }
+
+        .el-dialog__header {
+            display: none;
+        }
+        .line-text-one {
+            font-size: 24px;
+            color: #2D3642;
+            margin-bottom: 24px;
+            text-align: center
+        }
+
+        .dialog-main{
+            padding: 12px 24px;
+            margin: 24px;
+            max-height: 248px;
+            overflow:auto;
+            background: #F5F8FA;
+            overflow: auto;
+            .el-checkbox-group{
+                width: 100%;
+                line-height: 24px;
+                vertical-align: middle;
+                div{
+                    display: inline-block;
+                    width: 50%;
+                    .el-checkbox__inner::after {
+                        transition: none!important;
+                    }
+        
+                }
+            }
+        }
+        .dialog-footer{
+            text-align: center;
+            .ok-btn {
+                width: 126px;
+                font-size: 18px;
+                line-height: inherit;
+                height: 38px;
+            }
+        }   
+       
+    }
+}
+.scope{
+    min-width: 100px !important;
+}

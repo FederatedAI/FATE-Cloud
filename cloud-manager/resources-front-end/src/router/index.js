@@ -25,124 +25,111 @@ Vue.use(Router)
  **/
 
 export const constantRouterMap = [
-    { path: '/', redirect: '/welcome/login', hidden: true },
+    { path: '/', redirect: '/home/welcome', hidden: true },
     // { path: '/login', component: () => import('@/views/login/index'), hidden: true },
     // { path: '/regist', component: () => import('@/views/regist/index'), hidden: true },
     // { path: '*', redirect: '/home/homepage', hidden: true },
     // { path: '/home', component: () => import('@/views/home/home') },
     { path: '/404', component: () => import('@/views/404'), hidden: true },
     {
-        path: '/welcome',
-        component: () => import('@/views/welcome/index'),
-        name: 'welcome',
-        hidden: true,
-        children: [
-            {
-                path: 'login',
-                name: 'login', //
-                hidden: true,
-                component: () => import('@/views/welcome/login')
-            },
-            {
-                path: 'register',
-                name: 'register', //
-                hidden: true,
-                component: () => import('@/views/welcome/register')
-            }, {
-                name: 'activate', //
-                path: 'activate',
-                component: () => import('@/views/welcome/activate')
-            }
-        ]
-    },
-    {
         path: '/home',
-        component: Layout,
+        component: () => import('@/views/home/home'),
         name: 'home',
         hidden: true,
         children: [
             {
-                path: 'sitemanage',
-                name: 'sitemanage', //
-                component: () => import('@/views/home/sitemanage')
-            },
-            {
-                path: 'index',
-                name: 'homeview', //
-                component: () => import('@/views/home/homeview')
-            },
-            {
-                path: 'siteinfo',
-                name: 'siteinfo',
-                component: () => import('@/views/home/sitedetail')
-            },
-            {
-                path: 'access',
-                name: 'access',
-                component: () => import('@/views/home/access')
+                name: 'welcome', //
+                hidden: true,
+                path: 'welcome',
+                component: () => import('@/views/home/welcome')
+            }, {
+                name: 'register', //
+                hidden: true,
+                path: 'register',
+                component: () => import('@/views/home/register')
+            }, {
+                name: 'login', //
+                hidden: true,
+                path: 'login',
+                component: () => import('@/views/home/login')
             }
+
         ]
     },
     {
-        path: '/deploy',
+        path: '/federated',
         component: Layout,
-        name: 'deploy',
-        hidden: true,
+        name: 'federated',
         children: [
             {
-                path: 'auto',
-                name: 'auto', //
-                component: () => import('@/views/deploy/auto')
-            },
-            {
-                path: 'overview',
-                name: 'overview', //
-                component: () => import('@/views/deploy/overview')
-            },
-            {
-                path: 'service',
-                name: 'service', //
-                component: () => import('@/views/deploy/service')
-            },
-            {
-                path: 'prepare',
-                name: 'prepare', //
-                component: () => import('@/views/fatedeploy/prepare')
+                name: 'Site Manage', // 根据侧边导航栏命名
+                path: 'site',
+                component: () => import('@/views/federated/site')
             }, {
-                path: 'deploying',
-                name: 'deploying', //
-                component: () => import('@/views/fatedeploy/deploying')
-            },
-            {
-                path: 'ansible',
-                name: 'ansible', //
-                component: () => import('@/views/fatedeployAnsible/deployAnsible')
+                name: 'siteadd', //
+                path: 'siteadd',
+                component: () => import('@/views/federated/siteadd')
+            }, {
+                name: 'detail', //
+                hidden: true,
+                path: 'detail',
+                component: () => import('@/views/federated/sitedetail')
+            }, {
+                name: 'IP Manage', //
+                path: 'ip',
+                component: () => import('@/views/federated/ip')
+            }, {
+                name: 'Add an Exchange', //
+                path: 'ipexchange',
+                component: () => import('@/views/federated/ipaddexchange')
+            }, {
+                name: 'Service Manage', //
+                path: 'sys',
+                component: () => import('@/views/federated/system')
+            }, {
+                name: 'Site Monitor', //
+                path: 'monitor',
+                component: () => import('@/views/federated/monitor')
             }
+
         ]
-    }, {
-        path: '/monitor',
+    },
+    {
+        path: '/setting',
         component: Layout,
-        name: 'monitor',
-        hidden: true,
+        name: 'setting',
         children: [
             {
-                path: 'cooperation',
-                name: 'cooperation', //
-                component: () => import('@/views/monitor/cooperation')
+                name: 'Party ID', //
+                path: 'partyid',
+                component: () => import('@/views/setting/partyid')
             },
             {
-                path: 'jobmonitor',
-                name: 'jobmonitor', //
-                component: () => import('@/views/monitor/jobMonitor')
+                name: 'Repository', //
+                path: 'repository',
+                component: () => import('@/views/setting/repository')
+            },
+            {
+                name: 'partyuser', //
+                path: 'partyuser',
+                component: () => import('@/views/setting/partyuser')
+            }, {
+                name: 'Admin Access', //
+                path: 'access',
+                component: () => import('@/views/setting/access')
+            }, {
+                name: 'System Function Switch', //
+                path: 'switch',
+                component: () => import('@/views/setting/switch')
             }
+
         ]
     }
-
 ]
 
 const router = new Router({
     // mode: 'history', // 后端支持可开
-    scrollBehavior: () => ({ x: 0, y: 0 }),
+    scrollBehavior: () => ({ y: 0 }),
     routes: constantRouterMap
 })
 
