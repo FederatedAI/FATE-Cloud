@@ -1,4 +1,5 @@
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+    .BundleAnalyzerPlugin
 const path = require('path')
 const webpack = require('webpack')
 const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin')
@@ -11,8 +12,8 @@ function resolve(dir) {
     return path.join(__dirname, dir)
 }
 
-let publicPath = process.env.NODE_ENV === 'production' ? '/cloud-manager/' : '/'
-let dllPublishPath = '/cloud-manager/vendor'
+let publicPath = process.env.NODE_ENV === 'production' ? '/fate-manager/static/' : '/'
+let dllPublishPath = '/fate-manager/static/vendor/'
 let IS_PROD = ['production', 'test'].includes(process.env.NODE_ENV)
 
 module.exports = {
@@ -98,21 +99,20 @@ module.exports = {
         disableHostCheck: true,
         open: process.platform === 'darwin',
         host: '10.58.32.145',
-        port: 8088,
+        port: 8010,
         https: false,
         hotOnly: false,
         // eslint-disable-next-line no-dupe-keys
         open: true,
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
-            '/cloud-manager': {
-                // target: 'http://172.16.153.9:8086',
-                // target: 'http://10.36.16.100:8080',
-                target: 'http://172.16.153.21:8999',
-                // target: 'http://172.16.153.9:8088/',
+            '/fate-manager': {
+                target: 'http://172.16.153.88:9090',
+                // target: 'http://10.107.116.21:9090',
+                // target: 'http://10.107.116.21:9091',
                 changeOrigin: true,
                 pathRewrite: {
-                    '^/cloud-manager': '/cloud-manager'
+                    '^/fate-manager': '/fate-manager'
                 }
             }
         },

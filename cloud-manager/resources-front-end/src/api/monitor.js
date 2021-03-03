@@ -1,105 +1,29 @@
 import request from '@/utils/request'
 
-let urlType = 'cloud-manager'
+let urlType = 'fate-manager'
 
-export function institutionsListToday(data) {
+// 总柱状图
+export function getTotal(data) {
     return request({
-        url: `/${urlType}/api/job/summary/institutions/each/today`,
-        method: 'post',
-        data
-    })
-}
-
-export function institutionsListPeriod(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/institutions/each/period`,
+        url: `/${urlType}/api/monitor/total`,
         method: 'post',
         data
     })
 }
 
-export function siteListToday(data) {
+// institution表格
+export function getInstitution(data) {
     return request({
-        url: `/${urlType}/api/job/summary/site/each/today`,
+        url: `/${urlType}/api/monitor/institution`,
         method: 'post',
         data
     })
 }
 
-export function siteListPeriod(data) {
+// site表格
+export function getSite(data) {
     return request({
-        url: `/${urlType}/api/job/summary/site/each/period`,
-        method: 'post',
-        data
-    })
-}
-
-export function institutionsSataToday(data) {
-    return request({
-        url: `/${urlType}/api/job/institutions/today`,
-        method: 'post',
-        data
-    })
-}
-
-export function institutionsSataPeriod(data) {
-    return request({
-        url: `/${urlType}/api/job/institutions/period`,
-        method: 'post',
-        data
-    })
-}
-
-export function siteSataToday(data) {
-    return request({
-        url: `/${urlType}/api/job/site/today`,
-        method: 'post',
-        data
-    })
-}
-
-export function siteSataPeriod(data) {
-    return request({
-        url: `/${urlType}/api/job/site/period`,
-        method: 'post',
-        data
-    })
-}
-
-export function institutionsAllPeriod(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/institutions/all/period`,
-        method: 'post',
-        data
-    })
-}
-
-export function institutionsAllToday(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/institutions/all/today`,
-        method: 'post',
-        data
-    })
-}
-
-export function siteAllToday(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/site/all/today`,
-        method: 'post',
-        data
-    })
-}
-export function siteAllPeriod(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/site/all/period`,
-        method: 'post',
-        data
-    })
-}
-// 新获取site接口
-export function getSummarySite(data) {
-    return request({
-        url: `/${urlType}/api/job/summary/site`,
+        url: `/${urlType}/api/monitor/site`,
         method: 'post',
         data
     })
