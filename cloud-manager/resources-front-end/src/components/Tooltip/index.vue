@@ -1,7 +1,6 @@
 <template>
   <div class="tooltip" :style="elmwidth">
-        <el-tooltip effect="dark" v-if="tooltip"  :placement="placement">
-            <div slot="content" >{{content}}</div>
+        <el-tooltip effect="light" v-if="tooltip" :content="content" :placement="placement">
             <span ref="name">
                 {{content}}
             </span>
@@ -61,14 +60,8 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
     .tooltip{
-        // font-size: 14px;
         white-space: nowrap;
         text-overflow:ellipsis;
         overflow:hidden;
-
     }
-    // .el-tooltip__popper{
-    //         font-size: 14px
-    //     }
-
 </style>
