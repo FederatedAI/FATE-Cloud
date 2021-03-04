@@ -43,11 +43,16 @@
                     </div>
                     <div class="edit-table">
                         <el-table :data="rollsiteList[index].partyAddBeanList" max-height="250" >
-                            <el-table-column type="index" label="Index" width="70"  >
+                            <el-table-column type="index" label="Index" width="65"  >
                             </el-table-column>
                             <el-table-column prop="partyId"  label="Party ID" width="70" show-overflow-tooltip>
                             </el-table-column>
                             <el-table-column prop="networkAccess"  label="Site Network Access" width="150">
+                            </el-table-column>
+                            <el-table-column prop="secureStatus"  label="Is Secure" width="75">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
+                                </template>
                             </el-table-column>
                             <el-table-column prop="Update Time"  label="Update Time" width="150">
                                 <template slot-scope="scope">
@@ -322,6 +327,8 @@ export default {
             }
             getNetworkAccessList(data).then(res => {
                 this.rollsiteList[index].partyAddBeanList = res.data
+            }).catch(res => {
+                this.$message.error(res.msg)
             })
         },
         // 确定离开
