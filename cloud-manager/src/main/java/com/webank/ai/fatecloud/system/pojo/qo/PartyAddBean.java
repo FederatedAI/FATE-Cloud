@@ -15,15 +15,11 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -34,12 +30,13 @@ import java.util.Date;
 public class PartyAddBean implements Serializable {
 
     @ApiModelProperty(value = "party id value")
-    @TableField(value = "party_id")
     private String partyId;
 
     @ApiModelProperty(value = "network access ")
-    @TableField(value = "network_access")
     private String networkAccess;
+
+    @ApiModelProperty(value = "secure_status")
+    private Integer secureStatus;
 
     @ApiModelProperty(value = "status")
     private Integer status;
