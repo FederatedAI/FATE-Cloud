@@ -155,6 +155,11 @@ public class FederatedExchangeServiceFacade implements Serializable {
             if (!networkAccess.matches(ipAndPortRegex)) {
                 return false;
             }
+            //check secure status
+            Integer secureStatus = partyAddBean.getSecureStatus();
+            if (secureStatus == null || (secureStatus != 1 && secureStatus != 2)) {
+                return false;
+            }
             String partyId = partyAddBean.getPartyId();
             if (StringUtils.isBlank(partyId)) {
                 return false;
