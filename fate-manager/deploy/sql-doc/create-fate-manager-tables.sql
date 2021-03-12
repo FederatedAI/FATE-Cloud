@@ -1,4 +1,6 @@
-﻿CREATE TABLE IF NOT EXISTS `t_fate_account_info` (
+﻿CREATE DATABASE IF NOT EXISTS `fate_manager`;
+USE `fate_manager`;
+CREATE TABLE IF NOT EXISTS `t_fate_account_info` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
   `user_id` varchar(50) DEFAULT NULL COMMENT 'user id',
   `user_name` varchar(50) DEFAULT NULL COMMENT 'user name',
