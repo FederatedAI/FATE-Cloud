@@ -7,7 +7,7 @@
 </div>
 
 
-## 一、用户设置 ##
+## 1. 用户设置 ##
 
 **1）创建app用户和apps组**
 注意 : 以下操作需root权限
@@ -26,7 +26,10 @@ app ALL=(ALL) NOPASSWD: ALL
 Defaults !env_reset
 ```
 
-## 二、MiniKube部署 ##
+## 2. 基于Kubernetes构建FATE ##
+FATE Manager支持在Kubernetes环境上上构建FATE以及裸机上直接构建FATE
+
+#### 2.1 MiniKube部署 ####
 
 为了方便快速的部署，我们使用`miniKube`来部署`kubernetes`环境，前置条件如下:
 
@@ -122,7 +125,7 @@ sudo minikube addons enable ingress
 kubernetes部署完成！
 
 
-## 三、KubeFATE部署 ##
+#### 2.2 KubeFATE部署 ####
 
 
 - **创建kube-fate的命名空间以及账号**
@@ -186,87 +189,13 @@ rtt min/avg/max/mdev = 0.710/0.719/0.729/0.028 ms
 
 到此，所有准备工作完毕，下面我们可以开始安装FATE了。需要注意的是，上面的工作只需要做一次，后面如果添加、删除、更新FATE集群，上面的不需要重新执行
 
-## 四、ExChange部署 ##
 
-`ExChange`是中心端的一个路由模块，为了方便部署验证，保证逻辑上是分开的，物理上可以放在一起，通过kubefate部署方式将它部署在任意一个机器上，方便后面管理的最小化测试等功能的验证。
+## 3. 裸机构建FATE ##
+FATE Manager支持在Kubernetes环境上上构建FATE以及裸机上直接构建FATE
 
-- **创建命名空间**
-```
-sudo kubectl create namespace fate-exchange
-```
-- **准备配置文件**
-按当前目录下的配置文件cluster.yaml,,生成西的配置文件：fate-exchange.yaml，
-```
-[app@kube-m1 kubefate]$ cat fate-exchange.yaml 
-name: fate-exchange
-namespace: fate-exchange
-chartName: fate
-chartVersion: v1.4.4
-partyId: 9998 
-registry: ""
-pullPolicy: 
-persistence: false
-istio:
-  enabled: false
-modules:
-  - rollsite
+请参考[Hyperion部署文档](../hyperion/deploy/Hyperion_deploy_guide_zh.md)
 
-rollsite: 
-  type: NodePort
-  nodePort: 30001
-  partyList:
-  - partyId: 9999
-    partyIp: 172.16.153.131
-    partyPort: 31001
-  - partyId: 10000
-    partyIp: 172.16.153.131
-    partyPort: 31002
-```
-主要修改内容有：
-删除其他模块，只保留rollsite，因为我们是部署exchange
-registry:镜像下载地址，默认从dockerhub下载，如果有私有镜像可以配置在这里
-更改rollsite模块的配置，设置监听的端口为30001；
-更改partyList部分，这里的每个节点都带不一个路由节点，partyIp和partyPort代表每个站点的rollsite ip和端口
-
-- **修改完毕，执行部署**
-```
-[app@kube-m1 kubefate]$ kubefate cluster install -f ./fate-exchange.yaml 
-create job success, job id=19eaeec8-4e01-4e41-a7d0-9b0d2ac5e6c3
-```
-这个步骤需要去Docker Hub下载相关镜像，所以具体速度与服务器的网速有很大关系，如果网速快，或者镜像已经准备好在服务器上的话，大概2、3分钟可以部署完成。我们可以使用kubefate job ls命令观察部署情况：
-```
-                                    
-[app@kube-m1 kubefate]$ kubefate job describe 19eaeec8-4e01-4e41-a7d0-9b0d2ac5e6c3
-UUID            19eaeec8-4e01-4e41-a7d0-9b0d2ac5e6c3                                                                                                          
-StartTime       2020-10-14 09:08:42                                                                                                                           
-EndTime         2020-10-14 09:08:44                                                                                                                           
-Duration        2s                                                                                                                                            
-Status          Success                                                                                                                                       
-Creator         admin                                                                                                                                         
-ClusterId       027c65c1-8f7c-4ead-8da7-d9827c5bc86c                                                                                                          
-Result          Cluster install success                                                                                                                       
-SubJobs         rollsite             PodStatus: Running, SubJobStatus: Success, Duration:     2s, StartTime: 2020-10-14 09:08:42, EndTime: 2020-10-14 09:08:44
-```
-```         
-[app@kube-m1 kubefate]$ kubefate cluster ls
-UUID                                    NAME            NAMESPACE       REVISION        STATUS  CHART   ChartVERSION    AGE  
-027c65c1-8f7c-4ead-8da7-d9827c5bc86c    fate=exchange        fate-exchange        1               Running fate    v1.4.4          2m29s
-```
-可以看到fate-exchange已经部署完成！
-查看路由表配置信息：
-```
-[app@kube-m1 kubefate]$ sudo kubectl get configmap -n fate-exchange
-NAME              DATA   AGE
-eggroll-config    1      6m25s
-rollsite-config   1      6m25s
-```
-修改路由表信息：
-```
-sudo kubectl edit configmap rollsite-config -n fate-exchange
-```
-至此，ExChange部署结束！
-
-## 五、Mysql部署 ##
+## 4. Mysql部署 ##
 
 - **获取安装包**
 ```
@@ -330,7 +259,7 @@ Enter Password:【输入root修改后密码:***REMOVED***】
 ```
 部署成功！
 
-## 六、Fate-Manager部署 ##
+## 5. FATE-Manager部署 ##
 
 - **服务基本信息**
 |   服务名称    | 端口 | 描述                                              |
@@ -343,17 +272,18 @@ FATE-Manager的开源地址https://github.com/FederatedAI/FATE-Cloud
 fate-manager是容器化部署fate的最佳实践，项目更新较快，建议使用最新的releases
 ```
 [app@kube-m1 kubefate]$ mkdir -p /data/projects/fate-cloud/fate-manager && cd /data/projects/fate-cloud/fate-manager
-[app@kube-m1 fate-manager]$ curl -LO https://github.com/FederatedAI/FATE-Cloud/releases/download/v1.0.0/fate-manager-v1.0.0.tar.gz && tar -xzf ./fate-manager-v1.0.0.tar.gz
+[app@kube-m1 fate-manager]$ curl -LO https://github.com/FederatedAI/FATE-Cloud/releases/download/v1.1.0/fate-manager-1.1.0.tar.gz && tar -xzf ./fate-manager-1.1.0.tar.gz
 ```
 解压后内容：
 ```
 [app@kube-m1 fate-manager]$ ls
-conf  fate_manager fate-manager.zip  shell doc-sql
+conf  fate_manager fate-manager shell doc-sql bin
 ```
 conf：是服务的配置目录
 fate_manager：是二进制文件
 shell：单边，双边及最小化测试的shell脚本文件；初始化mysql配置文件
 doc-sql：db建表语句及初始化配置信息
+fate-manager：前端文件
 
 - **建库授权和业务配置**
 ```
@@ -378,9 +308,11 @@ RunMode = release                              #运行模型，test，debug，re
 HttpPort = 9090                                #服务端口，默认9090
 ReadTimeout = 60                               #读超时控制
 WriteTimeout = 60                              #写超时控制
+LogSavePath = ./logs/                          #日志目录地址
+TimeFormat = 20060102
 IfProxy = false                                #是否走代理
 ProxyUrl =                                     #代理地址
-LogDir = /data/logs/fate-cloud/fate-manager/   #日志目录地址
+IfSSL = true
 
 [database]                                     #数据库配置
 Type = mysql                                   #数据库类型，默认mysql
@@ -397,22 +329,22 @@ Heart = 60                                     #心跳上报
 Job = 30                                       #部署任务结果查询
 Test = 30                                      #单边、双边及最小化验证结果定时扫描
 
-[kubenetes]                                    #kuberbetes配置
+[deploy]                                       #部署配置
 KubeFateUrl=http://kubefate.net:30732          #kubefate服务地址
-ExchangeIp=172.16.153.131                      #路由服务出入口ip
+ExchangeIp=0.0.0.0                             #路由服务出入口ip
 ExchangePort=30001                             #路由服务出入口端口
 NodeManager=0                                  #nodemanger的个数，0代表1个
 Registry=                                      #镜像地址配置，可以配置私有镜像源
 SudoTag=false                                  #kubectl是否需要sudo权限，默认不需要
 SessionProcessorsPerNode=4                     #process个数
 TestPartyId=10000                              #跑toy及最小化验证的另一侧partyid
-ModeAlone=false                                #单点部署，true为单点，false为集群
+WorkMode=1                                     #0为单点部署，1为集群部署
+AnsibleNode=                                   #hyperion部署机器
 ```
 
 - **执行部署**
 ```
 chmod 777 ./fate_manager
-unzip fate-manager.zip
 nohup ./fate_manager &
 
 查案进程：
