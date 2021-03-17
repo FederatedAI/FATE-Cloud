@@ -4,7 +4,7 @@
       <div class="info-box">
         <div class="info">Basic Info</div>
         <el-form ref="form" :model="form" label-position="left" label-width="180px">
-          <el-row :gutter="140">
+          <el-row :gutter="10">
             <el-col :span="12">
                 <el-form-item label="Site Name">
                     <span class="info-text">{{form.siteName}}</span>
@@ -20,12 +20,14 @@
                 </el-form-item>
                 <el-form-item label="Secret Key">
                     <el-popover
+                        v-if="secretkeyshow"
                         placement="top"
                         width="300"
                         trigger="hover"
                         :content="form.secretInfo?form.secretInfo.secret:form.secretInfo">
-                        <span slot="reference" class="link-text">{{form.secretInfo?form.secretInfo.secret:form.secretInfo}}</span>
+                        <span slot="reference" class="link-text secretkey">{{form.secretInfo?form.secretInfo.secret:form.secretInfo}}</span>
                     </el-popover>
+                    <span v-else class="link-text secretkey">{{form.secretInfo?form.secretInfo.secret:form.secretInfo}}</span>
                 </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -68,11 +70,12 @@
             </el-col>
           </el-row>
         </el-form>
-        <div class="info sed">System Configuration</div>
+      </div>
+      <div class="info-box">
+        <div class="info">Network configuration</div>
         <el-form ref="form" :model="form" label-position="left" label-width="280px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                    <div class="Network">Network configuration</div>
                     <el-form-item v-if="form.networkAccessEntrances" style="height:100%;" label="Network Acess Entrances" >
                         <span v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
@@ -80,6 +83,8 @@
                             </div>
                         </span>
                     </el-form-item>
+                </el-col>
+                <el-col :span="12">
                     <el-form-item v-if="form.networkAccessExits" style="height:100%;" label="Network Acess Exits" >
                         <span v-for="(item,index) in form.networkAccessExits.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
@@ -88,8 +93,40 @@
                         </span>
                     </el-form-item>
                 </el-col>
+            </el-row>
+        </el-form>
+      </div>
+      <div class="info-box">
+        <div class="info">System version</div>
+            <el-radio-group class="radio" v-model="radio">
+                <el-radio-button label="FATE"></el-radio-button>
+                <el-radio-button disabled label="FATE Serving"></el-radio-button>
+            </el-radio-group>
+            <el-tooltip effect="dark" placement="top">
+                <div style="font-size:14px" slot="content">
+                    <div>including FATE-Board, FATE-Flow</div>
+                </div>
+                <i class="el-icon-info icon-info"></i>
+            </el-tooltip>
+            <div class="fate-version">
+                <span class="fate-inline">FATE version</span>
+                <span class="fate-text">{{form.fateVersion}}</span>
+            </div>
+            <div class="table">
+                <div class="title">
+                    <div class="title-text">FATE Component</div>
+                    <div class="title-text">Version</div>
+                    <div class="title-text">IP</div>
+                </div>
+                <div class="body" v-for="(item, index) in form.componentVersion" :key="index">
+                    <div class="body-text">{{item.label}}</div>
+                    <div class="body-text">{{item.version.version}}</div>
+                    <div class="body-text">{{item.version.address}}</div>
+                </div>
+            </div>
+        <!-- <el-form ref="form" :model="form" label-position="left" label-width="280px">
+            <el-row :gutter="140">
                 <el-col :span="12">
-                    <div class="Network">System version</div>
                     <el-form-item label="FATE version" style="height:100%;">
                         <span slot="label">
                             <span>FATE version</span>
@@ -100,7 +137,6 @@
                                 <i class="el-icon-info icon-info"></i>
                             </el-tooltip>
                             <div class="label" v-for="(item, index) in form.componentVersion" :key="index">
-                                <!-- <span v-if="item.updateStatus===1"> -->
                                 <span >
                                     <span class="label-title">{{item.label}}</span>
                                     <span class="label-version">{{item.version}}</span>
@@ -109,12 +145,14 @@
                         </span>
                         <span class="info-text">{{form.fateVersion}}</span>
                     </el-form-item>
-                    <!-- <el-form-item label="FATE-Serving version">
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="FATE-Serving version">
                         <span class="info-text ">{{form.fateServingVersion}}</span>
-                    </el-form-item> -->
+                    </el-form-item>
                 </el-col>
             </el-row>
-        </el-form>
+        </el-form> -->
       </div>
     </div>
   </div>
@@ -128,7 +166,6 @@ import elementResizeDetectorMaker from 'element-resize-detector'
 
 export default {
     name: 'home',
-    components: {},
     filters: {
         dateFormat(vaule) {
             return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '- -'
@@ -138,8 +175,12 @@ export default {
         return {
             showTime: false, // 是否显示弹框
             timeWidth: '', // 监听宽度
+            secretkeyshow: false,
+            secretkeyWidth: '',
             form: {},
-            versionList: []// 版本
+            versionList: [], // 版本
+            radio: 'FATE'
+
         }
     },
     watch: {
@@ -149,6 +190,17 @@ export default {
                     this.showTime = true
                 } else {
                     this.showTime = false
+                }
+            },
+            deep: true,
+            immediate: true
+        },
+        secretkeyWidth: {
+            handler: function(val) {
+                if (val < 375) {
+                    this.secretkeyshow = true
+                } else {
+                    this.secretkeyshow = false
                 }
             },
             deep: true,
@@ -169,6 +221,9 @@ export default {
         // 监听元素width变化
         erd.listenTo(document.querySelectorAll('.time'), function(element) {
             that.timeWidth = element.offsetWidth
+        })
+        erd.listenTo(document.querySelectorAll('.secretkey'), function(element) {
+            that.secretkeyWidth = element.offsetWidth
         })
     },
     methods: {

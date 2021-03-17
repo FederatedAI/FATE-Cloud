@@ -37,7 +37,7 @@ func InitRouter() *gin.Engine {
 	}
 
 	//Site Manager
-	sites := router.Group("/fate-manager/api/site").Use(JWT())
+	sites := router.Group("/fate-manager/api/site") //.Use(JWT())
 	{
 		sites.GET("", GetHomeSiteList)
 		sites.GET("/other", GetOtherSiteList)
@@ -46,8 +46,6 @@ func InitRouter() *gin.Engine {
 		sites.POST("/info", GetSiteDetail)
 		sites.POST("/update", UpdateSite)
 		sites.POST("/checkUrl", CheckRegisterUrl)
-		sites.POST("/checksite", CheckSite)
-		sites.POST("/secretinfo", GetSecretInfo)
 		sites.POST("/telnet", TelnetSiteIp)
 		sites.POST("/readmsg", ReadChangeMsg)
 		sites.POST("/getmsg", GetChangeMsg)
@@ -56,13 +54,16 @@ func InitRouter() *gin.Engine {
 		sites.GET("/queryapply", QueryApplySites)
 		sites.POST("/readapplysite", ReadApplySites)
 		sites.POST("/updateVersion", UpdateComponentVersion)
-		sites.GET("applylog", GetApplyLog)
+		sites.GET("/applylog", GetApplyLog)
+		sites.POST("/exchange", GetExchangeInfo)
 	}
 	router.POST("/fate-manager/api/site/function", GetFunction)
 	router.GET("/fate-manager/api/site/functionread", FunctionRead)
+	router.POST("/fate-manager/api/site/checksite", CheckSite)
+	router.POST("/fate-manager/api/site/secretinfo", GetSecretInfo)
 
 	//All DropDown List
-	dropDownList := router.Group("/fate-manager/api/dropdown")//.Use(JWT())
+	dropDownList := router.Group("/fate-manager/api/dropdown").Use(JWT())
 	{
 		dropDownList.GET("/federation", GetFederationDropDownList)
 		dropDownList.GET("/site", GetSiteDropDownList)
@@ -76,7 +77,9 @@ func InitRouter() *gin.Engine {
 		dropDownList.GET("/fateflow", GetFateFlowVersionList)
 		dropDownList.GET("/fateboard", GetFateBoardVersionList)
 		dropDownList.GET("/fateserving", GetFateServingVersionList)
-		dropDownList.POST("/componentversion",GetComponentVersionList)
+		dropDownList.POST("/componentversion", GetComponentVersionList)
+		dropDownList.GET("/managernode", GetManagerIp)
+		dropDownList.GET("/manager", GetManagerIpPort)
 	}
 	//Manager,Service Managment
 	services := router.Group("/fate-manager/api/service").Use(JWT())
@@ -110,7 +113,6 @@ func InitRouter() *gin.Engine {
 		deploys.POST("/fateboard", GetFateBoardUrl)
 		deploys.POST("/version", GetInstallVersion)
 	}
-
 	//User
 	user := router.Group("/fate-manager/api/user").Use(JWT())
 	{
@@ -122,12 +124,37 @@ func InitRouter() *gin.Engine {
 		user.POST("/edit", EditUser)
 		user.POST("/sitelist", UserSiteList)
 		user.POST("siteinfouserlist", GetSiteInfoUserList)
-		user.POST("/userpartylist",GetLoginUserManagerList)
-		user.POST("/allowpartylist",GetAllAllowPartyList)
-		user.POST("/sublogin",SubLogin)
+		user.POST("/userpartylist", GetLoginUserManagerList)
+		user.POST("/sublogin", SubLogin)
+		user.POST("/changelogin", ChangeLogin)
 	}
 	router.POST("/fate-manager/api/user/permmsionauth", PermissionAuthority)
+	router.POST("/fate-manager/api/user/allowpartylist", GetAllAllowPartyList)
 
+	//monitor
+	monitor := router.Group("/fate-manager/api/monitor").Use(JWT())
+	{
+		monitor.POST("/total", GetMonitorTotal)
+		monitor.POST("/institution", GetInstitutionBaseStatics)
+		monitor.POST("/site", GetSiteBaseStatistics)
+	}
+	//ansible
+	ansible := router.Group("/fate-manager/api/ansible").Use(JWT())
+	{
+		ansible.POST("/connectansible", ConnectAnsible)
+		ansible.POST("/upload", LocalUpload)
+		ansible.POST("/autoacquire", AutoAcquire)
+		ansible.POST("/componentlist", GetComponentList)
+		ansible.POST("/commit", CommitPackage)
+		ansible.POST("/click", AnsibleClick)
+		ansible.POST("/install", AnsibleInstall)
+		ansible.POST("/upgrade", AnsibleUpgrade)
+		ansible.POST("/update", AnsibleUpdate)
+		ansible.POST("/log", AnsibleLog)
+		ansible.POST("/autotest", AnsibleAutoTest)
+		ansible.POST("/testlist", GetAnsibleAutoTestList)
+		ansible.POST("/installlist", GetAnsibleInstallComponentList)
+	}
 	//Web
 	router.LoadHTMLGlob("./fate-manager/static/*.html")
 	router.LoadHTMLFiles("./fate-manager/static/*/*")

@@ -16,24 +16,27 @@
 package models
 
 import (
+	"fate.manager/comm/enum"
 	"github.com/jinzhu/gorm"
 	"time"
 )
 
 type KubenetesConf struct {
-	Id           int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
-	KubenetesUrl string
-	PythonPort   int
-	RollsitePort int
-	NodeList     string
-	CreateTime   time.Time
-	UpdateTime   time.Time
+	Id              int64 `gorm:"type:bigint(12);column:id;primary_key;AUTO_INCREMENT"`
+	KubenetesUrl    string
+	PythonPort      int
+	RollsitePort    int
+	NodeList        string
+	DeployType      int
+	ClickType       int
+	CreateTime      time.Time
+	UpdateTime      time.Time
 }
 
-func GetKubenetesConf() (*KubenetesConf, error) {
+func GetKubenetesConf(deployType enum.DeployType) (*KubenetesConf, error) {
 	var kubenetesConf KubenetesConf
 	Db := db
-	err := Db.First(&kubenetesConf).Error
+	err := Db.Where("deploy_type=?", int(deployType)).First(&kubenetesConf).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -47,19 +50,24 @@ func AddKubenetesConf(kubenetesConf *KubenetesConf) error {
 	return nil
 }
 
-func GetKubenetesUrl(federatedId int, partyId int) (*KubenetesConf, error) {
-	var kubenetesConf KubenetesConf
-	err := db.Table("t_fate_kubenetes_conf").Select("t_fate_kubenetes_conf.id,t_fate_kubenetes_conf.kubenetes_url,t_fate_kubenetes_conf.node_list").
-		Joins(" join t_fate_deploy_site on t_fate_kubenetes_conf.id = t_fate_deploy_site.kubenetes_id and t_fate_deploy_site.is_valid = 1").
-		First(&kubenetesConf).Error
+func GetKubenetesUrl(deployType enum.DeployType) (*KubenetesConf, error) {
+	var kubenetesConfList []KubenetesConf
+
+	err := db.Table("t_fate_kubenetes_conf t1").Select("t1.id,t1.kubenetes_url,t1.node_list").
+		Joins(" join t_fate_deploy_site t2 on t1.id = t2.kubenetes_id and t2.is_valid = 1 and t1.deploy_type= ?", int(deployType)).
+		Scan(&kubenetesConfList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 
+	var kubenetesConf KubenetesConf
+	if len(kubenetesConfList) > 0 {
+		kubenetesConf = kubenetesConfList[0]
+	}
 	return &kubenetesConf, nil
 }
 
-func UpdateKubenetesConf(info map[string]interface{}, condition KubenetesConf) error {
+func UpdateKubenetesConf(info map[string]interface{}, condition *KubenetesConf) error {
 	Db := db
 	if condition.Id > 0 {
 		Db = Db.Where("id = ?", condition.Id)
@@ -67,8 +75,53 @@ func UpdateKubenetesConf(info map[string]interface{}, condition KubenetesConf) e
 	if len(condition.KubenetesUrl) > 0 {
 		Db = Db.Where("kubenetes_url = ?", condition.KubenetesUrl)
 	}
+	if condition.DeployType > 0 {
+		Db = Db.Where("deploy_type = ?", condition.DeployType)
+	}
 	if err := Db.Model(&KubenetesConf{}).Updates(info).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func GetDefaultPort(componentName string,deployType enum.DeployType) int {
+	var port int
+	k8sinfo, err := GetKubenetesConf(deployType)
+	if err != nil || k8sinfo.Id == 0 {
+		return 0
+	}
+	if componentName == "proxy" {
+		port = 9330
+	} else if componentName == "roll" {
+		port = 30001
+	} else if componentName == "meta-service" {
+		port = 30002
+	} else if componentName == "egg" {
+		port = 30003
+	} else if componentName == "mysql" {
+		port = 3306
+	} else if componentName == "federation" {
+		port = 9320
+	} else if componentName == "fateboard" {
+		port = 8080
+	} else if componentName == "fateflow" {
+		port = k8sinfo.PythonPort + 1
+		if k8sinfo.PythonPort ==0 {
+			port = 9380
+		}
+	} else if componentName == "serving-server" {
+		port = 9340
+	} else if componentName == "serving-proxy" {
+		port = 9360
+	} else if componentName == "clustermanager" {
+		port = 4670
+	} else if componentName == "nodemanager" {
+		port = 4671
+	} else if componentName == "rollsite" {
+		port = k8sinfo.RollsitePort + 1
+		if k8sinfo.RollsitePort ==0 {
+			port = 9370
+		}
+	}
+	return port
 }

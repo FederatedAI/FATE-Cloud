@@ -2,7 +2,10 @@
   <div class="partyid-box">
     <div class="partyid">
       <div class="partyid-header">
-        <el-button class="add" type="primary" @click="addPartyid">Add</el-button>
+        <el-button class="add" type="text" @click="addPartyid">
+             <img src="@/assets/add_ip.png">
+            <span>add</span>
+        </el-button>
         <el-input class="input input-placeholder" clearable v-model.trim="data.groupName" placeholder="Search ID Group">
           <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
         </el-input>

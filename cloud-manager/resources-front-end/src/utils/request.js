@@ -8,7 +8,7 @@ import router from '@/router'
 const service = axios.create({
     baseURL: process.env.NODE_ENV === 'mock' ? process.env.VUE_APP_BASE_API : process.env.BASE_API,
     withCredentials: true, // 跨域请求时发送 cookies
-    timeout: 15000 // request timeout
+    timeout: 40000 // request timeout
 })
 
 // request interceptor
@@ -81,6 +81,14 @@ service.interceptors.response.use(
             message: `${error}`,
             type: 'error',
             duration: 5 * 1000
+        })
+        // 服务端发生错误退出
+        store.dispatch('setloginname', '').then(r => {
+            localStorage.setItem('name', r)
+            router.push({
+                path: '/home/welcome'
+            })
+            location.reload() // 为了重新实例化vue-router对象 避免bug
         })
         return Promise.reject(error)
     }

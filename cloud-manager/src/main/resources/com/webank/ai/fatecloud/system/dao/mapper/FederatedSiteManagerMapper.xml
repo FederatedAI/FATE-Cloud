@@ -146,66 +146,6 @@
         limit #{startIndex}, #{usedSiteListQo.pageSize}
     </select>
 
-    <!--    <select id="findUsedSites" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo">-->
-    <!--        SELECT id,party_id,site_name,institutions,create_time,status FROM t_federated_site_manager-->
-    <!--        <where>-->
-    <!--            <if test="usedSiteListQo.condition!=null">-->
-    <!--                and (party_id like #{usedSiteListQo.condition} or site_name like #{usedSiteListQo.condition})-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.status==null">-->
-    <!--                and status in (1,2,3)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==1">-->
-    <!--                and status in (1,2)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==2">-->
-    <!--                and status in (1,2)-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.status==3">-->
-    <!--                and status in (3)-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.groupId!=null">-->
-    <!--                and group_id=#{usedSiteListQo.groupId}-->
-    <!--            </if>-->
-
-    <!--            <if test="usedSiteListQo.partyId!=null">-->
-    <!--                <if test="usedSiteListQo.partyId">-->
-    <!--                    order by party_id asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.partyId">-->
-    <!--                    order by party_id desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.siteName!=null">-->
-    <!--                <if test="usedSiteListQo.siteName">-->
-    <!--                    order by site_name asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.siteName">-->
-    <!--                    order by site_name desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.institutions!=null">-->
-    <!--                <if test="usedSiteListQo.institutions">-->
-    <!--                    order by institutions asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.institutions">-->
-    <!--                    order by institutions desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-    <!--            <if test="usedSiteListQo.createTime!=null">-->
-    <!--                <if test="usedSiteListQo.createTime">-->
-    <!--                    order by create_time asc-->
-    <!--                </if>-->
-    <!--                <if test="!usedSiteListQo.createTime">-->
-    <!--                    order by create_time desc-->
-    <!--                </if>-->
-    <!--            </if>-->
-
-    <!--            limit #{startIndex}, #{usedSiteListQo.pageSize}-->
-    <!--        </where>-->
-    <!--    </select>-->
 
     <select id="findInstitutionsCount" resultType="long">
 
@@ -248,7 +188,8 @@
             </where>
         </if>
         order by institutions desc LIMIT #{startIndex}, #{institutionQo.pageSize}
-        )  as mu left join (select institutions, count(1) count from t_federated_site_manager where status = 2 group by institutions) as sm on
+        ) as mu left join (select institutions, count(1) count from t_federated_site_manager where status = 2 group by
+        institutions) as sm on
         mu.institutions=sm.institutions
 
     </select>
@@ -335,7 +276,7 @@
         </if>
 
         <if test="condition != null">
-           select count(1) from ( select institutions  from t_federated_site_manager
+            select count(1) from ( select institutions from t_federated_site_manager
             <where>
                 and (party_id like #{condition} or site_name like #{condition})
 
@@ -346,7 +287,7 @@
                         #{institutionsItem}
                     </foreach>
                 </if>
-                 group by institutions
+                group by institutions
 
             </where>
             ) as tmp
@@ -354,4 +295,66 @@
         </if>
 
     </select>
+
+
+    <resultMap id="institutionsWithSitesMap" type="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
+        <result property="institutions" column="institutions"></result>
+        <collection property="sites" ofType="string" javaType="list">
+            <result column="site_name"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="findInstitutionsWithSites" parameterType="string"
+            resultMap="institutionsWithSitesMap">
+        SELECT institutions,site_name FROM t_federated_site_manager
+<!--        <where>-->
+<!--            and institutions !=#{institutions}-->
+<!--            and status=2-->
+<!--        </where>-->
+            order by institutions asc
+
+    </select>
+
+
+    <select id="findCountOfSite" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo"
+            resultType="long">
+        SELECT count(1) FROM t_federated_site_manager s
+        <where>
+            and institutions !=#{institutions}
+            and status=2
+        </where>
+    </select>
+
+    <select id="findCountOfSitePeriod" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
+            resultType="long">
+        SELECT count(1) FROM t_federated_site_manager s
+        <where>
+            and institutions !=#{institutions}
+            and status=2
+        </where>
+    </select>
+
+    <select id="findInstitutionsWithSitesPaged"
+            resultMap="institutionsWithSitesMap">
+        SELECT institutions,site_name FROM t_federated_site_manager
+        <where>
+            and institutions !=#{jobOfSiteDimensionQo.institutions}
+            and status=2
+        </where>
+        order by institutions asc, site_name asc limit #{startIndex},#{jobOfSiteDimensionQo.pageSize}
+
+    </select>
+
+    <select id="findInstitutionsWithSitesPagedPeriod"
+            resultMap="institutionsWithSitesMap">
+        SELECT institutions,site_name FROM t_federated_site_manager
+        <where>
+            and institutions !=#{jobOfSiteDimensionPeriodQo.institutions}
+            and status=2
+        </where>
+        order by institutions asc, site_name asc limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
+
+    </select>
+
 </mapper>

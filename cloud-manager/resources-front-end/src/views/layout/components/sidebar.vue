@@ -23,6 +23,7 @@
             <el-menu-item index="Site Manage">Site Manage</el-menu-item>
             <el-menu-item index="IP Manage">IP Manage</el-menu-item>
             <el-menu-item v-if='autostatus' index="Service Manage">Service Manage</el-menu-item>
+            <el-menu-item index="Site Monitor">Site Monitor</el-menu-item>
           </el-menu-item-group>
         </el-submenu>
         <el-submenu index="Setting">
@@ -85,19 +86,15 @@ export default {
             })
         },
         handleOpen(key, keyPath) {
-            // console.log('open==>>', key, keyPath)
+
         },
         handleClose(key, keyPath) {
-            // console.log('close==>>', key, keyPath)
-            // console.log(key, keyPath)
+
         },
         handleSelect(key, keyPath) {
-            // console.log('keyPath==>>', keyPath)
             this.$store.dispatch('ToggleSideBar', keyPath)
             this.$router.push({
                 name: key
-                // path: `/federated/${item}`,
-                // query: {}
             })
         }
     }

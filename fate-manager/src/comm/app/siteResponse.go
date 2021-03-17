@@ -54,5 +54,9 @@ type ApplyFateManagerResponse struct {
 	Data entity.ApplyFateManager `json:"data"`
 }
 type OtherFateManagerResponse struct {
-	SiteItemMap []entity.FederatedItem `json:"siteItemMap"`
+	SiteItemMap []entity.FederatedItem `json:"data"`
+}
+type ExchangeResponse struct {
+	CommResp
+	Data entity.ExchangeResponse `json:"data"`
 }

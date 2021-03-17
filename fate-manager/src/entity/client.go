@@ -24,7 +24,7 @@ type IdPair struct {
 	Desc string `json:"desc"`
 }
 type ComponentVersionPair struct {
-	ComponentName string    `json:"componentName""`
+	ComponentName    string `json:"componentName""`
 	ComponentVersion string `json:"componentVersion"`
 }
 type AuditPair struct {
@@ -33,8 +33,9 @@ type AuditPair struct {
 	ReadCode int    `json:"readCode"`
 }
 type SitePair struct {
-	PartyId  int    `json:"partyId"`
-	SiteName string `json:"siteName"`
+	PartyId     int    `json:"partyId"`
+	SiteName    string `json:"siteName"`
+	Institution string `json:"institution"`
 }
 type FederatedSite struct {
 	PartyId     int `json:"partyId"`
@@ -57,6 +58,7 @@ type FederatedSiteItem struct {
 	AppKey                  string    `json:"appKey"`
 	AppSecret               string    `json:"appSecret"`
 	Status                  int       `json:"status"`
+	ServiceStatus           int       `json:"serviceStatus"`
 	FateVersion             string    `json:"fateVersion"`
 	FateServingVersion      string    `json:"fateServingVersion"`
 	ComponentVersion        string    `json:"componentVersion"`
@@ -79,6 +81,7 @@ type SiteItem struct {
 	SiteName        string `json:"siteName"`
 	Role            IdPair `json:"role"`
 	Status          IdPair `json:"status"`
+	ServiceStatus   IdPair `json:"serviceStatus"`
 	AcativationTime int64  `json:"acativationTime"`
 }
 
@@ -106,8 +109,8 @@ type SiteDetailResp struct {
 	Status                 IdPair `json:"status"`
 	EditStatus             IdPair `json:"editStatus"`
 	VersionEditStatus      IdPair `json:"versionEditStatus"`
-	CreateTime      int64 `json:"createTime"`
-	AcativationTime int64 `json:"acativationTime"`
+	CreateTime             int64  `json:"createTime"`
+	AcativationTime        int64  `json:"acativationTime"`
 }
 
 //update site requqest,uri:/api/site/update
@@ -140,6 +143,10 @@ type RegisterReq struct {
 //get site info request:uri:/api/site/info
 type SiteDetailReq struct {
 	FederatedSite
+}
+type SecretInfoReq struct {
+	PartyId     string `json:"partyId"`
+	FederatedId string `json:"federatedId"`
 }
 
 type SiteSecretResp struct {
@@ -186,6 +193,7 @@ type SiteListItem struct {
 type LoginSiteItem struct {
 	PartyId  int    `json:"partyId"`
 	SiteName string `json:"siteName"`
+	Role     IdPair `json:"role"`
 }
 type ServiceInfoReq struct {
 	FederatedSite
@@ -270,6 +278,7 @@ type CommitImagePullReq struct {
 	FederatedSite
 	ProductType int    `json:"productType"`
 	FateVersion string `json:"fateVersion"`
+	DeployType  int    `json:"deployType"`
 }
 
 type InstallReq struct {
@@ -318,6 +327,8 @@ type OverViewRspItem struct {
 	FateVersion  string        `json:"fateVersion"`
 	Role         IdPair        `json:"role"`
 	InstallInfo  []InstallItem `json:"installInfo"`
+	DeployTag    bool          `json:"deployTag"`
+	DeployType   IdPair        `json:"deployType"`
 }
 
 type Operation struct {
@@ -332,6 +343,8 @@ type InstallItem struct {
 	UpgradeTime      int64       `json:"upgradeTime"`
 	UpgradeStatus    bool        `json:"upgradeStatus"`
 	OperationList    []Operation `json:"operation"`
+	DeployType       IdPair      `json:"deployType"`
+	ServiceStatus    IdPair      `json:"serviceStatus"`
 }
 
 type UpgradeFateReq struct {
@@ -344,6 +357,7 @@ type PageStatusReq struct {
 }
 type PageStatusResp struct {
 	PageStatus IdPair `json:"pageStatus"`
+	DeployType IdPair `json:"deployType"`
 }
 type UpdateVersionResp struct {
 	VersionIndex int
@@ -368,7 +382,7 @@ type ToyResultReadReq struct {
 type LoginReq struct {
 	AccountName string `json:"userName"`
 	Password    string `json:"passWord"`
-	SubTag      bool    `json:"subTag"`
+	SubTag      bool   `json:"subTag"`
 }
 type LogoutReq struct {
 	AccountName string `json:"userName"`
@@ -386,6 +400,7 @@ type AccountActivateReq struct {
 	AppSecret              string `json:"appSecret"`
 	ActivateUrl            string `json:"activateUrl"`
 	FateManagerId          string `json:"fateManagerId"`
+	Link                   string `json:"link"`
 }
 type Role struct {
 	RoleId   int    `json:"roleId"`
@@ -534,14 +549,38 @@ type SubLoginReq struct {
 	PartyId int `json:"PartyId"`
 }
 type SubLoginResp struct {
-	PartyId                 int       `json:"partyId"`
-	SiteName                string    `json:"siteName"`
+	PartyId  int    `json:"partyId"`
+	SiteName string `json:"siteName"`
 	Role
 }
 type AllowReq struct {
-	PartyId                 int       `json:"partyId"`
-	RoleName                string `json:"roleName"`
+	PartyId  int    `json:"partyId"`
+	RoleName string `json:"roleName"`
 }
 type ComponentversionReq struct {
 	FateVersion string `json:"fateVersion"`
+}
+type ChangeLoginReq struct {
+	AccountName string `json:"userName"`
+	SubTag      bool   `json:"subTag"`
+	PartyId     int    `json:"PartyId"`
+}
+type ComponentVersionDetail struct {
+	Version string `json:"version"`
+	Address string `json:"address"`
+}
+type MonitorReq struct {
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+	PageNum   int    `json:"pageNum"`
+	PageSize  int    `json:"pageSize"`
+}
+
+type ExchangeItem struct {
+	ExchangeName string `json:"exchangeName"`
+	Vip          string `json:"vip"`
+	UpdateTime   string `json:"updateTime"`
+}
+type ExchangeResponse struct {
+	ExchangeVip []ExchangeItem `json:"exchangeVip"`
 }

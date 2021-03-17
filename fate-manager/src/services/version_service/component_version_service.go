@@ -94,10 +94,10 @@ func Pull(pullReq entity.PullReq) {
 					continue
 				}
 				cmd := fmt.Sprintf("docker pull %s:%s", componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
-				if len(setting.KubenetesSetting.Registry) > 0 {
-					cmd = fmt.Sprintf("docker pull %s/%s:%s", setting.KubenetesSetting.Registry, componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
+				if len(setting.DeploySetting.Registry) > 0 {
+					cmd = fmt.Sprintf("docker pull %s/%s:%s", setting.DeploySetting.Registry, componentVersionList[j].ImageName, componentVersionList[j].ImageTag)
 				}
-				if setting.KubenetesSetting.SudoTag {
+				if setting.DeploySetting.SudoTag {
 					cmd = fmt.Sprintf("sudo %s", cmd)
 				}
 				logging.Debug(cmd)
@@ -127,11 +127,11 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	imageName := fmt.Sprintf("docker.io/%s",info.ImageName)
-	if len(setting.KubenetesSetting.Registry) >0 {
-		imageName =fmt.Sprintf("%s/%s",setting.KubenetesSetting.Registry,info.ImageName)
+	if len(setting.DeploySetting.Registry) >0 {
+		imageName =fmt.Sprintf("%s/%s",setting.DeploySetting.Registry,info.ImageName)
 	}
 	command := fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $2}'", imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)
@@ -143,7 +143,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $3}'",imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)
@@ -152,7 +152,7 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	}
 
 	command = fmt.Sprintf("docker images|grep %s|grep %s|awk '{print $7}'", imageName, info.ImageTag)
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		command = fmt.Sprintf("sudo %s", command)
 	}
 	result, _ = util.ExecCommand(command)
@@ -167,43 +167,6 @@ func PullDockerImage(cmd string, fateVersion string, productType int, info model
 	return
 }
 
-func GetDefaultPort(componentName string) int {
-	var port int
-	k8sinfo, err := models.GetKubenetesConf()
-	if err != nil || k8sinfo.Id == 0 {
-		return 0
-	}
-	if componentName == "proxy" {
-		port = 9330
-	} else if componentName == "roll" {
-		port = 30001
-	} else if componentName == "meta-service" {
-		port = 30002
-	} else if componentName == "egg" {
-		port = 30003
-	} else if componentName == "mysql" {
-		port = 3306
-	} else if componentName == "federation" {
-		port = 9320
-	} else if componentName == "fateboard" {
-		port = 8080
-	} else if componentName == "fateflow" {
-		port = k8sinfo.PythonPort + 1
-	} else if componentName == "serving-server" {
-		port = 9340
-	} else if componentName == "serving-proxy" {
-		port = 9360
-	} else if componentName == "clustermanager" {
-		port = 4670
-	} else if componentName == "nodemanager" {
-		port = 4671
-	} else if componentName == "rollsite" {
-		port = k8sinfo.RollsitePort + 1
-	}
-	str := fmt.Sprintf("componentName:%smPythonPort:%d,RollsitePort:%d,port:%d", componentName, k8sinfo.PythonPort, k8sinfo.RollsitePort, port)
-	logging.Debug(str)
-	return port
-}
 func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) {
 	if commitImagePullReq.FateVersion == "" {
 		return e.INVALID_PARAMS, nil
@@ -233,14 +196,18 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	var pythonPort int
 	var proxyPort int
 	updatePortTag := false
-	var componentVersonMap = make(map[string]interface{})
+	var componentVersonMap = make(map[string]entity.ComponentVersionDetail)
 	for i := 0; i < len(componentVersionList); i++ {
-		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionList[i].ComponentVersion
-		port := GetDefaultPort(componentVersionList[i].ComponentName)
-		nodelist := k8s_service.GetNodeIp(commitImagePullReq.FederatedId, commitImagePullReq.PartyId)
+		port := models.GetDefaultPort(componentVersionList[i].ComponentName,enum.DeployType_K8S)
+		nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
 		if len(nodelist)==0{
 			continue
 		}
+		componentVersionDetail := entity.ComponentVersionDetail{
+			Version: componentVersionList[i].ComponentVersion,
+			Address: nodelist[1] + ":" + strconv.Itoa(port),
+		}
+		componentVersonMap[componentVersionList[i].ComponentName] = componentVersionDetail
 		deployComponent := models.DeployComponent{
 			FederatedId:      commitImagePullReq.FederatedId,
 			PartyId:          commitImagePullReq.PartyId,
@@ -251,9 +218,9 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			ComponentName:    componentVersionList[i].ComponentName,
 			VersionIndex:     componentVersionList[i].VersionIndex,
 			StartTime:        time.Now(),
-			Address:          nodelist[1] + ":" + strconv.Itoa(port),
 			Label:            nodelist[0],
 			DeployStatus:     int(enum.DeployStatus_PULLED),
+			DeployType:       int(enum.DeployType_K8S),
 			IsValid:          int(enum.IS_VALID_YES),
 			CreateTime:       time.Now(),
 			UpdateTime:       time.Now(),
@@ -270,11 +237,14 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 			var data =make(map[string]interface{})
 			data["fate_version"] = commitImagePullReq.FateVersion
 			data["component_version"] = componentVersionList[i].ComponentVersion
+			data["address"] = deployComponentList[0].Address
 			data["version_index"] = componentVersionList[i].VersionIndex
+			data["deploy_type"] = int(enum.DeployType_K8S)
 			models.UpdateDeployComponent(data,deployComponent)
 			updatePortTag = true
 			continue
 		}
+		deployComponent.Address = nodelist[1] + ":" + strconv.Itoa(port)
 		err = models.AddDeployComponent(&deployComponent)
 		if err != nil {
 			logging.Error("Add Deploy Component Filed")
@@ -335,7 +305,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		data["click_type"] = int(enum.ClickType_PULL)
 		models.UpdateDeploySite(data, deploySite)
 	}
-	kubefateConf, _ := models.GetKubenetesConf()
+	kubefateConf, _ := models.GetKubenetesConf(enum.DeployType_K8S)
 	kubenetesConf := models.KubenetesConf{
 		KubenetesUrl: kubefateConf.KubenetesUrl,
 	}
@@ -345,7 +315,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 		kubeconf["python_port"] = pythonPort
 		kubeconf["rollsite_port"] = proxyPort
 
-		models.UpdateKubenetesConf(kubeconf, kubenetesConf)
+		models.UpdateKubenetesConf(kubeconf, &kubenetesConf)
 	}
 	info := models.SiteInfo{
 		FederatedId: commitImagePullReq.FederatedId,
@@ -356,6 +326,7 @@ func CommitImagePull(commitImagePullReq entity.CommitImagePullReq) (int, error) 
 	componentVersonMapjson, _ := json.Marshal(componentVersonMap)
 	data["fate_version"] = commitImagePullReq.FateVersion
 	data["component_version"] = string(componentVersonMapjson)
+	data["deploy_type"] = int(enum.DeployType_K8S)
 	models.UpdateSiteByCondition(data, info)
 	return e.SUCCESS, nil
 }
