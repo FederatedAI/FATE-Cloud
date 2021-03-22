@@ -117,4 +117,12 @@
         #{authorityInstitutionsQo.pageSize}
     </select>
 
+
+    <select id="checkPartyIdAuthority" parameterType="com.webank.ai.fatecloud.system.pojo.qo.PartyIdCheckQo" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo">
+        SELECT a.* from t_federated_site_authority a , t_federated_site_manager b WHERE a.authority_institutions = #{institutions}
+        AND a.institutions= b.institutions
+        AND b.party_id=${partyId} AND b.status =2
+        AND a.generation=1 AND a.status=2
+    </select>
+
 </mapper>

@@ -407,7 +407,7 @@ func GetLoginUserManagerList(c *gin.Context) {
 // @Tags UserController
 // @Accept  json
 // @Produce  json
-// @Param request body entity.UserListItem true "request param"
+// @Param request body entity.AllowReq true "request param"
 // @Success 200 {object} app.OtherFateManagerResponse
 // @Failure 500 {object} app.Response
 // @Router /fate-manager/api/user/allowpartylist [post]
@@ -459,7 +459,7 @@ func PermissionAuthority(c *gin.Context) {
 	appG.Response(http.StatusOK, e.SUCCESS, result)
 }
 
-// @Summary sign in
+// @Summary sub sign in
 // @Tags UserController
 // @Produce  json
 // @Param request body entity.SubLoginReq true "request param"
@@ -479,6 +479,33 @@ func SubLogin(c *gin.Context) {
 		panic("JSONParse Error")
 	}
 	ret, result, err := account_service.SubLogin(loginReq)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_SIGN_IN_FAIL, ret)
+		return
+	}
+	appG.Response(http.StatusOK, ret, result)
+}
+
+// @Summary change sign in
+// @Tags UserController
+// @Produce  json
+// @Param request body entity.ChangeLoginReq true "request param"
+// @Success 200 {object} app.SubLoginResponse
+// @Failure 500 {object} app.Response
+// @Router /fate-manager/api/user/changelogin [post]
+func ChangeLogin(c *gin.Context) {
+	appG := app.Gin{C: c}
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.INVALID_PARAMS, nil)
+		return
+	}
+	var loginReq entity.ChangeLoginReq
+	if jsonError := json.Unmarshal(body, &loginReq); jsonError != nil {
+		logging.Error("JSONParse Error")
+		panic("JSONParse Error")
+	}
+	ret, result, err := account_service.ChangeLogin(loginReq)
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_SIGN_IN_FAIL, ret)
 		return

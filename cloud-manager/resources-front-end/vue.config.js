@@ -10,15 +10,7 @@ const productionGzipExtensions = ['js', 'css']
 function resolve(dir) {
     return path.join(__dirname, dir)
 }
-// const proxyTargetMap = {
-//     prod: 'http://172.16.153.9:8082', // 生产
-//     randy: 'http:/47.105.71.81:3306', //
-//     peter: 'http://192.168.11.178:3001'
-// }
-// let proxyTarget = proxyTargetMap[process.env.API_TYPE] || proxyTargetMap.prod
-// console.log('==>>proxyTarget==>>', proxyTarget)
-// let publicPath = process.env.NODE_ENV === 'production' ? '/cloud-manager/static/' : '/'
-// let dllPublishPath = '/cloud-manager/static/vendor'
+
 let publicPath = process.env.NODE_ENV === 'production' ? '/cloud-manager/' : '/'
 let dllPublishPath = '/cloud-manager/vendor'
 let IS_PROD = ['production', 'test'].includes(process.env.NODE_ENV)
@@ -114,8 +106,10 @@ module.exports = {
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
             '/cloud-manager': {
-                target: 'http://172.16.153.9:8086',
+                // target: 'http://172.16.153.9:8086',
                 // target: 'http://10.36.16.100:8080',
+                // target: 'http://172.16.153.21:8999',
+                target: 'http://10.107.117.102:8999',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

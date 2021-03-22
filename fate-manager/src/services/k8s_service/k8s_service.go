@@ -16,48 +16,57 @@
 package k8s_service
 
 import (
+	"fate.manager/comm/enum"
+	"fate.manager/entity"
 	"fate.manager/models"
 	"math/rand"
 	"strings"
 )
 
-func GetKubenetesUrl(federatedId int, partyId int) string {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+func GetKubenetesUrl(deployType enum.DeployType) string {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return ""
 	}
 	return kubenetsConf.KubenetesUrl
 }
 
-func GetNodeIp(federatedId int, partyId int) []string {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+func GetNodeIp(deployType enum.DeployType) []string {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return nil
 	}
-	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	var node string
-	if len(nodeList) >0 {
-		node = nodeList[rand.Intn(len(nodeList))]
+	var list []string
+	if len(kubenetsConf.NodeList) > 0 {
+		if deployType == enum.DeployType_K8S {
+			nodeList := strings.Split(kubenetsConf.NodeList, ",")
+			var node string
+			if len(nodeList) > 0 {
+				node = nodeList[rand.Intn(len(nodeList))]
+			}
+			list = strings.Split(node, ":")
+		} else {
+			list = strings.Split(kubenetsConf.NodeList, ",")
+		}
 	}
-	list := strings.Split(node,":")
 	return list
 }
 
-func GetLabel(address string)string{
+func GetLabel(address string) string {
 	label := ""
-	if len(address) ==0{
+	if len(address) == 0 {
 		return label
 	}
-	kubenetsConf, err := models.GetKubenetesConf()
+	kubenetsConf, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return label
 	}
-	addressList := strings.Split(address,":")
-	nodelist := strings.Split(kubenetsConf.NodeList,",")
+	addressList := strings.Split(address, ":")
+	nodelist := strings.Split(kubenetsConf.NodeList, ",")
 
-	for i :=0;i<len(nodelist) ;i++  {
-		node := strings.Split(nodelist[i],":")
-		if len(node) ==2 {
+	for i := 0; i < len(nodelist); i++ {
+		node := strings.Split(nodelist[i], ":")
+		if len(node) == 2 {
 			if node[1] == addressList[0] {
 				label = node[0]
 				break
@@ -66,25 +75,104 @@ func GetLabel(address string)string{
 	}
 	return label
 }
-func CheckNodeIp(address string, federatedId int, partyId int) bool {
-	kubenetsConf, err := models.GetKubenetesUrl(federatedId, partyId)
+
+func CheckNodeIp(updateReq entity.UpdateReq, deployType enum.DeployType) bool {
+	kubenetsConf, err := models.GetKubenetesUrl(deployType)
 	if err != nil || len(kubenetsConf.KubenetesUrl) == 0 {
 		return false
 	}
-	ipList := strings.Split(address, ":")
-	if len(ipList) != 2 {
-		return false
-	}
+	addressList := strings.Split(updateReq.Address,",")
 	var tag = false
-	nodeList := strings.Split(kubenetsConf.NodeList, ",")
-	for i := 0; i < len(nodeList); i++ {
-		lablist := strings.Split(nodeList[i],":")
-		if len(lablist) ==2{
-			if lablist[1] == ipList[0] {
-				tag = true
-				break
+	for i :=0;i<len(addressList) ;i++  {
+		deployComponent :=models.DeployComponent{PartyId:updateReq.PartyId,ComponentName:updateReq.ComponentName,IsValid:int(enum.IS_VALID_YES),Address:updateReq.Address}
+		deployComponentList,err := models.DeployComponentConditon(deployComponent)
+		if len(deployComponentList) >0 || err != nil {
+			tag = false
+			break
+		}
+		ipList := strings.Split(addressList[i], ":")
+		if len(ipList) != 2 {
+			tag= false
+			break
+		} else if len(ipList[1]) == 0 {
+			tag= false
+			break
+		}
+		nodeList := strings.Split(kubenetsConf.NodeList, ",")
+		if deployType == enum.DeployType_K8S {
+			for i := 0; i < len(nodeList); i++ {
+				lablist := strings.Split(nodeList[i], ":")
+				if len(lablist) == 2 {
+					if lablist[1] == ipList[0] {
+						tag = true
+						break
+					}
+				}
+			}
+		} else {
+			for i := 0; i < len(nodeList); i++ {
+				if nodeList[i] == ipList[0] {
+					tag = true
+					break
+				}
 			}
 		}
 	}
+
 	return tag
+}
+
+func GetManagerIp() ([]entity.IpStatus, error) {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return nil, err
+	}
+	if len(conf.NodeList) > 0 {
+		arr := strings.Split(conf.NodeList, ",")
+		var IpStatusList []entity.IpStatus
+		for i := 0; i < len(arr); i++ {
+			ipStatus := entity.IpStatus{
+				Ip:     arr[i],
+				Status: "success",
+			}
+			IpStatusList = append(IpStatusList, ipStatus)
+		}
+		if len(conf.KubenetesUrl) > 0 {
+			arr = strings.Split(conf.KubenetesUrl, ":")
+			if len(arr) == 3 {
+
+				ipStatus := entity.IpStatus{
+					Ip:     strings.ReplaceAll(arr[1], "//", ""),
+					Status: "success",
+				}
+				IpStatusList = append(IpStatusList, ipStatus)
+			}
+		}
+		return IpStatusList, nil
+	}
+	return nil, nil
+}
+
+type ManagerNode struct {
+	Ip   string `json:"ip"`
+	Port int    `json:"port"`
+}
+
+func GetManagerIpPort(componentName string) ([]ManagerNode, error) {
+	conf, err := models.GetKubenetesConf(enum.DeployType_ANSIBLE)
+	if err != nil {
+		return nil, err
+	}
+	var nodelist []ManagerNode
+	if len(conf.NodeList) > 0 {
+		arr := strings.Split(conf.NodeList, ",")
+		for i := 0; i < len(arr); i++ {
+			node := ManagerNode{
+				Ip:   arr[i],
+				Port: models.GetDefaultPort(componentName, enum.DeployType_ANSIBLE),
+			}
+			nodelist = append(nodelist, node)
+		}
+	}
+	return nodelist, nil
 }

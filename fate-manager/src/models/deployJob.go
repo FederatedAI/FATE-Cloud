@@ -32,6 +32,7 @@ type DeployJob struct {
 	FederatedId int
 	PartyId     int
 	Result      string
+	DeployType  int
 	ProductType int
 	CreateTime  time.Time
 	UpdateTime  time.Time
@@ -52,6 +53,9 @@ func GetDeployJob(info DeployJob, orderType bool) ([]DeployJob, error) {
 	}
 	if info.ProductType > 0 {
 		Db = Db.Where("product_type = ?", info.ProductType)
+	}
+	if len(info.JobId) >0 {
+		Db = Db.Where("job_id = ?", info.JobId)
 	}
 	if orderType {
 		Db.Order("update_time", true)

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedProductVersionMapper">
+
+    <resultMap id="productMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedProductVersionDo">
+        <id property="productId" column="product_id"></id>
+        <result property="productName" column="product_name"></result>
+        <result property="productVersion" column="product_version"></result>
+        <result property="imageName" column="image_name"></result>
+        <result property="imageDownloadUrl" column="image_download_url"></result>
+        <result property="packageName" column="package_name"></result>
+        <result property="packageDownloadUrl" column="package_download_url"></result>
+        <result property="kubernetesChart" column="kubernetes_chart"></result>
+        <result property="publicStatus" column="public_status"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+
+        <collection property="federatedComponentVersionDos"
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.FederatedComponentVersionDo">
+            <id property="componentId" column="component_id"></id>
+            <result property="componentName" column="component_name"></result>
+            <result property="componentVersion" column="component_version"></result>
+            <result property="imageRepository" column="image_repository"></result>
+            <result property="imageTag" column="image_tag"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+            <result property="productId" column="product_id"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="count" parameterType="com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageQo"
+            resultType="long">
+        SELECT count(1) from t_product_version
+        <where>
+            <if test="productName != null">
+                and product_name=#{productName}
+            </if>
+
+            <if test="productVersion != null">
+                and product_version=#{productVersion}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="page" resultMap="productMap">
+
+        select * from t_product_version pv left join t_component_version cv
+        on pv.product_id=cv.product_id
+        <where>
+            and pv.product_id in
+            (select product_id from
+            ( select product_id from t_product_version
+            <where>
+                <if test="productVersionPageQo.productName != null">
+                    and product_name=#{productVersionPageQo.productName}
+                </if>
+
+                <if test="productVersionPageQo.productVersion != null">
+                    and product_version=#{productVersionPageQo.productVersion}
+                </if>
+            </where>
+            order by product_name ,product_version limit #{startIndex}, #{productVersionPageQo.pageSize}
+            ) tmp
+            ) order by product_name ,product_version
+        </where>
+
+    </select>
+
+
+    <select id="getProductNames" resultType="string">
+        SELECT product_name from t_product_version group by product_name order by product_name asc
+    </select>
+
+    <select id="getProductVersions" resultType="string">
+        SELECT product_version from t_product_version group by product_version order by product_version asc
+    </select>
+
+
+    <select id="countForFateManager" parameterType="com.webank.ai.fatecloud.system.pojo.qo.ProductVersionPageForFateManagerQo"
+            resultType="long">
+        SELECT count(1) from t_product_version
+        <where>
+            and public_status=1
+
+        </where>
+
+    </select>
+
+    <select id="pageForFateManager" resultMap="productMap">
+
+        select * from t_product_version pv left join t_component_version cv
+        on pv.product_id=cv.product_id
+        <where>
+            and pv.product_id in
+            (select product_id from
+            ( select product_id from t_product_version
+            <where>
+                and public_status=1
+            </where>
+            order by product_name ,product_version limit #{startIndex}, #{productVersionPageForFateManagerQo.pageSize}
+            ) tmp
+            ) order by product_name ,product_version
+        </where>
+
+    </select>
+
+</mapper>

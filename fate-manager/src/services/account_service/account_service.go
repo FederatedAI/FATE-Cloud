@@ -16,11 +16,16 @@
 package account_service
 
 import (
+	"encoding/json"
 	"fate.manager/comm/e"
 	"fate.manager/comm/enum"
+	"fate.manager/comm/http"
 	"fate.manager/comm/logging"
+	"fate.manager/comm/setting"
+	"fate.manager/comm/util"
 	"fate.manager/entity"
 	"fate.manager/models"
+	"fate.manager/services/federated_service"
 	"fate.manager/services/site_service"
 	"fate.manager/services/user_service"
 	"fmt"
@@ -329,8 +334,44 @@ func GetUserInfo(token string) (*entity.UserInfoResp, error) {
 	return &userInfoResp, nil
 }
 
-func PermissionAuthority(reportIpReq entity.PermissionAuthorityReq) (bool, error) {
-	return true, nil
+
+func PermissionAuthority(permissionAuthorityReq entity.PermissionAuthorityReq) (bool, error) {
+	accountInfo, err := user_service.GetAdminInfo()
+	if err != nil || accountInfo == nil {
+		return false,err
+	}
+	checkPartyId := entity.CheckPartyId{
+		Institutions: accountInfo.Institutions,
+		PartyId:      permissionAuthorityReq.PartyId,
+	}
+	checkPartyIdJson,_ := json.Marshal(checkPartyId)
+	headInfo := util.UserHeaderInfo{
+		UserAppKey:    accountInfo.AppKey,
+		UserAppSecret: accountInfo.AppSecret,
+		FateManagerId: accountInfo.CloudUserId,
+		Body:          string(checkPartyIdJson),
+		Uri:           setting.CheckPartyUri,
+	}
+	headerInfoMap := util.GetUserHeadInfo(headInfo)
+	federationList, err := federated_service.GetFederationInfo()
+	if err != nil || len(federationList) == 0 {
+		return false,err
+	}
+	result, err := http.POST(http.Url(federationList[0].FederatedUrl+setting.CheckPartyUri), checkPartyId, headerInfoMap)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_HTTP_FAIL))
+		return false,err
+	}
+	var checkPartyIdResp entity.CheckPartyIdResp
+	err = json.Unmarshal([]byte(result.Body), &checkPartyIdResp)
+	if err != nil {
+		logging.Error(e.GetMsg(e.ERROR_PARSE_JSON_ERROR))
+		return false,err
+	}
+	if checkPartyIdResp.Code == e.SUCCESS {
+		return checkPartyIdResp.Data,nil
+	}
+	return false,nil
 }
 
 func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSiteItem,error){
@@ -345,9 +386,21 @@ func GetLoginUserManagerList(userListItem entity.UserListItem)([]entity.LoginSit
 	}
 	var list []entity.LoginSiteItem
 	for i :=0;i< len(accountInfoList) ;i++  {
+		siteInfo :=models.SiteInfo{
+			PartyId:                accountInfoList[i].PartyId,
+			Status:                 int(enum.SITE_STATUS_JOINED),
+		}
+		siteInfoList,_ := models.GetSiteList(&siteInfo)
+
 		loginSiteItem := entity.LoginSiteItem{
 			PartyId:  accountInfoList[i].PartyId,
 			SiteName: accountInfoList[i].SiteName,
+		}
+		if len(siteInfoList) >0{
+			loginSiteItem.Role = entity.IdPair{
+				Code: siteInfoList[0].Role,
+				Desc: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+			}
 		}
 		list = append(list,loginSiteItem)
 	}
@@ -405,13 +458,53 @@ func SubLogin(subLogin entity.SubLoginReq)(int,*entity.SubLoginResp,error) {
 	if len(accountInfoList) == 0 {
 		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
 	}
+	siteInfo :=models.SiteInfo{
+		PartyId:                accountInfoList[0].PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	siteInfoList,_ := models.GetSiteList(&siteInfo)
+
 	subLoginResp := entity.SubLoginResp{
 		PartyId:  accountInfoList[0].PartyId,
 		SiteName: accountInfoList[0].SiteName,
-		Role:     entity.Role{
-			RoleId:accountInfoList[0].Role,
-			RoleName:enum.GetRoleString(enum.RoleType(accountInfoList[0].Role)),
-		},
+	}
+	if len(siteInfoList) >0 {
+		subLoginResp.Role = entity.Role{
+			RoleId:   siteInfoList[0].Role,
+			RoleName: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+		}
+	}
+	return e.SUCCESS,&subLoginResp,nil
+}
+
+func ChangeLogin(subLogin entity.ChangeLoginReq)(int,*entity.SubLoginResp,error) {
+	accountInfo := models.AccountInfo{
+		UserName: subLogin.AccountName,
+		PartyId:  subLogin.PartyId,
+		Status:   int(enum.IS_VALID_YES),
+	}
+	accountInfoList, err := models.GetAccountInfo(accountInfo)
+	if err != nil {
+		return e.ERROR_SELECT_DB_FAIL, nil, err
+	}
+	if len(accountInfoList) == 0 {
+		return e.ERROR_NO_PARTY_PRIVILEGE_FAIL, nil, nil
+	}
+	siteInfo :=models.SiteInfo{
+		PartyId:                accountInfoList[0].PartyId,
+		Status:                 int(enum.SITE_STATUS_JOINED),
+	}
+	siteInfoList,_ := models.GetSiteList(&siteInfo)
+
+	subLoginResp := entity.SubLoginResp{
+		PartyId:  accountInfoList[0].PartyId,
+		SiteName: accountInfoList[0].SiteName,
+	}
+	if len(siteInfoList) >0 {
+		subLoginResp.Role = entity.Role{
+			RoleId:   siteInfoList[0].Role,
+			RoleName: enum.GetRoleString(enum.RoleType(siteInfoList[0].Role)),
+		}
 	}
 	return e.SUCCESS,&subLoginResp,nil
 }

@@ -42,6 +42,8 @@
             <result property="updateTime" column="m_update_time"></result>
             <result property="status" column="m_status"></result>
             <result property="updateStatus" column="update_status"></result>
+            <result property="detectiveStatus" column="m_detective_status"></result>
+            <result property="lastDetectiveTime" column="m_last_detective_time"></result>
             <result property="type" column="type"></result>
             <result property="id" column="m_id"></result>
         </collection>
@@ -69,7 +71,7 @@
 
     <select id="findPage" resultMap="siteMap">
         SELECT temp.*,m.model_id,m.install_items,m.version,m.install_time,m.update_time m_update_time,m.status m_status,
-        m.type,m.id m_id,m.update_status
+        m.type,m.id m_id,m.update_status,m.detective_status m_detective_status,m.last_detective_time m_last_detective_time
         FROM ( select s.*, g.role from t_federated_site_manager s inner join t_federated_group_set g
         on s.group_id=g.group_id
         <where>

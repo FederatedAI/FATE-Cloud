@@ -1,3 +1,46 @@
+# **Release 1.1.0** #
+
+# **Major Features and Improvements** #
+
+## Cloud Manager ##
+
+**Site manage**
+- Supports for viewing service status of sites .
+- Add more site details, supports for viewing  IP information of each deployed component.
+- Supports for generation options of regitration link, include generating as a HTTPS or HTTP link, whether the link is encrypted.
+
+**IP manage**
+- Add exchange router management.  
+
+**Service manage**
+- Supports for viewing service status of each deployed component.
+
+**Site monitor**
+- Add site monitor function,supports for viewing active data of institutions. Include stastics of  institutions themselves and statistics of cooperation between institutions.
+
+**Admin access**
+- Supports for generation options of invitation link, include generating as a HTTPS or HTTP link.
+
+**Authentication**
+- Supports authentication for exchange(rollsite) polling mode.
+
+
+## FATE Manager ##
+
+**Site Manage**
+- Supports for viewing service status of sites.
+- Add more site details, supports for viewing IP information of each deployed component.
+- Add exchange info function, supports for viewing VIP of exchanges relevant with my institution.
+
+
+**Auto-deploy**
+- Add automatic deployment function based on Ansible.
+- Supports for viewing service status of each deployed component.
+
+**Site cooperation**
+- Add site cooperation function, supports for viewing active data of sites. Include stastics of sites themselves and statistics of cooperation between sites.
+
+
 # **Release 1.0** #
 
 # **Major Features and Improvements** #

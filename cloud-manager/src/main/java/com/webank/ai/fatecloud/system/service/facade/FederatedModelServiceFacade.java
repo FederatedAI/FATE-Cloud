@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
@@ -9,10 +24,7 @@ import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteModelDo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelAddQo;
-import com.webank.ai.fatecloud.system.pojo.qo.ModelHistoryQo;
-import com.webank.ai.fatecloud.system.pojo.qo.OneSiteQo;
-import com.webank.ai.fatecloud.system.pojo.qo.SiteListWithModelsQo;
+import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,29 +45,41 @@ public class FederatedModelServiceFacade {
     @Autowired
     CheckSignature checkSignature;
 
-    public CommonResponse addModel(ModelAddQo modelAddQo, HttpServletRequest httpServletRequest) {
-        if (modelAddQo.getInstallItems() == null || 0 == modelAddQo.getInstallItems().trim().length()) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+    public CommonResponse modelHeart(ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest) {
+        HashSet<Long> ids = new HashSet<>();
+        for (ModelHeartQo modelHeartQo : modelHeartQos) {
+
+            if (modelHeartQo.getInstallItems() == null || 0 == modelHeartQo.getInstallItems().trim().length()) {
+                return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
+
+            if (modelHeartQo.getVersion() == null || 0 == modelHeartQo.getVersion().trim().length()) {
+                return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
+
+            if (modelHeartQo.getId() == null) {
+                return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+            } else {
+                ids.add(modelHeartQo.getId());
+            }
+            if (modelHeartQo.getDetectiveStatus() == null) {
+                return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
         }
-        if (modelAddQo.getVersion() == null || 0 == modelAddQo.getVersion().trim().length()) {
+        if (ids.size() > 1) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+
         }
-        if (modelAddQo.getType() == null || 0 == modelAddQo.getType().trim().length()) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
-        if (modelAddQo.getId() == null) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
-        if (modelAddQo.getUpdateStatus() == null) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(modelAddQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(modelAddQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(modelHeartQos), Dict.FATE_SITE_USER, new int[]{2}, 2);
+
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-        federatedModelService.addModel(modelAddQo);
+
+        federatedModelService.modelHeart(modelHeartQos);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+
     }
 
 
@@ -73,14 +97,17 @@ public class FederatedModelServiceFacade {
             }
             if (modelAddQo.getId() == null) {
                 return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-            }else {
+            } else {
                 ids.add(modelAddQo.getId());
             }
             if (modelAddQo.getUpdateStatus() == null) {
                 return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
             }
+            if (modelAddQo.getDetectiveStatus() == null) {
+                return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
         }
-        if (ids.size()>1){
+        if (ids.size() > 1) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
@@ -120,4 +147,5 @@ public class FederatedModelServiceFacade {
         List<FederatedSiteModelDo> sitesWithModel = federatedModelService.findSitesWithModel(oneSiteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, sitesWithModel);
     }
+
 }
