@@ -108,8 +108,8 @@ module.exports = {
             '/cloud-manager': {
                 // target: 'http://172.16.153.9:8086',
                 // target: 'http://10.36.16.100:8080',
-                target: 'http://172.16.153.21:8999',
-                // target: 'http://172.16.153.9:8088/',
+                // target: 'http://172.16.153.21:8999',
+                target: 'http://10.107.117.102:8999',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

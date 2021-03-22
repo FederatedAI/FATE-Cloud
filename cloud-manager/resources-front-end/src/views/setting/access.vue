@@ -15,10 +15,10 @@
                 <span>add</span>
             </el-button>
             <el-input v-if="radio==='Cloud Manager'" class="input" clearable v-model.trim="data.name" placeholder="Search for Name">
-                <i slot="prefix" @click="initList" class="el-icon-search search" />
+                <i slot="prefix" @click="toSearch" class="el-icon-search search" />
             </el-input>
             <el-input v-else class="input" clearable v-model.trim="data.institutions" placeholder="Search for Institution">
-                <i slot="prefix" @click="initList" class="el-icon-search search" />
+                <i slot="prefix" @click="toSearch" class="el-icon-search search" />
             </el-input>
         </div>
 
@@ -338,6 +338,11 @@ export default {
                 // 释放内存
                 dialogClipboard.destroy()
             })
+        },
+        // 点击搜索
+        toSearch() {
+            this.currentPage = 1
+            this.initList()
         }
     }
 }
