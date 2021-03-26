@@ -46,7 +46,7 @@
             ></el-pagination>
         </div>
         <!-- 显示Site Network -->
-        <el-dialog :visible.sync="showSiteNet" class="show-site-dialog" width="700px">
+        <el-dialog :visible.sync="showSiteNet" class="show-site-dialog" width="710px">
             <div class="site-net-title">
                 Router Info
             </div>
@@ -54,11 +54,16 @@
                 <el-table
                     :data="siteNetData"
                     max-height="250" >
-                    <el-table-column type="index" label="Index" width="200" >
+                    <el-table-column type="index" label="Index" width="120" >
                     </el-table-column>
                     <el-table-column prop="partyId" label="Party ID" >
                     </el-table-column>
                     <el-table-column  prop="networkAccess" label="Router Network Access" >
+                    </el-table-column>
+                    <el-table-column  prop="secureStatus" label="Is Secure" >
+                        <template slot-scope="scope">
+                            <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
+                        </template>
                     </el-table-column>
                     <!-- <el-table-column  prop="updateTime" label="Update Time" >
                         <template slot-scope="scope">

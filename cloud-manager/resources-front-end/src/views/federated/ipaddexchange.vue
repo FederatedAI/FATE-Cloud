@@ -43,11 +43,16 @@
                     </div>
                     <div class="edit-table">
                         <el-table :data="rollsiteList[index].partyAddBeanList" max-height="250" >
-                            <el-table-column type="index" label="Index" width="70"  >
+                            <el-table-column type="index" label="Index" width="65"  >
                             </el-table-column>
                             <el-table-column prop="partyId"  label="Party ID" width="70" show-overflow-tooltip>
                             </el-table-column>
                             <el-table-column prop="networkAccess"  label="Site Network Access" width="150">
+                            </el-table-column>
+                            <el-table-column prop="secureStatus"  label="Is Secure" width="75">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
+                                </template>
                             </el-table-column>
                             <el-table-column prop="Update Time"  label="Update Time" width="150">
                                 <template slot-scope="scope">
@@ -139,7 +144,7 @@
 <script>
 import { addIpchange, getNetworkAccessList } from '@/api/federated'
 import moment from 'moment'
-import checkip from '@/utils/checkip'
+// import checkip from '@/utils/checkip'
 export default {
     name: 'ipaddexchange',
     components: {
@@ -176,11 +181,14 @@ export default {
                     validator: (rule, value, callback) => {
                         value = value || ''
                         let val = value.trim()
-                        if (!val || !checkip(val)) {
+                        if (!val) {
                             callback(new Error(' '))
                         } else {
                             callback()
                         }
+                        // if (!val || !checkip(val)) {
+                        //     callback(new Error(' '))
+                        // }
                     }
                 } ]
             }
@@ -230,7 +238,10 @@ export default {
             let Arr = []
             let arr = []
             this.rollsiteList.forEach((item, index) => {
-                if (!item.networkAccess || !checkip(item.networkAccess)) {
+                // if (!item.networkAccess || !checkip(item.networkAccess)) {
+                //     this.rollsiteList[index].warnshow = true
+                // }
+                if (!item.networkAccess) {
                     this.rollsiteList[index].warnshow = true
                 }
                 if (item.partyAddBeanList.length === 0) {
@@ -322,6 +333,8 @@ export default {
             }
             getNetworkAccessList(data).then(res => {
                 this.rollsiteList[index].partyAddBeanList = res.data
+            }).catch(res => {
+                this.$message.error(res.msg)
             })
         },
         // 确定离开

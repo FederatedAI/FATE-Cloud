@@ -125,7 +125,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 //        return tomcat;
 //    }
 
-    // 配置http
+    // config http
 //    private Connector createStandardConnector() {
 //        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 //        connector.setPort(httpPort);
