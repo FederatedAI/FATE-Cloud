@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.controller;
 
 import com.google.common.base.Preconditions;
@@ -54,7 +69,6 @@ public class FederatedSiteController {
         log.info("RequestBody:{}", sitePartyIdCheckQo);
         return federatedSiteManagerServiceFacade.checkPartyId(sitePartyIdCheckQo);
     }
-
 
 
     @PostMapping(value = "/find")
@@ -154,12 +168,12 @@ public class FederatedSiteController {
         return federatedSiteManagerServiceFacade.checkSiteAuthority(siteInfo, httpServletRequest);
     }
 
-    @PostMapping(value = "/heart/fateManager")
-    @ApiOperation(value = "heart check for fate manager")
-    public CommonResponse heart(HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", httpServletRequest);
-        return federatedSiteManagerServiceFacade.heart(httpServletRequest);
-    }
+//    @PostMapping(value = "/heart/fateManager")
+//    @ApiOperation(value = "heart check for fate manager")
+//    public CommonResponse heart(HttpServletRequest httpServletRequest) {
+//        log.info("RequestBody:{}", httpServletRequest);
+//        return federatedSiteManagerServiceFacade.heart(httpServletRequest);
+//    }
 
     @PostMapping(value = "/ip/list")
     @ApiOperation(value = "Ip Manager")
@@ -212,9 +226,20 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/page/fateManager")
     @ApiOperation(value = "find all sites by page for fate manager")
-    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo,HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) {
         log.info("RequestBody:{}", siteListForFateManagerQo);
-        return federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo,httpServletRequest);
+        return federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo, httpServletRequest);
     }
 
+    @PostMapping(value = "/rollsite/checkPartyId")
+    @ApiOperation(value = "Check PartyId for roll site")
+    public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
+        return federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
+    }
+
+    @PostMapping(value = "/institutions/all/dropdown")
+    @ApiOperation(value = "find all institutions for drop down")
+    public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
+        return federatedSiteManagerServiceFacade.findAllInstitutionsForDropdown();
+    }
 }

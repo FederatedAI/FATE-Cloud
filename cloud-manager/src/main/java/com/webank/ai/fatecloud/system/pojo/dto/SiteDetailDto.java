@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.pojo.dto;
 
 import com.alibaba.fastjson.JSON;
@@ -34,6 +49,7 @@ public class SiteDetailDto implements Serializable {
         this.fateServingVersion = federatedSiteManagerDo.getFateServingVersion();
         this.componentVersion = federatedSiteManagerDo.getComponentVersion();
         this.status = federatedSiteManagerDo.getStatus();
+        this.detectiveStatus=federatedSiteManagerDo.getDetectiveStatus();
         if (federatedSiteManagerDo.getCreateTime() != null) {
             this.createTime = federatedSiteManagerDo.getCreateTime().getTime();
         }
@@ -50,6 +66,7 @@ public class SiteDetailDto implements Serializable {
         if (federatedSiteManagerDo.getFederatedGroupSetDo() != null) {
             this.groupName = federatedSiteManagerDo.getFederatedGroupSetDo().getGroupName();
         }
+
     }
 
     @ApiModelProperty(value = "primary key")
@@ -105,4 +122,7 @@ public class SiteDetailDto implements Serializable {
 
     @ApiModelProperty(value = "group name")
     private String groupName;
+
+    @ApiModelProperty(value = "site detective status")
+    private Integer detectiveStatus;
 }

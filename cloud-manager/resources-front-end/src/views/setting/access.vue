@@ -6,33 +6,42 @@
         <el-radio-button label="Cloud Manager"></el-radio-button>
         <el-radio-button label="FATE Manager"></el-radio-button>
       </el-radio-group>
-      <el-input v-if="radio==='Cloud Manager'" class="input input-placeholder" clearable v-model.trim="data.name" placeholder="Search for Name">
-        <i slot="prefix" @click="initList" class="el-icon-search search" />
-      </el-input>
-      <el-input v-else class="input input-placeholder" clearable v-model.trim="data.institutions" placeholder="Search for Institution">
-        <i slot="prefix" @click="initList" class="el-icon-search search" />
-      </el-input>
-      <el-button class="go" type="primary" @click="toAdd">Add</el-button>
+
+    </div>
+     <div class="row-add">
+        <div class="btn-add">
+            <el-button type="text" class="access-add" @click="toAdd"  >
+                <img src="@/assets/add_admin.png">
+                <span>add</span>
+            </el-button>
+            <el-input v-if="radio==='Cloud Manager'" class="input" clearable v-model.trim="data.name" placeholder="Search for Name">
+                <i slot="prefix" @click="toSearch" class="el-icon-search search" />
+            </el-input>
+            <el-input v-else class="input" clearable v-model.trim="data.institutions" placeholder="Search for Institution">
+                <i slot="prefix" @click="toSearch" class="el-icon-search search" />
+            </el-input>
+        </div>
+
     </div>
     <div class="system-body">
         <div v-if="radio==='Cloud Manager'" class="table">
             <el-table :data="cloudtableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
-            <el-table-column prop="name" label="Name" ></el-table-column>
-            <el-table-column prop="adminLevel" label="Admin-level"   align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="creator" label="Creator"  align="center"></el-table-column>
-            <el-table-column prop="createTime" label="Create Time"  align="center">
-                <template slot-scope="scope">
-                <span>{{scope.row.createTime | dateFormat}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="status" label="Action" align="right" >
-                <template slot-scope="scope">
-                    <span >
-                        <el-button v-if="scope.row.name===loginName" type="text" disabled="" icon="el-icon-delete-solid"></el-button>
-                        <el-button v-else type="text" @click="todDelete(scope.row)" icon="el-icon-delete-solid"></el-button>
-                    </span>
-                </template>
-            </el-table-column>
+                <el-table-column prop="name" label="Name" ></el-table-column>
+                <el-table-column prop="adminLevel" label="Admin-level"   align="center" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="creator" label="Creator"  align="center"></el-table-column>
+                <el-table-column prop="createTime" label="Create Time"  align="center">
+                    <template slot-scope="scope">
+                    <span>{{scope.row.createTime | dateFormat}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="status" label="Action" align="right" >
+                    <template slot-scope="scope">
+                        <span >
+                            <el-button v-if="scope.row.name===loginName" type="text" disabled="" icon="el-icon-delete-solid"></el-button>
+                            <el-button v-else type="text" @click="todDelete(scope.row)" icon="el-icon-delete-solid"></el-button>
+                        </span>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
         <div v-else class="table">
@@ -81,6 +90,13 @@
             <span class="input-title">admin-level</span>
             <el-checkbox v-model="levelChecked" disabled>senior admin</el-checkbox>
         </div>
+         <div class="add-input" v-if='radio === "FATE Manager"'>
+            <span class="input-title">Invitation Link Type</span>
+            <el-radio-group v-model="protocol">
+                <el-radio label="https://">HTTPS</el-radio>
+                <el-radio label="http://">HTTP</el-radio>
+            </el-radio-group>
+        </div>
         <div class="dialog-foot">
           <el-button type="primary" @click="toOK">OK</el-button>
           <el-button type="info" @click="adddialog=false">Cancel</el-button>
@@ -102,9 +118,10 @@
     <!-- 添加成功弹框 -->
     <el-dialog :visible.sync="addSuccessdialog"  class="add-success-dialog">
         <div class="icon">
-            <i class="el-icon-success"></i>
+            <!-- <i  v-if="addType==='FATE-Manager-add' || addType==='FATE-Manager-updata'" class="el-icon-success"></i> -->
         </div>
-        <div  class="line-text-one" >Add successfully !</div>
+        <div v-if="addType==='FATE-Manager-add'" class="line-text-one" >Add successfully !</div>
+        <div v-if="addType==='FATE-Manager-updata'" class="line-text-one" >Modify successfully !</div>
         <div class="line-text-two">the administrator invitation link has been generated as follows:</div>
         <div class="line-text-three">
             <el-popover
@@ -117,8 +134,21 @@
             </el-popover>
             <span class="copy dialogcopy"  @click="toCopy"  :data-clipboard-text="addSuccessText">copy</span>
         </div>
+        <div class="line-text-four">
+            <span>
+                Current invitation link is generated as
+                <span v-if="protocol==='http://'">HTTP</span>
+                <span v-if="protocol==='https://'">HTTPS</span>
+                ，you can click to
+            </span>
+            <span class="regenerate" @click="toUpdata">
+                regenerate link as
+                <span v-if="protocol==='http://'">HTTPS</span>
+                <span v-if="protocol==='https://'">HTTP</span>
+            </span>
+        </div>
         <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="addSuccessdialog=false">OK</el-button>
+                <el-button class="ok-btn" type="primary" @click="initList();addSuccessdialog=false">OK</el-button>
         </div>
     </el-dialog>
   </div>
@@ -130,7 +160,7 @@
 import moment from 'moment'
 import Clipboard from 'clipboard'
 import { mapGetters } from 'vuex'
-import { accessCloudList, accessManagerList, addManager, addCloud, deleteCloud } from '@/api/setting'
+import { accessCloudList, accessManagerList, addManager, addCloud, deleteCloud, updataManager } from '@/api/setting'
 
 export default {
     name: 'access',
@@ -143,12 +173,15 @@ export default {
     data() {
         return {
             institutionName: '',
+            addType: '',
+            fateManagerId: '',
             warn: false,
             adddialog: false,
             deletedialog: false,
             addSuccessdialog: false,
             levelChecked: true,
             radio: 'Cloud Manager',
+            protocol: 'https://',
             currentPage: 1, // 当前页
             total: 0, // 表格条数
             managertableData: [],
@@ -202,12 +235,12 @@ export default {
             if (this.radio === 'Cloud Manager') {
                 accessCloudList(this.data).then(res => {
                     this.cloudtableData = res.data.list
-                    this.total = this.cloudtableData.length
+                    this.total = res.data.totalRecord
                 })
             } else if (this.radio === 'FATE Manager') {
                 accessManagerList(this.data).then(res => {
                     this.managertableData = res.data.list
-                    this.total = this.managertableData.length
+                    this.total = res.data.totalRecord
                 })
             }
         },
@@ -230,13 +263,15 @@ export default {
             } else {
                 let data = {
                     creator: this.loginName, // 当前登录用户
-                    institutions: this.institutionName.trim()
+                    institutions: this.institutionName.trim(),
+                    protocol: this.protocol
                 }
                 addManager(data).then(res => {
-                    this.addSuccessText = res.data
+                    this.addSuccessText = res.data.registrationLink
+                    this.fateManagerId = res.data.fateManagerId
+                    this.protocol = res.data.protocol
                     this.adddialog = false
                     this.addSuccessdialog = true
-                    this.initList()
                 })
             }
         },
@@ -258,12 +293,38 @@ export default {
         // 添加
         toAdd() {
             this.institutionName = ''
+            this.addType = 'FATE-Manager-add'
             this.adddialog = true
         },
         // 激活
         toactivat(row) {
             this.addSuccessText = row.registrationLink
+            this.fateManagerId = row.fateManagerId
+            this.institutionName = row.institutions
+            this.protocol = row.protocol
+            this.addType = ''
             this.addSuccessdialog = true
+        },
+        toUpdata() {
+            let data = {
+                creator: this.loginName,
+                institution: this.institutionName,
+                fateManagerId: this.fateManagerId
+            }
+            if (this.protocol === 'http://') {
+                data.protocol = 'https://'
+            } else if (this.protocol === 'https://') {
+                data.protocol = 'http://'
+            }
+            updataManager(data).then(res => {
+                this.addSuccessdialog = false
+                this.addSuccessText = res.data.registrationLink
+                this.protocol = res.data.protocol
+                setTimeout(() => {
+                    this.addSuccessdialog = true
+                    this.addType = 'FATE-Manager-updata'
+                }, 300)
+            })
         },
         // 翻页
         handleCurrentChange(val) {
@@ -277,6 +338,11 @@ export default {
                 // 释放内存
                 dialogClipboard.destroy()
             })
+        },
+        // 点击搜索
+        toSearch() {
+            this.currentPage = 1
+            this.initList()
         }
     }
 }

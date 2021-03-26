@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
@@ -13,6 +28,7 @@ import com.webank.ai.fatecloud.system.pojo.dto.IpManagerQueryDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedIpManagerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +63,13 @@ public class FederatedIpManagerServiceFacade {
     }
 
     public CommonResponse<IpManagerAcceptDto> acceptIpModify(IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) {
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), Dict.FATE_SITE_USER, new int[]{2},2);
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), 2);
+        }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -57,8 +78,14 @@ public class FederatedIpManagerServiceFacade {
     }
 
     public CommonResponse<IpManagerQueryDto> queryIpModify(IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) {
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        boolean result;
+        if (StringUtils.isNotBlank(fateManagerUserId)) {
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        } else {
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), 2);
+        }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }

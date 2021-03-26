@@ -1,4 +1,24 @@
 definitions:
+  app.AnsibleLogResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.AnsibleLogResp'
+        type: object
+      msg:
+        type: string
+    type: object
+  app.AnsiblePackageResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.AnsibleCommResp'
+        type: object
+      msg:
+        type: string
+    type: object
   app.ApplyFateManagerResponse:
     properties:
       code:
@@ -51,6 +71,16 @@ definitions:
         type: integer
       data:
         type: string
+      msg:
+        type: string
+    type: object
+  app.ExchangeResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.ExchangeResponse'
+        type: object
       msg:
         type: string
     type: object
@@ -128,6 +158,16 @@ definitions:
       msg:
         type: string
     type: object
+  app.InstitutionBaseStaticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.InstitutionBaseStaticsResp'
+        type: object
+      msg:
+        type: string
+    type: object
   app.InstitutionsResponse:
     properties:
       code:
@@ -178,9 +218,19 @@ definitions:
       msg:
         type: string
     type: object
+  app.MonitorResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/entity.MonitorTotalResp'
+        type: object
+      msg:
+        type: string
+    type: object
   app.OtherFateManagerResponse:
     properties:
-      siteItemMap:
+      data:
         items:
           $ref: '#/definitions/entity.FederatedItem'
         type: array
@@ -254,6 +304,17 @@ definitions:
       data:
         items:
           $ref: '#/definitions/entity.ComponentDeploy'
+        type: array
+      msg:
+        type: string
+    type: object
+  app.SiteBaseStatisticsResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.InstitutionSiteModelingItem'
         type: array
       msg:
         type: string
@@ -380,6 +441,8 @@ definitions:
         type: string
       institutions:
         type: string
+      link:
+        type: string
       passWord:
         type: string
       subTag:
@@ -404,6 +467,8 @@ definitions:
     properties:
       creator:
         type: string
+      institution:
+        type: string
       partyId:
         type: integer
       permissionList:
@@ -418,6 +483,50 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.AllowReq:
+    properties:
+      partyId:
+        type: integer
+      roleName:
+        type: string
+    type: object
+  entity.AnsibleAutoTestReq:
+    properties:
+      ifOnly:
+        type: boolean
+      partyId:
+        type: integer
+      productType:
+        type: integer
+    type: object
+  entity.AnsibleCommResp:
+    properties:
+      retcode:
+        type: integer
+      retmsg:
+        type: string
+    type: object
+  entity.AnsibleConnectReq:
+    properties:
+      ansbileUrl:
+        type: string
+      partyId:
+        type: integer
+    type: object
+  entity.AnsibleLog:
+    properties:
+      level:
+        type: string
+    type: object
+  entity.AnsibleLogResp:
+    properties:
+      content:
+        items:
+          type: string
+        type: array
+      total:
+        type: integer
     type: object
   entity.ApplyFateManager:
     properties:
@@ -451,6 +560,15 @@ definitions:
         items:
           $ref: '#/definitions/entity.IdPair'
         type: array
+    type: object
+  entity.AutoAcquireReq:
+    properties:
+      fateVersion:
+        type: string
+      partyId:
+        type: integer
+      url:
+        type: string
     type: object
   entity.AutoTestItem:
     properties:
@@ -497,6 +615,15 @@ definitions:
           type: array
         type: object
     type: object
+  entity.ChangeLoginReq:
+    properties:
+      PartyId:
+        type: integer
+      subTag:
+        type: boolean
+      userName:
+        type: string
+    type: object
   entity.CheckJwtReq:
     properties:
       token:
@@ -539,6 +666,8 @@ definitions:
     type: object
   entity.CommitImagePullReq:
     properties:
+      deployType:
+        type: integer
       fateVersion:
         type: string
       federatedId:
@@ -571,8 +700,15 @@ definitions:
         $ref: '#/definitions/entity.IdPair'
         type: object
     type: object
+  entity.ConnectAnsible:
+    properties:
+      party_id:
+        type: integer
+    type: object
   entity.DeleteUserReq:
     properties:
+      institution:
+        type: string
       partyId:
         type: integer
       siteName:
@@ -602,6 +738,22 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.ExchangeItem:
+    properties:
+      exchangeName:
+        type: string
+      updateTime:
+        type: string
+      vip:
+        type: string
+    type: object
+  entity.ExchangeResponse:
+    properties:
+      exchangeVip:
+        items:
+          $ref: '#/definitions/entity.ExchangeItem'
+        type: array
     type: object
   entity.FederatedItem:
     properties:
@@ -695,12 +847,18 @@ definitions:
         type: string
       componentName:
         type: string
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       installTime:
         type: integer
       operation:
         items:
           $ref: '#/definitions/entity.Operation'
         type: array
+      serviceStatus:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       upgradeStatus:
         type: boolean
       upgradeTime:
@@ -724,6 +882,82 @@ definitions:
       productType:
         type: integer
     type: object
+  entity.InstitutionBaseStaticsResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/entity.InstitutionModelingItem'
+        type: array
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
+      total:
+        type: integer
+      totalJobs:
+        type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
+    type: object
+  entity.InstitutionModelingItem:
+    properties:
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      institution:
+        type: string
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
+      totalJobs:
+        type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
+    type: object
+  entity.InstitutionSite:
+    properties:
+      institutionSiteName:
+        type: string
+      mixSiteModeling:
+        items:
+          $ref: '#/definitions/entity.MixSiteModeling'
+        type: array
+    type: object
+  entity.InstitutionSiteModelingItem:
+    properties:
+      institution:
+        type: string
+      institutionSiteList:
+        items:
+          $ref: '#/definitions/entity.InstitutionSite'
+        type: array
+    type: object
   entity.KubeReq:
     properties:
       federatedId:
@@ -734,6 +968,17 @@ definitions:
         type: integer
       productType:
         type: integer
+    type: object
+  entity.LocalUploadReq:
+    properties:
+      ip:
+        type: string
+      partyId:
+        type: integer
+      path:
+        type: string
+      siteName:
+        type: string
     type: object
   entity.LogReq:
     properties:
@@ -762,6 +1007,9 @@ definitions:
     properties:
       partyId:
         type: integer
+      role:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       siteName:
         type: string
     type: object
@@ -771,6 +1019,75 @@ definitions:
         type: string
       userName:
         type: string
+    type: object
+  entity.MixSiteModeling:
+    properties:
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      siteName:
+        type: string
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
+      totalJobs:
+        type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
+    type: object
+  entity.MonitorReq:
+    properties:
+      endDate:
+        type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      startDate:
+        type: string
+    type: object
+  entity.MonitorTotalResp:
+    properties:
+      activeData:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/entity.SiteModelingItem'
+        type: array
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
+      totalJobs:
+        type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
     type: object
   entity.Operation:
     properties:
@@ -791,6 +1108,11 @@ definitions:
     type: object
   entity.OverViewRspItem:
     properties:
+      deployTag:
+        type: boolean
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       fateVersion:
         type: string
       federatedId:
@@ -822,6 +1144,9 @@ definitions:
     type: object
   entity.PageStatusResp:
     properties:
+      deployType:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       pageStatus:
         $ref: '#/definitions/entity.IdPair'
         type: object
@@ -935,6 +1260,13 @@ definitions:
       context:
         type: string
     type: object
+  entity.SecretInfoReq:
+    properties:
+      federatedId:
+        type: string
+      partyId:
+        type: string
+    type: object
   entity.ServiceInfoReq:
     properties:
       fateVersion:
@@ -1023,6 +1355,9 @@ definitions:
       role:
         $ref: '#/definitions/entity.IdPair'
         type: object
+      serviceStatus:
+        $ref: '#/definitions/entity.IdPair'
+        type: object
       siteId:
         type: integer
       siteName:
@@ -1040,8 +1375,39 @@ definitions:
       siteName:
         type: string
     type: object
+  entity.SiteModelingItem:
+    properties:
+      failedJobs:
+        type: integer
+      failedPercent:
+        type: number
+      partyId:
+        type: integer
+      runningJobs:
+        type: integer
+      runningPercent:
+        type: number
+      siteName:
+        type: string
+      successJobs:
+        type: integer
+      successPercent:
+        type: number
+      timeoutJobs:
+        type: integer
+      timeoutPercent:
+        type: number
+      totalJobs:
+        type: integer
+      waitingJobs:
+        type: integer
+      waitingPercent:
+        type: number
+    type: object
   entity.SitePair:
     properties:
+      institution:
+        type: string
       partyId:
         type: integer
       siteName:
@@ -1247,6 +1613,331 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Fate-Manager
 paths:
+  /fate-manager/api/ansible/autoacquire:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoAcquireReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: auto acquire package
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/autotest:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ConnectAnsible'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Do Auto Test Start
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/click:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ClickReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Click page
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/commit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CommitImagePullReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: commit package
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/componentlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AnsibleAutoTestReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AnsiblePackageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: get component list
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/connectansible:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AnsibleConnectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Connect To Ansible Server
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/install:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InstallReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Install Fate All Component
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/installlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InstallComponentListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.InstallListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Install Component List
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/log:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AnsibleLog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AnsibleLogResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Ansible Server Log
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/testlist:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.AutoTestListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.AutoTestListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Auto Test Site List
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Update Component Ip Address
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/upgrade:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UpgradeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.CommResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Uprade Site
+      tags:
+      - AnsibleDeployController
+  /fate-manager/api/ansible/upload:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LocalUploadReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: local upload package
+      tags:
+      - AnsibleDeployController
   /fate-manager/api/deploy/autotest:
     post:
       consumes:
@@ -1271,7 +1962,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Do Auto Test Start
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/click:
     post:
       consumes:
@@ -1296,7 +1987,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Click page
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/commit:
     post:
       consumes:
@@ -1321,7 +2012,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Commit Pull Images
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/fateboard:
     post:
       consumes:
@@ -1346,7 +2037,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Fateboard Url
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/install:
     post:
       consumes:
@@ -1371,7 +2062,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Install Fate All Component
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/installlist:
     post:
       consumes:
@@ -1396,7 +2087,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Pull Site Component List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/prepare:
     get:
       consumes:
@@ -1414,7 +2105,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Prepare Details
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/pull:
     post:
       consumes:
@@ -1439,7 +2130,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Pull Fate Series Image
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/pulllist:
     post:
       consumes:
@@ -1464,7 +2155,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Pull Site Component List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testlist:
     post:
       consumes:
@@ -1489,7 +2180,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Auto Test Site List
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testlog:
     post:
       consumes:
@@ -1514,7 +2205,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Autotest Log
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testresult:
     post:
       consumes:
@@ -1539,7 +2230,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Toy Test Result
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/testresultread:
     post:
       consumes:
@@ -1564,7 +2255,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Toy Test Only Read
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/update:
     post:
       consumes:
@@ -1589,7 +2280,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Update Component Ip Address
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/upgrade:
     post:
       consumes:
@@ -1614,7 +2305,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Uprade Site
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/deploy/version:
     post:
       consumes:
@@ -1639,7 +2330,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Get Install Version
       tags:
-      - DeployController
+      - KubernetesDeployController
   /fate-manager/api/dropdown/cluster:
     get:
       consumes:
@@ -1792,6 +2483,47 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get Federation List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/manager:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: string valid,componentName
+        in: query
+        name: componentName
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Manager Ip:port List
+      tags:
+      - DropDownController
+  /fate-manager/api/dropdown/managernode:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Ansible Manager Ip List
       tags:
       - DropDownController
   /fate-manager/api/dropdown/mysql:
@@ -1986,6 +2718,81 @@ paths:
       summary: sign out
       tags:
       - UserController
+  /fate-manager/api/monitor/institution:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.InstitutionBaseStaticsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Institution based statistics
+      tags:
+      - MonitorController
+  /fate-manager/api/monitor/site:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SiteBaseStatisticsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Site based statistics
+      tags:
+      - MonitorController
+  /fate-manager/api/monitor/total:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.MonitorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.MonitorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Monitor Total
+      tags:
+      - MonitorController
   /fate-manager/api/service/action:
     post:
       consumes:
@@ -2035,7 +2842,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Connect Exists Kubernetes
       tags:
-      - ServiceController
+      - KubernetesDeployController
   /fate-manager/api/service/info:
     post:
       consumes:
@@ -2110,7 +2917,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Component Install Log
       tags:
-      - ServiceController
+      - KubernetesDeployController
   /fate-manager/api/service/overview:
     post:
       consumes:
@@ -2295,6 +3102,24 @@ paths:
       summary: check site status
       tags:
       - SiteController
+  /fate-manager/api/site/exchange:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.ExchangeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: Get Exchange Info
+      tags:
+      - SiteController
   /fate-manager/api/site/fatemanager:
     get:
       produces:
@@ -2448,7 +3273,7 @@ paths:
             $ref: '#/definitions/app.Response'
       summary: Query Apply Sites
       tags:
-      - SiteController3
+      - SiteController
   /fate-manager/api/site/readapplysite:
     post:
       consumes:
@@ -2527,7 +3352,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.SiteDetailReq'
+          $ref: '#/definitions/entity.SecretInfoReq'
       produces:
       - application/json
       responses:
@@ -2673,7 +3498,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entity.UserListItem'
+          $ref: '#/definitions/entity.AllowReq'
       produces:
       - application/json
       responses:
@@ -2686,6 +3511,29 @@ paths:
           schema:
             $ref: '#/definitions/app.Response'
       summary: Get All Allow PartyId list
+      tags:
+      - UserController
+  /fate-manager/api/user/changelogin:
+    post:
+      parameters:
+      - description: request param
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ChangeLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.SubLoginResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      summary: change sign in
       tags:
       - UserController
   /fate-manager/api/user/delete:
@@ -2857,7 +3705,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/app.Response'
-      summary: sign in
+      summary: sub sign in
       tags:
       - UserController
   /fate-manager/api/user/userpartylist:

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -39,11 +54,12 @@ public class FederatedAuthorityService {
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
         long institutionsCount = federatedFateManagerUserDos.size();
 
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
+//        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
+//        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
-        List<FederatedFateManagerUserDo> pagedInstitutions = federatedFateManagerUserMapper.findPagedInstitutions(authorityInstitutionsQo, startIndex);
+//        List<FederatedFateManagerUserDo> pagedInstitutions = federatedFateManagerUserMapper.findPagedInstitutions(authorityInstitutionsQo, startIndex);
 
 
         //get authority institutions for one site to apply
@@ -58,7 +74,7 @@ public class FederatedAuthorityService {
 
         //get institutionsForFateDto list to return
         ArrayList<InstitutionsForFateDto> institutionsForFateDtos = new ArrayList<>();
-        for (FederatedFateManagerUserDo federatedFateManagerUserDo : pagedInstitutions) {
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
             InstitutionsForFateDto institutionsForFateDto = new InstitutionsForFateDto(federatedFateManagerUserDo);
             if (authorityInstitutionsList.contains(federatedFateManagerUserDo.getInstitutions())) {
                 institutionsForFateDto.setStatus(2);
@@ -278,18 +294,29 @@ public class FederatedAuthorityService {
 
     public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).in("status",2,4).eq("generation",1);
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).ne("status", 1).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         long institutionsCount = federatedSiteAuthorityDos.size();
 
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+//        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
         long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
+        authorityInstitutionsQo.setPageNum(1);
+        authorityInstitutionsQo.setPageSize((int)institutionsCount);
         List<InstitutionsForFateDto> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
         institutionsForFateDtoPageBean.setList(approvedInstitutions);
 
         return institutionsForFateDtoPageBean;
 
+    }
+
+    public Boolean checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo) {
+        FederatedSiteAuthorityDo federatedSiteAuthorityDo = federatedSiteAuthorityMapper.checkPartyIdAuthority(partyIdCheckQo);
+        if (federatedSiteAuthorityDo == null) {
+            return false;
+        }
+        return true;
     }
 }

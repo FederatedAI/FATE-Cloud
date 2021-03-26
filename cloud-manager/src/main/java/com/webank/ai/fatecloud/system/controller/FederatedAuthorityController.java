@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 The FATE Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.webank.ai.fatecloud.system.controller;
 
 
@@ -32,15 +47,17 @@ public class FederatedAuthorityController {
     @PostMapping(value = "/institutions")
     @ApiOperation(value = "find all the institutions for site")
     public CommonResponse<PageBean<InstitutionsForFateDto>> findInstitutionsForSite(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
-
+//
         return federatedAuthorityServiceFacade.findInstitutionsForSite(authorityInstitutionsQo, httpServletRequest);
+
     }
 
     @PostMapping(value = "/institutions/approved")
     @ApiOperation(value = "find all the institutions for site")
     public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
-
+//
         return federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest);
+
     }
 
     @PostMapping(value = "/apply")
@@ -48,6 +65,7 @@ public class FederatedAuthorityController {
     public CommonResponse applyForAuthorityOfInstitutions(@RequestBody AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) {
 
         return federatedAuthorityServiceFacade.applyForAuthorityOfInstitutions(authorityApplyQo, httpServletRequest);
+
     }
 
 
@@ -56,6 +74,7 @@ public class FederatedAuthorityController {
     public CommonResponse<List<String>> findAuthorizedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
 
         return federatedAuthorityServiceFacade.findAuthorizedInstitutions(authorityApplyResultsQo, httpServletRequest);
+
     }
 
 //    @PostMapping(value = "/results")
@@ -114,6 +133,15 @@ public class FederatedAuthorityController {
     public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
 
         return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
+    }
+
+
+    @PostMapping(value = "/check/partyId")
+    @ApiOperation(value = "check institutions of the partyId has the authority of the institutions")
+    public CommonResponse<Boolean> checkPartyIdAuthority(@RequestBody PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) {
+
+        return federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo,httpServletRequest);
+
     }
 
 }

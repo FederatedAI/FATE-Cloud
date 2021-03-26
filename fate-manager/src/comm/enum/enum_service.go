@@ -42,6 +42,9 @@ const (
 	E_ToyTestOnlyTypeRead = "toyTestOnlyTypeRead"
 	E_UserRole            = "userRole"
 	E_PermissionType      = "permissionType"
+	E_ServiceStatus       = "serviceStatus"
+	E_DeployType          = "deployType"
+	E_AnsibleClickType    = "ansibleClickType"
 )
 
 func GetEnumNameDropDownList() []string {
@@ -70,6 +73,9 @@ func GetEnumNameDropDownList() []string {
 	enumNameList = append(enumNameList, E_ToyTestOnlyTypeRead)
 	enumNameList = append(enumNameList, E_UserRole)
 	enumNameList = append(enumNameList, E_PermissionType)
+	enumNameList = append(enumNameList, E_ServiceStatus)
+	enumNameList = append(enumNameList, E_DeployType)
+	enumNameList = append(enumNameList, E_AnsibleClickType)
 
 	return enumNameList
 }
@@ -116,7 +122,9 @@ func GetEnumNameInfo(enumName string) []entity.IdPair {
 		idPair = GetActionTypeList()
 	} else if enumName == E_ClickType {
 		idPair = GetClickTypeList()
-	} else if enumName == E_ToyTestOnlyType {
+	} else if enumName == E_AnsibleClickType {
+		idPair = GetAnsibleClickTypeList()
+	}else if enumName == E_ToyTestOnlyType {
 		idPair = GetToyTestOnlyTypeList()
 	} else if enumName == E_ToyTestOnlyTypeRead {
 		idPair = GetToyTestOnlyTypeReadList()
@@ -124,7 +132,11 @@ func GetEnumNameInfo(enumName string) []entity.IdPair {
 		idPair = GetUserRoleList()
 	} else if enumName == E_PermissionType {
 		idPair = GetPermissionTypeList()
-	} else {
+	} else if enumName == E_ServiceStatus {
+		idPair = GetServiceStatusList()
+	} else if enumName == E_DeployType{
+		idPair =GetDeployTypeList()
+	}else {
 		return nil
 	}
 	return idPair

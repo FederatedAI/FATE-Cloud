@@ -28,7 +28,6 @@ import (
 	"fate.manager/entity"
 	"fate.manager/models"
 	"fate.manager/services/k8s_service"
-	"fate.manager/services/version_service"
 	"fmt"
 	"github.com/axgle/mahonia"
 	"io"
@@ -128,14 +127,29 @@ func DoAction(actionReq entity.ActionReq) (int, error) {
 		IsValid:       int(enum.IS_VALID_YES),
 	}
 	var data = make(map[string]interface{})
+	var data2 = make(map[string]interface{})
+	siteinfo := models.SiteInfo{PartyId: actionReq.PartyId, Status: int(enum.SITE_STATUS_JOINED)}
 	if actionReq.Action == int(enum.ActionType_STOP) {
 		data["status"] = int(enum.SITE_RUN_STATUS_STOPPED)
+		models.UpdateDeployComponent(data, deployComponent)
+		deploySite := models.DeploySite{PartyId: actionReq.PartyId, IsValid: int(enum.IS_VALID_YES)}
+		models.UpdateDeploySite(data, deploySite)
+		data2["service_status"] = int(enum.SERVICE_STATUS_UNAVAILABLE)
+		models.UpdateSiteByCondition(data2, siteinfo)
 	} else if actionReq.Action == int(enum.ActionType_RESTART) {
 		data["status"] = int(enum.SITE_RUN_STATUS_RUNNING)
+		models.UpdateDeployComponent(data, deployComponent)
+		deployComponent.Status = int(enum.SITE_RUN_STATUS_STOPPED)
+		deployComponent.ComponentName = ""
+		deployComponentList, _ := models.GetDeployComponent(deployComponent)
+		if len(deployComponentList) == 0 {
+			data2["service_status"] = int(enum.SERVICE_STATUS_AVAILABLE)
+			models.UpdateSiteByCondition(data2, siteinfo)
+		}
 	} else {
 		return e.INVALID_PARAMS, nil
 	}
-	models.UpdateDeployComponent(data, deployComponent)
+
 	return e.SUCCESS, nil
 }
 
@@ -153,7 +167,7 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 		return nil, err
 	}
 	cmd := "kubectl get pods -n kube-fate | grep kubefate|grep Running| awk '{print $1}'"
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ := util.ExecCommand(cmd)
@@ -161,7 +175,7 @@ func GetLog(logReq entity.LogReq) (map[string][]string, error) {
 		return nil, err
 	}
 	cmd = fmt.Sprintf("kubectl logs -n kube-fate --tail 500  %s> ./testLog/kubefate.log", result[0:len(result)-1])
-	if setting.KubenetesSetting.SudoTag {
+	if setting.DeploySetting.SudoTag {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 	result, _ = util.ExecCommand(cmd)
@@ -221,7 +235,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 	if len(kubeReq.Url) == 0 || kubeReq.PartyId == 0 {
 		return e.INVALID_PARAMS, nil
 	}
-	if kubeReq.Url != setting.KubenetesSetting.KubeFateUrl {
+	if kubeReq.Url != setting.DeploySetting.KubeFateUrl {
 		return e.INVALID_PARAMS, nil
 	}
 	if kubeReq.FederatedId == 0 {
@@ -231,13 +245,14 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		}
 		kubeReq.FederatedId = federatedInfoList[0].Id
 	}
-	item, err := models.GetKubenetesConf()
+	item, err := models.GetKubenetesConf(enum.DeployType_K8S)
 	if err != nil {
 		return e.ERROR_SELECT_DB_FAIL, err
 	}
 	if item.Id == 0 {
 		kubenetesConf := models.KubenetesConf{
 			KubenetesUrl: kubeReq.Url,
+			DeployType:   int(enum.DeployType_K8S),
 			PythonPort:   30001,
 			RollsitePort: 31000,
 			NodeList:     "",
@@ -245,7 +260,8 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			UpdateTime:   time.Now(),
 		}
 		models.AddKubenetesConf(&kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		//item, _ = models.GetKubenetesConf(int(enum.DeployType_K8S))
+		item = &kubenetesConf
 	} else if item.KubenetesUrl != kubeReq.Url {
 		var data = make(map[string]interface{})
 		data["kubenetes_url"] = kubeReq.Url
@@ -255,29 +271,29 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		kubenetesConf := models.KubenetesConf{
 			Id: item.Id,
 		}
-		models.UpdateKubenetesConf(data, kubenetesConf)
-		item, _ = models.GetKubenetesConf()
+		models.UpdateKubenetesConf(data, &kubenetesConf)
+		item, _ = models.GetKubenetesConf(enum.DeployType_K8S)
 	}
 	if len(item.NodeList) == 0 {
 		cmd := "cnt=0;for i in `kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
-		if setting.KubenetesSetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone {
 			cmd = "cnt=0;for i in `kubectl get node -o wide |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;kubectl label node $ret --overwrite; done"
 		}
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = "cnt=0;for i in `sudo kubectl get node -o wide | grep -v master |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
-			if setting.KubenetesSetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone {
 				cmd = "cnt=0;for i in `sudo kubectl get node -o wide  |grep -v NAME| awk -va=$cnt '{print $1\"tempfm-node-\"a\"=\"$6}'`;do ret=`echo $i | sed 's/temp/ /g'`;cnt=`expr $cnt + 1`;sudo kubectl label node $ret --overwrite; done"
 			}
 		}
 		util.ExecCommand(cmd)
 
 		cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-		if setting.KubenetesSetting.ModeAlone{
+		if setting.DeploySetting.ModeAlone {
 			cmd = "iplist=\"\";for i in `kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 		}
-		if setting.KubenetesSetting.SudoTag {
+		if setting.DeploySetting.SudoTag {
 			cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels| grep -v master|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
-			if setting.KubenetesSetting.ModeAlone{
+			if setting.DeploySetting.ModeAlone {
 				cmd = "iplist=\"\";for i in `sudo kubectl get nodes --show-labels|grep -v NAME |awk '{split($6,a,\",\");{for(j=0;j<length(a);j++){if(length(a[j])>9 && substr(a[j],0,8)==\"fm-node-\"){split(a[j],b,\"=\");{print b[1]\":\"b[2]}}}}}'`;do iplist=$i,$iplist;done;echo ${iplist%,*}"
 			}
 		}
@@ -291,7 +307,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				Id:           item.Id,
 				KubenetesUrl: item.KubenetesUrl,
 			}
-			models.UpdateKubenetesConf(data, kubenetesConf)
+			models.UpdateKubenetesConf(data, &kubenetesConf)
 		}
 	}
 
@@ -364,6 +380,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 				MinimizeFastTest:   int(enum.TEST_STATUS_WAITING),
 				ToyTestOnly:        int(enum.ToyTestOnly_NO_TEST),
 				ToyTestOnlyRead:    int(enum.ToyTestOnlyTypeRead_YES),
+				DeployType:         int(enum.DeployType_K8S),
 				IsValid:            int(enum.IS_VALID_YES),
 				CreateTime:         time.Now(),
 				UpdateTime:         time.Now(),
@@ -391,15 +408,15 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			}
 			componentVersionList, _ := models.GetComponetVersionList(componentVersion)
 			for i := 0; i < len(componentVersionList); i++ {
-				port := version_service.GetDefaultPort(componentVersionList[i].ComponentName)
+				port := models.GetDefaultPort(componentVersionList[i].ComponentName, enum.DeployType_K8S)
 				if componentVersionList[i].ComponentName == "python" {
 					port = clusterConfig140.Python.FateFlowNodePort
 				} else if componentVersionList[i].ComponentName == "rollsite" {
 					port = clusterConfig140.Rollsite.NodePort
 				}
 
-				nodelist :=k8s_service.GetNodeIp(kubeReq.FederatedId, kubeReq.PartyId)
-				if len(nodelist)==0{
+				nodelist := k8s_service.GetNodeIp(enum.DeployType_K8S)
+				if len(nodelist) == 0 {
 					continue
 				}
 				deployComponent := models.DeployComponent{
@@ -442,7 +459,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Toy Test"
 					models.AddAutoTest(autoTest)
-					autoTest.TestItem = "Mininmize Fast Test"
+					autoTest.TestItem = "Minimize Fast Test"
 					models.AddAutoTest(autoTest)
 					autoTest.TestItem = "Minimize Normal Test"
 					models.AddAutoTest(autoTest)
@@ -455,6 +472,7 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 			deploySite.ClickType = int(enum.ClickType_CONNECT)
 			deploySite.ToyTestOnlyRead = int(enum.ToyTestOnlyTypeRead_YES)
 			deploySite.ToyTestOnly = int(enum.ToyTestOnly_NO_TEST)
+			deploySite.DeployType = int(enum.DeployType_K8S)
 			deploySite.CreateTime = time.Now()
 			deploySite.UpdateTime = time.Now()
 			models.AddDeploySite(&deploySite)
@@ -466,6 +484,15 @@ func ConnectKubeFate(kubeReq entity.KubeReq) (int, error) {
 		data["toy_test_only_read"] = int(enum.ToyTestOnlyTypeRead_YES)
 		models.UpdateDeploySite(data, deploySite)
 	}
+	var data = make(map[string]interface{})
+	data["deploy_type"] = int(enum.DeployType_K8S)
+	data["update_time"] = time.Now()
+	siteInfo := models.SiteInfo{
+		FederatedId: kubeReq.FederatedId,
+		PartyId:     kubeReq.PartyId,
+		Status:      int(enum.SITE_STATUS_JOINED),
+	}
+	models.UpdateSiteByCondition(data, siteInfo)
 	return e.SUCCESS, nil
 }
 

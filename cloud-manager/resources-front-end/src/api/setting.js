@@ -134,6 +134,14 @@ export function addManager(data) {
         data
     })
 }
+// 更新manager
+export function updataManager(data) {
+    return request({
+        url: '/cloud-manager/api/fate/user/update',
+        method: 'post',
+        data
+    })
+}
 
 // 获取开关状态
 export function switchState(data) {
