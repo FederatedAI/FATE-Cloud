@@ -13,7 +13,7 @@ peewee==3.13.3
 psutil==5.7.2
 pycparser==2.20
 PyMySQL==0.10.1
-PyYAML==5.3.1
+PyYAML==5.4
 requests==2.24.0
 ruamel.yaml==0.16.12
 ruamel.yaml.clib==0.2.2
