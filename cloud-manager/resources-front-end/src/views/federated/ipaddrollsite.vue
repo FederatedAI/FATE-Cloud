@@ -146,7 +146,7 @@ import { getNetworkAccessList, addRollsite, rollsiteUpdate } from '@/api/federat
 
 import moment from 'moment'
 
-import checkip from '@/utils/checkip'
+// import checkip from '@/utils/checkip'
 
 export default {
     name: 'ipaddrollsite',
@@ -199,11 +199,12 @@ export default {
                             let val = value.trim()
                             if (!val) {
                                 callback(new Error(' '))
-                            } else if (!checkip(val)) {
-                                callback(new Error('The router network access invalid input '))
                             } else {
                                 callback()
                             }
+                            // else if (!checkip(val)) {
+                            //     callback(new Error('The router network access invalid input '))
+                            // }
                         }
                     }
                 ]
@@ -216,11 +217,14 @@ export default {
                         validator: (rule, value, callback) => {
                             value = value || ''
                             let val = value.trim()
-                            if (!val || !checkip(val)) {
+                            if (!val) {
                                 callback(new Error(' '))
                             } else {
                                 callback()
                             }
+                            // if (!val || !checkip(val)) {
+                            //     callback(new Error(' '))
+                            // }
                         }
                     }
                 ]

@@ -89,15 +89,15 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return 1;
         }
 
-        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
+//        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
         HashSet<String> rollSiteNetworkList = new HashSet<>();
         for (RollSiteAddBean rollSiteAddBean : rollSiteAddBeanList) {
 
             //check roll site ip
             String networkAccess = rollSiteAddBean.getNetworkAccess();
-            if (!networkAccess.matches(ipAndPortRegex)) {
-                return 1;
-            }
+//            if (!networkAccess.matches(ipAndPortRegex)) {
+//                return 1;
+//            }
 
             //check roll site is managed or not
             if (federatedExchangeService.findRollSite(networkAccess)) {
@@ -119,9 +119,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return 3;
         }
 
-        if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
-            return 1;
-        }
+//        if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
+//            return 1;
+//        }
 
         return 0;
 
@@ -147,14 +147,14 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return false;
         }
 
-        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
+//        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
         HashSet<String> partyIds = new HashSet<>();
 
         for (PartyAddBean partyAddBean : partyAddBeanList) {
             String networkAccess = partyAddBean.getNetworkAccess();
-            if (!networkAccess.matches(ipAndPortRegex)) {
-                return false;
-            }
+//            if (!networkAccess.matches(ipAndPortRegex)) {
+//                return false;
+//            }
             //check secure status
             Integer secureStatus = partyAddBean.getSecureStatus();
             if (secureStatus == null || (secureStatus != 1 && secureStatus != 2)) {
@@ -207,11 +207,11 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
-        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
-
-        if (!networkAccess.matches(ipAndPortRegex)) {
-            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
+//        String ipAndPortRegex = "^(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\.(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)\\:(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[0-5]\\d{4}|[1-9]\\d{0,3})$";
+//
+//        if (!networkAccess.matches(ipAndPortRegex)) {
+//            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+//        }
 
         List<PartyDo> partyDos = federatedExchangeService.queryExchange(exchangeQueryQo);
 
