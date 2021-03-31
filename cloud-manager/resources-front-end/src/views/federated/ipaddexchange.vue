@@ -54,6 +54,11 @@
                                     <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
                                 </template>
                             </el-table-column>
+                            <el-table-column prop="secureStatus"  label="Is Polling" width="75">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.pollingStatus===1?'true':"false"}}</span>
+                                </template>
+                            </el-table-column>
                             <el-table-column prop="Update Time"  label="Update Time" width="150">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
