@@ -1,0 +1,294 @@
+.home {
+    // vw 相对于视窗的宽度
+    // vh 相对于视窗的高度
+    // vmin 相对于视口的宽度或高度中较小的那个被均分为100单位的vmin
+    // vmax 相对于视口的宽度或高度中较大的那个被均分为100单位的vmax
+    // px：绝对单位，页面按精确像素展示。
+    // em：相对单位，基准点为父节点字体的大小，如果自身定义了font-size按自身来计算（浏览器默认字体是16px），整个页面内1em不是一个固定的值。
+    // rem：相对单位，可理解为”root em”, 相对根节点html的字体大小来计算，CSS3新加属性，chrome/firefox/IE9+支持
+    float: left;
+    width: 100%;
+    min-width: 1150px;
+
+    .el-header {
+        padding: 0;
+        background-color: #217ad9;
+        color: #fff;
+        text-align: center;
+        height: 65px !important;
+        line-height: 65px;
+        .begin {
+            cursor: pointer;
+            position: absolute;
+            // left: 36px;
+            font-size: 2em;
+            font-weight: bold;
+            img {
+                vertical-align: top;
+                height: 65px;
+                margin-left: 5px;
+            }
+            span{
+                margin-left: 30px
+            }
+        }
+        .right-bar{
+            cursor: pointer;
+            height: 65px;
+            line-height: 65px;
+            position: absolute;
+            display: inline-block;
+            right: 60px;
+            top: 0px;
+            .name-text{
+                vertical-align: top;
+                display: inline-block;
+                white-space: nowrap; //文本强制不换行；
+                text-overflow:ellipsis; //文本溢出显示省略号；
+                overflow:hidden; //溢出的部分隐藏；
+                text-align: right;
+                width: 160px;
+                // background-color: red;
+            }
+        }
+        
+    }
+
+    .el-main {
+        padding: 0;
+
+        .welcomepage {
+            text-align: center;
+
+            .title {
+                font-size: 4.5em;
+                color: #217ad9;
+                font-weight: 800;
+                margin: 0px 0 2vw 0;
+            }
+
+            .line {
+                margin: 0 auto;
+                width: 500px;
+                height: 2px;
+                background-color: #e6ebf0;
+            }
+
+            .text {
+                margin: 2vw 0;
+                font-size: 1.75em;
+                font-weight: 650;
+                color: #4e5766;
+            }
+
+            .text-two {
+                font-size: 1.25em;
+                color: #848c99;
+            }
+
+            .begin-btn {
+                margin: 5vw 0 0 0;
+                width: 18%;
+                font-size: 2.3vw;
+                height: 3.5vw;
+                line-height: 3.5vw;
+            }
+
+            .round {
+                margin-top: 2.5vw;
+
+                .circul {
+                    display: block;
+                    width: 1vw;
+                    height: 1vw;
+                    background: #217ad9;
+                    border-radius: 50%;
+                    margin: 0 auto;
+                    margin-bottom: 0.8vw;
+                }
+
+                .circul:nth-child(1) {
+                    opacity: 1;
+                }
+
+                .circul:nth-child(2) {
+                    opacity: 0.4;
+                }
+
+                .circul:nth-child(3) {
+                    opacity: 0.2;
+                }
+            }
+        }
+        .login {
+            text-align: center;
+            .title {
+                font-size: 4em;
+                color: #217ad9;
+                font-weight: bold;
+                margin-bottom: 1vw;
+            }
+            .el-input__inner {
+                border: 0px;
+            }
+            .login-form{
+                width: 466px;
+                margin: 0 auto; 
+                .el-form-item__error{
+                    width: 466px;
+                    top:95%;
+                    color: #FF9D00;
+                    font-size: 14px;
+                }
+                
+                 //改变placeholder颜色 
+                input{
+                    box-shadow: inset 0 0 0 1000px #fff!important;
+                    text-align: center;
+                    border-bottom: 2px solid #E6EBF0;
+                    color: #2D3642;
+                    font-size: 1.5em
+                }
+                .from-text{
+                    color:#848C99
+                }
+                .btn-login{
+                    width: 10vw;
+                    font-size: 1.2vw;
+                    height: 2.2vw;
+                    line-height: 2.2vw;
+                    
+                    
+                }
+                .el-form-item{
+                    margin: 0.8vw 0 2vw 0;
+                    .view{
+                        top:5px;
+                        right: 10px;
+                        position: absolute;
+                        cursor: pointer;
+                        margin-right: 3px;
+                    }
+                    .view:hover{
+                        opacity: 0.8;
+                    }
+                    
+                }
+                .Remember-text{
+                    margin-top: -10px;
+                    margin-bottom: 2vw
+                }
+            }
+            
+
+
+        }
+        .register {
+            text-align: center;
+            font-family: 'Product Sans';
+            .title {
+                font-size: 4em;
+                // font-size: 56px;
+                color: #217ad9;
+                font-weight: 800;
+                margin: 0px 0 4.5vw 0;
+            }
+
+            .organization {
+                margin-bottom: 2.5vw;
+
+                .name-tip {
+                    color: #848C99;
+                    font-size: 1.125em;
+                }
+
+                .name {
+                    margin: 0 auto;
+                    width: 27vmax;
+                    margin-top: 0.75vw;
+                    border-bottom: 2px solid #E6EBF0;
+                    input {
+                        text-align: center;
+                        border: 0px;
+                        outline: none;
+                        font-size: 1em;
+                        background-color: #fff;
+                    }
+                    .active {
+                        input {
+                            color: #2D3642;
+                            font-weight: 400;
+                            font-size: 1.5em
+                        }
+
+                    }
+                }
+            }
+
+            .OK-btn {
+                margin-top: 2.5vw;
+                width: 12vw;
+                font-size: 1.5em;
+                height: 2.5vw;
+            }
+
+            .Cancel-btn {
+                margin-left: 1.75vw;
+                font-size: 1.5em;
+                width: 12vw;
+            }
+
+            .el-dialog {
+                //弹框居中设置
+                display: flex;
+                flex-direction: column;
+                margin: 0 !important;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-height: calc(100% - 30px);
+                max-width: calc(100% - 30px);
+                text-align: center;
+
+                .el-dialog__header {
+                    display: none
+                }
+
+                .el-dialog__body {
+                    flex: 1;
+                    overflow: auto;
+                    padding: 65px 20px;
+                    .line-text-one {
+                        margin-bottom: 24px;
+                        font-size: 24px;
+                        color: #2D3642
+                    }
+
+                    .line-text-two {
+                        margin-top: 64px;
+                        margin-bottom: 15px;
+                        font-size: 18px;
+                        color: #848C99
+                    }
+                    .line-text-three {
+                        margin-bottom: 64px;
+                        font-size: 18px;
+                        color: #848C99
+                    }
+
+                }
+                .dialog-footer{
+                    button{
+                        // width: 10.4vw;
+                        width: 200px;
+                        font-size: 18px;
+                    }
+                    .sure-btn{
+                        margin-left: 24px
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteAuthorityMapper">
+
+    <resultMap id="authorityMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo">
+        <id property="authorityId" column="id"></id>
+        <result property="institutions" column="site_name"></result>
+        <result property="authorityInstitutions" column="party_id"></result>
+        <result property="createTime" column="secret_info"></result>
+        <result property="updateTime" column="registration_link"></result>
+        <result property="status" column="network_access_entrances"></result>
+    </resultMap>
+
+
+    <select id="findMaxSequence" resultType="Long">
+        SELECT MAX(sequence) FROM t_federated_site_authority
+    </select>
+
+    <select id="findAuthorityApplyStatus" parameterType="com.webank.ai.fatecloud.system.pojo.qo.AuthorityApplyStatusQo"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyStatusDto">
+        SELECT institutions FROM t_federated_site_authority a
+        <where>
+
+            <foreach collection="institutions" open=" a.institutions  in (" close=")" item="institution" separator=",">
+                #{institution}
+            </foreach>
+
+            and a.status = 1
+        </where>
+        group by a.institutions
+    </select>
+
+    <select id="findAuthorityApplyDetails"
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.AuthorityApplyDetailsQo"
+            resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo">
+        SELECT * FROM t_federated_site_authority a
+        <where>
+
+            <if test="institutions != null">
+                and a.institutions = #{institutions}
+            </if>
+            and status = 1
+        </where>
+    </select>
+
+    <select id="findAuthorityHistoryCount" resultType="long">
+        SELECT count(1) FROM (
+        SELECT count(1) FROM t_federated_site_authority
+        where status != 1
+        group by sequence) a
+    </select>
+
+
+    <resultMap id="authorityHistoryMap" type="com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto">
+
+        <!--        <association property="authorityApplySequence"-->
+        <!--                     javaType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplySequence">-->
+        <result property="institutions" column="institutions"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+
+        <result property="sequence" column="sequence"></result>
+        <!--        </association>-->
+
+        <collection property="authorityApplyReceivers"
+                    ofType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyReceiver">
+            <result property="authorityId" column="authority_id"></result>
+            <result property="authorityInstitutions" column="authority_institutions"></result>
+            <result property="status" column="status"></result>
+        </collection>
+
+    </resultMap>
+
+
+    <select id="findAuthorityHistory" resultMap="authorityHistoryMap">
+        SELECT * FROM t_federated_site_authority a
+        <where>
+            a.sequence in (select * from
+            (select distinct sequence from t_federated_site_authority where status !=1 order by sequence desc limit
+            #{startIndex}, #{authorityHistoryQo.pageSize}) tmp )
+            order by a.sequence desc
+
+        </where>
+
+    </select>
+
+    <select id="findMaxAuthoritySequence" parameterType="string" resultType="long">
+        SELECT MAX(sequence) FROM t_federated_site_authority where institutions = #{institutions} and status!=4
+    </select>
+
+
+    <select id="findAuthorityHistoryOfFateManagerCount"
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.AuthorityHistoryOfFateManagerQo" resultType="long">
+        SELECT count(1) FROM (
+        SELECT count(1) FROM t_federated_site_authority
+        where status != 1 and institutions = #{institutions}
+        group by sequence) a
+    </select>
+
+    <select id="findAuthorityHistoryOfFateManager" resultMap="authorityHistoryMap">
+        SELECT * FROM t_federated_site_authority a
+        <where>
+            a.sequence in (select * from
+            (select distinct sequence from t_federated_site_authority where status !=1 and institutions =
+            #{authorityHistoryOfFateManagerQo.institutions} order by sequence desc limit
+            #{startIndex}, #{authorityHistoryOfFateManagerQo.pageSize}) tmp )
+            order by a.sequence desc
+
+        </where>
+
+    </select>
+
+
+    <select id="findApprovedInstitutions" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsForFateDto">
+        SELECT authority_institutions as institutions,status  from t_federated_site_authority where institutions =#{authorityInstitutionsQo.institutions}
+        and generation =1 and status != 1 order by institutions asc limit #{startIndex},
+        #{authorityInstitutionsQo.pageSize}
+    </select>
+
+
+    <select id="checkPartyIdAuthority" parameterType="com.webank.ai.fatecloud.system.pojo.qo.PartyIdCheckQo" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo">
+        SELECT a.* from t_federated_site_authority a , t_federated_site_manager b WHERE a.authority_institutions = #{institutions}
+        AND a.institutions= b.institutions
+        AND b.party_id=${partyId} AND b.status =2
+        AND a.generation=1 AND a.status=2
+    </select>
+
+</mapper>

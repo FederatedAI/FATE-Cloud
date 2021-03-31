@@ -1,0 +1,40 @@
+# Compiled class file
+
+.idea/
+*.idea
+logs/
+runtime/
+conf/
+conf/*
+*.ini
+
+# Log file
+*.log
+
+bin
+
+# Package Files #
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.jar
+*.exe
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+*velocity.log*
+
+# Eclipse #
+.classpath
+.project
+.settings/
+
+
+.DS_Store
+
+_dockerCerts/
+
+__pycache__

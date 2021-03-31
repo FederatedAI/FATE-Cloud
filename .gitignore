@@ -1,0 +1,15 @@
+# common file patterns
+.DS_STORE
+.idea
+*.iml
+*.pyc
+__pycache__
+*.jar
+*.class
+.project
+*.prefs
+_build
+
+# excluded paths
+/cloud-manager/target/
+.vscode/*
