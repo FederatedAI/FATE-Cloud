@@ -4,8 +4,8 @@
         xsi:noNamespaceSchemaLocation="http://www.padual.com/java/logback.xsd"
         debug="false" scan="true" scanPeriod="30 second">
 
-
-    <property name="ROOT" value="logs/"/>
+    <property resource="application.properties"/>
+    <property name="ROOT" value="${logbock.filepath}"/>
     <property name="FILESIZE" value="50MB"/>
     <property name="MAXHISTORY" value="100"/>
     <property name="DATETIME" value="yyyy-MM-dd HH:mm:ss"/>
@@ -114,7 +114,7 @@
 <!--    </logger>-->
 <!--    <logger name="org.mybatis.spring" level="INFO" additivity="false"/>-->
 
-    <root level="DEBUG">
+    <root level="${logbock.root.level}">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="ERROR"/>
         <appender-ref ref="WARN"/>

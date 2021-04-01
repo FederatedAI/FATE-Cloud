@@ -6,7 +6,7 @@
 
     <groupId>com.webank.ai</groupId>
     <artifactId>cloud-manager</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
 
@@ -165,6 +165,11 @@
             <version>${grpc.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.1</version>
+        </dependency>
     </dependencies>
 
     <build>
