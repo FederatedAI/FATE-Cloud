@@ -97,8 +97,8 @@ module.exports = {
     devServer: {
         disableHostCheck: true,
         open: process.platform === 'darwin',
-        host: '10.58.32.145',
-        port: 8088,
+        host: 'localhost',
+        port: 8888,
         https: false,
         hotOnly: false,
         // eslint-disable-next-line no-dupe-keys
@@ -106,10 +106,8 @@ module.exports = {
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
             '/cloud-manager': {
-                // target: 'http://172.16.153.9:8086',
-                // target: 'http://10.36.16.100:8080',
-                // target: 'http://172.16.153.21:8999',
-                target: 'http://10.107.117.102:8999',
+                target: '',
+
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

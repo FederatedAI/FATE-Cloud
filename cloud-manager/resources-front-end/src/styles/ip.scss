@@ -279,11 +279,7 @@
         .el-dialog__body{
             padding: 40px;
         }
-        .el-button{
-            padding: 0;
-            height: 36px;
-            line-height: 36px;
-        }
+       
         .el-dialog__header {
             display: none;
         } 
@@ -296,9 +292,15 @@
         .dialog-body{
             .el-form-item{
                 margin-bottom:0px;
-                
             }
-            
+            .el-button{
+                padding:0;
+                height: initial;
+                line-height: initial;
+            }
+            .has-gutter {
+                color: #4E5766;
+            }
             .edit-form{
                 
                 .edit-text{
@@ -442,10 +444,6 @@
                     }
                 }
             }
-
-
-
-
         }
 
         .ok-btn {
@@ -524,8 +522,7 @@
             color: #217AD9;
             font-weight: bold;
             font-size: 24px;
-            margin: 0 24px;
-            margin-top: -25px;
+            margin: -24px 24px 24px 24px;
             height: 42px;
             border-bottom: 2px solid #E6EBF0
         }
