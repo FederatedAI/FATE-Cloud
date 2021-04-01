@@ -54,15 +54,20 @@
                 <el-table
                     :data="siteNetData"
                     max-height="250" >
-                    <el-table-column type="index" label="Index" width="120" >
+                    <el-table-column type="index" label="Index" width="80" >
                     </el-table-column>
                     <el-table-column prop="partyId" label="Party ID" >
                     </el-table-column>
-                    <el-table-column  prop="networkAccess" label="Router Network Access" >
+                    <el-table-column  prop="networkAccess" label="Router Network Access" width="165" show-overflow-tooltip>
                     </el-table-column>
                     <el-table-column  prop="secureStatus" label="Is Secure" >
                         <template slot-scope="scope">
                             <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column  prop="pollingStatus" label="Is Polling" >
+                        <template slot-scope="scope">
+                            <span>{{scope.row.pollingStatus===1?'true':"false"}}</span>
                         </template>
                     </el-table-column>
                     <!-- <el-table-column  prop="updateTime" label="Update Time" >

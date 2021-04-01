@@ -38,6 +38,9 @@ public class PartyAddBean implements Serializable {
     @ApiModelProperty(value = "secure_status")
     private Integer secureStatus;
 
+    @ApiModelProperty(value = "polling_status")
+    private Integer pollingStatus;
+
     @ApiModelProperty(value = "status")
     private Integer status;
 }

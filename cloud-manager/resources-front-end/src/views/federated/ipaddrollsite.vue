@@ -1,9 +1,9 @@
 <template>
     <div class="exchange-info">
         <!-- 添加或编辑 -->
-        <el-dialog :visible.sync="editdialog" class="access-edit-dialog" width="775px" :close-on-click-modal="false" :close-on-press-escape="false">
+        <el-dialog :visible.sync="editdialog" class="access-edit-dialog" width="850px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="dialog-title">
-                {{exchangeData.networkAccess?'Edit':'Add'}} Rollsite
+                {{rollsiteType==='Edit'?'Edit':'Add'}} Rollsite
             </div>
             <div class="dialog-body">
                 <el-form ref="editform" class="edit-form" :rules="editRules"  label-width="260px" label-position="left" :model="exchangeData">
@@ -39,6 +39,11 @@
                                     <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
                                 </template>
                             </el-table-column>
+                            <el-table-column prop="pollingStatus"  label="Is Polling" width="75" show-overflow-tooltip>
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.pollingStatus===1?'true':"false"}}</span>
+                                </template>
+                            </el-table-column>
                              <el-table-column prop="updateTime"  label="Update Time" width="150" show-overflow-tooltip>
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
@@ -67,10 +72,10 @@
                                                 <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
                                             </el-button>
                                             <el-button type="text" >
-                                                <i @click="scope.row.status=3" class="el-icon-close"></i>
+                                                <i @click="siteNetIndex = scope.$index;scope.row.status=3" class="el-icon-close"></i>
                                             </el-button>
                                         </span>
-                                        <el-button v-if="scope.row.status===3" @click="scope.row.status=2" type="text">
+                                        <el-button v-if="scope.row.status===3" @click="toRecover(scope)" type="text">
                                             recover
                                         </el-button>
                                     </span>
@@ -118,9 +123,19 @@
                             @focus="$refs['siteNetform'].clearValidate('networkAccess')"
                             v-model.trim="tempSiteNet.networkAccess"></el-input>
                     </el-form-item>
-                     <el-form-item label="Is Secure:" prop="isSecure" >
+                    <el-form-item label="Is Secure:" prop="isSecure" >
                         <el-switch v-model="isSecure">
                         </el-switch>
+                    </el-form-item>
+                    <el-form-item label="Is Polling:" prop="isSecure" >
+                        <span v-if="tempSiteNet.partyId==='exchange'">
+                            <el-switch disabled v-model="isPolling">
+                            </el-switch>
+                        </span>
+                        <span v-else>
+                            <el-switch  v-model="isPolling">
+                            </el-switch>
+                        </span>
                     </el-form-item>
                 </el-form>
                 <div class="dialog-footer">
@@ -161,7 +176,7 @@ export default {
             editdialog: false,
             addSiteNet: false,
             siteNetIndex: 0,
-            // tempStatusStr: '{}',
+            tempExchangeDataList: [], // 临时保存数据
             exchangeId: '',
             rollsiteType: 'add',
             siteNetType: 'add',
@@ -172,6 +187,7 @@ export default {
             tempSiteNet: { }, // sitenet数据
             partyIdList: [], // 临时的partyIdList列表
             isSecure: true,
+            isPolling: true,
             siteEditRules: {
                 partyId: [{
                     required: true,
@@ -181,13 +197,15 @@ export default {
                         let val = value.trim()
                         if (!val) {
                             callback(new Error(' '))
-                        } else if (val !== 'default' && !(/(^[1-9]\d*$)/).test(val)) {
-                            callback(new Error('The party ID invalid input'))
                         } else if (this.siteNetType === 'add' && this.partyIdList.includes(val)) {
                             callback(new Error('The party ID has been assigned router'))
                         } else {
                             callback()
                         }
+                        // 取消只能输入数字校验
+                        // else if (val !== 'default' && !(/(^[1-9]\d*$)/).test(val)) {
+                        //     callback(new Error('The party ID invalid input'))
+                        // }
                     }
                 }],
                 networkAccess: [
@@ -202,6 +220,7 @@ export default {
                             } else {
                                 callback()
                             }
+                            // 取消检验ip
                             // else if (!checkip(val)) {
                             //     callback(new Error('The router network access invalid input '))
                             // }
@@ -302,14 +321,17 @@ export default {
         // 确定添加siteNet
         toAddSiteNet() {
             this.tempSiteNet.secureStatus = this.isSecure === true ? 1 : 2
-            let arr = this.exchangeData.partyAddBeanList[this.siteNetIndex]
-            this.partyIdList = this.exchangeData.partyAddBeanList.map(item => {
+            this.tempSiteNet.pollingStatus = this.isPolling === true ? 1 : 2
+            let arr = this.tempExchangeDataList[this.siteNetIndex] // 获取点击行临时数据
+            this.partyIdList = this.tempExchangeDataList.map(item => {
                 return item.partyId
             })
             this.$refs['siteNetform'].validate((valid) => {
                 if (valid) {
                     if (this.siteNetType === 'edit') {
-                        if (arr.networkAccess !== this.tempSiteNet.networkAccess || arr.secureStatus !== this.tempSiteNet.secureStatus) {
+                        if (arr.networkAccess !== this.tempSiteNet.networkAccess ||
+                        arr.secureStatus !== this.tempSiteNet.secureStatus ||
+                        arr.pollingStatus !== this.tempSiteNet.pollingStatus) {
                             this.tempSiteNet.status = 2
                         } else {
                             this.tempSiteNet.status = arr.status
@@ -320,6 +342,7 @@ export default {
                     } else if (this.siteNetType === 'add') {
                         this.exchangeData.partyAddBeanList.push({ ...this.tempSiteNet })
                         this.exchangeData.partyAddBeanList = [...this.exchangeData.partyAddBeanList]
+                        this.tempExchangeDataList = JSON.parse(JSON.stringify(this.exchangeData.partyAddBeanList)) // 临时数据
                         this.addSiteNet = false
                     }
                 }
@@ -334,7 +357,7 @@ export default {
                 if (valid) {
                     getNetworkAccessList(data).then(res => {
                         this.exchangeData.partyAddBeanList = [ ...res.data ]
-                        // this.tempStatusStr = JSON.stringify(res.data)
+                        this.tempExchangeDataList = JSON.parse(JSON.stringify(res.data)) // 临时数据
                     })
                 }
             })
@@ -345,6 +368,7 @@ export default {
             this.addSiteNet = true
             this.tempSiteNet = { ...scope.row }
             this.isSecure = this.tempSiteNet.secureStatus === 1
+            this.isPolling = this.tempSiteNet.pollingStatus === 1
             this.siteNetIndex = scope.$index
         },
         // 缺认变更
@@ -358,6 +382,19 @@ export default {
                 this.$parent.initList()
                 this.sureexchange = false
             })
+        },
+        // 点击恢复
+        toRecover(scope) {
+            let arr = this.tempExchangeDataList[this.siteNetIndex] // 获取点击行临时数据
+            let Arr = scope.row // 获取点击行临时数据
+            if (arr.networkAccess !== Arr.networkAccess ||
+                        arr.secureStatus !== Arr.secureStatus ||
+                        arr.pollingStatus !== Arr.pollingStatus) {
+                Arr.status = 2
+            } else {
+                Arr.status = arr.status
+            }
+            this.exchangeData.partyAddBeanList = [...this.exchangeData.partyAddBeanList]
         }
     }
 }
