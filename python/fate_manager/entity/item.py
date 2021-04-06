@@ -52,7 +52,7 @@ class FederatedItem(BaseItem):
         self.federatedOrganization = None
         self.institutions = None
         self.fateManagerInstitutions = None
-        self.size = None
+        self.size = 0
         self.siteList = []
         self.createTime = None
         for k, v in kwargs.items():

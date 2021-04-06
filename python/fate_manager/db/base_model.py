@@ -49,8 +49,10 @@ class ListField(LongTextField):
         if value is None:
             value = []
         value_dict = {}
-        for index in range(0, len(value)):
-            value_dict[index] = value[index]
+        index = 0
+        for v in value:
+            value_dict[index] = v
+            index += 1
         return json.dumps(value_dict)
 
     def python_value(self, value):

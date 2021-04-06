@@ -15,7 +15,7 @@ from utils.request_cloud_utils import request_cloud_manager, get_old_signature_h
 
 
 def register_fate_site(request_data):
-    body = {"RegistrationLink": request_data.get("registrationLink")}
+    body = {"registrationLink": request_data.get("registrationLink")}
     logger.info(f"start request cloud ActivateUri, data: {request_data}, body:{body}")
     request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"))
     logger.info("request cloud success")
@@ -34,7 +34,7 @@ def register_fate_site(request_data):
         "federated_id": request_data.get("id"),
         "federated_organization": request_data.get("federatedOrganization"),
         "party_id": request_data.get("partyId"),
-        "site_name": request_data.get("site_name"),
+        "site_name": request_data.get("siteName"),
         "institutions": request_data.get("institutions"),
         "role": request_data.get("role"),
         "app_key": request_data.get("appKey"),
@@ -59,7 +59,7 @@ def register_fate_site(request_data):
 
 
 def check_register_url(request_data):
-    body = {"RegistrationLink": request_data.get("registrationLink")}
+    body = {"registrationLink": request_data.get("registrationLink")}
     logger.info(f"start request cloud CheckUri, body:{body}")
     request_cloud_manager(uri_key="CheckUri", data=item.SiteSignatureItem(**request_data).to_dict(), body=body,
                           url=request_data.get("federatedUrl"))
@@ -109,13 +109,14 @@ def get_home_site_list():
     federated_item_dict = {}
     if not federated_site_list:
         return []
-    if len(federated_site_list) == 1 and not federated_site_list[0].site_name:
+    if len(federated_site_list) == 1:
         federated_item = item.FederatedItem()
         federated_item.federatedOrganization = federated_site_list[0].federated_organization
         federated_item.institutions = federated_site_list[0].institutions
         federated_item.fateManagerInstitutions = account.institutions
         federated_item.federatedId = federated_site_list[0].federated_id
         federated_item.fateManagerInstitutions = account.institutions
+        federated_item.createTime = federated_site_list[0].create_time
         federated_item_dict = {federated_item.federatedId: federated_item.to_dict(need_none=True)}
 
     else:

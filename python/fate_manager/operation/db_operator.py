@@ -61,11 +61,7 @@ class DBOperator:
         update_filters = query_filters[:]
         update_info = {}
         update_info.update(entity_info)
-        if update_info.get('end_time'):
-            if instance.start_time:
-                update_info['elapsed'] = update_info['end_time'] - instance.start_time
-            else:
-                update_info.pop('end_time')
+        update_info["update_time"] = current_timestamp()
         cls.execute_update(old_obj=instance, model=entity_model,
                            update_info=update_info,
                            update_filters=update_filters)
@@ -84,12 +80,10 @@ class DBOperator:
             update_info = {}
             update_info.update(entity_info)
             update_info["update_time"] = current_timestamp()
-            update_filters = filters[:]
-            for k in update_info.keys():
-                if hasattr(entity_model, k) and k not in primary_keys:
-                    update_filters.append(operator.attrgetter(k)(entity_model) == update_info[k])
-            return cls.execute_update(old_obj=instance, model=entity_model, update_info=update_info,
-                                      update_filters=update_filters)
+            for k, v in update_info.items():
+                if hasattr(entity_model, k):
+                    setattr(instance, k, v)
+            instance.save(force_insert=False)
         else:
             instance = entity_model()
             if 'create_time' not in entity_info:

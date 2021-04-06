@@ -22,8 +22,8 @@ def get_user_info(token):
         raise Exception(UserStatusCode.NoFoundAccount, "no found account")
     account = accounts[0]
     role = {
-        "RoleId": account.role,
-        "RoleName": UserRole.to_str(account.role)
+        "roleId": account.role,
+        "roleName": UserRole.to_str(account.role)
     }
 
     permission_list = []

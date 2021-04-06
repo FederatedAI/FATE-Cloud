@@ -122,7 +122,7 @@ class AccountInfo(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_account_info"
-        primary_key = CompositeKey("user_name", "fate_manager_id")
+        primary_key = CompositeKey("user_name", "fate_manager_id", "party_id")
 
 
 class ApplySiteInfo(DataBaseModel):

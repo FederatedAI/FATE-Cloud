@@ -68,9 +68,9 @@ def get_institution_signature_head(uri, data, body):
 
 def get_site_signature_head(uri, data, body):
     head = {}
-    head["TIMESTAMP"] = int(time.time()*1000)
-    head["PARTY_ID"] = int(data.get("partyId"))
-    head["ROLE"] = int(data.get("role"))
+    head["TIMESTAMP"] = str(int(time.time()*1000))
+    head["PARTY_ID"] = str(data.get("partyId"))
+    head["ROLE"] = str(data.get("role"))
     head["APP_KEY"] = data.get("appKey")
     head["FATE_MANAGER_USER_ID"] = data["account"].fate_manager_id
     head["FATE_MANAGER_APP_KEY"] = data["account"].app_key
@@ -78,7 +78,7 @@ def get_site_signature_head(uri, data, body):
     appSecret = data.get("appSecret")
     # FATE_MANAGER_USER_ID, FATE_MANAGER_APP_KEY, PARTY_ID,ROLE,APP_KEY,TIMESTAMP, NONCE, HTTP_URI, HTTP_BODY
     sign_str = '{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}'.format(data["account"].fate_manager_id, data["account"].app_key,
-                                                             data.get("partyId"), data.get("role"), data.get("AppKey"),
+                                                             head["PARTY_ID"], head["ROLE"], head["APP_KEY"],
                                                              head["TIMESTAMP"], head["NONCE"], uri, body)
     key = data["account"].app_secret + appSecret
     sign = hash_hmac(key, sign_str)
@@ -104,7 +104,7 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
         federated_info = federated_db_operator.get_federated_info()[0]
         url = federated_info.federated_url
     url = url + uri
-    request_cloud_logger.info(f'start request uri:{url}, data:{data}, head:{head}')
+    request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
     if methods == "get":
         response = requests.get(url, json=body, headers=head)
     else:

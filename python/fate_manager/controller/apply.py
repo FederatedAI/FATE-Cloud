@@ -78,7 +78,7 @@ def allow_apply_task(account):
             "role": UserRole.ADMIN,
             "status": IsValidType.YES,
             "fate_manager_id": account.fate_manager_id}
-    db_operator.DBOperator.execute_update(AccountInfo, data)
+    db_operator.DBOperator.update_entity(AccountInfo, data)
 
 
 def flush_other_site_info(account, institutions, valid):
