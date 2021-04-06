@@ -41,10 +41,10 @@ def get_user_list(request_data):
 
 
 def get_user_access_list(request_data):
-    account_list = DBOperator.query_entity(AccountInfo, {"user_name": request_data.get("userName"),
-                                                         "party_id": request_data.get("roleId"),
-                                                         "role": request_data.get("roleId"),
-                                                         "Status": request_data.get(IsValidType.YES)})
+    account_list = DBOperator.query_entity(AccountInfo, **{"user_name": request_data.get("userName"),
+                                                           "party_id": request_data.get("roleId"),
+                                                           "role": request_data.get("roleId"),
+                                                           "Status": request_data.get(IsValidType.YES)})
     data = []
     for account in account_list:
         permission_pair_list = []
@@ -89,7 +89,7 @@ def add_user(request_data):
 
 
 def delete_user(token, request_data):
-    token_info_list = DBOperator.query_entity(TokenInfo, {"token": token})
+    token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
     if not token_info_list:
         raise Exception(UserStatusCode.NoFoundToken, f"no found token: {token}")
     token_info = token_info_list[0]
@@ -98,7 +98,7 @@ def delete_user(token, request_data):
                     "party_id": request_data.get("partyId"),
                     "site_name": request_data.get("siteName"),
                     "status": IsValidType.YES}
-    account_info_list = DBOperator.query_entity(AccountInfo, account_info)
+    account_info_list = DBOperator.query_entity(AccountInfo, **account_info)
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundUser, "no found user")
     account = account_info_list[0]
@@ -143,7 +143,7 @@ def edit_user(request_data):
 
 def get_user_site_list():
     federated_info_list = federated_db_operator.get_federated_info()
-    site_info_list = DBOperator.query_entity(FateSiteInfo, {"federated_id": federated_info_list[0].federated_id})
+    site_info_list = DBOperator.query_entity(FateSiteInfo, **{"federated_id": federated_info_list[0].federated_id})
     data = []
     for site in site_info_list:
         if site.status != SiteStatusType.JOINED:
@@ -153,8 +153,8 @@ def get_user_site_list():
 
 
 def get_site_info_user_list(request_data):
-    account_info_list = DBOperator.query_entity(AccountInfo, {"party_id": request_data.get("partyId"),
-                                                              "status": IsValidType.YES})
+    account_info_list = DBOperator.query_entity(AccountInfo, **{"party_id": request_data.get("partyId"),
+                                                                "status": IsValidType.YES})
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by party id {request_data.get('partyId')}, "
                                                        f"status {IsValidType.YES}")
@@ -174,14 +174,14 @@ def get_site_info_user_list(request_data):
 
 
 def get_login_user_manager_list(request_data):
-    account_info_list = DBOperator.query_entity(AccountInfo, {"user_name": request_data.get("userName"),
-                                                              "status": IsValidType.YES})
+    account_info_list = DBOperator.query_entity(AccountInfo, **{"user_name": request_data.get("userName"),
+                                                                "status": IsValidType.YES})
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by user name {request_data.get('userName')}, "
                                                        f"status {IsValidType.YES}")
     data = []
     for account in account_info_list:
-        site_list = DBOperator.query_entity(FateSiteInfo, {"party_id": account.party_id, "status": SiteStatusType.JOINED})
+        site_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": account.party_id, "status": SiteStatusType.JOINED})
         data.append({
             "partyId": account.party_id,
             "siteName": account.site_name,
@@ -192,12 +192,12 @@ def get_login_user_manager_list(request_data):
 
 def sublogin(request_data):
     # ["PartyId", "passWord", "subTag", "userName"]
-    user_info_list = DBOperator.query_entity(FateUserInfo, {"user_name": request_data.get("userName"),
-                                                            "status": IsValidType.YES})
+    user_info_list = DBOperator.query_entity(FateUserInfo, **{"user_name": request_data.get("userName"),
+                                                              "status": IsValidType.YES})
     if not user_info_list:
         raise Exception(UserStatusCode.NoFoundUser, f"no found account by user name {request_data.get('userName')}, "
                                                     f"status {IsValidType.YES}")
-    account_info_list = DBOperator.query_entity(AccountInfo, {
+    account_info_list = DBOperator.query_entity(AccountInfo, **{
         "user_name": request_data.get("userName"),
         "party_id": request_data.get("PartyId"),
         "status": IsValidType.YES
@@ -206,8 +206,8 @@ def sublogin(request_data):
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by user name {request_data.get('userName')}, "
                                                        f"status {IsValidType.YES}, party id {request_data.get('PartyId')}")
     account_info = account_info_list[0]
-    site_info_list = DBOperator.query_entity(FateSiteInfo, {"party_id": account_info.party_id,
-                                                            "status": SiteStatusType.JOINED})
+    site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": account_info.party_id,
+                                                              "status": SiteStatusType.JOINED})
     resp = {
         "partyId": account_info.party_id,
         "siteName": account_info.site_name
@@ -219,15 +219,15 @@ def sublogin(request_data):
 
 
 def change_login(request_data):
-    account_info_list = DBOperator.query_entity(AccountInfo, {"user_name": request_data.get("userName"),
-                                                              "party_id": request_data.get("PartyId"),
-                                                              "status": IsValidType.YES})
+    account_info_list = DBOperator.query_entity(AccountInfo, **{"user_name": request_data.get("userName"),
+                                                                "party_id": request_data.get("PartyId"),
+                                                                "status": IsValidType.YES})
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundUser, f"no found account by user name {request_data.get('userName')}, "
                                                     f"status {IsValidType.YES}, party id {request_data.get('PartyId')}")
     account_info = account_info_list[0]
-    site_info_list = DBOperator.query_entity(FateSiteInfo, {"party_id": account_info.party_id,
-                                                            "status": SiteStatusType.JOINED})
+    site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": account_info.party_id,
+                                                              "status": SiteStatusType.JOINED})
     resp = {
         "partyId": account_info.party_id,
         "siteName": account_info.site_name

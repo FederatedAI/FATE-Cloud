@@ -14,7 +14,7 @@ def check_token(func):
         token = request.headers.get("token")
         if not token:
             raise Exception(UserStatusCode.NoFoundToken, "no found token")
-        token_info_list = DBOperator.query_entity(TokenInfo, {"token": token})
+        token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
         if token_info_list:
             token_info = {
                 "user_name": token_info_list[0].user_name,

@@ -14,7 +14,7 @@ from utils.request_cloud_utils import request_cloud_manager
 def get_change_log_task():
     change_log_list = federated_db_operator.get_no_deal_list()
     for change_log in change_log_list:
-        federated_info_list = DBOperator.query_entity(FederatedInfo, {"federated_id": change_log.federated_id})
+        federated_info_list = DBOperator.query_entity(FederatedInfo, **{"federated_id": change_log.federated_id})
         body = {"caseId": change_log.case_id, "partyId": change_log.party_id}
         logger.info(f"start request cloud IpQueryUri, body:{body}")
         site_signature_req = item.SiteSignatureItem(partyId=change_log.party_id, role=change_log.role,
@@ -53,12 +53,12 @@ def heart_task():
     federated_site_list = federated_db_operator.get_home_site()
     for federated_site in federated_site_list:
         if federated_site.status == SiteStatusType.JOINED:
-            deploy_site_list = DBOperator.query_entity(DeploySite, {"party_id": federated_site.party_id,
-                                                                    "is_valid": IsValidType.YES})
+            deploy_site_list = DBOperator.query_entity(DeploySite, **{"party_id": federated_site.party_id,
+                                                                      "is_valid": IsValidType.YES})
             if not deploy_site_list:
                 continue
-            deploy_component_list = DBOperator.query_entity(DeployComponent, {"party_id": federated_site.party_id,
-                                                                              "is_valid": IsValidType.YES})
+            deploy_component_list = DBOperator.query_entity(DeployComponent, **{"party_id": federated_site.party_id,
+                                                                                "is_valid": IsValidType.YES})
             cloud_system_heart_list = []
             for deploy_component in deploy_component_list:
                 cloud_system_heart = {
@@ -83,9 +83,9 @@ def heart_task():
 
 
 def test_only_task():
-    deploy_site_list = DBOperator.query_entity(DeploySite, {"product_type": ProductType.FATE,
-                                                            "toy_test_only": ToyTestOnlyType.TESTING,
-                                                            "is_valid": IsValidType.YES})
+    deploy_site_list = DBOperator.query_entity(DeploySite, **{"product_type": ProductType.FATE,
+                                                              "toy_test_only": ToyTestOnlyType.TESTING,
+                                                              "is_valid": IsValidType.YES})
     for deploy_site in deploy_site_list:
         if deploy_site.deploy_type == DeployType.HYPERION:
             pass

@@ -435,8 +435,8 @@ def read_change_msg(request_data):
 
 
 def get_change_msg(request_data):
-    site_list = DBOperator.query_entity(FateSiteInfo, {"federated_id": request_data.get("federatedId"),
-                                                       "party_id": request_data.get("partyId")})
+    site_list = DBOperator.query_entity(FateSiteInfo, **{"federated_id": request_data.get("federatedId"),
+                                                         "party_id": request_data.get("partyId")})
     if not site_list:
         raise Exception(SiteStatusCode.NoFoundSite,
                         f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')
@@ -466,7 +466,7 @@ def update_component_version(request_data):
 
 
 def get_apply_log():
-    apply_site_list = DBOperator.query_entity(ApplySiteInfo, {"status": IsValidType.NO})
+    apply_site_list = DBOperator.query_entity(ApplySiteInfo, **{"status": IsValidType.NO})
     apply_log_list = []
     for apply_site in apply_site_list:
         apply_site_list.append({"applyTime": apply_site.create_time,"content": apply_site.institutions})
@@ -516,8 +516,8 @@ def check_site(request_data):
 
 
 def get_secret_info(request_data):
-    site_list = DBOperator.query_entity(FateSiteInfo, {"federated_id": request_data.get("federatedId"),
-                                                       "party_id": request_data.get("partyId")})
+    site_list = DBOperator.query_entity(FateSiteInfo, **{"federated_id": request_data.get("federatedId"),
+                                                         "party_id": request_data.get("partyId")})
     if not site_list:
         raise Exception(SiteStatusCode.NoFoundSite,
                         f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')

@@ -84,10 +84,10 @@ class DBOperator:
             update_info = {}
             update_info.update(entity_info)
             update_info["update_time"] = current_timestamp()
-            update_filters = []
-            for k in entity_info.keys():
-                if hasattr(entity_model, k):
-                    update_filters.append(k)
+            update_filters = filters[:]
+            for k in update_info.keys():
+                if hasattr(entity_model, k) and k not in primary_keys:
+                    update_filters.append(operator.attrgetter(k)(entity_model) == update_info[k])
             return cls.execute_update(old_obj=instance, model=entity_model, update_info=update_info,
                                       update_filters=update_filters)
         else:
@@ -119,8 +119,9 @@ class DBOperator:
             if hasattr(model, k) and k not in model.get_primary_keys_name():
                 update_fields[operator.attrgetter(k)(model)] = v
         if update_fields:
-            update_fields.update({'update_time': current_timestamp()})
             if update_filters:
+                stat_logger.info(f'update fields: {update_fields}')
+                stat_logger.info(f'update filters: {update_filters}')
                 operate = old_obj.update(update_fields).where(*update_filters)
             else:
                 operate = old_obj.update(update_fields)
