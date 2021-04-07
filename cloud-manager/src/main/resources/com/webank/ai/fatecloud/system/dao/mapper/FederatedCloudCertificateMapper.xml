@@ -6,7 +6,7 @@
             resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedCloudCertificateDo">
         SELECT cm.*,(SELECT type_name FROM t_cloud_certificate_type WHERE id = cm.type_id) AS certificateType FROM
         <include refid="byPage"/>
-        limit #{pageNum}, #{pageSize}
+        ORDER BY create_date DESC limit #{pageNum}, #{pageSize}
     </select>
 
     <select id="getTotal" parameterType="com.webank.ai.fatecloud.system.pojo.qo.CertificateQueryQo" resultType="int">

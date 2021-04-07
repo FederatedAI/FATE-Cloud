@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.CharacterUtil;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedCloudCertificateDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedCloudCertificateTypeDo;
 import com.webank.ai.fatecloud.system.pojo.qo.CertificateFileQo;
@@ -27,13 +28,13 @@ import com.webank.ai.fatecloud.system.pojo.qo.CertificateQueryQo;
 import com.webank.ai.fatecloud.system.service.impl.FederatedCloudCertificateService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedCloudCertificateTypeService;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import sun.misc.BASE64Encoder;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -65,19 +66,31 @@ public class FederatedCloudCertificateServiceFacade {
     @Value("${chain.ca.file.url}")
     private String fileDownload;
 
-    private final BASE64Encoder base64Encoder = new BASE64Encoder();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /***
      * save certificate info
      */
     public CommonResponse<String> save(FederatedCloudCertificateDo certificateDo) {
-        CommonResponse<String> result = paramCheck(certificateDo);
+        CommonResponse<String> result = paramCheck(certificateDo, true);
+
         if (result == null) {
-            String dns = getDnsName(certificateDo.getSiteAuthority(), certificateDo.getInstitution(), certificateDo.getOrganization());
-            certificateDo.setDnsName(dns);
             FederatedCloudCertificateTypeDo typeDo = federatedCloudCertificateTypeService.queryById(certificateDo.getTypeId());
-            if (typeDo != null && federatedCloudCertificateService.save(certificateDo)) {
+
+            if (typeDo == null || StringUtils.isEmpty(typeDo.getTypeName())) {
+                return new CommonResponse<>(400, "Unknown certificate type");
+            }
+
+            String siteAuthority = certificateDo.getSiteAuthority();
+            String institution = certificateDo.getInstitution();
+            String organization = certificateDo.getOrganization();
+            try {
+                certificateDo.setDnsName(getDnsName(siteAuthority, typeDo.getTypeName(), institution, organization));
+            } catch (Exception e) {
+                log.error("Domain generated error", e);
+                return new CommonResponse<>(400, "Site authority, institution, organization. Illegal characters cannot be used");
+            }
+            if (federatedCloudCertificateService.save(certificateDo)) {
                 return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
             }
             result = new CommonResponse<>(ReturnCodeEnum.CERTIFICATE_UPDATE_ERROR);
@@ -90,32 +103,29 @@ public class FederatedCloudCertificateServiceFacade {
      */
     @Transactional
     public CommonResponse<String> update(FederatedCloudCertificateDo certificateDo) {
-        CommonResponse<String> resultRes = paramCheck(certificateDo);
+        CommonResponse<String> resultRes = paramCheck(certificateDo, StringUtils.isEmpty(certificateDo.getSerialNumber()));
         if (resultRes != null) {
             return resultRes;
         }
 
-        if (StringUtils.isEmpty(certificateDo.getSerialNumber())) {
-            String dns = getDnsName(certificateDo.getSiteAuthority(), certificateDo.getInstitution(), certificateDo.getOrganization());
-            certificateDo.setDnsName(dns);
+        FederatedCloudCertificateTypeDo typeDo = federatedCloudCertificateTypeService.queryById(certificateDo.getTypeId());
+        if (typeDo == null || StringUtils.isEmpty(typeDo.getTypeName())) {
+            return new CommonResponse<>(400, "Unknown certificate type");
         }
 
-        FederatedCloudCertificateTypeDo typeDo = federatedCloudCertificateTypeService.queryById(certificateDo.getTypeId());
-        if (typeDo != null && federatedCloudCertificateService.update(certificateDo)) {
-
-            // Eligible to call ca synchronization information
-            if (StringUtils.isNoneEmpty(certificateDo.getSerialNumber(), typeDo.getTypeName())) {
-
-                Map<String, Object> requestBody = new LinkedHashMap<>();
-                requestBody.put("serialNumber", certificateDo.getSerialNumber());
-                requestBody.put("productType", typeDo.getTypeName());
-                requestBody.put("siteAuthority", certificateDo.getSiteAuthority());
-                requestBody.put("notes", certificateDo.getNotes());
-
-                CommonResponse result = restTemplate.postForObject(caUrl + update, requestBody, CommonResponse.class);
-                Preconditions.checkArgument(result != null && result.getCode() == 0, "ca update error");
+        String siteAuthority = certificateDo.getSiteAuthority();
+        if (StringUtils.isEmpty(certificateDo.getSerialNumber())) {
+            String institution = certificateDo.getInstitution();
+            String organization = certificateDo.getOrganization();
+            try {
+                certificateDo.setDnsName(getDnsName(siteAuthority, typeDo.getTypeName(), institution, organization));
+            } catch (Exception e) {
+                log.error("Domain generated error", e);
+                return new CommonResponse<>(400, "Site authority, institution, organization. Illegal characters cannot be used");
             }
+        }
 
+        if (federatedCloudCertificateService.update(certificateDo)) {
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
         }
         return new CommonResponse<>(ReturnCodeEnum.CERTIFICATE_UPDATE_ERROR);
@@ -245,13 +255,13 @@ public class FederatedCloudCertificateServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, certificateDoIPage);
     }
 
-    private CommonResponse<String> paramCheck(FederatedCloudCertificateDo certificateDo) {
+    private CommonResponse<String> paramCheck(FederatedCloudCertificateDo certificateDo, boolean checkValidity) {
         boolean noneEmpty = StringUtils.isNoneEmpty(
                 certificateDo.getInstitution(),
                 certificateDo.getOrganization()) && certificateDo.getTypeId() != null;
 
         if (noneEmpty) {
-            if (certificateDo.getSerialNumber() == null && StringUtils.isNotEmpty(certificateDo.getValidity())) {
+            if (checkValidity) {
                 try {
                     String[] validity = certificateDo.getValidity().split("~");
 
@@ -270,21 +280,22 @@ public class FederatedCloudCertificateServiceFacade {
         return null;
     }
 
-    private String getDnsName(String site, String institution, String organization) {
+    private String getDnsName(String site, String typeName, String institution, String organization) throws BadHanyuPinyinOutputFormatCombination {
+        StringBuilder sb = new StringBuilder();
         if (StringUtils.isEmpty(site)) {
-            site = "*.";
+            sb.append('*');
         } else {
             if ((site = site.trim()).split(",").length != 1) {
-                site = "*.";
+                sb.append('*');
             } else {
-                site = site.replace(",", "") + '.';
+                sb.append(site.replace(",", "")).append('.');
             }
         }
-        return site + getBASE64Encode(institution) + ".virtual." + getBASE64Encode(organization) + ".com";
-    }
 
-    private String getBASE64Encode(String str) {
-        return base64Encoder.encodeBuffer(str.getBytes()).replace("\r\n", "").replace("\n", "")
-                .replace("=", "-").replace("/", "FDN").replace(" ", "");
+        String tn = CharacterUtil.specialCharacters2Pinyin(typeName, '-');
+        String ins = CharacterUtil.specialCharacters2Pinyin(institution, '-');
+        String org = CharacterUtil.specialCharacters2Pinyin(organization, '-');
+
+        return sb.append(tn).append('.').append(ins).append(".virtual.").append(org).append(".com").toString();
     }
 }

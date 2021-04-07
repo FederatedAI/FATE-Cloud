@@ -32,7 +32,7 @@ import java.util.List;
 
 @Configuration
 public class InitializeCertificateConfig implements ApplicationRunner {
-    public static final List<String> defaultType = Arrays.asList("general", "FATE", "FATE serving");
+    public static final List<String> defaultType = Arrays.asList("general", "FATE", "FATE Serving");
 
     @Autowired
     private FederatedCloudCertificateMapper federatedCloudCertificateMapper;
