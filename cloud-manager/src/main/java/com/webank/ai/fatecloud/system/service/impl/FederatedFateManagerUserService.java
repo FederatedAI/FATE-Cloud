@@ -90,9 +90,9 @@ public class FederatedFateManagerUserService {
 
         String fateUserRegistrationUrl = "";
         if ("http://".equals(fateManagerUserAddQo.getProtocol())) {
-            fateUserRegistrationUrl = "http://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "http://" + ip + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            fateUserRegistrationUrl = "https://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "https://" + ip + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
