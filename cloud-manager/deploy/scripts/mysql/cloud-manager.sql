@@ -18,6 +18,9 @@ create TABLE IF NOT EXISTS `t_federated_site_manager` (
   `activation_time` timestamp NULL DEFAULT NULL COMMENT 'activation_time',
   `detective_status` tinyint(4) DEFAULT '1' COMMENT 'site status when detect：1：not survie，2: survive',
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
+  `protocol` varchar(128) COMMENT 'https:// or http://',
+  `network` varchar(256) not null COMMENT 'network of cloud manager',
+  `encrypt_type` tinyint(4) not null COMMENT 'encrypt type of cloud manager: 1 yes, 2 no',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated SITE Manager';
@@ -110,12 +113,11 @@ create table IF NOT EXISTS `t_federated_function`(
     `function_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'function id',
     `function_name` varchar(128) UNIQUE NOT NULL COMMENT 'function name',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'authority status 1:available, 2:unavailable',
+    `descriptions` text  COMMENT 'descriptions for each function',
     `create_time` timestamp NOT NULL  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL  COMMENT 'Update Time',
      PRIMARY KEY (`function_id`)
-
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='function information';
-
 
 create table IF NOT EXISTS `t_cloud_manager_user`(
     `cloud_manager_id` bigint(20) not null auto_increment COMMENT 'primary key',
@@ -148,6 +150,7 @@ create table IF NOT EXISTS `t_fate_manager_user`(
     `creator` varchar(128) NOT NULL COMMENT 'creator for user',
     `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 not activated, 2 activated, 3 deleted',
     `protocol` varchar(128) NOT NULL  COMMENT 'https:// or http://',
+    `network` varchar(256) not null COMMENT 'network of cloud manager',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
@@ -201,6 +204,7 @@ create TABLE IF NOT EXISTS `t_party` (
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 publised,2 modified, 3 to be deleted',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
+  `valid_time` timestamp DEFAULT CURRENT_TIMESTAMP COMMENT 'the valid time of the real network property of rollsite',
   `roll_site_id` bigint(20) NOT NULL COMMENT 'roll site id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='party id details';
