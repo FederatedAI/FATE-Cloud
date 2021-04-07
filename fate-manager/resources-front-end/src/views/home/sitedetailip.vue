@@ -21,7 +21,7 @@
               <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent" >telnet</span>
               <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
             </span>
-            <el-input v-if="item.show" autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" placeholder="Type the exit like : 192.168.8.1:8080" >
+            <el-input v-if="item.show" autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" placeholder="Type the exit like : 127.0.0.1:8080" >
               <i slot="suffix" @click="closeEntrances(index)" class="el-icon-check check" />
               <i slot="suffix" @click="deleteEntrances(index)" @mousedown="mouseDown" style="right: 2px;" class="el-icon-close del" />
             </el-input>
@@ -77,9 +77,6 @@ export default {
             addDisabled: false, // 是否可点击添加
             canEdit: true, // 是否可双击编辑
             entrancesSelect: [
-                // { ip: '192.168.8.1:8081;', show: false },
-                // { ip: '192.168.8.1:8082;', show: false },
-                // { ip: '192.168.8.1:8083;', show: false }
             ],
             form: {},
             ipPost: ''

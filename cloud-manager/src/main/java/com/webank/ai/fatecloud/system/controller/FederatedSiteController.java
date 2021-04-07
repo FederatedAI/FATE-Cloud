@@ -135,7 +135,11 @@ public class FederatedSiteController {
         return federatedSiteManagerServiceFacade.findInstitutionsInGroup(institutionsInGroup);
     }
 
-
+    @PostMapping(value = "/cloudManager/network")
+    @ApiOperation(value = "find default network of cloud manager")
+    public CommonResponse<NetworkDto> findCloudManagerNetwork() {
+        return federatedSiteManagerServiceFacade.findCloudManagerNetwork();
+    }
     //interface for fate-manager
 
     @PostMapping(value = "/checkUrl")

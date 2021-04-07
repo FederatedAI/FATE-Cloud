@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @ApiModel("ip manager list")
@@ -29,6 +30,9 @@ public class IpManagerListQo implements Serializable {
 
     @ApiModelProperty(value = "partyid,siteanme")
     private String condition;
+
+    @ApiModelProperty(value = "institutions list")
+    private List<String> institutionsList;
 
     @ApiModelProperty(value = "role,1:guest,2:host")
     private Integer role;

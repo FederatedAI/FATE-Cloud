@@ -66,6 +66,12 @@
                 and g.role=#{role}
             </if>
 
+            <if test="institutionsList != null and institutionsList.size > 0">
+                <foreach collection="institutionsList" open=" and s.institutions  in (" close=")" item="institutionsItem" separator=",">
+                    #{institutionsItem}
+                </foreach>
+            </if>
+
         </where>
     </select>
 
@@ -84,6 +90,12 @@
             </if>
             <if test="siteListWithModelsQo.role != 0">
                 and g.role=#{siteListWithModelsQo.role}
+            </if>
+
+            <if test="siteListWithModelsQo.institutionsList != null and siteListWithModelsQo.institutionsList.size > 0">
+                <foreach collection="siteListWithModelsQo.institutionsList" open=" and s.institutions  in (" close=")" item="institutionsItem" separator=",">
+                    #{institutionsItem}
+                </foreach>
             </if>
 
         </where>

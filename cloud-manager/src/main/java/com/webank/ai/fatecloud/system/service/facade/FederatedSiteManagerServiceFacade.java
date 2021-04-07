@@ -26,11 +26,9 @@ import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupDetailDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
-import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDropdownDto;
-import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto;
-import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
-import com.webank.ai.fatecloud.system.pojo.dto.UsedSiteDto;
+import com.webank.ai.fatecloud.system.pojo.dto.*;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
+import com.webank.ai.fatecloud.system.service.impl.FederatedAuthorityService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedGroupSetService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedSiteManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +55,9 @@ public class FederatedSiteManagerServiceFacade {
 
     @Autowired
     CheckSignature checkSignature;
+
+    @Autowired
+    FederatedAuthorityService federatedAuthorityService;
 
     public CommonResponse checkPartyIdExist(PartyIdQo partyIdQo) {
         if (partyIdQo.getPartyId() == null) {
@@ -208,7 +209,7 @@ public class FederatedSiteManagerServiceFacade {
             return commonResponse;
         }
 
-        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),httpServletRequest);
+        federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
 
@@ -349,7 +350,7 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Long> addSiteNew(SiteAddQo siteAddQo) throws UnsupportedEncodingException {
-        Preconditions.checkArgument(StringUtils.isNoneEmpty(siteAddQo.getSiteName(), String.valueOf(siteAddQo.getGroupId())), String.valueOf(siteAddQo.getPartyId()));
+        Preconditions.checkArgument(StringUtils.isNoneEmpty(siteAddQo.getSiteName(), String.valueOf(siteAddQo.getGroupId())), String.valueOf(siteAddQo.getPartyId()), siteAddQo.getNetwork());
         boolean existSite = federatedSiteManagerService.checkSiteName(new SiteNameQo(siteAddQo));
         if (existSite) {
             return new CommonResponse<>(ReturnCodeEnum.SITE_NAME_ERROR);
@@ -447,8 +448,18 @@ public class FederatedSiteManagerServiceFacade {
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-        PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedSites);
+
+        //check the type
+        String scenarioType = federatedAuthorityService.getScenarioType();
+        int institutionsType = federatedAuthorityService.getInstitutionsType(siteListForFateManagerQo.getInstitutions());
+
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo,scenarioType,institutionsType,httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedSites);
+        } else {
+            return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
+
+        }
     }
 
 
@@ -478,8 +489,13 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
-        InstitutionsDropdownDto institutionsDropdownDto=  federatedSiteManagerService.findAllInstitutionsForDropdown();
+        InstitutionsDropdownDto institutionsDropdownDto = federatedSiteManagerService.findAllInstitutionsForDropdown();
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsDropdownDto);
 
+    }
+
+    public CommonResponse<NetworkDto> findCloudManagerNetwork() {
+        NetworkDto networkDto = federatedSiteManagerService.findCloudManagerNetwork();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, networkDto);
     }
 }

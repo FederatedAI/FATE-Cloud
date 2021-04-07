@@ -60,6 +60,9 @@ public enum ReturnCodeEnum {
     ROLLSITE_NETWORK_REPEAT(140, "There are duplicated roll site networks!"),
     FATE_MANAGER_STATUS_ERROR(141, "The institution can't edit!"),
     FATE_MANAGER_URL_ERROR(142, "The institution activate url has changed!"),
+    CERTIFICATE_UPDATE_ERROR(143, "The data does not meet the update conditions!"),
+    INVOKE_CONNECT_ERROR(144, "Cannot connect to the server!"),
+    SCENARIO_ERROR(145, "The scenario doesn't exist!"),
 
     ;
     private int code;

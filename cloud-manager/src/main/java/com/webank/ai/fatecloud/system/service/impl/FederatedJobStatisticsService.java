@@ -78,71 +78,15 @@ public class FederatedJobStatisticsService {
     }
 
 
-    public JobStatisticsSummaryTodayInstitutionsAllDto getJobStatisticsSummaryTodayInstitutionsAll(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
-        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummaryTodayInstitutionsAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryTodayInstitutionsAll(jobStatisticsSummaryTodayQo);
-        return jobStatisticsSummaryTodayInstitutionsAllDto;
-    }
-
     public JobStatisticsSummaryTodayInstitutionsAllDto getJobStatisticsSummaryInstitutionsAllForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
         JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummaryTodayInstitutionsAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
         return jobStatisticsSummaryTodayInstitutionsAllDto;
     }
 
-    public PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> getJobStatisticsSummaryTodayInstitutionsEach(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
-
-        List<String> activatedInstitutionsToday = federatedJobStatisticsMapper.getActivatedInstitutionsToday(jobStatisticsSummaryTodayQo);
-        PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtoPageBean = new PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>(jobStatisticsSummaryTodayQo.getPageNum(), jobStatisticsSummaryTodayQo.getPageSize(), activatedInstitutionsToday.size());
-        long startIndex = jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.getStartIndex();
-
-        List<JobStatisticsSummaryTodayInstitutionsEachDto> institutionToday = federatedJobStatisticsMapper.getInstitutionToday(startIndex, jobStatisticsSummaryTodayQo);
-        jobStatisticsSummaryTodayInstitutionsEachDtoPageBean.setList(institutionToday);
-        return jobStatisticsSummaryTodayInstitutionsEachDtoPageBean;
-
-    }
-
-    public JobStatisticsOfSiteDimensionDto getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-
-        //get table site columns
-        QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>();
-        federatedSiteManagerDoQueryWrapper.eq("institutions", jobOfSiteDimensionQo.getInstitutions()).eq("status", 2);
-        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(federatedSiteManagerDoQueryWrapper);
-        ArrayList<String> sites = new ArrayList<>();
-        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
-            sites.add(federatedSiteManagerDo.getSiteName());
-        }
-
-        //get paged job statistics
-        long count = federatedJobStatisticsMapper.findCountOfSite(jobOfSiteDimensionQo);
-        PageBean<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionQo.getPageNum(), jobOfSiteDimensionQo.getPageSize(), count);
-        long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
-        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionDynamicRow(startIndex, jobOfSiteDimensionQo);
-        jobStatisticsOfSiteDimensionPageBean.setList(jobStatisticsOfSiteDimensionList);
 
 
-        //get table site rows
-        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPaged(startIndex, jobOfSiteDimensionQo);
-
-        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = new JobStatisticsOfSiteDimensionDto();
-        jobStatisticsOfSiteDimensionDto.setJobStatisticsOfSiteDimensions(jobStatisticsOfSiteDimensionPageBean);
-        jobStatisticsOfSiteDimensionDto.setSites(sites);
-        jobStatisticsOfSiteDimensionDto.setInstitutionsWithSites(institutionsWithSites);
-        return jobStatisticsOfSiteDimensionDto;
-    }
 
 
-    //get institutions statistics today
-    public PageBean<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-
-        int count = federatedJobStatisticsMapper.findInstitutionsCountToday(jobOfSiteDimensionQo);
-
-        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtoPageBean = new PageBean<>(jobOfSiteDimensionQo.getPageNum(), jobOfSiteDimensionQo.getPageSize(), count);
-        long startIndex = jobStatisticOfInstitutionsDimensionDtoPageBean.getStartIndex();
-
-        List<JobStatisticOfInstitutionsDimensionDto> jobStatisticOfInstitutionsDimensionDtos = federatedJobStatisticsMapper.getPagedJobStatisticsODimension(startIndex, jobOfSiteDimensionQo);
-        jobStatisticOfInstitutionsDimensionDtoPageBean.setList(jobStatisticOfInstitutionsDimensionDtos);
-
-        return jobStatisticOfInstitutionsDimensionDtoPageBean;
-    }
 
     public PageBean<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
 
@@ -157,51 +101,55 @@ public class FederatedJobStatisticsService {
         return jobStatisticOfInstitutionsDimensionDtoPageBean;
     }
 
-
-    public JobStatisticsSummaryTodaySiteAllDto getJobStatisticsSummaryTodaySiteAll(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
-
-        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
-
-        return jobStatisticsSummaryTodaySiteAllDto;
-    }
-
-    public PageBean<JobStatisticsSummaryTodaySiteEachDto> getJobStatisticsSummaryTodaySiteEach(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
-        long count = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEachCount(jobStatisticsSummaryTodaySiteAllQo);
-        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtoPageBean = new PageBean<>(jobStatisticsSummaryTodaySiteAllQo.getPageNum(), jobStatisticsSummaryTodaySiteAllQo.getPageSize(), count);
-        long startIndex = jobStatisticsSummaryTodaySiteEachDtoPageBean.getStartIndex();
-        List<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsMapper.getJobStatisticsSummaryTodaySiteEach(startIndex, jobStatisticsSummaryTodaySiteAllQo);
-
-        jobStatisticsSummaryTodaySiteEachDtoPageBean.setList(jobStatisticsSummaryTodaySiteEachDtos);
-        return jobStatisticsSummaryTodaySiteEachDtoPageBean;
-
-    }
-
-    public JobStatisticsOfSiteDimensionDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+    public MonitorSiteDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
 
         //get table site columns
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>();
-        federatedSiteManagerDoQueryWrapper.eq("institutions", jobOfSiteDimensionPeriodQo.getInstitutions()).eq("status", 2);
+        federatedSiteManagerDoQueryWrapper.eq("institutions", jobOfSiteDimensionPeriodQo.getInstitutions()).eq("status", 2).orderByAsc("site_name");
         List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(federatedSiteManagerDoQueryWrapper);
+        if (federatedSiteManagerDos.size() <= 0) {
+            return null;
+        }
         ArrayList<String> sites = new ArrayList<>();
         for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
             sites.add(federatedSiteManagerDo.getSiteName());
         }
 
         //get paged job statistics
-        long count = federatedJobStatisticsMapper.findCountOfSitePeriod(jobOfSiteDimensionPeriodQo);
+        int count = federatedJobStatisticsMapper.findCountOfSitePeriod(jobOfSiteDimensionPeriodQo);
         PageBean<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionPeriodQo.getPageNum(), jobOfSiteDimensionPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
-        List<JobStatisticsOfSiteDimension> jobStatisticsOfSiteDimensionList = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex, jobOfSiteDimensionPeriodQo);
-        jobStatisticsOfSiteDimensionPageBean.setList(jobStatisticsOfSiteDimensionList);
+        List<MonitorSiteItem> siteItems = federatedJobStatisticsMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex, jobOfSiteDimensionPeriodQo);
+        for (MonitorSiteItem siteItem : siteItems) {
+            List<MonitorTwoSite> institutionSiteList = siteItem.getInstitutionSiteList();
+            for (MonitorTwoSite monitorTwoSite : institutionSiteList) {
+                List<SiteBase> mixSiteModeling = monitorTwoSite.getMixSiteModeling();
+                for (SiteBase siteBase : mixSiteModeling) {
+                    Integer totalJobs = siteBase.getTotalJobs();
+                    Integer successJobs = siteBase.getSuccessJobs();
+                    Integer runningJobs = siteBase.getRunningJobs();
+                    Integer failedJobs = siteBase.getFailedJobs();
+                    Integer waitingJobs = siteBase.getWaitingJobs();
+                    if (totalJobs > 0) {
+                        siteBase.setSuccessPercent(String.format("%.2f", (double) (100 * successJobs / totalJobs)) + "%");
+                        siteBase.setRunningPercent(String.format("%.2f", (double) (100 * runningJobs / totalJobs)) + "%");
+                        siteBase.setFailedPercent(String.format("%.2f", (double) (100 * failedJobs / totalJobs)) + "%");
+                        siteBase.setWaitingPercent(String.format("%.2f", (double) (100 * waitingJobs / totalJobs)) + "%");
+                    }else {
+                        siteBase.setSuccessPercent("0.00%");
+                        siteBase.setRunningPercent("0.00%");
+                        siteBase.setFailedPercent("0.00%");
+                        siteBase.setWaitingPercent("0.00%");
+                    }
+                }
+            }
+        }
+        MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
+        monitorSiteDto.setSiteList(sites);
+        monitorSiteDto.setTotal(count);
+        monitorSiteDto.setData(siteItems);
 
-        //get table site rows
-        List<InstitutionsWithSites> institutionsWithSites = federatedJobStatisticsMapper.findInstitutionsWithSitesPagedPeriod(startIndex, jobOfSiteDimensionPeriodQo);
-
-        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = new JobStatisticsOfSiteDimensionDto();
-        jobStatisticsOfSiteDimensionDto.setJobStatisticsOfSiteDimensions(jobStatisticsOfSiteDimensionPageBean);
-        jobStatisticsOfSiteDimensionDto.setSites(sites);
-        jobStatisticsOfSiteDimensionDto.setInstitutionsWithSites(institutionsWithSites);
-        return jobStatisticsOfSiteDimensionDto;
+        return monitorSiteDto;
     }
 
 

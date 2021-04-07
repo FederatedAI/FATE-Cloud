@@ -28,5 +28,4 @@ public class NetworkBean implements Serializable {
     private Integer port;
     private String ip;
     private Boolean is_secure;
-    private Boolean is_polling;
 }

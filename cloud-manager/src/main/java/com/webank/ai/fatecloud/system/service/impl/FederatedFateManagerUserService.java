@@ -102,6 +102,7 @@ public class FederatedFateManagerUserService {
         federatedFateManagerUserDo.setCreator(fateManagerUserAddQo.getCreator());
 
         federatedFateManagerUserDo.setProtocol(fateManagerUserAddQo.getProtocol());
+        federatedFateManagerUserDo.setNetwork(fateManagerUserAddQo.getNetwork());
 
         federatedFateManagerUserMapper.insert(federatedFateManagerUserDo);
 
@@ -148,6 +149,7 @@ public class FederatedFateManagerUserService {
         federatedFateManagerUserDoOld.setCreator(fateManagerUserUpdateQo.getCreator());
 
         federatedFateManagerUserDoOld.setProtocol(fateManagerUserUpdateQo.getProtocol());
+        federatedFateManagerUserDoOld.setNetwork(fateManagerUserUpdateQo.getNetwork());
 
         federatedFateManagerUserDoOld.setUpdateTime(new Date());
 
@@ -260,7 +262,9 @@ public class FederatedFateManagerUserService {
     }
 
     public boolean checkUrl(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        if (siteActivateQo.getRegistrationLink() == null) {
+
+        String linkeInput = siteActivateQo.getRegistrationLink();
+        if (linkeInput == null) {
             return false;
         }
 
@@ -274,7 +278,9 @@ public class FederatedFateManagerUserService {
         String registrationLink = federatedFateManagerUserDo1.getRegistrationLink();
         registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
 
-        if (!siteActivateQo.getRegistrationLink().equals(registrationLink)) {
+        if (!linkeInput.equals(registrationLink)) {
+            log.error("linkeInput     :{}",linkeInput);
+            log.error("linkeInDateBase:{}",registrationLink);
             return false;
         }
 

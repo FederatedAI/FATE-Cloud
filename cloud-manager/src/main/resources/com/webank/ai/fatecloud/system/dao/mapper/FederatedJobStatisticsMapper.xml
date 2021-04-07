@@ -22,6 +22,20 @@
 
     </resultMap>
 
+    <resultMap id="jobMonitorMap" type="com.webank.ai.fatecloud.system.pojo.monitor.MonitorSiteItem">
+        <result property="institution" column="institution"></result>
+        <collection property="institutionSiteList" ofType="com.webank.ai.fatecloud.system.pojo.monitor.MonitorTwoSite">
+            <result property="institutionSiteName" column="institutionSiteName"></result>
+            <collection property="mixSiteModeling" ofType="com.webank.ai.fatecloud.system.pojo.monitor.SiteBase">
+                <result property="siteName" column="siteName"></result>
+                <result property="totalJobs" column="totalJobs"></result>
+                <result property="successJobs" column="successJobs"></result>
+                <result property="runningJobs" column="runningJobs"></result>
+                <result property="waitingJobs" column="failedJobs"></result>
+                <result property="failedJobs" column="waitingJobs"></result>
+            </collection>
+        </collection>
+    </resultMap>
 
     <select id="getJobStatisticsOfSiteDimension"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo" resultMap="jobStatisticsMap">
@@ -34,7 +48,6 @@
         and sm.id=js.site_host_id
         and sm2.id=js.site_guest_id
     </select>
-
 
     <select id="getPagedJobStatisticsOfSiteDimension" resultMap="jobStatisticsMap">
         SELECT
@@ -53,7 +66,6 @@
         tmp )
     </select>
 
-
     <select id="getJobStatisticsODimension"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
@@ -69,70 +81,33 @@
         group by sm2.institutions
     </select>
 
-
-    <select id="findInstitutionsCountToday"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo"
-            resultType="int">
-        select count(1) from
-        (
-        select   sm2.institutions host_institutions ,sm.institutions guest_institutions
-        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
-        where js.site_guest_id =sm.id
-        and js.site_host_id=sm2.id
-        and js.job_finish_date=#{dateToday,jdbcType=DATE}
-        and (sm.institutions =#{institutions} or sm2.institutions=#{institutions})
-        group by sm2.institutions ,sm.institutions
-        )tmp
-
-    </select>
-
     <select id="findInstitutionsCountPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
             resultType="int">
         select count(1) from
         (
-        select   sm2.institutions host_institutions ,sm.institutions guest_institutions
-        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
-        where js.site_guest_id =sm.id
-        and js.site_host_id=sm2.id
-        and js.job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
-        and (sm.institutions =#{institutions} or sm2.institutions=#{institutions})
-        group by sm2.institutions ,sm.institutions
-        )tmp
-
-    </select>
-
-    <select id="getPagedJobStatisticsODimension"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
-        SELECT
-        (case when sm2.institutions = #{jobOfSiteDimensionQo.institutions} then sm.institutions else sm2.institutions end) as institutions,
-        sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
-        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
-        where js.site_guest_id =sm.id
-        and js.site_host_id=sm2.id
-        and js.job_finish_date=#{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and (sm.institutions =#{jobOfSiteDimensionQo.institutions} or sm2.institutions=#{jobOfSiteDimensionQo.institutions})
-        group by sm2.institutions ,sm.institutions
-        order by institutions limit #{startIndex},#{jobOfSiteDimensionQo.pageSize}
+            (SELECT  site_guest_institutions institutions FROM t_job_statistics WHERE job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} and site_host_institutions = #{institutions} )
+            UNION
+            (SELECT  site_host_institutions  institutions FROM t_job_statistics WHERE job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} and site_guest_institutions = #{institutions} )
+        ) tmp
 
     </select>
 
     <select id="getPagedJobStatisticsODimensionForPeriod"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
 
-        SELECT
-        (case when sm2.institutions = #{jobOfSiteDimensionPeriodQo.institutions} then sm.institutions else sm2.institutions end) as institutions,
-        sum(js.job_success_count) successJobCountForInstitutions,sum(js.job_failed_count) failedJobCountForInstitutions, sum(js.job_running_count) runningJobCountForInstitutions, sum(js.job_waiting_count) waitingJobCountForInstitutions
-        FROM t_job_statistics js,t_federated_site_manager sm,t_federated_site_manager sm2
-        where js.site_guest_id =sm.id
-        and js.site_host_id=sm2.id
-        and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        and (sm.institutions =#{jobOfSiteDimensionPeriodQo.institutions} or sm2.institutions=#{jobOfSiteDimensionPeriodQo.institutions})
-        group by sm2.institutions ,sm.institutions
-        order by institutions limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
+        SELECT institutions,
+        sum(temp.job_success_count) successJobCountForInstitutions,sum(temp.job_failed_count) failedJobCountForInstitutions, sum(temp.job_running_count) runningJobCountForInstitutions, sum(temp.job_waiting_count) waitingJobCountForInstitutions
+        from
+        ( SELECT  IF(site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions},site_host_institutions,site_guest_institutions) AS institutions,job_success_count,job_failed_count,job_running_count,job_waiting_count
+        from t_job_statistics
+        where ( site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions} or site_host_institutions = #{jobOfSiteDimensionPeriodQo.institutions} )
+        and job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE} ) temp
+        group by institutions
+        order by institutions asc
+        limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
 
     </select>
-
 
     <select id="getPagedJobStatisticsOfSiteDimensionForPeriod" resultMap="jobStatisticsMap">
         SELECT sm.site_name siteHostName,sm2.site_name siteGuestName,count(js.job_success_count) job_success_count,count(js.job_failed_count) job_failed_count,count(js.job_running_count) job_running_count,count(js.job_waiting_count) job_waiting_count,sm.institutions
@@ -145,34 +120,6 @@
         group by sm.site_name,sm2.site_name,sm.institutions
         and sm.id in (select * from (select id from t_federated_site_manager where institutions !=#{jobOfSiteDimensionPeriodQo.institutions}
         and status=2 order by institutions asc,site_name asc limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize} ) temp)
-
-    </select>
-
-
-    <select id="getJobStatisticsSummaryTodayInstitutionsAll"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryTodayQo"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodayInstitutionsAllDto">
-
-        SELECT * FROM
-        ( SELECT SUM(job_failed_count) failedJobCount,sum(job_success_count) successJobCount ,sum(job_running_count)
-        runningJobCount, sum(job_waiting_count) waitingJobCount
-        FROM t_job_statistics
-        where job_finish_date=#{dateToday,jdbcType=DATE}
-        ) tmp1,
-        (
-        SELECT COUNT(1) institutionsCount FROM
-        (
-        ( select sm.institutions
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_guest_id =sm.id
-        and js.job_finish_date=#{dateToday,jdbcType=DATE})
-        UNION
-        (select sm.institutions
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_host_id =sm.id
-        and js.job_finish_date=#{dateToday,jdbcType=DATE})
-        ) tmp
-        ) tmp2
 
     </select>
 
@@ -201,7 +148,6 @@
         ) tmp
         ) tmp2
 
-
     </select>
 
     <select id="getJobStatisticsSummaryTodayInstitutionsEachCount"
@@ -215,36 +161,13 @@
         group by sm.institutions) tmp
     </select>
 
-    <select id="getActivatedInstitutionsToday"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryTodayQo"
-            resultType="string">
-
-        (SELECT  site_guest_institutions institutions FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date= #{dateToday,jdbcType=DATE} ) tmp)
-        UNION ( SELECT  site_host_institutions FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date= #{dateToday,jdbcType=DATE} ) tmp)
-
-    </select>
-
-
     <select id="getActivatedInstitutionsPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryForPeriodQo"
             resultType="string">
 
-        (SELECT  site_guest_institutions institutions FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} ) tmp)
-        UNION ( SELECT  site_host_institutions FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} ) tmp)
-
-    </select>
-
-    <select id="getInstitutionToday"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodayInstitutionsEachDto">
-
-        SELECT institutions ,SUM(b.job_failed_count) failedJobCount,sum(b.job_success_count) successJobCount,sum(b.job_running_count) runningJobCount,sum(b.job_waiting_count) waitingJobCount
-        from
-        ((SELECT  site_guest_institutions institutions FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date= #{jobStatisticsSummaryTodayQo.dateToday,jdbcType=DATE} ) tmp)  UNION ( SELECT  site_host_institutions FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date= #{jobStatisticsSummaryTodayQo.dateToday,jdbcType=DATE} ) tmp) order by institutions limit #{startIndex}, #{jobStatisticsSummaryTodayQo.pageSize}) a,
-        t_job_statistics b
-        WHERE b.job_finish_date= #{jobStatisticsSummaryTodayQo.dateToday,jdbcType=DATE}
-        AND ( a.institutions=b.site_guest_institutions OR a.institutions=b.site_host_institutions)
-        GROUP BY a.institutions
-        order by institutions
+        (SELECT  site_guest_institutions institutions FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} )
+        UNION
+        (SELECT  site_host_institutions  institutions FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} )
 
     </select>
 
@@ -252,13 +175,13 @@
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodayInstitutionsEachDto">
 
         SELECT institutions ,SUM(b.job_failed_count) failedJobCount,sum(b.job_success_count) successJobCount,sum(b.job_running_count) runningJobCount,sum(b.job_waiting_count) waitingJobCount
-        from
-        ((SELECT  site_guest_institutions institutions FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}) tmp)  UNION ( SELECT  site_host_institutions FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} ) tmp) order by institutions limit #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}) a,
+        FROM
+        ( (SELECT  site_guest_institutions institutions FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} )  UNION ( SELECT  site_host_institutions FROM  t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} ) order by institutions ASC limit #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}) a,
         t_job_statistics b
         WHERE b.job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}
         AND ( a.institutions=b.site_guest_institutions OR a.institutions=b.site_host_institutions)
         GROUP BY a.institutions
-        order by institutions
+        order by institutions ASC
     </select>
 
     <select id="getJobStatisticsSummaryTodayInstitutionsEach"
@@ -270,23 +193,6 @@
         and js.job_finish_date=#{jobStatisticsSummaryTodayQo.dateToday,jdbcType=DATE}
         group by sm.institutions order by sm.institutions asc limit #{startIndex},
         #{jobStatisticsSummaryTodayQo.pageSize}
-    </select>
-
-
-    <select id="getJobStatisticsSummaryTodaySiteAll"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryTodaySiteAllQo"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteAllDto">
-
-        SELECT
-        ( SELECT count(1) FROM
-        (SELECT a.site_guest_id FROM t_job_statistics a WHERE a.job_finish_date= #{dateToday,jdbcType=DATE} AND a.site_guest_institutions = #{institutions} GROUP BY a.site_guest_id
-        UNION SELECT b.site_host_id FROM t_job_statistics b WHERE b.job_finish_date= #{dateToday,jdbcType=DATE} AND b.site_host_institutions = #{institutions} GROUP BY b.site_host_id  ) tmp) siteCount
-        ,
-        SUM(job_failed_count) failedJobCount,sum(job_success_count) successJobCount ,sum(job_running_count)  runningJobCount, sum(job_waiting_count) waitingJobCount
-        FROM t_job_statistics
-        WHERE job_finish_date= #{dateToday,jdbcType=DATE}
-        and ( site_guest_institutions = #{institutions} OR site_host_institutions = #{institutions} )
-
     </select>
 
     <select id="getJobStatisticsSummarySiteAllForPeriod"
@@ -305,48 +211,17 @@
 
     </select>
 
-    <select id="getJobStatisticsSummaryTodaySiteEachCount"
-            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryTodaySiteAllQo"
-            resultType="long">
-
-        select count(1) FROM (
-        (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date= #{dateToday,jdbcType=DATE} AND site_guest_institutions= #{institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date= #{dateToday,jdbcType=DATE} AND site_host_institutions= #{institutions} ) tmp ) )tmp1
-
-    </select>
-
-    <select id="getJobStatisticsSummaryTodaySiteEach"
-            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteEachDto">
-
-        SELECT a.site,  (SELECT sm.party_id  FROM t_federated_site_manager sm WHERE sm.site_name = a.site) AS   partyId,
-        sum(b.job_failed_count) failedJobCount,sum(b.job_success_count) successJobCount,sum(b.job_running_count) runningJobCount,sum(b.job_waiting_count) waitingJobCount
-        FROM
-        (
-        SELECT *FROM
-        (
-        (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date= #{jobStatisticsSummaryTodaySiteAllQo.dateToday,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummaryTodaySiteAllQo.institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date= #{jobStatisticsSummaryTodaySiteAllQo.dateToday,jdbcType=DATE} AND site_host_institutions= #{jobStatisticsSummaryTodaySiteAllQo.institutions}  ) tmp )
-        ) tmp1
-        ORDER BY site LIMIT #{startIndex}, #{jobStatisticsSummaryTodaySiteAllQo.pageSize}
-        ) a, t_job_statistics b
-        WHERE b.job_finish_date = #{jobStatisticsSummaryTodaySiteAllQo.dateToday,jdbcType=DATE}
-        AND  ( b.site_guest_name= a.site OR b.site_host_name= a.site)
-        GROUP BY a.site
-
-    </select>
-
-
     <select id="getJobStatisticsSummarySiteEachForPeriodCount"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummarySiteAllForPeriodQo"
             resultType="long">
-
-        select count(1) FROM (
-        (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date   between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_guest_institutions= #{institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date  between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_host_institutions= #{institutions} ) tmp ) )tmp1
-
+        select count(1)
+        FROM (
+        (SELECT site_guest_name site FROM t_job_statistics WHERE job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_guest_institutions= #{institutions} )
+        UNION
+        (SELECT site_host_name site  FROM t_job_statistics WHERE job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE} AND site_host_institutions= #{institutions} )
+        ) tmp
 
     </select>
-
 
     <select id="getJobStatisticsSummarySiteEachForPeriod"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteEachDto">
@@ -354,20 +229,18 @@
         SELECT a.site,  (SELECT sm.party_id  FROM t_federated_site_manager sm WHERE sm.site_name = a.site) AS   partyId,
         sum(b.job_failed_count) failedJobCount,sum(b.job_success_count) successJobCount,sum(b.job_running_count) runningJobCount,sum(b.job_waiting_count) waitingJobCount
         FROM
-        (
-        SELECT *FROM
-        (
-        (SELECT  site_guest_name site FROM ( SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions} ) tmp )
-        UNION ( SELECT  site_host_name FROM (  SELECT * FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_host_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions}  ) tmp )
-        ) tmp1
-        ORDER BY site LIMIT #{startIndex}, #{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
+        ( SELECT * FROM
+          (
+            (SELECT site_guest_name site FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions} )
+             UNION
+            (SELECT site_host_name site  FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_host_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions}  )
+          ) tmp ORDER BY site asc LIMIT #{startIndex}, #{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
         ) a, t_job_statistics b
         WHERE b.job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
         AND  ( b.site_guest_name= a.site OR b.site_host_name= a.site)
-        GROUP BY a.site
+        GROUP BY a.site order by  a.site asc
 
     </select>
-
 
     <select id="getJobStatisticsOfSiteDimensionForPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
@@ -384,7 +257,6 @@
         group by sm.site_name,sm2.site_name,sm.institutions
     </select>
 
-
     <select id="getJobStatisticsODimensionForPeriod"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
             resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
@@ -399,7 +271,6 @@
         = 2)
         group by sm2.institutions
     </select>
-
 
     <select id="getJobStatisticsSummaryInstitutionsEachForPeriodCount"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryForPeriodQo"
@@ -424,48 +295,6 @@
         #{jobStatisticsSummaryForPeriodQo.pageSize}
     </select>
 
-
-
-    <select id="findCountOfSite" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionQo"
-            resultType="long">
-        SELECT count(1) from
-        (
-        select js.site_host_id
-        FROM t_job_statistics js
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions =#{institutions} and
-        status = 2)
-        and js.job_finish_date between #{dateToday,jdbcType=DATE} and #{dateToday,jdbcType=DATE}
-        group by js.site_host_id
-        ) tmp
-
-    </select>
-
-    <select id="getPagedJobStatisticsOfSiteDimensionDynamicRow" resultMap="jobStatisticsMap">
-        SELECT
-        (SELECT sm.site_name FROM t_federated_site_manager sm WHERE sm.id = js.site_host_id) AS siteHostName,
-        (SELECT sm.site_name FROM t_federated_site_manager sm WHERE sm.id = js.site_guest_id) AS siteGuestName,
-        (SELECT sm.institutions FROM t_federated_site_manager sm WHERE sm.id = js.site_host_id) AS institutions,
-        js.job_success_count,js.job_failed_count,js.job_running_count,js.job_waiting_count
-        FROM t_job_statistics js
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE} and
-        #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and js.site_host_id in (
-        select tmp.site_host_id from (
-        select js.site_host_id,sm.site_name
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE} and
-        #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and sm.id =js.site_host_id
-        group by js.site_host_id ,sm.site_name order by sm.site_name asc limit
-        #{startIndex},#{jobOfSiteDimensionQo.pageSize}
-        ) tmp
-        )
-    </select>
-
     <resultMap id="institutionsWithSitesMap" type="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
         <result property="institutions" column="institutions"></result>
         <collection property="sites" ofType="string" javaType="list">
@@ -474,82 +303,36 @@
 
     </resultMap>
 
-    <select id="findInstitutionsWithSitesPaged"
-            resultMap="institutionsWithSitesMap">
-        select sm.institutions,sm.site_name
-        FROM t_federated_site_manager sm,
-        (
-        select js.site_host_id,sm.site_name
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE} and
-        #{jobOfSiteDimensionQo.dateToday,jdbcType=DATE}
-        and sm.id =js.site_host_id
-        group by js.site_host_id,sm.site_name order by sm.site_name asc limit
-        #{startIndex},#{jobOfSiteDimensionQo.pageSize}
-        ) tmp
-        where sm.id=tmp.site_host_id
-
-    </select>
-
-
     <select id="findCountOfSitePeriod" parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobOfSiteDimensionPeriodQo"
-            resultType="long">
-        SELECT count(1) from
-        (
-        select js.site_host_id
-        FROM t_job_statistics js
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions =#{institutions} and
-        status = 2)
-        and js.job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
-        group by js.site_host_id
+            resultType="int">
+
+        select count(1) from
+        ( select IF(site_guest_institutions = #{institutions},site_host_institutions,site_guest_institutions) AS institution,
+        IF(site_guest_institutions = #{institutions},site_host_name,site_guest_name) AS institutionSiteName
+        from t_job_statistics
+        where job_finish_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+        and (site_guest_institutions = #{institutions} OR site_host_institutions = #{institutions})
+        group by institution,institutionSiteName
         ) tmp
 
     </select>
 
-    <select id="getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow" resultMap="jobStatisticsMap">
-        SELECT
-        (SELECT sm.site_name FROM t_federated_site_manager sm WHERE sm.id = js.site_host_id) AS siteHostName,
-        (SELECT sm.site_name FROM t_federated_site_manager sm WHERE sm.id = js.site_guest_id) AS siteGuestName,
-        (SELECT sm.institutions FROM t_federated_site_manager sm WHERE sm.id = js.site_host_id) AS institutions,
-        js.job_success_count,js.job_failed_count,js.job_running_count,js.job_waiting_count
-        FROM t_job_statistics js
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionPeriodQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and
-        #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        and js.site_host_id in (select tmp.site_host_id from
-        (
-        select js.site_host_id,sm.site_name
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionPeriodQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and
-        #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        and sm.id =js.site_host_id
-        group by js.site_host_id,sm.site_name
-        order by sm.site_name asc limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
-        ) tmp
-        )
-    </select>
+    <select id="getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow" resultMap="jobMonitorMap">
 
-    <select id="findInstitutionsWithSitesPagedPeriod"
-            resultMap="institutionsWithSitesMap">
-        select sm.institutions,sm.site_name
-        FROM t_federated_site_manager sm,
-        (
-        select js.site_host_id,sm.site_name
-        FROM t_job_statistics js,t_federated_site_manager sm
-        where js.site_guest_id in (select id from t_federated_site_manager where institutions
-        =#{jobOfSiteDimensionPeriodQo.institutions} and status = 2)
-        and js.job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and
-        #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        and sm.id =js.site_host_id
-        group by js.site_host_id ,sm.site_name
-        order by sm.site_name asc limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
-        ) tmp
-        where sm.id=tmp.site_host_id
+        select IF(site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions},site_host_institutions,site_guest_institutions) AS institution,
+        IF(site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions},site_host_name,site_guest_name) AS institutionSiteName,
+        IF(site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions},site_guest_name,site_host_name) AS siteName,
+        SUM(job_success_count + job_running_count + job_failed_count + job_waiting_count ) AS totalJobs,
+        SUM(job_success_count) AS successJobs,
+        SUM(job_running_count) AS runningJobs,
+        SUM(job_failed_count) AS failedJobs,
+        SUM(job_waiting_count) AS waitingJobs
+        from t_job_statistics
+        where job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        and (site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions} OR site_host_institutions = #{jobOfSiteDimensionPeriodQo.institutions})
+        group by institution, institutionSiteName, siteName
+        order by institution asc, institutionSiteName asc, siteName asc
+        limit #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
 
     </select>
 
