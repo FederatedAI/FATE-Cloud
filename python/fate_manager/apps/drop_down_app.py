@@ -1,10 +1,12 @@
 from flask import Flask, request, send_file
+from flask_cors import CORS
 
 from service import site_service, drop_down_service
 from utils import detect_utils
 from utils.api_utils import server_error_response, get_json_result
 
 manager = Flask(__name__)
+CORS(manager, supports_credentials=True)
 
 
 @manager.errorhandler(500)

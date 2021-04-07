@@ -51,7 +51,8 @@ class DBOperator:
         query_filters = []
         primary_keys = entity_model.get_primary_keys_name()
         for p_k in primary_keys:
-            query_filters.append(operator.attrgetter(p_k)(entity_model) == entity_info[p_k])
+            if p_k in entity_info:
+                query_filters.append(operator.attrgetter(p_k)(entity_model) == entity_info[p_k])
         instances = entity_model.select().where(*query_filters)
         if instances:
             instance = instances[0]

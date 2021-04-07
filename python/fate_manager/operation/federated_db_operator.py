@@ -95,12 +95,12 @@ def update_apply_site_info(status, info):
 
 def get_user_list(condition):
     with DB.connection_context():
-        user_list = FateUserInfo.select().where(FateUserInfo.id % "%{}%".format(condition))
-        return [user.to_json() for user in user_list]
+        user_list = FateUserInfo.select().where(FateUserInfo.user_name % "%{}%".format(condition))
+        return user_list
 
 
 def check_user(user_name):
     with DB.connection_context():
         account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
-                                                       AccountInfo.role.in_(1, 2))
+                                                       AccountInfo.role in [1, 2])
         return account_info_list

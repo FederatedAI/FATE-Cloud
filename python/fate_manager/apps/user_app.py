@@ -14,6 +14,7 @@
 #  limitations under the License.
 #
 from flask import Flask, request, send_file
+from flask_cors import CORS
 
 from controller.user_controller import check_token
 from service import user_service
@@ -21,6 +22,7 @@ from utils import detect_utils
 from utils.api_utils import server_error_response, get_json_result
 
 manager = Flask(__name__)
+CORS(manager, supports_credentials=True)
 
 
 @manager.errorhandler(500)
@@ -49,7 +51,7 @@ def get_user_list():
 @check_token
 def get_user_access_list():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["partyId", "roleId", "userName"])
+    # detect_utils.check_config(config=request_data, required_arguments=["partyId", "roleId", "userName"])
     data = user_service.get_user_access_list(request_data)
     return get_json_result(data=data)
 
@@ -58,10 +60,10 @@ def get_user_access_list():
 @check_token
 def add_user():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["userId", "userName", "roleId", "partyId",
-                                                                       "creator", "permissionList", "siteName",
-                                                                       "institution"])
-    data = user_service.add_user(request_data)
+    token = request.headers.get("token")
+    detect_utils.check_config(config=request_data, required_arguments=["userId", "userName", "roleId",
+                                                                       "creator", "permissionList"])
+    data = user_service.add_user(request_data, token)
     return get_json_result(data=data)
 
 

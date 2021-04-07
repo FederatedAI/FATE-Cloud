@@ -109,7 +109,7 @@ def get_home_site_list():
     federated_item_dict = {}
     if not federated_site_list:
         return []
-    if len(federated_site_list) == 1:
+    if len(federated_site_list) == 1 and not hasattr(federated_site_list[0], "fatesiteinfo"):
         federated_item = item.FederatedItem()
         federated_item.federatedOrganization = federated_site_list[0].federated_organization
         federated_item.institutions = federated_site_list[0].institutions
@@ -118,11 +118,13 @@ def get_home_site_list():
         federated_item.fateManagerInstitutions = account.institutions
         federated_item.createTime = federated_site_list[0].create_time
         federated_item_dict = {federated_item.federatedId: federated_item.to_dict(need_none=True)}
-
     else:
         for site in federated_site_list:
-            site_signature_req = item.SiteSignatureItem(partyId=site.party_id, role=site.role, appKey=site.app_key,
-                                                        appSecret=site.app_secret).to_dict()
+            fate_site_info = site.fatesiteinfo
+            site_signature_req = item.SiteSignatureItem(partyId=fate_site_info.party_id,
+                                                        role=fate_site_info.role,
+                                                        appKey=fate_site_info.app_key,
+                                                        appSecret=fate_site_info.app_secret).to_dict()
             logger.info(f"start request cloud FederationUri:{site_signature_req}")
             resp = request_cloud_manager(uri_key="FederationUri", data=site_signature_req, body={}, methods="get",
                                          url=site.federated_url)
@@ -133,15 +135,16 @@ def get_home_site_list():
             federated_item.createTime = resp.get("federatedOrganizationDto", {}).get("createTime")
             federated_item.federatedOrganization = resp.get("federatedOrganizationDto", {}).get("name")
             federated_item.institutions = resp.get("federatedOrganizationDto", {}).get("institution")
-            federated_item.fateManagerInstitutions = site.fate_manager_institution
+            federated_item.fateManagerInstitutions = fate_site_info.fate_manager_institution
             site_item = item.SiteItem()
-            site_item.siteId = site.site_id
-            site_item.role = item.IdPair(code=site.role, desc=RoleType.to_str(int(site.role))).to_dict()
-            site_item.status = item.IdPair(code=site.status, desc=SiteStatusType.to_str(site.status)).to_dict()
-            site_item.activationTime = site.activation_time
-            site_item.partyId = site.party_id
-            site_item.siteName = site.site_name
-            site_item.serviceStatus = item.IdPair(code=site.service_status, desc=ServiceStatusType.to_str(site.service_status)).to_dict()
+            site_item.siteId = fate_site_info.site_id
+            site_item.role = item.IdPair(code=fate_site_info.role, desc=RoleType.to_str(int(fate_site_info.role))).to_dict()
+            site_item.status = item.IdPair(code=fate_site_info.status, desc=SiteStatusType.to_str(fate_site_info.status)).to_dict()
+            site_item.acativationTime = fate_site_info.activation_time
+            site_item.partyId = fate_site_info.party_id
+            site_item.siteName = fate_site_info.site_name
+            site_item.serviceStatus = item.IdPair(code=fate_site_info.service_status,
+                                                  desc=ServiceStatusType.to_str(fate_site_info.service_status)).to_dict()
             if site.status == SiteStatusType.JOINED:
                 logger.info(f"site status is {SiteStatusType.JOINED}, start request cloud SiteQueryUri")
                 resp_data = request_cloud_manager(uri_key="SiteQueryUri", data=site_signature_req, body={},
@@ -151,7 +154,7 @@ def get_home_site_list():
                                                desc=SiteStatusType.to_str(resp_data.get("status"))).to_dict()
                 site_info = {
                     "status": site_item.status,
-                    "party_id": site.party_id,
+                    "party_id": fate_site_info.party_id,
                     "federated_id": site.federated_id,
                     "create_time": resp_data.get("createTime"),
                     "activation_time": resp_data.get("activationTime"),
@@ -162,7 +165,7 @@ def get_home_site_list():
                 logger.info("save site info success")
 
                 # update fate version
-                if site.fate_version or site.fate_serving_version:
+                if fate_site_info.fate_version or fate_site_info.fate_serving_version:
                     version_controller.update_version_to_cloud_manager(site)
             if federated_item.federatedId not in federated_item_dict.keys():
                 federated_item_dict[federated_item.federatedId] = federated_item.to_dict(need_none=True)

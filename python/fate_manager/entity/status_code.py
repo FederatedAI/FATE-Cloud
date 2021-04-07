@@ -12,7 +12,7 @@ class UserStatusCode:
     LoginFailed = 20003  # username or password error
     AccountRoleLow = 20004
     NoFoundToken = 20005
-    TokenExpired = 20006
+    TokenExpired = 10065
     NoFoundFederated = 20007
     AddUserFailed = 20008
     CheckUserFailed = 20009

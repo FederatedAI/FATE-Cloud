@@ -32,6 +32,7 @@ stat_logger = log.getLogger(STAT_LOGGER_NAME)
 request_cloud_logger = log.getLogger('request_cloud')
 site_service_logger = log.getLogger('site_service')
 login_service_logger = log.getLogger('login_service')
+user_logger = log.getLogger('user_service')
 
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')

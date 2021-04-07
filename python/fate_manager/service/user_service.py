@@ -1,4 +1,3 @@
-from arch.common import log
 from arch.common.base_utils import current_timestamp
 from db.db_models import TokenInfo, AccountInfo, FateSiteInfo, FateUserInfo
 from entity import item
@@ -7,9 +6,8 @@ from entity.types import ActivateStatus, UserRole, PermissionType, IsValidType, 
 from operation import federated_db_operator
 from operation.db_operator import DBOperator
 from service.site_service import get_other_site_list
+from settings import user_logger as logger
 from utils.request_cloud_utils import request_cloud_manager
-
-user_logger = log.getLogger('user_service')
 
 
 def get_user_info(token):
@@ -37,27 +35,33 @@ def get_user_info(token):
 
 def get_user_list(request_data):
     user_list = federated_db_operator.get_user_list(request_data.get("context"))
-    return user_list
+    return [{"userId": user.user_id, "userName": user.user_name} for user in user_list]
 
 
 def get_user_access_list(request_data):
-    account_list = DBOperator.query_entity(AccountInfo, **{"user_name": request_data.get("userName"),
-                                                           "party_id": request_data.get("roleId"),
-                                                           "role": request_data.get("roleId"),
-                                                           "Status": request_data.get(IsValidType.YES)})
+    logger.info(f"request data: {request_data}")
+    query_info = {"status": IsValidType.YES}
+    if request_data.get("userName"):
+        query_info["user_name"] = request_data.get("userName")
+    if request_data.get("partyId"):
+        query_info["party_id"] = request_data.get("partyId")
+    if request_data.get("userName"):
+        query_info["role"] = request_data.get("roleId")
+    account_list = DBOperator.query_entity(AccountInfo, **query_info)
+    logger.info(f"account list: {account_list}")
     data = []
     for account in account_list:
         permission_pair_list = []
         for permission_id in account.permission_list:
             permission_pair_list.append({
-                "PermissionId": int(permission_id),
-                "PermissionName": PermissionType.to_str(int(permission_id))
+                "permissionId": int(permission_id),
+                "permissionName": PermissionType.to_str(int(permission_id))
             })
         user_access_list_item = {
             "userId": "",
             "userName": account.user_name,
             "site": item.SitePair(partyId=account.party_id, siteName=account.site_name).to_dict(),
-            "role": item.Role(roleId=account.role, roleName=RoleType.to_str(account.role)).to_dict(),
+            "role": item.Role(roleId=account.role, roleName=UserRole.to_str(account.role)).to_dict(),
             "cloudUser": True if account.fate_manager_id else False,
             "permissionList": permission_pair_list,
             "creator": account.creator,
@@ -67,23 +71,32 @@ def get_user_access_list(request_data):
     return data
 
 
-def add_user(request_data):
-    if request_data.get("roleId") == UserRole.BUSINESS and request_data.get("partyId") == 0:
+def add_user(request_data, token):
+    token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
+    user_name = token_info_list[0].user_name
+    request_account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES})[0]
+    logger.info(f"request data: {request_data}")
+    if request_data.get("roleId") == UserRole.BUSINESS and request_data.get("partyId", 0) == 0:
         raise Exception(UserStatusCode.AddUserFailed, f"add user failed:role id {request_data.get('roleId')} party id"
                                                       f"{request_data.get('partyId')}")
+    logger.info("start check user")
     account_info_list = federated_db_operator.check_user(user_name=request_data.get("userName"))
-    if not account_info_list:
-        raise Exception(UserStatusCode.CheckUserFailed, f'check user failed: request_data.get("userName")')
+    if account_info_list:
+        raise Exception(UserStatusCode.AddUserFailed, f'check user failed: user {request_data.get("userName")} '
+                                                      f'already exists')
+    logger.info("check user success")
     account_info = {
         "user_id": request_data.get("userId"),
-        "user_name": request_data.get("userName"),
+        "user_name": request_data.get("userName", ""),
         "role": request_data.get('roleId'),
-        "party_id": request_data.get("partyId"),
+        "party_id": request_data.get("partyId", 0),
         "site_name": request_data.get("siteName"),
         "creator": request_data.get("creator"),
         "status": IsValidType.YES,
         "permission_list": request_data.get("permissionList"),
-        "institutions": request_data.get("institution")
+        "institutions": request_data.get("institution", request_account.institutions),
+        "fate_manager_id": request_account.fate_manager_id,
+        "active_url": request_account.active_url
     }
     DBOperator.create_entity(AccountInfo, account_info)
 
@@ -240,7 +253,7 @@ def change_login(request_data):
 
 def permission_authority(request_data):
     account = federated_db_operator.get_admin_info()
-    user_logger.info("start request cloud CheckPartyUri")
+    logger.info("start request cloud CheckPartyUri")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                        appKey=account.app_key,
                                                        appSecret=account.app_secret).to_dict()
@@ -249,7 +262,7 @@ def permission_authority(request_data):
                                  body={"institutions": account.institutions,
                                        "partyId": request_data.get("PartyId")},
                                  url=None)
-    user_logger.info(f"request cloud success:{resp}")
+    logger.info(f"request cloud success:{resp}")
 
 
 def get_allow_party_list(request_data):

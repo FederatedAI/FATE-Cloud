@@ -44,4 +44,4 @@ def check_config(config: typing.Dict, required_arguments: typing.List):
         if error_arguments:
             error_string += "required parameter values: {}".format(",".join(["{}={}".format(a[0], a[1]) for a in error_arguments]))
         stat_logger.exception(error_string)
-        raise Exception(ParameterStatusCode.MissingRequestParameters, "error_string")
+        raise Exception(ParameterStatusCode.MissingRequestParameters, error_string)
