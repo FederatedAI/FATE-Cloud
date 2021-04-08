@@ -65,8 +65,3 @@ def checkjwt():
     detect_utils.check_config(config=request_data, required_arguments=['token'])
     data = login_service.fate_manager_checkjwt(request_data)
     return get_json_result(data=data)
-
-
-
-
-

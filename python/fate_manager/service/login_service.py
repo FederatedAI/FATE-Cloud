@@ -2,7 +2,7 @@ import base64
 import hmac
 
 from arch.common.base_utils import current_timestamp
-from db.db_models import AccountInfo, FateManagerUser, FederatedInfo, TokenInfo
+from db.db_models import AccountInfo, FateUserInfo, FederatedInfo, TokenInfo
 from entity.status_code import UserStatusCode
 from entity.types import UserRole, ActivateStatus, PermissionType, IsValidType
 from operation.db_operator import DBOperator
@@ -18,7 +18,7 @@ def fate_manager_activate(request_data):
     accounts = DBOperator.query_entity(AccountInfo, status=IsValidType.YES, user_name=user_name, role=UserRole.ADMIN)
     if accounts:
         raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: User {user_name} has been activated")
-    users = DBOperator.query_entity(FateManagerUser, user_name=user_name)
+    users = DBOperator.query_entity(FateUserInfo, user_name=user_name)
     if not users:
         raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
 
@@ -53,7 +53,7 @@ def fate_manager_login(request_data):
     account = accounts[0]
     if account.role not in [UserRole.ADMIN, UserRole.DEVELOPER] :
         raise Exception(UserStatusCode.AccountRoleLow, f"user role {account.role} not in [{UserRole.ADMIN}, {UserRole.DEVELOPER}]")
-    users = DBOperator.query_entity(FateManagerUser, user_name=user_name, password=password)
+    users = DBOperator.query_entity(FateUserInfo, user_name=user_name, password=password)
     if not users:
         raise Exception(UserStatusCode.LoginFailed, f"login failed:user name {user_name} or password {password} error")
     user = users[0]

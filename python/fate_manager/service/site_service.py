@@ -195,7 +195,6 @@ def get_other_site_list():
     audit_result_list = apply_site_info_list[0].institutions
     federated_item_list = []
     for audit_result in audit_result_list:
-
         if audit_result["code"] != AuditStatusType.AGREED:
             continue
         logger.info("start request cloud OtherSiteUri")
@@ -230,12 +229,14 @@ def get_other_site_list():
 
 
 def query_apply_site():
+    logger.info('start get apply site info')
     apply_site_info_list = federated_db_operator.get_apply_site_info(status=IsValidType.YES)
+    logger.info(f'apply site info list: {apply_site_info_list}')
     audit_result_list = []
     if apply_site_info_list:
         audit_list = apply_site_info_list[0].institutions
         for audit in audit_list:
-            if int(audit.get("Readcode")) == ApplyReadStatusType.READ:
+            if int(audit.get("Readcode", -2)) == ApplyReadStatusType.READ:
                 continue
             idpair = item.IdPair(code=audit["code"], desc=audit["desc"])
             audit_result_list.append(idpair.to_dict())

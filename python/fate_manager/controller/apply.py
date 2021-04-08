@@ -26,6 +26,8 @@ def apply_result_task(account):
     valid_audit_list = valid_audit_model_list[0].institutions if valid_audit_model_list else []
     update_wait = False
     cancel_audit = []
+    if not resp:
+        resp = {}
     for apply_item in resp.get("list"):
         for wait_audit in wait_audit_list:
             if apply_item["institutions"] == wait_audit.get("desc"):
@@ -93,6 +95,8 @@ def flush_other_site_info(account, institutions, valid):
                                  url=None
                                  )
     stat_logger.info(f"request cloud success, return {resp}")
+    if not resp:
+        return
     for site in resp.get("list"):
         is_valid = IsValidType.NO
         if valid:

@@ -92,18 +92,6 @@ def fill_db_model_object(model_object, human_model_dict):
     return model_object
 
 
-class FateManagerUser(DataBaseModel):
-    user_name = CharField(max_length=50, null=True, help_text='user name')
-    password = CharField(max_length=100, null=True, help_text='password')
-    is_delete = IntegerField(default=0, null=True, help_text='0 or 1')
-    create_time = BigIntegerField(null=True)
-    update_time = BigIntegerField(null=True)
-
-    class Meta:
-        db_table = "t_fate_manager_user"
-        primary_key = CompositeKey('user_name')
-
-
 class AccountInfo(DataBaseModel):
     fate_manager_id = CharField(max_length=50, null=True, help_text='fate manager id')
     status = SmallIntegerField(default=0, help_text='user status 0 unvalid，1 valid')
@@ -430,8 +418,9 @@ class TokenInfo(DataBaseModel):
 
 class FateUserInfo(DataBaseModel):
     user_id = CharField(max_length=50, null=True, help_text='user id')
-    user_name = CharField(max_length=50, null=True, help_text='user name')
+    user_name = CharField(max_length=50, null=True, help_text='user name', primary_key=True)
     password = CharField(max_length=128, null=True, help_text='user password')
+    is_delete = IntegerField(default=0, null=True, help_text='0 or 1')
 
     class Meta:
         db_table = "t_fate_user_info"
