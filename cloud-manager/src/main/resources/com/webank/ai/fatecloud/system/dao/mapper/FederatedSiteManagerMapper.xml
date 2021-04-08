@@ -414,11 +414,12 @@
         </where>
     </select>
 
-    <select id="getInstitutionsType" parameterType="string" resultType="string">
+    <select id="getInstitutionsType" parameterType="string" resultType="int">
         SELECT g.role FROM t_federated_site_manager s,t_federated_group_set g
         <where>
             and s.group_id=g.group_id
             and s.status=2
+            and s.institutions =#{institutions}
         </where>
         group by g.role
     </select>

@@ -640,8 +640,8 @@ public class FederatedSiteManagerService {
             List<FederatedSiteAuthorityDo> sitesForInstitutionsLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsLaunch);
 
             QueryWrapper<FederatedSiteAuthorityDo> ewForInstitutionsOfHeadLaunch = new QueryWrapper<>();
-            ewForInstitutionsLaunch.eq("institutions", ewForInstitutionsOfHeadLaunch).eq("authority_institutions", institutions);
-            ewForInstitutionsLaunch.eq("status", 2).eq("generation", 1);
+            ewForInstitutionsOfHeadLaunch.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions);
+            ewForInstitutionsOfHeadLaunch.eq("status", 2).eq("generation", 1);
             List<FederatedSiteAuthorityDo> sitesForInstitutionsOfHeadLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsOfHeadLaunch);
 
             if (sitesForInstitutionsLaunch.size() > 0 && sitesForInstitutionsOfHeadLaunch.size() > 0) {//get all

@@ -345,16 +345,16 @@ public class FederatedAuthorityService {
     //get the institutions type 1.mix 2.host 3.guest 4.undefine
     public int getInstitutionsType(String institutions) {
 
-        List<String> roles = federatedSiteManagerMapper.getInstitutionsType(institutions);
+        List<Integer> roles = federatedSiteManagerMapper.getInstitutionsType(institutions);
         int size = roles.size();
         if (size <= 0) {
             return 4;
         }
         if (size == 1) {
-            if ("host".equals(roles.get(0))) {
+            if (roles.get(0)==2) { //2->host
                 return 2;
             }
-            if ("guest".equals(roles.get(0))) {
+            if (roles.get(0)==1) { //1->guest
                 return 3;
             }
             return 4;
@@ -393,7 +393,7 @@ public class FederatedAuthorityService {
         }
 
         //build page been
-        long institutionsCount = federatedFateManagerUserDos.size();
+        long institutionsCount = institutionsList.size();
         PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean;
         if (institutionsCount <= 0) {
             institutionsForFateDtoPageBean = new PageBean<>(1, 1, 0);

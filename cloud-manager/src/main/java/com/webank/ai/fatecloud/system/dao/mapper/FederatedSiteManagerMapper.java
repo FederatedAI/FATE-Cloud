@@ -62,7 +62,7 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     List<FederatedSiteManagerDo> findPagedSitesForIp(@Param("ipManagerListQo") IpManagerListQo ipManagerListQo, @Param("startIndex") long startIndex);
 
-    List<String> getInstitutionsType(String institutions);
+    List<Integer> getInstitutionsType(String institutions);
 
     long selectCountByScenario(String institutions, int type);
 
