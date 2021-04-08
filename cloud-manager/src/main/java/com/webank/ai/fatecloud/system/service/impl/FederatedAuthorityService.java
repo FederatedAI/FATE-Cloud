@@ -725,8 +725,8 @@ public class FederatedAuthorityService {
             List<FederatedSiteAuthorityDo> federatedSiteAuthorityDosForHost = federatedSiteAuthorityMapper.selectList(ewForHost);
             HashSet<String> hostList = new HashSet<>();
             for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDosForHost) {
-                String authorityInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
-                hostList.add(authorityInstitutions);
+                String hostInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
+                hostList.add(hostInstitutions);
             }
             cancelListDto.setHostList(hostList);
 
@@ -736,8 +736,8 @@ public class FederatedAuthorityService {
             List<FederatedSiteAuthorityDo> federatedSiteAuthorityDosForGuest = federatedSiteAuthorityMapper.selectList(ewForGuest);
             HashSet<String> guestList = new HashSet<>();
             for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDosForGuest) {
-                String authorityInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
-                guestList.add(authorityInstitutions);
+                String guestInstitutions = federatedSiteAuthorityDo.getInstitutions();
+                guestList.add(guestInstitutions);
             }
             cancelListDto.setGuestList(guestList);
         }
