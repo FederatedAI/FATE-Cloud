@@ -5,7 +5,7 @@ from arch.common.base_utils import current_timestamp
 from db.db_models import TokenInfo
 from entity.status_code import UserStatusCode
 from operation.db_operator import DBOperator
-from settings import EXPIRE_TIME
+from settings import EXPIRE_TIME, stat_logger
 
 
 def check_token(func):
@@ -17,7 +17,7 @@ def check_token(func):
         token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
         if token_info_list:
             now_time = current_timestamp()
-            if now_time - token_info_list[0].expire_time > EXPIRE_TIME:
+            if token_info_list[0].expire_time > now_time:
                 raise Exception(UserStatusCode.TokenExpired, "token expired")
             token_info = {
                 "user_name": token_info_list[0].user_name,

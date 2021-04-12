@@ -6,8 +6,8 @@ from entity.types import UserRole, IsValidType
 from operation.db_operator import DBOperator
 
 
+@DB.connection_context()
 def get_home_site():
-    with DB.connection_context():
         feature_store_infos = FederatedInfo.select(FederatedInfo.federated_id,
                                                    FederatedInfo.federated_organization,
                                                    FederatedInfo.institutions,
@@ -31,8 +31,8 @@ def get_home_site():
         return feature_store_infos
 
 
+@DB.connection_context()
 def get_no_deal_list():
-    with DB.connection_context():
         change_log_list = ChangeLog.select(ChangeLog.federated_id, ChangeLog.party_id, FateSiteInfo.app_key,
                                            ChangeLog.case_id, FateSiteInfo.app_secret, ChangeLog.status,
                                            FateSiteInfo.role, ChangeLog.network_access_entrances,
@@ -44,8 +44,8 @@ def get_no_deal_list():
         return change_log_list
 
 
+@DB.connection_context()
 def get_party_id_info(party_id):
-    with DB.connection_context():
         home_site_item = FederatedInfo.select(FederatedInfo.federated_id,
                                               FederatedInfo.federated_organization,
                                               FederatedInfo.institutions,
@@ -84,8 +84,8 @@ def get_apply_site_info(status):
     return apply_sites
 
 
+@DB.connection_context()
 def update_apply_site_info(status, info):
-    with DB.connection_context():
         apply_site_info = ApplySiteInfo.select().where(ApplySiteInfo.status==status)
         apply_site = apply_site_info[0]
         apply_site.status = info.get("status", apply_site.status)
@@ -93,14 +93,14 @@ def update_apply_site_info(status, info):
         apply_site.save(force_insert=False)
 
 
+@DB.connection_context()
 def get_user_list(condition):
-    with DB.connection_context():
         user_list = FateUserInfo.select().where(FateUserInfo.user_name % "%{}%".format(condition))
         return user_list
 
 
+@DB.connection_context()
 def check_user(user_name):
-    with DB.connection_context():
         account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
                                                        AccountInfo.role in [1, 2])
         return account_info_list

@@ -83,5 +83,5 @@ CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri
                                "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri", "AuthorityApplied"]
 
 # user token
-EXPIRE_TIME = 30 * 60 * 60 * 1000  # ms
+EXPIRE_TIME = 30 * 60 * 1000  # ms
 
