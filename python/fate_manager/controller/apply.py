@@ -26,6 +26,7 @@ def apply_result_task(account):
     valid_audit_list = valid_audit_model_list[0].institutions if valid_audit_model_list else []
     update_wait = False
     cancel_audit = []
+    stat_logger.info(f'resp: {resp}')
     if not resp:
         resp = {}
     for apply_item in resp.get("list"):
@@ -56,6 +57,7 @@ def apply_result_task(account):
                 flush_other_site_info(account, apply_item["institutions"], valid=True)
             valid_audit_list.append(valid_audit_item.to_dict())
     if update_wait:
+        stat_logger.info(f'update wait:{wait_audit_list}')
         federated_db_operator.update_apply_site_info(status=IsValidType.ING, info={"status": IsValidType.NO,
                                                                                    "institutions": wait_audit_list})
     if cancel_audit:

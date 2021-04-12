@@ -21,7 +21,8 @@ def register_site():
                                                                        'federatedUrl', 'id', 'institutions',
                                                                        'networkAccessEntrances', 'networkAccessExits',
                                                                        'partyId', 'registrationLink', 'role', 'siteName'])
-    data = site_service.register_fate_site(request_data)
+    token = request.headers.get("token")
+    data = site_service.register_fate_site(request_data, token)
     return get_json_result(data)
 
 
@@ -143,8 +144,8 @@ def update_version():
 
 @manager.route('/applylog', methods=['get'])
 def apply_log():
-    site_service.get_apply_log()
-    return get_json_result()
+    data = site_service.get_apply_log()
+    return get_json_result(data=data)
 
 
 @manager.route('/functionread', methods=['get'])

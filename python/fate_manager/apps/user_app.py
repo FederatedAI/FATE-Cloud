@@ -51,7 +51,6 @@ def get_user_list():
 @check_token
 def get_user_access_list():
     request_data = request.json
-    # detect_utils.check_config(config=request_data, required_arguments=["partyId", "roleId", "userName"])
     data = user_service.get_user_access_list(request_data)
     return get_json_result(data=data)
 

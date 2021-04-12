@@ -89,7 +89,7 @@ def update_apply_site_info(status, info):
         apply_site_info = ApplySiteInfo.select().where(ApplySiteInfo.status==status)
         apply_site = apply_site_info[0]
         apply_site.status = info.get("status", apply_site.status)
-        apply_site.update_time = info.get("institutions", apply_site.institutions)
+        apply_site.institutions = info.get("institutions", apply_site.institutions)
         apply_site.save(force_insert=False)
 
 

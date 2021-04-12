@@ -40,7 +40,7 @@ def get_user_list(request_data):
 
 def get_user_access_list(request_data):
     logger.info(f"request data: {request_data}")
-    query_info = {"status": IsValidType.YES}
+    query_info = {"status": IsValidType.YES, "party_id": 0}
     if request_data.get("userName"):
         query_info["user_name"] = request_data.get("userName")
     if request_data.get("partyId"):

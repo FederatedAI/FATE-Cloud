@@ -3,7 +3,7 @@ from copy import deepcopy
 from arch.common.base_utils import current_timestamp
 from controller import version_controller
 from controller.apply import apply_result_task, allow_apply_task
-from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, ApplySiteInfo, DeploySite, ChangeLog
+from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, ApplySiteInfo, DeploySite, ChangeLog, TokenInfo
 from entity import item
 from entity.status_code import UserStatusCode, SiteStatusCode
 from entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
@@ -14,7 +14,10 @@ from settings import site_service_logger as logger, CLOUD_URL
 from utils.request_cloud_utils import request_cloud_manager, get_old_signature_head
 
 
-def register_fate_site(request_data):
+def register_fate_site(request_data, token):
+    token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
+    user_name = token_info_list[0].user_name
+    account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES, "party_id": 0})[0]
     body = {"registrationLink": request_data.get("registrationLink")}
     logger.info(f"start request cloud ActivateUri, data: {request_data}, body:{body}")
     request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"))
@@ -41,7 +44,7 @@ def register_fate_site(request_data):
         "app_secret": request_data.get("appSecret"),
         "registration_link": request_data.get("registrationLink"),
         "network_access_entrances": request_data.get("networkAccessEntrances"),
-        "network_access_exits": request_data.get("network_access_exits"),
+        "network_access_exits": request_data.get("networkAccessExits"),
         "status": SiteStatusType.JOINED,
         "edit_status": EditType.YES,
         "service_status": ServiceStatusType.UNAVAILABLE,
@@ -50,6 +53,12 @@ def register_fate_site(request_data):
     logger.info(f"start save site info:{site_info}")
     DBOperator.safe_save(FateSiteInfo, site_info)
     logger.info("save site info success")
+
+    # save account party id
+    account.party_id = request_data.get("partyId")
+    account.create_time = current_timestamp()
+    account.update_time = current_timestamp()
+    DBOperator.create_entity(AccountInfo, account.to_json())
 
     logger.info(f"start request cloud SiteQueryUri")
     data = request_cloud_manager(uri_key="SiteQueryUri", data=item.SiteSignatureItem(**request_data).to_dict(), body={},
@@ -140,12 +149,12 @@ def get_home_site_list():
             site_item.siteId = fate_site_info.site_id
             site_item.role = item.IdPair(code=fate_site_info.role, desc=RoleType.to_str(int(fate_site_info.role))).to_dict()
             site_item.status = item.IdPair(code=fate_site_info.status, desc=SiteStatusType.to_str(fate_site_info.status)).to_dict()
-            site_item.acativationTime = fate_site_info.activation_time
+            site_item.activationTime = fate_site_info.activation_time
             site_item.partyId = fate_site_info.party_id
             site_item.siteName = fate_site_info.site_name
             site_item.serviceStatus = item.IdPair(code=fate_site_info.service_status,
                                                   desc=ServiceStatusType.to_str(fate_site_info.service_status)).to_dict()
-            if site.status == SiteStatusType.JOINED:
+            if fate_site_info.status == SiteStatusType.JOINED:
                 logger.info(f"site status is {SiteStatusType.JOINED}, start request cloud SiteQueryUri")
                 resp_data = request_cloud_manager(uri_key="SiteQueryUri", data=site_signature_req, body={},
                                                   url=site.federated_url)
@@ -153,7 +162,7 @@ def get_home_site_list():
                 site_item.status = item.IdPair(code=resp_data.get("status"),
                                                desc=SiteStatusType.to_str(resp_data.get("status"))).to_dict()
                 site_info = {
-                    "status": site_item.status,
+                    "status": site_item.status["code"],
                     "party_id": fate_site_info.party_id,
                     "federated_id": site.federated_id,
                     "create_time": resp_data.get("createTime"),
@@ -236,7 +245,7 @@ def query_apply_site():
     if apply_site_info_list:
         audit_list = apply_site_info_list[0].institutions
         for audit in audit_list:
-            if int(audit.get("Readcode", -2)) == ApplyReadStatusType.READ:
+            if int(audit.get("readCode", -2)) == ApplyReadStatusType.READ:
                 continue
             idpair = item.IdPair(code=audit["code"], desc=audit["desc"])
             audit_result_list.append(idpair.to_dict())
@@ -318,7 +327,7 @@ def apply_site(request_data):
             audit_item = item.AuditPair(code=audit["code"], desc=audit["desc"], readCode=AuditStatusType.AUDITING)
             audit_pair_list.append(audit_item.to_dict())
     else:
-        audit_pair_list = apply_site_info_list[0]
+        audit_pair_list = apply_site_info_list[0].institutions
         for audit_result in audit_result_list:
             hittag = False
             for audit_pair in audit_pair_list:
@@ -344,6 +353,7 @@ def read_apply_site():
             if audit_pair["code"] == AuditStatusType.AUDITING:
                 continue
             audit_pair["readCode"] = ApplyReadStatusType.READ
+        logger.info(f'update apply site info:{audit_pair_list}')
         federated_db_operator.update_apply_site_info(status=IsValidType.YES, info={"institutions": audit_pair_list})
     else:
         raise Exception(SiteStatusCode.NoFoundSite, f"no found apply site by status {IsValidType.YES}")
@@ -474,7 +484,7 @@ def get_apply_log():
     apply_site_list = DBOperator.query_entity(ApplySiteInfo, **{"status": IsValidType.NO})
     apply_log_list = []
     for apply_site in apply_site_list:
-        apply_site_list.append({"applyTime": apply_site.create_time,"content": apply_site.institutions})
+        apply_log_list.append({"applyTime": apply_site.create_time, "content": apply_site.institutions})
     return apply_log_list
 
 
