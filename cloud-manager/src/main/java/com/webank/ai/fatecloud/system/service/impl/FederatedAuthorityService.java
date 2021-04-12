@@ -55,7 +55,12 @@ public class FederatedAuthorityService {
         long institutionsCount = federatedFateManagerUserDos.size();
 
 //        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean;
+        if (institutionsCount <= 0) {
+            institutionsForFateDtoPageBean = new PageBean<>(1, 1, 0);
+        } else {
+            institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
+        }
 //        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
@@ -299,12 +304,17 @@ public class FederatedAuthorityService {
         long institutionsCount = federatedSiteAuthorityDos.size();
 
 //        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
+        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean;
+        if (institutionsCount <= 0) {
+            institutionsForFateDtoPageBean = new PageBean<>(1, 1, 0);
+        } else {
+            institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
+        }
         long startIndex = institutionsForFateDtoPageBean.getStartIndex();
 
         //get institutions list
         authorityInstitutionsQo.setPageNum(1);
-        authorityInstitutionsQo.setPageSize((int)institutionsCount);
+        authorityInstitutionsQo.setPageSize((int) institutionsCount);
         List<InstitutionsForFateDto> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
         institutionsForFateDtoPageBean.setList(approvedInstitutions);
 
