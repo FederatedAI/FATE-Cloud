@@ -234,3 +234,28 @@ create TABLE IF NOT EXISTS `t_component_version` (
   `product_id` bigint(20) NOT NULL COMMENT ' Product Primary Key',
   PRIMARY KEY (component_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='component version management';
+
+
+CREATE TABLE `t_cloud_certificate_manager` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`type_id` BIGINT(20) NOT NULL COMMENT 'certificate type id',
+	`validity` VARCHAR(50) NULL DEFAULT NULL COMMENT 'eg: 2021-01-01~2021-02-02' COLLATE 'utf8_general_ci',
+	`institution` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`organization` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`site_authority` VARCHAR(50) NULL DEFAULT NULL COMMENT 'eg: 6666,7777,8888' COLLATE 'utf8_general_ci',
+	`notes` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`serial_number` VARCHAR(100) NULL DEFAULT NULL COMMENT 'certificate unique id' COLLATE 'utf8_general_ci',
+	`dns_name` VARCHAR(255) NULL DEFAULT NULL COMMENT 'domain name, eg: could.com,manager.net' COLLATE 'utf8_general_ci',
+	`status` VARCHAR(50) NULL DEFAULT 'Unpublished' COMMENT '[Unpublished, Valid, Invalid, Revoked]' COLLATE 'utf8_general_ci',
+	`create_date` DATETIME NULL DEFAULT NULL,
+	`update_date` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`id`) USING BTREE
+) COMMENT='cloud manager certificate info' COLLATE='utf8_general_ci' ENGINE=InnoDB;
+
+
+CREATE TABLE `t_cloud_certificate_type` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`type_name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB COLLATE='latin1_swedish_ci';
+
