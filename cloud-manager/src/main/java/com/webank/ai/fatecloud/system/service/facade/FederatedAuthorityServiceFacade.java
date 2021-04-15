@@ -48,7 +48,7 @@ public class FederatedAuthorityServiceFacade {
     CheckSignature checkSignature;
 
     public CommonResponse<PageBean<InstitutionsForFateDto>> findInstitutionsForSite(AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
-        //check authority
+        //check signature
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityInstitutionsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
@@ -59,52 +59,38 @@ public class FederatedAuthorityServiceFacade {
         }
 
         //check the type
+        //get the site-authority scenario, 1.mix 2.homo 3.hetero
+        //get the institutions type 1.mix 2.host 3.guest 4.undefine
         String scenarioType = federatedAuthorityService.getScenarioType();
         int institutionsType = federatedAuthorityService.getInstitutionsType(authorityInstitutionsQo.getInstitutions());
 
-        //get the site-authority scenario, 1.mix 2.homo 3.hetero
-        //get the institutions type 1.mix 2.host 3.guest 4.undefine
-        if ("1".equals(scenarioType)) {
-//            if (institutionsType == 4) {
-//                log.error("{} doesn't have site,or undefine", authorityInstitutionsQo.getInstitutions());
-//                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-//            }
-
-        } else if ("2".equals(scenarioType) || "3".equals(scenarioType)) {
-            if (institutionsType != 3 && institutionsType != 1) {
-                log.error("{} isn't guest or mix", authorityInstitutionsQo.getInstitutions());
-                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-            }
-
-        } else {
-            return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
-
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            PageBean<InstitutionsForFateDto> pagedInstitutions = federatedAuthorityService.findInstitutionsForSite(authorityInstitutionsQo, scenarioType, institutionsType);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
         }
+        log.error("scenario type {} doesn't support", scenarioType);
+        return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
 
-        PageBean<InstitutionsForFateDto> pagedInstitutions = federatedAuthorityService.findInstitutionsForSite(authorityInstitutionsQo, scenarioType);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
     }
 
     public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
-        //check authority
+        //check signature
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityInstitutionsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
-        if (authorityInstitutionsQo.getInstitutions() == null) {
+        if (StringUtils.isBlank(authorityInstitutionsQo.getInstitutions())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        String scenarioType = federatedAuthorityService.getScenarioType();
-        int institutionsType = federatedAuthorityService.getInstitutionsType(authorityInstitutionsQo.getInstitutions());
-
-        PageBean<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo, scenarioType, institutionsType);
+        PageBean<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
+
     }
 
     public CommonResponse applyForAuthorityOfInstitutions(AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) {
-        //check authority
+        //check signature
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityApplyQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
@@ -113,12 +99,17 @@ public class FederatedAuthorityServiceFacade {
         //check parameters
         String institutions = authorityApplyQo.getInstitutions();
         ArrayList<String> authorityInstitutions = authorityApplyQo.getAuthorityInstitutions();
-        if (StringUtils.isBlank(institutions) || authorityInstitutions.size() <= 0) {//check null value
+        if (StringUtils.isBlank(institutions) || null == authorityInstitutions || authorityInstitutions.size() <= 0) { //check null value
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        for (String authorityInstitution : authorityInstitutions) {
+            if (StringUtils.isBlank(authorityInstitution)) { //check null value
+                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+            }
         }
 
         HashSet<String> set = new HashSet<>(authorityInstitutions);
-        if (set.size() != authorityInstitutions.size()) {//check duplicated values
+        if (set.size() != authorityInstitutions.size()) { //check duplicated values
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -164,12 +155,11 @@ public class FederatedAuthorityServiceFacade {
         }
         return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_APPLY_ERROR);
 
-
     }
 
     public CommonResponse<List<AuthorityApplyStatusDto>> findAuthorityApplyStatus(AuthorityApplyStatusQo authorityApplyStatusQo) {
         ArrayList<String> institutionsList = authorityApplyStatusQo.getInstitutions();
-        if (institutionsList.size() <= 0) {
+        if (institutionsList == null || institutionsList.size() <= 0) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -183,9 +173,14 @@ public class FederatedAuthorityServiceFacade {
         if (StringUtils.isBlank(authorityApplyDetailsQo.getInstitutions())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
+
         String scenarioType = federatedAuthorityService.getScenarioType();
-        AuthorityApplyDetailsDto authorityApplyDetailsDto = federatedAuthorityService.findAuthorityApplyDetails(authorityApplyDetailsQo, scenarioType);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityApplyDetailsDto);
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            AuthorityApplyDetailsDto authorityApplyDetailsDto = federatedAuthorityService.findAuthorityApplyDetails(authorityApplyDetailsQo, scenarioType);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityApplyDetailsDto);
+        }
+        log.error("scenario type {} doesn't support", scenarioType);
+        return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
 
     }
 
@@ -193,77 +188,43 @@ public class FederatedAuthorityServiceFacade {
         if (StringUtils.isBlank(authorityApplyDetailsQo.getInstitutions())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
-        String scenarioType = federatedAuthorityService.getScenarioType();
-        Set<String> authorityApplyDetails = federatedAuthorityService.findCurrentAuthority(authorityApplyDetailsQo, scenarioType);
+        Set<String> authorityApplyDetails = federatedAuthorityService.findCurrentAuthority(authorityApplyDetailsQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityApplyDetails);
 
     }
 
-    public CommonResponse reviewAuthorityApplyDetails(AuthorityApplyReviewQo authorityApplyReviewQo) {
-        String institutions = authorityApplyReviewQo.getInstitutions();
-        Set<String> approvedInstitutionsList = authorityApplyReviewQo.getApprovedInstitutionsList();
-
-        Preconditions.checkArgument(approvedInstitutionsList != null);
-
-        String scenarioType = federatedAuthorityService.getScenarioType();
-        int institutionsType = federatedAuthorityService.getInstitutionsType(institutions);
-
-        //get the site-authority scenario, 1.mix 2.homo 3.hetero
-        //get the institutions type 1.mix 2.host 3.guest 4.undefine
-        if ("1".equals(scenarioType)) {
-
-        } else if ("2".equals(scenarioType)) {
-            if (institutionsType != 3 && institutionsType != 1) {//check type of institution launching apply
-                log.error("{} isn't guest or mix", institutions);
-                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-            }
-            for (String authorityInstitution : approvedInstitutionsList) {//check type if institutions being applied
-                int authorityInstitutionsType = federatedAuthorityService.getInstitutionsType(authorityInstitution);
-                if (authorityInstitutionsType != 3 && authorityInstitutionsType != 1) {
-                    log.error("{} isn't guest or mix", authorityInstitutionsType);
-                    return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-                }
-            }
-
-        } else if ("3".equals(scenarioType)) {
-            if (institutionsType != 3 && institutionsType != 1) {//check type of institution launching apply
-                log.error("{} isn't guest or mix", institutions);
-                return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-            }
-            for (String authorityInstitution : approvedInstitutionsList) {//check type if institutions being applied
-                int authorityInstitutionsType = federatedAuthorityService.getInstitutionsType(authorityInstitution);
-                if (authorityInstitutionsType != 2 && authorityInstitutionsType != 1) {
-                    log.error("{} isn't host or mix", authorityInstitutionsType);
-                    return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
-                }
-            }
-        } else {
-            return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
+    public CommonResponse<CancelListDto> findCancelList(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+        if (StringUtils.isBlank(authorityApplyDetailsQo.getInstitutions())) {
+            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
+        String scenarioType = federatedAuthorityService.getScenarioType();
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            CancelListDto cancelListDto = federatedAuthorityService.findCancelList(authorityApplyDetailsQo, scenarioType);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, cancelListDto);
+        } else {
+            return new CommonResponse(ReturnCodeEnum.SCENARIO_ERROR);
+        }
+    }
 
-        federatedAuthorityService.reviewAuthorityApplyDetails(authorityApplyReviewQo, scenarioType, institutionsType);
+    public CommonResponse reviewAuthorityApplyDetails(AuthorityApplyReviewQo authorityApplyReviewQo) {
+        String institutions = authorityApplyReviewQo.getInstitutions();
+        if (StringUtils.isBlank(institutions)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        federatedAuthorityService.reviewAuthorityApplyDetails(authorityApplyReviewQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
 
-    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistory(AuthorityHistoryQo authorityHistoryQo) {
-
-        PageBean<AuthorityHistoryDto> authorityHistory = federatedAuthorityService.findAuthorityHistory(authorityHistoryQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityHistory);
-
-    }
 
     public CommonResponse<List<FederatedSiteAuthorityDo>> findResultsOfAuthorityApply(AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
-
-
         //check authority
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityApplyResultsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
 
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-
 
         List<FederatedSiteAuthorityDo> resultsOfAuthorityApply = federatedAuthorityService.findResultsOfAuthorityApply(authorityApplyResultsQo);
 
@@ -272,9 +233,8 @@ public class FederatedAuthorityServiceFacade {
     }
 
     public CommonResponse<Set<String>> findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
-
+        //check signature
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityApplyResultsQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
-
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -283,44 +243,47 @@ public class FederatedAuthorityServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        //check the type
-        //get the site-authority scenario, 1.mix 2.homo 3.hetero
-        //get the institutions type 1.mix 2.host 3.guest 4.undefine
-        String scenarioType = federatedAuthorityService.getScenarioType();
-        int institutionsType = federatedAuthorityService.getInstitutionsType(authorityApplyResultsQo.getInstitutions());
-        Set<String> authorizedInstitutions = federatedAuthorityService.findAuthorizedInstitutions(authorityApplyResultsQo, scenarioType, institutionsType);
+        Set<String> authorizedInstitutions = federatedAuthorityService.findAuthorizedInstitutions(authorityApplyResultsQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorizedInstitutions);
 
     }
 
 
     public CommonResponse cancelAuthority(CancelListQo cancelListQo) {
-        Preconditions.checkArgument(cancelListQo.getInstitutions() != null);
+        String institutions = cancelListQo.getInstitutions();
+        HashSet<String> all = cancelListQo.getAll();
+        HashSet<String> guestList = cancelListQo.getGuestList();
+        HashSet<String> hostList = cancelListQo.getHostList();
 
-        if (cancelListQo.getAll().size() <= 0 && cancelListQo.getGuestList().size() <= 0 && cancelListQo.getHostList().size() <= 0) {
+        if (StringUtils.isBlank(institutions)) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        if (all == null && guestList == null && hostList == null) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        if (all.size() <= 0 && guestList.size() <= 0 && hostList.size() <= 0) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
         //get the site-authority scenario, 1.mix 2.homo 3.hetero
-        //get the institutions type 1.mix 2.host 3.guest 4.undefine
         String scenarioType = federatedAuthorityService.getScenarioType();
-        int institutionsType = federatedAuthorityService.getInstitutionsType(cancelListQo.getInstitutions());
+        if ((!"1".equals(scenarioType)) && (!"2".equals(scenarioType)) && (!"3".equals(scenarioType))) {
+            log.error("scenario type {} doesn't support", scenarioType);
+            return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
+        }
 
-        if (federatedAuthorityService.cancelAuthority(cancelListQo, scenarioType, institutionsType)) {
+        if (federatedAuthorityService.cancelAuthority(cancelListQo, scenarioType)) {
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
         }
 
-        return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+        return new CommonResponse(ReturnCodeEnum.AUTHORITY_CANCEL_ERROR);
     }
 
     public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
-        Preconditions.checkArgument(StringUtils.isNotBlank(authorityHistoryOfFateManagerQo.getInstitutions()));
-
-//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(authorityHistoryOfFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
-//
-//        if (!result) {
-//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
-//        }
+        String institutions = authorityHistoryOfFateManagerQo.getInstitutions();
+        if (StringUtils.isBlank(institutions)) {
+            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
 
         PageBean<AuthorityHistoryDto> authorityHistory = federatedAuthorityService.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
 
@@ -344,24 +307,12 @@ public class FederatedAuthorityServiceFacade {
         //get the institutions type 1.mix 2.host 3.guest 4.undefine
         String scenarioType = federatedAuthorityService.getScenarioType();
         int institutionsType = federatedAuthorityService.getInstitutionsType(partyIdCheckQo.getInstitutions());
-        Boolean authorityResult = federatedAuthorityService.checkPartyIdAuthority(partyIdCheckQo, scenarioType, institutionsType);
+
+        Boolean authorityResult = federatedAuthorityService.checkPartyIdAuthority(partyIdCheckQo, scenarioType,institutionsType);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityResult);
 
     }
 
-    public CommonResponse<CancelListDto> findCancelList(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
-        if (StringUtils.isBlank(authorityApplyDetailsQo.getInstitutions())) {
-            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
-        }
 
-        String scenarioType = federatedAuthorityService.getScenarioType();
-        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
-            int institutionsType = federatedAuthorityService.getInstitutionsType(authorityApplyDetailsQo.getInstitutions());
-            CancelListDto cancelListDto = federatedAuthorityService.findCancelList(authorityApplyDetailsQo, scenarioType, institutionsType);
-            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, cancelListDto);
-        } else {
-            return new CommonResponse(ReturnCodeEnum.SCENARIO_ERROR);
-        }
-    }
 }

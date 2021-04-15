@@ -64,8 +64,8 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     List<Integer> getInstitutionsType(String institutions);
 
-    long selectCountByScenario(String institutions, int type);
+    long selectCountByScenario(String institutions, String type);
 
-    List<FederatedSiteManagerDo> findSitesByScenario(@Param("siteListForFateManagerQo") SiteListForFateManagerQo siteListForFateManagerQo,@Param("startIndex") long startIndex,@Param("type") int type);
+    List<FederatedSiteManagerDo> findSitesByScenario(@Param("siteListForFateManagerQo") SiteListForFateManagerQo siteListForFateManagerQo,@Param("startIndex") long startIndex,@Param("type") String type);
 }
 

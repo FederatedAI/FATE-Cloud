@@ -63,6 +63,7 @@ public enum ReturnCodeEnum {
     CERTIFICATE_UPDATE_ERROR(143, "The data does not meet the update conditions!"),
     INVOKE_CONNECT_ERROR(144, "Cannot connect to the server!"),
     SCENARIO_ERROR(145, "The scenario doesn't exist!"),
+    AUTHORITY_CANCEL_ERROR(146, "Original approved authority-apply doesn't exist!"),
 
     ;
     private int code;

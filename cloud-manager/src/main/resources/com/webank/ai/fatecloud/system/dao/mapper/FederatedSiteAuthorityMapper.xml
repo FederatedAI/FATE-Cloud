@@ -104,7 +104,7 @@
             (select distinct sequence from t_federated_site_authority where status !=1 and institutions =
             #{authorityHistoryOfFateManagerQo.institutions} order by sequence desc limit
             #{startIndex}, #{authorityHistoryOfFateManagerQo.pageSize}) tmp )
-            order by a.sequence desc
+            order by a.update_time desc
 
         </where>
 

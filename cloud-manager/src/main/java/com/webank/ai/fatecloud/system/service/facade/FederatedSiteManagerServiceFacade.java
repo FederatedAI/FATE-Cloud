@@ -449,12 +449,16 @@ public class FederatedSiteManagerServiceFacade {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
+        String institutions = siteListForFateManagerQo.getInstitutions();
+        if(StringUtils.isBlank(institutions)){
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
         //check the type
         String scenarioType = federatedAuthorityService.getScenarioType();
-        int institutionsType = federatedAuthorityService.getInstitutionsType(siteListForFateManagerQo.getInstitutions());
 
         if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
-            PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo,scenarioType,institutionsType,httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
+            PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo,scenarioType,httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedSites);
         } else {
             return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);

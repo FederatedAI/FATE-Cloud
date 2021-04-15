@@ -429,13 +429,13 @@
         <where>
             and s.group_id=g.group_id
             and s.status = 2
-            <if test="institutions != null">
+            <if test= "institutions != null">
                  and s.institutions=#{institutions}
             </if>
-            <if test="type == 1">
+            <if test= 'type == "2"'>
                 and g.role=1
             </if>
-            <if test="type == 2">
+            <if test= 'type == "3"'>
                 and g.role=2
             </if>
         </where>
@@ -446,13 +446,13 @@
         <where>
             and s.group_id=g.group_id
             and s.status = 2
-            <if test="siteListForFateManagerQo.institutions != null">
+            <if test= "siteListForFateManagerQo.institutions != null">
                 and s.institutions=#{siteListForFateManagerQo.institutions}
             </if>
-            <if test="type == 1">
+            <if test= 'type == "2"'>
                 and g.role=1
             </if>
-            <if test="type == 2">
+            <if test= 'type == "3"'>
                 and g.role=2
             </if>
 

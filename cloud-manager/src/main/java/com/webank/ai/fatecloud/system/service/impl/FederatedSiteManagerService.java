@@ -600,72 +600,33 @@ public class FederatedSiteManagerService {
         return new NetworkDto(ip);
     }
 
-    public PageBean<SiteDetailDto> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo, String scenarioType, int institutionsType, String fateManagerUserId) {
+    public PageBean<SiteDetailDto> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo, String scenarioType, String fateManagerUserId) {
         FederatedFateManagerUserDo fateManagerUser = federatedFateManagerUserService.findFateManagerUser(fateManagerUserId);
         String institutionsOfHead = fateManagerUser.getInstitutions();
         String institutions = siteListForFateManagerQo.getInstitutions();
         if (institutions.equals(institutionsOfHead)) {//find itself
             return this.findPagedSitesForFateManager(siteListForFateManagerQo);
-
         }
 
-        if ("1".equals(scenarioType)) {//mix
-            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-            federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead)).or(k -> k.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions)));
-            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-            if (federatedSiteAuthorityDos.size() <= 0) {
-                return null;
-            } else {
-                return this.findPagedSitesForFateManager(siteListForFateManagerQo);
-            }
+        //check authority
+        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions);
+        federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+        if (federatedSiteAuthorityDos.size() <= 0) {
+            return null;
         }
 
-        if ("2".equals(scenarioType)) {//guest
-            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-            federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead)).or(k -> k.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions)));
-            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-            if (federatedSiteAuthorityDos.size() <= 0) {
-                return null;
-            } else {
-                return this.findSitesList(siteListForFateManagerQo, 1);
-            }
-        }
+        return this.findSitesList(siteListForFateManagerQo, scenarioType);
 
-        if ("3".equals(scenarioType)) {//host
-            QueryWrapper<FederatedSiteAuthorityDo> ewForInstitutionsLaunch = new QueryWrapper<>();
-            ewForInstitutionsLaunch.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead);
-            ewForInstitutionsLaunch.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> sitesForInstitutionsLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsLaunch);
-
-            QueryWrapper<FederatedSiteAuthorityDo> ewForInstitutionsOfHeadLaunch = new QueryWrapper<>();
-            ewForInstitutionsOfHeadLaunch.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions);
-            ewForInstitutionsOfHeadLaunch.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> sitesForInstitutionsOfHeadLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsOfHeadLaunch);
-
-            if (sitesForInstitutionsLaunch.size() > 0 && sitesForInstitutionsOfHeadLaunch.size() > 0) {//get all
-                return this.findPagedSitesForFateManager(siteListForFateManagerQo);
-            }
-
-            if (sitesForInstitutionsLaunch.size() > 0) {//get guest sites
-                return this.findSitesList(siteListForFateManagerQo, 1);
-            }
-
-            if (sitesForInstitutionsOfHeadLaunch.size() > 0) {//get host sites
-                return this.findSitesList(siteListForFateManagerQo, 2);
-            }
-
-        }
-        return null;
     }
 
-    private PageBean<SiteDetailDto> findSitesList(SiteListForFateManagerQo siteListForFateManagerQo, int type) {
-        long sitesCount = federatedSiteManagerMapper.selectCountByScenario(siteListForFateManagerQo.getInstitutions(), type);
+    private PageBean<SiteDetailDto> findSitesList(SiteListForFateManagerQo siteListForFateManagerQo, String scenarioType) {
+        long sitesCount = federatedSiteManagerMapper.selectCountByScenario(siteListForFateManagerQo.getInstitutions(), scenarioType);
         PageBean<SiteDetailDto> siteDetailDtoPageBean = new PageBean<>(siteListForFateManagerQo.getPageNum(), siteListForFateManagerQo.getPageSize(), sitesCount);
         long startIndex = siteDetailDtoPageBean.getStartIndex();
 
-        List<FederatedSiteManagerDo> pagedSites = federatedSiteManagerMapper.findSitesByScenario(siteListForFateManagerQo, startIndex, type);
+        List<FederatedSiteManagerDo> pagedSites = federatedSiteManagerMapper.findSitesByScenario(siteListForFateManagerQo, startIndex, scenarioType);
         ArrayList<SiteDetailDto> siteDetailDtos = new ArrayList<>();
         for (FederatedSiteManagerDo pagedSite : pagedSites) {
             SiteDetailDto siteDetailDto = new SiteDetailDto(pagedSite);

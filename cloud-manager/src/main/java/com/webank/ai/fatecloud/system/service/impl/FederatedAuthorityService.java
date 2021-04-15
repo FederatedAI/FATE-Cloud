@@ -157,71 +157,48 @@ public class FederatedAuthorityService {
         return federatedSiteAuthorityMapper.findAuthorityApplyStatus(authorityApplyStatusQo);
     }
 
-    public List<FederatedSiteAuthorityDo> findAuthorityApplyDetails(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
-        return federatedSiteAuthorityMapper.findAuthorityApplyDetails(authorityApplyDetailsQo);
-    }
 
-
-    public List<String> findCurrentAuthority(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+    public Set<String> findCurrentAuthority(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
         federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 2).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
 
-        LinkedList<String> institutionsList = new LinkedList<>();
+        HashSet<String> institutionsSet = new HashSet<>();
         for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
-            institutionsList.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
+            institutionsSet.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
         }
-        return institutionsList;
+        return institutionsSet;
     }
 
     @Transactional
     public void reviewAuthorityApplyDetails(AuthorityApplyReviewQo authorityApplyReviewQo) {
-        //change the status to 3(deleted) for old institutions to apply
-//        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForOverwriteOldInstitutions = new QueryWrapper<>();
-//        federatedSiteAuthorityDoQueryWrapperForOverwriteOldInstitutions.eq("institutions", authorityApplyReviewQo.getInstitutions()).eq("status", 2);
-//        FederatedSiteAuthorityDo federatedSiteAuthorityDoForOverwriteOldInstitutions = new FederatedSiteAuthorityDo();
-//        federatedSiteAuthorityDoForOverwriteOldInstitutions.setStatus(3);
-//        federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoForOverwriteOldInstitutions, federatedSiteAuthorityDoQueryWrapperForOverwriteOldInstitutions);
+        String institutions = authorityApplyReviewQo.getInstitutions();
+        Set<String> approvedInstitutionsList = authorityApplyReviewQo.getApprovedInstitutionsList();
 
-        //update the status for this new institutions to apply
-//        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForReview = new QueryWrapper<>();
-//        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", authorityApplyReviewQo.getInstitutions()).eq("status", 1);
-//        FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-//        federatedSiteAuthorityDo.setStatus(authorityApplyReviewQo.getStatus());
-//        federatedSiteAuthorityDo.setUpdateTime(new Date());
-//        federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, federatedSiteAuthorityDoQueryWrapperForReview);
-
+        //get all pending authority apply for this input institution
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForReview = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", authorityApplyReviewQo.getInstitutions()).eq("status", 1);
+        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", institutions).eq("status", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapperForReview);
+
         Date date = new Date();
-        for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
-            if (authorityApplyReviewQo.getApprovedInstitutionsList().contains(federatedSiteAuthorityDo.getAuthorityInstitutions())) {
-                federatedSiteAuthorityDo.setStatus(2);
-            } else {
-                federatedSiteAuthorityDo.setStatus(3);
-            }
+        if (approvedInstitutionsList == null) { //if null, set all applying status to 3(reject)
+            FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
+            federatedSiteAuthorityDo.setStatus(3);
             federatedSiteAuthorityDo.setUpdateTime(date);
-            federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
+            federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, federatedSiteAuthorityDoQueryWrapperForReview);
+        } else {
+            for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
+                if (approvedInstitutionsList.contains(federatedSiteAuthorityDo.getAuthorityInstitutions())) { // if contains,set status 2(approve) or set 3
+                    federatedSiteAuthorityDo.setStatus(2);
+                } else {
+                    federatedSiteAuthorityDo.setStatus(3);
+                }
+                federatedSiteAuthorityDo.setUpdateTime(date);
+                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
 
+            }
         }
-
     }
-
-    public PageBean<AuthorityHistoryDto> findAuthorityHistory(AuthorityHistoryQo authorityHistoryQo) {
-        long authorityHistoryCount = federatedSiteAuthorityMapper.findAuthorityHistoryCount();
-
-        PageBean<AuthorityHistoryDto> authorityHistoryDtoPageBean = new PageBean<>(authorityHistoryQo.getPageNum(), authorityHistoryQo.getPageSize(), authorityHistoryCount);
-        long startIndex = authorityHistoryDtoPageBean.getStartIndex();
-
-        List<AuthorityHistoryDto> authorityHistoryDtos = federatedSiteAuthorityMapper.findAuthorityHistory(authorityHistoryQo, startIndex);
-
-        authorityHistoryDtoPageBean.setList(authorityHistoryDtos);
-        return authorityHistoryDtoPageBean;
-
-
-    }
-
 
     public List<FederatedSiteAuthorityDo> findResultsOfAuthorityApply(AuthorityApplyResultsQo authorityApplyResultsQo) {
 
@@ -233,13 +210,13 @@ public class FederatedAuthorityService {
         return federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
     }
 
-    public List<String> findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo) {
+    public Set<String> findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo) {
 
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
         federatedSiteAuthorityDoQueryWrapper.eq("authority_institutions", authorityApplyResultsQo.getInstitutions()).eq("status", 2).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
 
-        ArrayList<String> institutionsListWithAuthority = new ArrayList<>();
+        HashSet<String> institutionsListWithAuthority = new HashSet<>();
         for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
             institutionsListWithAuthority.add(federatedSiteAuthorityDo.getInstitutions());
         }
@@ -300,30 +277,6 @@ public class FederatedAuthorityService {
 
     }
 
-    public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
-        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", authorityInstitutionsQo.getInstitutions()).ne("status", 1).eq("generation", 1);
-        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-        long institutionsCount = federatedSiteAuthorityDos.size();
-
-//        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean = new PageBean<>(authorityInstitutionsQo.getPageNum(), authorityInstitutionsQo.getPageSize(), institutionsCount);
-        PageBean<InstitutionsForFateDto> institutionsForFateDtoPageBean;
-        if (institutionsCount <= 0) {
-            institutionsForFateDtoPageBean = new PageBean<>(1, 1, 0);
-        } else {
-            institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
-        }
-        long startIndex = institutionsForFateDtoPageBean.getStartIndex();
-
-        //get institutions list
-        authorityInstitutionsQo.setPageNum(1);
-        authorityInstitutionsQo.setPageSize((int) institutionsCount);
-        List<InstitutionsForFateDto> approvedInstitutions = federatedSiteAuthorityMapper.findApprovedInstitutions(authorityInstitutionsQo, startIndex);
-        institutionsForFateDtoPageBean.setList(approvedInstitutions);
-
-        return institutionsForFateDtoPageBean;
-
-    }
 
     public Boolean checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo) {
         FederatedSiteAuthorityDo federatedSiteAuthorityDo = federatedSiteAuthorityMapper.checkPartyIdAuthority(partyIdCheckQo);
@@ -351,10 +304,10 @@ public class FederatedAuthorityService {
             return 4;
         }
         if (size == 1) {
-            if (roles.get(0)==2) { //2->host
+            if (roles.get(0) == 2) { //2->host
                 return 2;
             }
-            if (roles.get(0)==1) { //1->guest
+            if (roles.get(0) == 1) { //1->guest
                 return 3;
             }
             return 4;
@@ -363,7 +316,8 @@ public class FederatedAuthorityService {
 
     }
 
-    public PageBean<InstitutionsForFateDto> findInstitutionsForSite(AuthorityInstitutionsQo authorityInstitutionsQo, String scenarioType) {
+    public PageBean<InstitutionsForFateDto> findInstitutionsForSite(AuthorityInstitutionsQo authorityInstitutionsQo, String scenarioType, int type) {
+
         String inputInstitutions = authorityInstitutionsQo.getInstitutions();
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
         federatedFateManagerUserDoQueryWrapper.eq("status", "2").ne("institutions", inputInstitutions);
@@ -374,21 +328,29 @@ public class FederatedAuthorityService {
             institutionsList = federatedFateManagerUserDos;
         }
         if ("2".equals(scenarioType)) {// add institution contains guest
-            for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
-                String institutions = federatedFateManagerUserDo.getInstitutions();
-                int institutionsType = getInstitutionsType(institutions);
-                if (institutionsType == 3 || institutionsType == 1) {
-                    institutionsList.add(federatedFateManagerUserDo);
+            if (type == 1 || type == 3) {// check the input institution type
+                for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
+                    String institutions = federatedFateManagerUserDo.getInstitutions();
+                    int institutionsType = getInstitutionsType(institutions);
+                    if (institutionsType == 3 || institutionsType == 1) {
+                        institutionsList.add(federatedFateManagerUserDo);
+                    }
                 }
+            } else {
+                log.error("{} isn't guest or mix", authorityInstitutionsQo.getInstitutions());
             }
         }
         if ("3".equals(scenarioType)) {// add institutions contains host
-            for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
-                String institutions = federatedFateManagerUserDo.getInstitutions();
-                int institutionsType = getInstitutionsType(institutions);
-                if (institutionsType == 2 || institutionsType == 1) {
-                    institutionsList.add(federatedFateManagerUserDo);
+            if (type == 1 || type == 3) {// check the input institution type
+                for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
+                    String institutions = federatedFateManagerUserDo.getInstitutions();
+                    int institutionsType = getInstitutionsType(institutions);
+                    if (institutionsType == 2 || institutionsType == 1) {
+                        institutionsList.add(federatedFateManagerUserDo);
+                    }
                 }
+            } else {
+                log.error("{} isn't guest or mix", authorityInstitutionsQo.getInstitutions());
             }
         }
 
@@ -404,14 +366,16 @@ public class FederatedAuthorityService {
         //get list of institutions which the input institution has accessible authority
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
 
-        if ("1".equals(scenarioType) || "2".equals(scenarioType)) {
-            federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + inputInstitutions + "',authority_institutions,institutions) authority_institutions");
-            federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", inputInstitutions).or().eq("authority_institutions", inputInstitutions))
-                    .in("status", 2).eq("generation", 1);
-        } else {
-            federatedSiteAuthorityDoQueryWrapper.select("authority_institutions");
-            federatedSiteAuthorityDoQueryWrapper.eq("institutions", inputInstitutions).in("status", 2).eq("generation", 1);
-        }
+//        if ("1".equals(scenarioType) || "2".equals(scenarioType)) {
+//            federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + inputInstitutions + "',authority_institutions,institutions) authority_institutions");
+//            federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", inputInstitutions).or().eq("authority_institutions", inputInstitutions))
+//                    .in("status", 2).eq("generation", 1);
+//        } else {
+//            federatedSiteAuthorityDoQueryWrapper.select("authority_institutions");
+//            federatedSiteAuthorityDoQueryWrapper.eq("institutions", inputInstitutions).in("status", 2).eq("generation", 1);
+//        }
+
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", inputInstitutions).eq("status", 2).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         HashSet<String> authorityInstitutionsList = new HashSet<>();
         for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
@@ -437,12 +401,10 @@ public class FederatedAuthorityService {
 
     }
 
-    public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo, String scenarioType, int institutionsType) {
+    public PageBean<InstitutionsForFateDto> findApprovedInstitutions(AuthorityInstitutionsQo authorityInstitutionsQo) {
         String institutions = authorityInstitutionsQo.getInstitutions();
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + institutions + "',authority_institutions,institutions) authority_institutions","status");
-        federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).or().eq("authority_institutions", institutions))
-                .ne("status", 1).eq("generation", 1);
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).ne("status", 1).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
 
         HashSet<InstitutionsForFateDto> institutionsForFateDtos = new HashSet<>();
@@ -461,9 +423,7 @@ public class FederatedAuthorityService {
             institutionsForFateDtoPageBean = new PageBean<>(1, institutionsCount, institutionsCount);
         }
         institutionsForFateDtoPageBean.setList(new ArrayList<>(institutionsForFateDtos));
-
         return institutionsForFateDtoPageBean;
-
 
     }
 
@@ -471,6 +431,22 @@ public class FederatedAuthorityService {
     public boolean applyForAuthorityOfInstitutions(AuthorityApplyQo authorityApplyQo, String scenarioType, int institutionsType) {
         String institutions = authorityApplyQo.getInstitutions();
         ArrayList<String> authorityInstitutions = authorityApplyQo.getAuthorityInstitutions();
+
+        //check whether the input institutions is valid or not
+        QueryWrapper<FederatedFateManagerUserDo> ewForFateManagerUser = new QueryWrapper<>();
+        ewForFateManagerUser.eq("institutions", institutions).eq("status", 2);
+        List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(ewForFateManagerUser);
+        if (federatedFateManagerUserDos.size() <= 0) {
+            return false;
+        }
+        for (String authorityInstitution : authorityInstitutions) {
+            QueryWrapper<FederatedFateManagerUserDo> ewForFateManagerUserToApply = new QueryWrapper<>();
+            ewForFateManagerUserToApply.eq("institutions", authorityInstitution).eq("status", 2);
+            List<FederatedFateManagerUserDo> federatedFateManagerUserDosToApply = federatedFateManagerUserMapper.selectList(ewForFateManagerUserToApply);
+            if (federatedFateManagerUserDosToApply.size() <= 0) {
+                return false;
+            }
+        }
 
         //check whether the input institution has pending applying request or not
         QueryWrapper<FederatedSiteAuthorityDo> ewForApply = new QueryWrapper<>();
@@ -481,7 +457,7 @@ public class FederatedAuthorityService {
         }
 
         //check whether the institutions to apply  has been applied by other institutions or not now
-        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForExistApply = new QueryWrapper<>();
+/*        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForExistApply = new QueryWrapper<>();
         if ("1".equals(scenarioType) || "2".equals(scenarioType)) {
             federatedSiteAuthorityDoQueryWrapperForExistApply.select("IF(institutions ='" + institutions + "',authority_institutions,institutions) authority_institutions");
             federatedSiteAuthorityDoQueryWrapperForExistApply.and(i -> i.eq("institutions", institutions).or().eq("authority_institutions", institutions));
@@ -500,6 +476,20 @@ public class FederatedAuthorityService {
                     return false;
                 }
             }
+        }*/
+        //check the institutions to apply are approved before
+        QueryWrapper<FederatedSiteAuthorityDo> ewForApprovedApply = new QueryWrapper<>();
+        ewForApprovedApply.eq("institutions", institutions).eq("status", 2).eq("generation", 1);
+        List<FederatedSiteAuthorityDo> approvedSiteAuthorityDo = federatedSiteAuthorityMapper.selectList(ewForApprovedApply);
+        HashSet<String> approvedInstitutionsSet = new HashSet<>();
+        for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : approvedSiteAuthorityDo) {
+            approvedInstitutionsSet.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
+        }
+
+        for (String authorityInstitution : authorityInstitutions) {
+            if (approvedInstitutionsSet.contains(authorityInstitution)) {
+                return false;
+            }
         }
 
         //insert authority institutions
@@ -513,7 +503,7 @@ public class FederatedAuthorityService {
 
         for (String authorityInstitution : authorityInstitutions) {
             //update generation status of old authority info
-            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+/*            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
             if ("1".equals(scenarioType) || "2".equals(scenarioType)) {
                 federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", authorityInstitution)).or(k -> k.eq("institutions", authorityInstitution).eq("authority_institutions", institutions)));
                 federatedSiteAuthorityDoQueryWrapper.eq("generation", 1);
@@ -521,6 +511,15 @@ public class FederatedAuthorityService {
                 federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).eq("authority_institutions", authorityInstitution).eq("generation", 1);
             }
 
+            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+            if (federatedSiteAuthorityDos.size() > 0) {
+                FederatedSiteAuthorityDo federatedSiteAuthorityDoToUpdate = new FederatedSiteAuthorityDo();
+                federatedSiteAuthorityDoToUpdate.setGeneration(2);
+                federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoToUpdate, federatedSiteAuthorityDoQueryWrapper);
+            }*/
+
+            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+            federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).eq("authority_institutions", authorityInstitution).eq("generation", 1);
             List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
             if (federatedSiteAuthorityDos.size() > 0) {
                 FederatedSiteAuthorityDo federatedSiteAuthorityDoToUpdate = new FederatedSiteAuthorityDo();
@@ -542,26 +541,19 @@ public class FederatedAuthorityService {
         return true;
     }
 
-    public Set<String> findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo, String scenarioType, int institutionsType) {
-        String institutions = authorityApplyResultsQo.getInstitutions();
-        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + institutions + "',authority_institutions,institutions) authority_institutions");
-        federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).or().eq("authority_institutions", institutions));
-        federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-
-        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-
-        HashSet<String> institutionsListWithAuthority = new HashSet<>();
-        for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
-            institutionsListWithAuthority.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
-        }
-        return institutionsListWithAuthority;
-
-    }
-
     public Boolean checkPartyIdAuthority(PartyIdCheckQo partyIdCheckQo, String scenarioType, int institutionsType) {
         String institutions = partyIdCheckQo.getInstitutions();
         Long partyId = partyIdCheckQo.getPartyId();
+
+        if ("2".equals(scenarioType) || "3".equals(scenarioType)) {
+            if (institutionsType != 3 && institutionsType != 1) {
+                log.error("{} isn't guest or mix", partyIdCheckQo.getInstitutions());
+                return false;
+            }
+        } else if (!"1".equals(scenarioType)) {
+            log.error("scenario type {} doesn't support", scenarioType);
+            return false;
+        }
 
         //confirm party id exist
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
@@ -579,7 +571,25 @@ public class FederatedAuthorityService {
         Integer role = federatedGroupSetDo.getRole();
 
         //check the authority
+        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).eq("authority_institutions", institutionsOfPartyId);
+        federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+        if (federatedSiteAuthorityDos.size() <= 0) {
+            return false;
+        }
         if ("1".equals(scenarioType)) {//mix type, both see guest an host
+            return true;
+        }
+        if ("2".equals(scenarioType)) {// only can see guest
+            return role == 1;
+        }
+        if ("3".equals(scenarioType)) {// only can see host
+            return role == 2;
+        }
+        return false;
+
+   /*     if ("1".equals(scenarioType)) {//mix type, both see guest an host
             QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
             federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsOfPartyId)).or(k -> k.eq("institutions", institutionsOfPartyId).eq("authority_institutions", institutions)));
 //            federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).eq("authority_institutions", institutionsOfPartyId).or().eq("institutions", institutionsOfPartyId).eq("authority_institutions", institutions));
@@ -632,14 +642,16 @@ public class FederatedAuthorityService {
                 return role == 1;
             }
         }
-        return false;
+        return false;*/
 
     }
 
 
     public AuthorityApplyDetailsDto findAuthorityApplyDetails(AuthorityApplyDetailsQo authorityApplyDetailsQo, String scenarioType) {
         LinkedList<String> authorityInstitutionsList = new LinkedList<>();
-        List<FederatedSiteAuthorityDo> authorityApplyDetails = federatedSiteAuthorityMapper.findAuthorityApplyDetails(authorityApplyDetailsQo);
+        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteAuthorityDoQueryWrapper.select("authority_institutions").eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 1).groupBy("authority_institutions");
+        List<FederatedSiteAuthorityDo> authorityApplyDetails = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         for (FederatedSiteAuthorityDo authorityApplyDetail : authorityApplyDetails) {
             authorityInstitutionsList.add(authorityApplyDetail.getAuthorityInstitutions());
         }
@@ -686,68 +698,38 @@ public class FederatedAuthorityService {
         }
     }
 
-    public CancelListDto findCancelList(AuthorityApplyDetailsQo authorityApplyDetailsQo, String scenarioType, int institutionsType) {
+    public CancelListDto findCancelList(AuthorityApplyDetailsQo authorityApplyDetailsQo, String scenarioType) {
         String institutions = authorityApplyDetailsQo.getInstitutions();
         CancelListDto cancelListDto = new CancelListDto();
 
-        if ("1".equals(scenarioType)) {//mix
-            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-            federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + institutions + "',authority_institutions,institutions) authority_institutions");
-            federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).or().eq("authority_institutions", institutions));
-            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-            HashSet<String> all = new HashSet<>();
-            for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
-                String authorityInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
-                all.add(authorityInstitutions);
-            }
-            cancelListDto.setAll(all);
-
+        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+        federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions);
+        federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+        HashSet<String> all = new HashSet<>();
+        for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
+            String authorityInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
+            all.add(authorityInstitutions);
         }
+        if ("1".equals(scenarioType)) {//mix
+            cancelListDto.setAll(all);
+        }
+
         if ("2".equals(scenarioType)) {//guest
-            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-            federatedSiteAuthorityDoQueryWrapper.select("IF(institutions ='" + institutions + "',authority_institutions,institutions) authority_institutions");
-            federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).or().eq("authority_institutions", institutions));
-            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-            HashSet<String> guestList = new HashSet<>();
-            for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
-                String authorityInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
-                guestList.add(authorityInstitutions);
-            }
-            cancelListDto.setGuestList(guestList);
+            cancelListDto.setGuestList(all);
         }
 
         if ("3".equals(scenarioType)) {//host
-            QueryWrapper<FederatedSiteAuthorityDo> ewForHost = new QueryWrapper<>();
-            ewForHost.eq("institutions", institutions);
-            ewForHost.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDosForHost = federatedSiteAuthorityMapper.selectList(ewForHost);
-            HashSet<String> hostList = new HashSet<>();
-            for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDosForHost) {
-                String hostInstitutions = federatedSiteAuthorityDo.getAuthorityInstitutions();
-                hostList.add(hostInstitutions);
-            }
-            cancelListDto.setHostList(hostList);
-
-            QueryWrapper<FederatedSiteAuthorityDo> ewForGuest = new QueryWrapper<>();
-            ewForGuest.eq("authority_institutions", institutions);
-            ewForGuest.eq("status", 2).eq("generation", 1);
-            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDosForGuest = federatedSiteAuthorityMapper.selectList(ewForGuest);
-            HashSet<String> guestList = new HashSet<>();
-            for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDosForGuest) {
-                String guestInstitutions = federatedSiteAuthorityDo.getInstitutions();
-                guestList.add(guestInstitutions);
-            }
-            cancelListDto.setGuestList(guestList);
+            cancelListDto.setHostList(all);
         }
+
         cancelListDto.setScenarioType(scenarioType);
         return cancelListDto;
 
     }
 
     @Transactional
-    public boolean cancelAuthority(CancelListQo cancelListQo, String scenarioType, int institutionsType) {
+    public boolean cancelAuthority(CancelListQo cancelListQo, String scenarioType) {
         String institutions = cancelListQo.getInstitutions();
 
         Date date = new Date();
@@ -757,126 +739,43 @@ public class FederatedAuthorityService {
         } else {
             maxSequence++;
         }
-
-        if ("1".equals(scenarioType)) {
-            HashSet<String> all = cancelListQo.getAll();
-            for (String institutionsToCancel : all) {
-                QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-                federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel)).or(k -> k.eq("institutions", institutionsToCancel).eq("authority_institutions", institutions)));
-//                federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel).or().eq("institutions", institutionsToCancel).eq("authority_institutions", institutions));
-                federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-
-                List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-                if (federatedSiteAuthorityDos.size() > 0) {
-                    //update old generation
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDoOldGeneration = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDoOldGeneration.setGeneration(2);
-                    federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoOldGeneration, federatedSiteAuthorityDoQueryWrapper);
-
-                    //insert new item
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
-                    federatedSiteAuthorityDo.setCreateTime(date);
-                    federatedSiteAuthorityDo.setUpdateTime(date);
-                    federatedSiteAuthorityDo.setStatus(4);
-                    federatedSiteAuthorityDo.setGeneration(1);
-                    federatedSiteAuthorityDo.setSequence(maxSequence);
-                    federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
-                } else {
-                    return false;
-                }
-            }
-        }
-        if ("2".equals(scenarioType)) {
-
-            HashSet<String> guestList = cancelListQo.getGuestList();
-            for (String institutionsToCancel : guestList) {
-                QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-                federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel)).or(k -> k.eq("institutions", institutionsToCancel).eq("authority_institutions", institutions)));
-//                federatedSiteAuthorityDoQueryWrapper.and(i -> i.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel).or().eq("institutions", institutionsToCancel).eq("authority_institutions", institutions));
-                federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-
-                List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-                if (federatedSiteAuthorityDos.size() > 0) {
-                    //update old generation
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDoOldGeneration = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDoOldGeneration.setGeneration(2);
-                    federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoOldGeneration, federatedSiteAuthorityDoQueryWrapper);
-
-                    //insert new item
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
-                    federatedSiteAuthorityDo.setCreateTime(date);
-                    federatedSiteAuthorityDo.setUpdateTime(date);
-                    federatedSiteAuthorityDo.setStatus(4);
-                    federatedSiteAuthorityDo.setGeneration(1);
-                    federatedSiteAuthorityDo.setSequence(maxSequence);
-                    federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
-                } else {
-                    return false;
-                }
-            }
+        HashSet<String> institutionsSet = new HashSet<>();
+        if ("1".equals(scenarioType)) {//mix
+            institutionsSet = cancelListQo.getAll();
         }
 
-        if ("3".equals(scenarioType)) {
+        if ("2".equals(scenarioType)) {//guest
+            institutionsSet = cancelListQo.getGuestList();
+        }
 
-            HashSet<String> guestList = cancelListQo.getGuestList();
-            for (String institutionsToCancel : guestList) {
-                QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-                federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutionsToCancel).eq("authority_institutions", institutions);
-                federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+        if ("3".equals(scenarioType)) {//host
+            institutionsSet = cancelListQo.getHostList();
+        }
+        for (String institutionsToCancel : institutionsSet) {
+            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+            federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel);
+            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
 
-                List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-                if (federatedSiteAuthorityDos.size() > 0) {
-                    //update old generation
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDoOldGeneration = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDoOldGeneration.setGeneration(2);
-                    federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoOldGeneration, federatedSiteAuthorityDoQueryWrapper);
+            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
 
-                    //insert new item
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
-                    federatedSiteAuthorityDo.setCreateTime(date);
-                    federatedSiteAuthorityDo.setUpdateTime(date);
-                    federatedSiteAuthorityDo.setStatus(4);
-                    federatedSiteAuthorityDo.setGeneration(1);
-                    federatedSiteAuthorityDo.setSequence(maxSequence);
-                    federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
-                } else {
-                    return false;
-                }
-            }
+            if (federatedSiteAuthorityDos.size() > 0) {
+                //update old generation
+                FederatedSiteAuthorityDo federatedSiteAuthorityDoOldGeneration = new FederatedSiteAuthorityDo();
+                federatedSiteAuthorityDoOldGeneration.setGeneration(2);
+                federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoOldGeneration, federatedSiteAuthorityDoQueryWrapper);
 
-
-            HashSet<String> hostList = cancelListQo.getHostList();
-            for (String institutionsToCancel : hostList) {
-                QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-                federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutions).eq("authority_institutions", institutionsToCancel);
-                federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-
-                List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-                if (federatedSiteAuthorityDos.size() > 0) {
-                    //update old generation
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDoOldGeneration = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDoOldGeneration.setGeneration(2);
-                    federatedSiteAuthorityMapper.update(federatedSiteAuthorityDoOldGeneration, federatedSiteAuthorityDoQueryWrapper);
-
-                    //insert new item
-                    FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
-                    federatedSiteAuthorityDo.setCreateTime(date);
-                    federatedSiteAuthorityDo.setUpdateTime(date);
-                    federatedSiteAuthorityDo.setStatus(4);
-                    federatedSiteAuthorityDo.setGeneration(1);
-                    federatedSiteAuthorityDo.setSequence(maxSequence);
-                    federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
-                } else {
-                    return false;
-                }
+                //insert new item
+                FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
+                federatedSiteAuthorityDo.setInstitutions(institutions);
+                federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
+                federatedSiteAuthorityDo.setCreateTime(date);
+                federatedSiteAuthorityDo.setUpdateTime(date);
+                federatedSiteAuthorityDo.setStatus(4);
+                federatedSiteAuthorityDo.setGeneration(1);
+                federatedSiteAuthorityDo.setSequence(maxSequence);
+                federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
+            } else {
+                return false;
             }
         }
         return true;
