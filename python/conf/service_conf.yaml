@@ -1,11 +1,11 @@
 database:
   name: fate_manager
-  user: user
-  passwd: pass
+  user: root
+  passwd: root
   host: 127.0.0.1
   port: 3306
   max_connections: 100
   stale_timeout: 30
 fate_manager:
-  host: 0.0.0.0
+  host: 10.58.4.4
   http_port: 9080

@@ -3,7 +3,8 @@ from copy import deepcopy
 from arch.common.base_utils import current_timestamp
 from controller import version_controller
 from controller.apply import apply_result_task, allow_apply_task
-from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, ApplySiteInfo, DeploySite, ChangeLog, TokenInfo
+from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, ApplySiteInfo, DeploySite, ChangeLog, TokenInfo, \
+    AccountSiteInfo
 from entity import item
 from entity.status_code import UserStatusCode, SiteStatusCode
 from entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
@@ -17,7 +18,7 @@ from utils.request_cloud_utils import request_cloud_manager, get_old_signature_h
 def register_fate_site(request_data, token):
     token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
     user_name = token_info_list[0].user_name
-    account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES, "party_id": 0})[0]
+    account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES})[0]
     body = {"registrationLink": request_data.get("registrationLink")}
     logger.info(f"start request cloud ActivateUri, data: {request_data}, body:{body}")
     request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"))
@@ -55,10 +56,11 @@ def register_fate_site(request_data, token):
     logger.info("save site info success")
 
     # save account party id
-    account.party_id = request_data.get("partyId")
-    account.create_time = current_timestamp()
-    account.update_time = current_timestamp()
-    DBOperator.create_entity(AccountInfo, account.to_json())
+    account_site = AccountSiteInfo()
+    account_site.party_id = request_data.get("partyId")
+    account_site.user_name = account.user_name
+    account_site.fate_manager_id = account.fate_manager_id
+    DBOperator.create_entity(AccountSiteInfo, account_site.to_json())
 
     logger.info(f"start request cloud SiteQueryUri")
     data = request_cloud_manager(uri_key="SiteQueryUri", data=item.SiteSignatureItem(**request_data).to_dict(), body={},
@@ -103,7 +105,7 @@ def find_all_fatemanager():
         block_msg.append(new_dict)
     logger.info(f"make new block msg:{block_msg}")
     logger.info(f"save account info by fate_manager_id {account.fate_manager_id}, block_msg {block_msg}")
-    DBOperator.safe_save(AccountInfo, {"fate_manager_id": account.fate_manager_id, "party_id": account.party_id,
+    DBOperator.safe_save(AccountInfo, {"fate_manager_id": account.fate_manager_id,
                                        "user_name": account.user_name,
                                        "block_msg": block_msg})
     logger.info("save  account info success")
@@ -217,21 +219,22 @@ def get_other_site_list():
                                      url=None
                                      )
         site_item_list = []
-        for site in resp.get("list"):
-            site_item = item.SiteItem()
-            site_item.siteId = site.get("id")
-            site_item.partyId = site.get("partyId")
-            site_item.siteName = site.get("siteName")
-            site_item.role = item.IdPair(code=site.get("role"), desc=RoleType.to_str(int(site.get("role")))).to_dict()
-            site_item.status = item.IdPair(code=site.get("status"), desc=SiteStatusType.to_str(int(site.get("status")))).to_dict()
-            site_item.serviceStatus = item.IdPair(code=site.get("detectiveStatus"), desc=ServiceStatusType.to_str(int(site.get("status")))).to_dict()
-            site_item.activationTime = site.get("activationTime")
-            site_item_list.append(site_item.to_dict())
+        if resp:
+            for site in resp.get("list", []):
+                site_item = item.SiteItem()
+                site_item.siteId = site.get("id")
+                site_item.partyId = site.get("partyId")
+                site_item.siteName = site.get("siteName")
+                site_item.role = item.IdPair(code=site.get("role"), desc=RoleType.to_str(int(site.get("role")))).to_dict()
+                site_item.status = item.IdPair(code=site.get("status"), desc=SiteStatusType.to_str(int(site.get("status")))).to_dict()
+                site_item.serviceStatus = item.IdPair(code=site.get("detectiveStatus"), desc=ServiceStatusType.to_str(int(site.get("status")))).to_dict()
+                site_item.activationTime = site.get("activationTime")
+                site_item_list.append(site_item.to_dict())
 
         federated_item = item.FederatedItem()
         federated_item.federatedId = federated_infos[0].federated_id
         federated_item.fateManagerInstitutions = audit_result["desc"]
-        federated_item.size = len(resp.get("list"))
+        federated_item.size = len(resp.get("list")) if resp else 0
         federated_item.siteList = site_item_list
         federated_item_list.append(federated_item.to_dict(need_none=False))
     return federated_item_list
@@ -245,6 +248,7 @@ def query_apply_site():
     if apply_site_info_list:
         audit_list = apply_site_info_list[0].institutions
         for audit in audit_list:
+            logger.info(f'audit info: {audit}')
             if int(audit.get("readCode", -2)) == ApplyReadStatusType.READ:
                 continue
             idpair = item.IdPair(code=audit["code"], desc=audit["desc"])
@@ -495,7 +499,6 @@ def function_read():
         block_item["readStatus"] = ApplyReadStatusType.READ
         resp_list.append(block_item)
     DBOperator.update_entity(AccountInfo, {"fate_manager_id": account.fate_manager_id,
-                                           "party_id": account.party_id,
                                            "block_msg": resp_list,
                                            "user_name": account.user_name})
 

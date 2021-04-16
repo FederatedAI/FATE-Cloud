@@ -17,8 +17,9 @@ import os
 import signal
 import traceback
 from flask import Flask
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
-from fate_manager.apps.deploy_app import manager as deploy_mananger
+# from fate_manager.apps.deploy_app import manager as deploy_mananger
 
 from db.db_models import init_database_tables
 from fate_manager.apps.site_app import manager as site_manager
@@ -30,10 +31,6 @@ from fate_manager.settings import IP, PORT, API_VERSION, stat_logger
 from fate_manager.utils.api_utils import get_json_result
 from scheduler.detector import TaskDetector
 
-try:
-    from werkzeug.wsgi.middleware.dispatcher import DispatcherMiddleware
-except ModuleNotFoundError:
-    from werkzeug.wsgi import DispatcherMiddleware
 
 
 manager = Flask(__name__)
@@ -50,7 +47,7 @@ if __name__ == '__main__':
     app = DispatcherMiddleware(
         manager,
         {
-            '/fate-manager/{}/deploy'.format(API_VERSION): deploy_mananger,
+            # '/fate-manager/{}/deploy'.format(API_VERSION): deploy_mananger,
             '/fate-manager/api/site': site_manager,
             '/fate-manager/api/login': login_manager,
             '/fate-manager/api/user': user_manager,

@@ -18,6 +18,7 @@ class UserStatusCode:
     CheckUserFailed = 20009
     DeleteUserFailed = 20010
     EditUserFailed = 20011
+    NoFoundPartyId = 20002
 
 
 class SiteStatusCode:

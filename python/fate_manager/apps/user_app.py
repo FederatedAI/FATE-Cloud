@@ -107,7 +107,7 @@ def get_site_info_user_list():
 @check_token
 def user_party_list():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["userId", "userName"])
+    detect_utils.check_config(config=request_data, required_arguments=["userName"])
     data = user_service.get_login_user_manager_list(request_data)
     return get_json_result(data=data)
 
@@ -116,7 +116,7 @@ def user_party_list():
 @check_token
 def sublogin():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["PartyId", "passWord", "subTag", "userName"])
+    detect_utils.check_config(config=request_data, required_arguments=["partyId", "subTag", "userName"])
     data = user_service.sublogin(request_data)
     return get_json_result(data=data)
 
@@ -125,7 +125,7 @@ def sublogin():
 @check_token
 def change_login():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["PartyId", "userName", "subTag"])
+    detect_utils.check_config(config=request_data, required_arguments=["partyId", "userName", "subTag"])
     data = user_service.change_login(request_data)
     return get_json_result(data=data)
 
@@ -133,7 +133,7 @@ def change_login():
 @manager.route('/permmsionauth', methods=['post'])
 def permmsionauth():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["PartyId"])
+    detect_utils.check_config(config=request_data, required_arguments=["partyId"])
     data = user_service.permission_authority(request_data)
     return get_json_result(data=data)
 
@@ -141,6 +141,6 @@ def permmsionauth():
 @manager.route('/allowpartylist', methods=['post'])
 def get_allow_party_list():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["PartyId"])
+    detect_utils.check_config(config=request_data, required_arguments=["partyId"])
     data = user_service.get_allow_party_list(request_data)
     return get_json_result(data=data)

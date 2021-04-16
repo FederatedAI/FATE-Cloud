@@ -4,7 +4,7 @@ from flask_cors import CORS
 from utils.api_utils import server_error_response
 
 
-manager = Flask(__name__, static_url_path='/static', template_folder='../static',
+manager = Flask(__name__, static_url_path='/static', template_folder='static',
                 static_folder="static")
 CORS(manager, supports_credentials=True)
 

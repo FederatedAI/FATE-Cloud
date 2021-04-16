@@ -139,6 +139,6 @@ class DBOperator:
                 instances = instances.order_by(getattr(entity_model, f"{order_by}").desc())
             elif reverse is False:
                 instances = instances.order_by(getattr(entity_model, f"{order_by}").asc())
-        return [instance for instance in instances]
+        return instances
 
 

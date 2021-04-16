@@ -17,7 +17,7 @@ def check_token(func):
         token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
         if token_info_list:
             now_time = current_timestamp()
-            if token_info_list[0].expire_time > now_time:
+            if token_info_list[0].expire_time < now_time:
                 raise Exception(UserStatusCode.TokenExpired, "token expired")
             token_info = {
                 "user_name": token_info_list[0].user_name,

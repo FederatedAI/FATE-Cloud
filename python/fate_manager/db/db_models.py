@@ -22,6 +22,7 @@ import __main__
 from peewee import (CharField, IntegerField, BigIntegerField, SmallIntegerField,
                     TextField, CompositeKey, BigAutoField, BooleanField)
 from playhouse.pool import PooledMySQLDatabase
+from playhouse.shortcuts import ReconnectMixin
 
 from arch.common import log
 from fate_manager.db.base_model import JSONField, BaseModel, LongTextField, DateTimeField, ListField
@@ -53,8 +54,7 @@ class BaseDataBase(object):
 
 
 MAIN_FILE_PATH = os.path.realpath(__main__.__file__)
-if MAIN_FILE_PATH.endswith('fate_manager_server.py') or \
-        MAIN_FILE_PATH.find("/unittest/__main__.py"):
+if MAIN_FILE_PATH.endswith('fate_manager_server.py'):
     DB = BaseDataBase().database_connection
 else:
     # Initialize the database only when the server is started.
@@ -102,7 +102,6 @@ class AccountInfo(DataBaseModel):
     app_secret = CharField(max_length=50, null=True, help_text='app secret')
     active_url = TextField(help_text='cloud manger account active url')
     creator = CharField(max_length=32, null=True, help_text='creator')
-    party_id = IntegerField(null=True, help_text='party id', default=0)
     site_name = CharField(max_length=256, null=True, help_text='site name')
     block_msg = ListField(null=True, help_text='function block')
     permission_list = ListField(null=True, help_text='permission list')
@@ -110,6 +109,16 @@ class AccountInfo(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_account_info"
+        primary_key = CompositeKey("user_name", "fate_manager_id")
+
+
+class AccountSiteInfo(DataBaseModel):
+    user_name = CharField(max_length=50, null=True, help_text='user name')
+    fate_manager_id = CharField(max_length=50, null=True, help_text='fate manager id')
+    party_id = IntegerField(null=True, help_text='party id', default=0)
+
+    class Meta:
+        db_table = "t_fate_account_site_info"
         primary_key = CompositeKey("user_name", "fate_manager_id", "party_id")
 
 

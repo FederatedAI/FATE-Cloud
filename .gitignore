@@ -13,3 +13,6 @@ _build
 # excluded paths
 /cloud-manager/target/
 .vscode/*
+
+/python/fate_manager/apps/static
+/python/logs

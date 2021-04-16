@@ -72,6 +72,7 @@ def fate_manager_logout(request_data, token):
     accounts = DBOperator.query_entity(AccountInfo, status=ActivateStatus.YES, user_name=user_name)
     if not accounts:
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by username:{user_name}")
+    logger.info(f'login out, user name: {user_name}, token :{token}')
     token_info = DBOperator.query_entity(TokenInfo, user_name=user_name, token=token)
     if not token_info:
         raise Exception(UserStatusCode.NoFoundToken, "login failed: token no found")
@@ -96,12 +97,12 @@ def fate_manager_checkjwt(request_data):
         raise Exception(UserStatusCode.NoFoundAccount, "no found account")
     account = accounts[0]
     token_info = {
-        "user_name": token.user_name,
+        "user_name": account.user_name,
         "token": token,
         "expire_time": current_timestamp() + EXPIRE_TIME
     }
     DBOperator.safe_save(TokenInfo, token_info)
-    return {"userName": token.user_name, "Institutions": account.institutions}
+    return {"userName": account.user_name, "Institutions": account.institutions}
 
 
 def generate_token(user_name, password):
