@@ -53,14 +53,11 @@
 
     <resultMap id="authorityHistoryMap" type="com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto">
 
-        <!--        <association property="authorityApplySequence"-->
-        <!--                     javaType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplySequence">-->
         <result property="institutions" column="institutions"></result>
-        <result property="createTime" column="create_time"></result>
+<!--        <result property="createTime" column="create_time"></result>-->
         <result property="updateTime" column="update_time"></result>
 
         <result property="sequence" column="sequence"></result>
-        <!--        </association>-->
 
         <collection property="authorityApplyReceivers"
                     ofType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyReceiver">
