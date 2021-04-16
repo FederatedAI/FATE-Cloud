@@ -20,7 +20,7 @@ create TABLE IF NOT EXISTS `t_federated_site_manager` (
   `last_detective_time` timestamp NULL DEFAULT NULL COMMENT 'detective time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated SITE Manager';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated SITE Manager';
 
 create TABLE IF NOT EXISTS `t_federated_organization` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
@@ -31,7 +31,7 @@ create TABLE IF NOT EXISTS `t_federated_organization` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Organization Table';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated Organization Table';
 
 create TABLE IF NOT EXISTS `t_federated_ip_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
@@ -49,7 +49,7 @@ create TABLE IF NOT EXISTS `t_federated_ip_manager` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated IP Manager';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated IP Manager';
 
 create TABLE IF NOT EXISTS `t_federated_group_set` (
   `group_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'group id',
@@ -62,7 +62,7 @@ create TABLE IF NOT EXISTS `t_federated_group_set` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='Federated Group Set';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated Group Set';
 
 create TABLE IF NOT EXISTS `t_federated_group_range_detail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'group detail id',
@@ -75,7 +75,7 @@ create TABLE IF NOT EXISTS `t_federated_group_range_detail` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Group Detail';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated Group Detail';
 
 create TABLE IF NOT EXISTS `t_federated_site_model` (
   `model_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'model id',
@@ -90,7 +90,7 @@ create TABLE IF NOT EXISTS `t_federated_site_model` (
   `type` varchar(128) DEFAULT NULL COMMENT 'system type',
   `id` bigint(20) NOT NULL COMMENT 'site id',
    PRIMARY KEY (`model_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Site model';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated Site model';
 
 
 create table IF NOT EXISTS `t_federated_site_authority`(
@@ -103,7 +103,7 @@ create table IF NOT EXISTS `t_federated_site_authority`(
   `generation` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'the generation to work 1:current, 2:old',
   `sequence` bigint(20) NOT NULL  COMMENT 'authority apply sequence',
    PRIMARY KEY (`authority_id`)
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='authority information for fate site';
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='authority information for fate site';
 
 
 create table IF NOT EXISTS `t_federated_function`(
@@ -114,7 +114,7 @@ create table IF NOT EXISTS `t_federated_function`(
     `update_time` timestamp NOT NULL  COMMENT 'Update Time',
      PRIMARY KEY (`function_id`)
 
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='function information';
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='function information';
 
 
 create table IF NOT EXISTS `t_cloud_manager_user`(
@@ -126,7 +126,7 @@ create table IF NOT EXISTS `t_cloud_manager_user`(
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY(`cloud_manager_id`)
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='cloud manager user information';
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='cloud manager user information';
 
 
 create table IF NOT EXISTS `t_cloud_manager_origin_user`(
@@ -137,7 +137,7 @@ create table IF NOT EXISTS `t_cloud_manager_origin_user`(
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY(`cloud_manager_origin_id`)
-)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='cloud manager origin user information';
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='cloud manager origin user information';
 
 
 create table IF NOT EXISTS `t_fate_manager_user`(
@@ -150,7 +150,7 @@ create table IF NOT EXISTS `t_fate_manager_user`(
     `protocol` varchar(128) NOT NULL  COMMENT 'https:// or http://',
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Create Time',
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time'
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='fate manager user information';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='fate manager user information';
 
 create table IF NOT EXISTS `t_job_statistics`(
     `site_guest_institutions` varchar(128) DEFAULT NULL COMMENT 'guest site belongs to institutions',
@@ -168,7 +168,7 @@ create table IF NOT EXISTS `t_job_statistics`(
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
     PRIMARY KEY(site_guest_id,site_host_id,job_finish_date)
 
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='jobs statistics for sites';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='jobs statistics for sites';
 
 
 create TABLE IF NOT EXISTS `t_federated_exchange` (
@@ -179,7 +179,7 @@ create TABLE IF NOT EXISTS `t_federated_exchange` (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   PRIMARY KEY (`exchange_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Federated Exchange Manager';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated Exchange Manager';
 
 create TABLE IF NOT EXISTS `t_roll_site` (
   `roll_site_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
@@ -189,7 +189,7 @@ create TABLE IF NOT EXISTS `t_roll_site` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   `exchange_id` bigint(20) NOT NULL COMMENT 'exchange id',
   PRIMARY KEY (`roll_site_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='roll site details';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='roll site details';
 
 
 create TABLE IF NOT EXISTS `t_party` (
@@ -203,7 +203,7 @@ create TABLE IF NOT EXISTS `t_party` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Update Time',
   `roll_site_id` bigint(20) NOT NULL COMMENT 'roll site id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='party id details';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='party id details';
 
 
 create TABLE IF NOT EXISTS `t_product_version` (
@@ -220,7 +220,7 @@ create TABLE IF NOT EXISTS `t_product_version` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   unique key `name_version` (`product_name`, `product_version`),
   PRIMARY KEY (product_id)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='product version management';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='product version management';
 
 
 create TABLE IF NOT EXISTS `t_component_version` (
@@ -233,10 +233,10 @@ create TABLE IF NOT EXISTS `t_component_version` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON update CURRENT_TIMESTAMP COMMENT 'Update Time',
   `product_id` bigint(20) NOT NULL COMMENT ' Product Primary Key',
   PRIMARY KEY (component_id)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='component version management';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='component version management';
 
 
-CREATE TABLE `t_cloud_certificate_manager` (
+CREATE TABLE IF NOT EXISTS `t_cloud_certificate_manager` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
 	`type_id` BIGINT(20) NOT NULL COMMENT 'certificate type id',
 	`validity` VARCHAR(50) NULL DEFAULT NULL COMMENT 'eg: 2021-01-01~2021-02-02' COLLATE 'utf8_general_ci',
@@ -250,12 +250,11 @@ CREATE TABLE `t_cloud_certificate_manager` (
 	`create_date` DATETIME NULL DEFAULT NULL,
 	`update_date` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`id`) USING BTREE
-) COMMENT='cloud manager certificate info' COLLATE='utf8_general_ci' ENGINE=InnoDB;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='cloud manager certificate info';
 
 
-CREATE TABLE `t_cloud_certificate_type` (
+CREATE TABLE IF NOT EXISTS `t_cloud_certificate_type` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
 	`type_name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB COLLATE='latin1_swedish_ci';
-
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='cloud manager certificate type';
