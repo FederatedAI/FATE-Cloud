@@ -7,5 +7,5 @@ database:
   max_connections: 100
   stale_timeout: 30
 fate_manager:
-  host: 10.58.4.4
+  host: 0.0.0.0
   http_port: 9080
