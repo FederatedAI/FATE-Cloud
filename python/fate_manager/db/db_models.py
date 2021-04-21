@@ -122,9 +122,10 @@ class AccountSiteInfo(DataBaseModel):
         primary_key = CompositeKey("user_name", "fate_manager_id", "party_id")
 
 
-class ApplySiteInfo(DataBaseModel):
-    institutions = ListField(help_text='institutions dict')
-    status = IntegerField(default=0, help_text='user status 0 unvalid，1 valid')
+class ApplyInstitutionsInfo(DataBaseModel):
+    institutions = CharField(max_length=50, help_text='institutions dict', primary_key=True)
+    status = IntegerField(default=0)
+    read_status = IntegerField(default=0, help_text='user status 0 unvalid，1 valid')
 
     class Meta:
         db_table = "t_fate_apply_site_info"
@@ -335,23 +336,6 @@ class MonitorDetail(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_monitor_detail"
-
-
-class FateOtherSiteInfo(DataBaseModel):
-    party_id = IntegerField(null=True, index=True, help_text='party id')
-    site_id = BigIntegerField(null=True, help_text='cloud manger autocremetid')
-    site_name = CharField(max_length=128, null=True, help_text='Site Name')
-    institutions = CharField(max_length=128, null=True, help_text='site belongs to institutions')
-    role = SmallIntegerField(default=0, help_text='role,1:guest,2:host')
-    status = SmallIntegerField(default=0, help_text='site status,1 not joined,2 joined,3 removed')
-    service_status = SmallIntegerField(default=0, help_text='service status,0 unavailable,1available')
-    is_valid = SmallIntegerField(default=0, help_text='is valid')
-    activation_time = BigIntegerField(null=True, help_text='activation Time')
-
-    class Meta:
-        db_table = "t_fate_other_site_info"
-        primary_key = CompositeKey('site_id', 'party_id', 'site_name')
-
 
 
 class FateReportInstitution(DataBaseModel):

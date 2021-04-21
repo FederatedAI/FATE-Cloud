@@ -1,7 +1,7 @@
 import operator
 import peewee
 from fate_manager.settings import stat_logger
-from arch.common.base_utils import current_timestamp
+from arch.common.base_utils import current_timestamp, timestamp_to_date
 from fate_manager.db.db_models import DB
 
 
@@ -63,6 +63,7 @@ class DBOperator:
         update_info = {}
         update_info.update(entity_info)
         update_info["update_time"] = current_timestamp()
+        update_info["update_date"] = timestamp_to_date(update_info["update_time"])
         cls.execute_update(old_obj=instance, model=entity_model,
                            update_info=update_info,
                            update_filters=update_filters)
@@ -131,7 +132,10 @@ class DBOperator:
         for k, v in kwargs.items():
             if hasattr(entity_model, k):
                 filters.append(operator.attrgetter(k)(entity_model) == v)
-        instances = entity_model.select().where(*filters)
+        if not filters:
+            instances = entity_model.select()
+        else:
+            instances = entity_model.select().where(*filters)
         if reverse is not None:
             if not order_by or not hasattr(entity_model, f"{order_by}"):
                 order_by = "create_time"

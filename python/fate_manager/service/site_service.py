@@ -3,7 +3,7 @@ from copy import deepcopy
 from arch.common.base_utils import current_timestamp
 from controller import version_controller
 from controller.apply import apply_result_task, allow_apply_task
-from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, ApplySiteInfo, DeploySite, ChangeLog, TokenInfo, \
+from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, DeploySite, ChangeLog, TokenInfo, \
     AccountSiteInfo
 from entity import item
 from entity.status_code import UserStatusCode, SiteStatusCode
@@ -200,20 +200,17 @@ def get_other_site_list():
     federated_infos = federated_db_operator.get_federated_info()
     account = federated_db_operator.get_admin_info()
     apply_result_task(account)
-    apply_site_info_list = federated_db_operator.get_apply_site_info(status=IsValidType.YES)
-    if not apply_site_info_list:
+    apply_institutions_list = federated_db_operator.get_apply_institutions_info(status=IsValidType.YES)
+    if not apply_institutions_list:
         return None
-    audit_result_list = apply_site_info_list[0].institutions
     federated_item_list = []
-    for audit_result in audit_result_list:
-        if audit_result["code"] != AuditStatusType.AGREED:
-            continue
+    for institutions_item in apply_institutions_list:
         logger.info("start request cloud OtherSiteUri")
         institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                    appKey=account.app_key,
                                                                    appSecret=account.app_secret).to_dict()
         resp = request_cloud_manager(uri_key="OtherSiteUri", data=institution_signature_item,
-                                     body={"institutions": audit_result["desc"],
+                                     body={"institutions": institutions_item.institutions,
                                            "pageNum": 1,
                                            "pageSize": 100},
                                      url=None
@@ -233,7 +230,7 @@ def get_other_site_list():
 
         federated_item = item.FederatedItem()
         federated_item.federatedId = federated_infos[0].federated_id
-        federated_item.fateManagerInstitutions = audit_result["desc"]
+        federated_item.fateManagerInstitutions = institutions_item.institutions
         federated_item.size = len(resp.get("list")) if resp else 0
         federated_item.siteList = site_item_list
         federated_item_list.append(federated_item.to_dict(need_none=False))
@@ -241,19 +238,16 @@ def get_other_site_list():
 
 
 def query_apply_site():
-    logger.info('start get apply site info')
-    apply_site_info_list = federated_db_operator.get_apply_site_info(status=IsValidType.YES)
-    logger.info(f'apply site info list: {apply_site_info_list}')
-    audit_result_list = []
-    if apply_site_info_list:
-        audit_list = apply_site_info_list[0].institutions
-        for audit in audit_list:
-            logger.info(f'audit info: {audit}')
-            if int(audit.get("readCode", -2)) == ApplyReadStatusType.READ:
-                continue
-            idpair = item.IdPair(code=audit["code"], desc=audit["desc"])
-            audit_result_list.append(idpair.to_dict())
-    return audit_result_list
+    account = federated_db_operator.get_admin_info()
+    logger.info('start request cloud: GetApplyListUri')
+    institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
+                                                               appKey=account.app_key,
+                                                               appSecret=account.app_secret).to_dict()
+    resp = request_cloud_manager(uri_key="GetApplyListUri", data=institution_signature_item,
+                                 body={"institutions": account.institutions},
+                                 url=None
+                                 )
+    return resp
 
 
 def get_exchange_info():
@@ -319,48 +313,14 @@ def apply_site(request_data):
                                                                appSecret=account.app_secret).to_dict()
     resp = request_cloud_manager(uri_key="AuthorityApply", data=institution_signature_item,
                                  body=request_data,  url=None)
-    audit_result_list = []
-    for site_info in request_data["authorityInstitutions"]:
-        audit = item.IdPair(code=AuditStatusType.AUDITING, desc=site_info).to_dict()
-        audit_result_list.append(audit)
-    DBOperator.create_entity(ApplySiteInfo, entity_info={"institutions": audit_result_list, "status": IsValidType.ING})
-    apply_site_info_list = federated_db_operator.get_apply_site_info(status=IsValidType.YES)
-    audit_pair_list = []
-    if not apply_site_info_list:
-        for audit in audit_result_list:
-            audit_item = item.AuditPair(code=audit["code"], desc=audit["desc"], readCode=AuditStatusType.AUDITING)
-            audit_pair_list.append(audit_item.to_dict())
-    else:
-        audit_pair_list = apply_site_info_list[0].institutions
-        for audit_result in audit_result_list:
-            hittag = False
-            for audit_pair in audit_pair_list:
-                if audit_result["desc"] == audit_pair["desc"]:
-                    audit_pair["code"] = AuditStatusType.AUDITING
-                    audit_pair["readCode"] = ApplyReadStatusType.NOT_READ
-                    hittag = True
-                    break
-            if not hittag:
-                audit_item = item.AuditPair(code=audit_result["code"], desc=audit_result["desc"], readCode=ApplyReadStatusType.NOT_READ)
-                audit_pair_list.append(audit_item.to_dict())
-    if not apply_site_info_list:
-        DBOperator.create_entity(ApplySiteInfo, entity_info={"institutions": audit_pair_list, "status": IsValidType.YES})
-    else:
-        federated_db_operator.update_apply_site_info(status=IsValidType.YES, info={"institutions": audit_pair_list})
 
 
 def read_apply_site():
-    apply_sites = federated_db_operator.get_apply_site_info(status=IsValidType.YES)
-    if apply_sites:
-        audit_pair_list = apply_sites[0].institutions
-        for audit_pair in audit_pair_list:
-            if audit_pair["code"] == AuditStatusType.AUDITING:
-                continue
-            audit_pair["readCode"] = ApplyReadStatusType.READ
-        logger.info(f'update apply site info:{audit_pair_list}')
-        federated_db_operator.update_apply_site_info(status=IsValidType.YES, info={"institutions": audit_pair_list})
-    else:
-        raise Exception(SiteStatusCode.NoFoundSite, f"no found apply site by status {IsValidType.YES}")
+    logger.info(f'start update apply institutions read status {ApplyReadStatusType.NOT_READ} to '
+                f'{"read_status": ApplyReadStatusType.READ}')
+    update_list = federated_db_operator.update_apply_institutions_read_status(ApplyReadStatusType.NOT_READ,
+                                                                {"read_status": ApplyReadStatusType.READ})
+    logger.info(f'update success: {update_list}')
 
 
 def get_site_detail(request_data):
@@ -485,11 +445,18 @@ def update_component_version(request_data):
 
 
 def get_apply_log():
-    apply_site_list = DBOperator.query_entity(ApplySiteInfo, **{"status": IsValidType.NO})
-    apply_log_list = []
-    for apply_site in apply_site_list:
-        apply_log_list.append({"applyTime": apply_site.create_time, "content": apply_site.institutions})
-    return apply_log_list
+    account = federated_db_operator.get_admin_info()
+    logger.info("start request cloud ApplyLog")
+    institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
+                                                               appKey=account.app_key,
+                                                               appSecret=account.app_secret).to_dict()
+    resp = request_cloud_manager(uri_key="AuthorityApply", data=institution_signature_item,
+                                 body={"institutions": account.institutions,
+                                       "pageNum": 0,
+                                       "pageSize": 100},
+                                 url=None)
+    logger.info(f'cloud return:{resp}')
+    return resp
 
 
 def function_read():

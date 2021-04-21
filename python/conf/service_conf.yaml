@@ -1,5 +1,5 @@
 database:
-  name: fate_manager
+  name: fate_manager_130
   user: root
   passwd: root
   host: 127.0.0.1

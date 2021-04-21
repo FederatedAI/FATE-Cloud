@@ -74,13 +74,16 @@ CLOUD_URL= {
     "SystemHeartUri": "/cloud-manager/api/system/heart",
     "MonitorPushUri": "/cloud-manager/api/job/push",
     "ProductVersionUri": "/cloud-manager/api/product/page/fatemanager",
-    "ExchangeUri": "/cloud-manager/api/exchange/exchange/page/fatemanager"
+    "ExchangeUri": "/cloud-manager/api/exchange/exchange/page/fatemanager",
+    "GetApplyListUri": "/cloud-manager/api/authority/findPendingApply",
+    "ApplyLog": "/cloud-manager/api/authority/history/fateManager"
 }
 
 CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUri", "UpdateVersionUri", "IpAcceptUri",
                         "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri"]
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "OtherSiteUri", "ExchangeUri",
-                               "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri", "AuthorityApplied"]
+                               "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri", "AuthorityApplied",
+                               "GetApplyListUri"]
 
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms

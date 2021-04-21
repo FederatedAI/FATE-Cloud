@@ -1,6 +1,6 @@
 from peewee import JOIN
 
-from db.db_models import DB, FederatedInfo, FateSiteInfo, AccountInfo, ApplySiteInfo, FateUserInfo, ChangeLog
+from db.db_models import DB, FederatedInfo, FateSiteInfo, AccountInfo, ApplyInstitutionsInfo, FateUserInfo, ChangeLog
 from entity.status_code import UserStatusCode
 from entity.types import UserRole, IsValidType
 from operation.db_operator import DBOperator
@@ -79,18 +79,25 @@ def get_federated_info():
     return federated_infos
 
 
-def get_apply_site_info(status):
-    apply_sites = DBOperator.query_entity(ApplySiteInfo, status=status, order_by="update_time", reverse=True)
+def get_apply_institutions_info(status=None, read_status=None):
+    if not status and not read_status:
+        apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, order_by="update_time", reverse=True)
+    elif read_status:
+        apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, read_status=read_status, order_by="update_time", reverse=True)
+    else:
+        apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, status=status, order_by="update_time", reverse=True)
     return apply_sites
 
 
 @DB.connection_context()
-def update_apply_site_info(status, info):
-        apply_site_info = ApplySiteInfo.select().where(ApplySiteInfo.status==status)
-        apply_site = apply_site_info[0]
-        apply_site.status = info.get("status", apply_site.status)
-        apply_site.institutions = info.get("institutions", apply_site.institutions)
-        apply_site.save(force_insert=False)
+def update_apply_institutions_read_status(read_status, info):
+    update_list = []
+    apply_institutions_list = ApplyInstitutionsInfo.select().where(ApplyInstitutionsInfo.read_status == read_status)
+    for institution_item in apply_institutions_list:
+        institution_item.read_status = info.get("read_status", institution_item.status)
+        institution_item.save(force_insert=False)
+        update_list.append(institution_item.institution)
+    return update_list
 
 
 @DB.connection_context()
