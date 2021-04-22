@@ -79,11 +79,9 @@ def get_federated_info():
     return federated_infos
 
 
-def get_apply_institutions_info(status=None, read_status=None):
-    if not status and not read_status:
+def get_apply_institutions_info(status=None):
+    if not status:
         apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, order_by="update_time", reverse=True)
-    elif read_status:
-        apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, read_status=read_status, order_by="update_time", reverse=True)
     else:
         apply_sites = DBOperator.query_entity(ApplyInstitutionsInfo, status=status, order_by="update_time", reverse=True)
     return apply_sites
@@ -96,7 +94,7 @@ def update_apply_institutions_read_status(read_status, info):
     for institution_item in apply_institutions_list:
         institution_item.read_status = info.get("read_status", institution_item.status)
         institution_item.save(force_insert=False)
-        update_list.append(institution_item.institution)
+        update_list.append(institution_item.institutions)
     return update_list
 
 

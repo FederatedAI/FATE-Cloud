@@ -85,6 +85,12 @@ def read_apply_site():
     return get_json_result()
 
 
+@manager.route('/noticeapplysite', methods=['post'])
+def notice_apply_site():
+    data = site_service.get_institutions_read_status()
+    return get_json_result(data=data)
+
+
 @manager.route('/institutions', methods=['get'])
 def apply_institutions():
     data = site_service.get_apply_institutions()

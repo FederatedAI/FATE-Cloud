@@ -24,17 +24,18 @@ def apply_result_task(account):
     all_institutions = federated_db_operator.get_apply_institutions_info()
     all_institutions_name = [model.institutions for model in all_institutions]
     stat_logger.info(f"all institutions name:{all_institutions_name}")
-    for apply_institutions_info in all_institutions:
-        for apply_item in resp.get("list"):
+    for apply_item in resp.get("list"):
+        if apply_item["institutions"] not in all_institutions_name:
+            add_institutions_info.append({"institutions": apply_item["institutions"],
+                                          "status": apply_item["status"],
+                                          "read_status": ApplyReadStatusType.NOT_READ})
+            continue
+        for apply_institutions_info in all_institutions:
             if apply_item["institutions"] == apply_institutions_info.institutions:
                 if apply_item["status"] != apply_institutions_info.status:
                     apply_institutions_info.status = apply_item["status"]
                     apply_institutions_info.read_status = ApplyReadStatusType.NOT_READ
                     update_institutions_models.append(apply_institutions_info)
-            elif apply_item["institutions"] not in all_institutions_name:
-                add_institutions_info.append({"institutions": apply_item["institutions"],
-                                              "status": apply_item["status"],
-                                              "read_status": ApplyReadStatusType.NOT_READ})
     stat_logger.info(f"update institutions models: {update_institutions_models}")
     stat_logger.info(f"add institutions info: {add_institutions_info}")
     for institutions_model in update_institutions_models:

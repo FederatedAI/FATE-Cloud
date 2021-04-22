@@ -4,7 +4,7 @@ from arch.common.base_utils import current_timestamp
 from controller import version_controller
 from controller.apply import apply_result_task, allow_apply_task
 from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, DeploySite, ChangeLog, TokenInfo, \
-    AccountSiteInfo
+    AccountSiteInfo, ApplyInstitutionsInfo
 from entity import item
 from entity.status_code import UserStatusCode, SiteStatusCode
 from entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
@@ -200,10 +200,12 @@ def get_other_site_list():
     federated_infos = federated_db_operator.get_federated_info()
     account = federated_db_operator.get_admin_info()
     apply_result_task(account)
-    apply_institutions_list = federated_db_operator.get_apply_institutions_info(status=IsValidType.YES)
+    apply_institutions_list = federated_db_operator.get_apply_institutions_info(status=AuditStatusType.AGREED)
+    logger.info(f"apply institutions list: {apply_institutions_list}")
     if not apply_institutions_list:
         return None
     federated_item_list = []
+    logger.info('start get other site list')
     for institutions_item in apply_institutions_list:
         logger.info("start request cloud OtherSiteUri")
         institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
@@ -248,6 +250,16 @@ def query_apply_site():
                                  url=None
                                  )
     return resp
+
+
+def get_institutions_read_status():
+    wait_read_items = DBOperator.query_entity(ApplyInstitutionsInfo, read_status=ApplyReadStatusType.NOT_READ)
+    wait_read_list = []
+    for not_read_item in wait_read_items:
+        if not_read_item.status in [AuditStatusType.AGREED, AuditStatusType.REJECTED, AuditStatusType.CANCEL]:
+            wait_read_list.append({"institutions": not_read_item.institutions,
+                                   "status": not_read_item.status})
+    return wait_read_list
 
 
 def get_exchange_info():
@@ -316,8 +328,7 @@ def apply_site(request_data):
 
 
 def read_apply_site():
-    logger.info(f'start update apply institutions read status {ApplyReadStatusType.NOT_READ} to '
-                f'{"read_status": ApplyReadStatusType.READ}')
+    logger.info(f'start update apply institutions read status')
     update_list = federated_db_operator.update_apply_institutions_read_status(ApplyReadStatusType.NOT_READ,
                                                                 {"read_status": ApplyReadStatusType.READ})
     logger.info(f'update success: {update_list}')
@@ -450,9 +461,9 @@ def get_apply_log():
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
                                                                appSecret=account.app_secret).to_dict()
-    resp = request_cloud_manager(uri_key="AuthorityApply", data=institution_signature_item,
+    resp = request_cloud_manager(uri_key="ApplyLog", data=institution_signature_item,
                                  body={"institutions": account.institutions,
-                                       "pageNum": 0,
+                                       "pageNum": 1,
                                        "pageSize": 100},
                                  url=None)
     logger.info(f'cloud return:{resp}')
