@@ -29,9 +29,6 @@ from fate_manager.db.base_model import JSONField, BaseModel, LongTextField, Date
 from fate_manager.settings import DATABASE, stat_logger
 
 
-LOGGER = log.getLogger()
-
-
 def singleton(cls, *args, **kw):
     instances = {}
 
@@ -66,7 +63,7 @@ def close_connection():
         if DB:
             DB.close()
     except Exception as e:
-        LOGGER.exception(e)
+        stat_logger.exception(e)
 
 
 class DataBaseModel(BaseModel):

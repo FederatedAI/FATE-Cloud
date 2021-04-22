@@ -8,61 +8,61 @@ from operation.db_operator import DBOperator
 
 @DB.connection_context()
 def get_home_site():
-        feature_store_infos = FederatedInfo.select(FederatedInfo.federated_id,
-                                                   FederatedInfo.federated_organization,
-                                                   FederatedInfo.institutions,
-                                                   FateSiteInfo.institutions.alias('fate_manager_institution'),
-                                                   FederatedInfo.federated_url,
-                                                   FederatedInfo.create_time,
-                                                   FateSiteInfo.service_status,
-                                                   FateSiteInfo.site_id,
-                                                   FateSiteInfo.party_id,
-                                                   FateSiteInfo.site_name,
-                                                   FateSiteInfo.role,
-                                                   FateSiteInfo.status,
-                                                   FateSiteInfo.activation_time,
-                                                   FateSiteInfo.app_key,
-                                                   FateSiteInfo.app_secret,
-                                                   FateSiteInfo.fate_version,
-                                                   FateSiteInfo.fate_serving_version,
-                                                   FateSiteInfo.component_version
-                                                   ).join(FateSiteInfo, join_type=JOIN.LEFT_OUTER,
-                                                          on=(FederatedInfo.federated_id == FateSiteInfo.federated_id)).where(FederatedInfo.status==1)
-        return feature_store_infos
+    feature_store_infos = FederatedInfo.select(FederatedInfo.federated_id,
+                                               FederatedInfo.federated_organization,
+                                               FederatedInfo.institutions,
+                                               FateSiteInfo.institutions.alias('fate_manager_institution'),
+                                               FederatedInfo.federated_url,
+                                               FederatedInfo.create_time,
+                                               FateSiteInfo.service_status,
+                                               FateSiteInfo.site_id,
+                                               FateSiteInfo.party_id,
+                                               FateSiteInfo.site_name,
+                                               FateSiteInfo.role,
+                                               FateSiteInfo.status,
+                                               FateSiteInfo.activation_time,
+                                               FateSiteInfo.app_key,
+                                               FateSiteInfo.app_secret,
+                                               FateSiteInfo.fate_version,
+                                               FateSiteInfo.fate_serving_version,
+                                               FateSiteInfo.component_version
+                                               ).join(FateSiteInfo, join_type=JOIN.LEFT_OUTER,
+                                                      on=(FederatedInfo.federated_id == FateSiteInfo.federated_id)).where(FederatedInfo.status==1)
+    return [feature_store_info for feature_store_info in feature_store_infos]
 
 
 @DB.connection_context()
 def get_no_deal_list():
-        change_log_list = ChangeLog.select(ChangeLog.federated_id, ChangeLog.party_id, FateSiteInfo.app_key,
-                                           ChangeLog.case_id, FateSiteInfo.app_secret, ChangeLog.status,
-                                           FateSiteInfo.role, ChangeLog.network_access_entrances,
-                                           ChangeLog.network_access_exits).join(FateSiteInfo, join_type=JOIN.LEFT_OUTER,
-                                                                                on=(
-                                                                                ChangeLog.party_id == FateSiteInfo.party_id,
-                                                                                ChangeLog.federated_id == FateSiteInfo.federated_id)).where(
-            ChangeLog.status == 0)
-        return change_log_list
+    change_log_list = ChangeLog.select(ChangeLog.federated_id, ChangeLog.party_id, FateSiteInfo.app_key,
+                                       ChangeLog.case_id, FateSiteInfo.app_secret, ChangeLog.status,
+                                       FateSiteInfo.role, ChangeLog.network_access_entrances,
+                                       ChangeLog.network_access_exits).join(FateSiteInfo, join_type=JOIN.LEFT_OUTER,
+                                                                            on=(
+                                                                            ChangeLog.party_id == FateSiteInfo.party_id,
+                                                                            ChangeLog.federated_id == FateSiteInfo.federated_id)).where(
+        ChangeLog.status == 0)
+    return [change_log for change_log in change_log_list]
 
 
 @DB.connection_context()
 def get_party_id_info(party_id):
-        home_site_item = FederatedInfo.select(FederatedInfo.federated_id,
-                                              FederatedInfo.federated_organization,
-                                              FederatedInfo.institutions,
-                                              FederatedInfo.federated_url,
-                                              FederatedInfo.create_time,
-                                              FateSiteInfo.party_id,
-                                              FateSiteInfo.site_name,
-                                              FateSiteInfo.role,
-                                              FateSiteInfo.status,
-                                              FateSiteInfo.activation_time,
-                                              FateSiteInfo.app_key,
-                                              FateSiteInfo.app_secret,
-                                              FateSiteInfo.fate_version,
-                                              FateSiteInfo.fate_serving_version).join(FateSiteInfo,
-                                              on=(FederatedInfo.federated_id == FateSiteInfo.federated_id)).where(
-                                                  FederatedInfo.status == 1, FateSiteInfo.party_id == party_id)
-        return home_site_item
+    home_site_items = FederatedInfo.select(FederatedInfo.federated_id,
+                                           FederatedInfo.federated_organization,
+                                           FederatedInfo.institutions,
+                                           FederatedInfo.federated_url,
+                                           FederatedInfo.create_time,
+                                           FateSiteInfo.party_id,
+                                           FateSiteInfo.site_name,
+                                           FateSiteInfo.role,
+                                           FateSiteInfo.status,
+                                           FateSiteInfo.activation_time,
+                                           FateSiteInfo.app_key,
+                                           FateSiteInfo.app_secret,
+                                           FateSiteInfo.fate_version,
+                                           FateSiteInfo.fate_serving_version).join(FateSiteInfo,
+                                           on=(FederatedInfo.federated_id == FateSiteInfo.federated_id)).where(
+                                              FederatedInfo.status == 1, FateSiteInfo.party_id == party_id)
+    return [home_site_item for home_site_item in home_site_items]
 
 
 def get_admin_info():
@@ -100,12 +100,12 @@ def update_apply_institutions_read_status(read_status, info):
 
 @DB.connection_context()
 def get_user_list(condition):
-        user_list = FateUserInfo.select().where(FateUserInfo.user_name % "%{}%".format(condition))
-        return user_list
+    user_list = FateUserInfo.select().where(FateUserInfo.user_name % "%{}%".format(condition))
+    return [user for user in user_list]
 
 
 @DB.connection_context()
 def check_user(user_name):
-        account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
-                                                       AccountInfo.role in [1, 2])
-        return account_info_list
+    account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
+                                                   AccountInfo.role in [1, 2])
+    return [account_info for account_info in account_info_list]

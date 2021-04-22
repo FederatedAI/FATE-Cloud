@@ -1,8 +1,9 @@
 import operator
 import peewee
+
+from db.db_models import DB
 from fate_manager.settings import stat_logger
 from arch.common.base_utils import current_timestamp, timestamp_to_date
-from fate_manager.db.db_models import DB
 
 
 class DBOperator:
@@ -143,6 +144,6 @@ class DBOperator:
                 instances = instances.order_by(getattr(entity_model, f"{order_by}").desc())
             elif reverse is False:
                 instances = instances.order_by(getattr(entity_model, f"{order_by}").asc())
-        return instances
+        return [item for item in instances]
 
 
