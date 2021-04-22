@@ -19,6 +19,7 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedCloudCertificateTypeDo
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedCloudCertificateMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedCloudCertificateTypeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +33,7 @@ import java.util.List;
 
 @Configuration
 public class InitializeCertificateConfig implements ApplicationRunner {
-    public static final List<String> defaultType = Arrays.asList("general", "FATE", "FATE Serving");
+    public static final List<String> defaultType = Arrays.asList("General", "FATE", "FATE Serving");
 
     @Autowired
     private FederatedCloudCertificateMapper federatedCloudCertificateMapper;
@@ -49,17 +50,17 @@ public class InitializeCertificateConfig implements ApplicationRunner {
         }
     }
 
-    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron  = "${update.cert.status}")
     public void updateCertificateStatus() {
         federatedCloudCertificateMapper.updateCertificateStatusValid();
         federatedCloudCertificateMapper.updateCertificateStatusInvalid();
     }
 
     @Bean("restTemplate")
-    public RestTemplate restTemplate() {
+    public RestTemplate restTemplate(@Value("${rest.read.timeout}") Integer readTimeout, @Value("${rest.connect.timeout}") Integer connectTimeout) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setReadTimeout(30000);
-        requestFactory.setConnectTimeout(2000);
+        requestFactory.setReadTimeout(readTimeout);
+        requestFactory.setConnectTimeout(connectTimeout);
         return new RestTemplate(requestFactory);
     }
 }
