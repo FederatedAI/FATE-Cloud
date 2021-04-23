@@ -67,6 +67,9 @@ public class FederatedSiteManagerService {
     @Autowired
     FederatedSiteAuthorityMapper federatedSiteAuthorityMapper;
 
+    @Autowired
+    FederatedJobStatisticsMapper federatedJobStatisticsMapper;
+
     @Value(value = "${cloud-manager.ip}")
     String ip;
 
@@ -165,6 +168,24 @@ public class FederatedSiteManagerService {
         QueryWrapper<FederatedGroupSetDo> ew = new QueryWrapper<>();
         ew.eq("group_id", groupId);
         federatedGroupSetMapper.update(federatedGroupSetDoUpdate, ew);
+
+        //update job statistics table
+        String institutions = siteAddQo.getInstitutions();
+        Long partyId = siteAddQo.getPartyId();
+        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
+        federatedJobStatisticsDoQueryWrapper.eq("site_host_name", partyId).or().eq("site_guest_id", partyId);
+        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
+        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
+            Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
+            Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
+            if(siteGuestId.equals(partyId)){
+                federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
+            }
+            if(siteHostId.equals(partyId)){
+                federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
+            }
+            federatedJobStatisticsMapper.updateById(federatedJobStatisticsDo);
+        }
 
         return federatedSiteManagerDo.getId();
     }

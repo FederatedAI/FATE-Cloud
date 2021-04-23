@@ -104,15 +104,24 @@ public class FederatedJobStatisticsService {
     public MonitorSiteDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
 
         //get table site columns
-        QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>();
-        federatedSiteManagerDoQueryWrapper.eq("institutions", jobOfSiteDimensionPeriodQo.getInstitutions()).eq("status", 2).orderByAsc("site_name");
-        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(federatedSiteManagerDoQueryWrapper);
-        if (federatedSiteManagerDos.size() <= 0) {
-            return null;
-        }
-        ArrayList<String> sites = new ArrayList<>();
-        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
-            sites.add(federatedSiteManagerDo.getSiteName());
+        String institutions = jobOfSiteDimensionPeriodQo.getInstitutions();
+        HashSet<String> sites = new HashSet<>();
+        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
+        federatedJobStatisticsDoQueryWrapper.eq("site_guest_institutions", institutions).or().eq("site_host_institutions",institutions);
+        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
+        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
+
+            String siteGuestInstitutions = federatedJobStatisticsDo.getSiteGuestInstitutions();
+            String siteHostInstitutions = federatedJobStatisticsDo.getSiteHostInstitutions();
+
+            if(siteGuestInstitutions.equals(institutions)){
+                String siteGuestName = federatedJobStatisticsDo.getSiteGuestName();
+                sites.add(siteGuestName);
+            }
+            if(siteHostInstitutions.equals(institutions)){
+                String siteHostName = federatedJobStatisticsDo.getSiteHostName();
+                sites.add(siteHostName);
+            }
         }
 
         //get paged job statistics
@@ -145,7 +154,7 @@ public class FederatedJobStatisticsService {
             }
         }
         MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
-        monitorSiteDto.setSiteList(sites);
+        monitorSiteDto.setSiteList(new ArrayList<>(sites));
         monitorSiteDto.setTotal(count);
         monitorSiteDto.setData(siteItems);
 
