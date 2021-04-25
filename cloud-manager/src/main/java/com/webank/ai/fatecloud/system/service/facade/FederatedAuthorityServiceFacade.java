@@ -298,7 +298,7 @@ public class FederatedAuthorityServiceFacade {
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
-        if (StringUtils.isBlank(partyIdCheckQo.getInstitutions()) || StringUtils.isBlank(String.valueOf(partyIdCheckQo.getPartyId()))) {
+        if (StringUtils.isBlank(partyIdCheckQo.getInstitutions()) || partyIdCheckQo.getPartyId() == null) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -308,7 +308,7 @@ public class FederatedAuthorityServiceFacade {
         String scenarioType = federatedAuthorityService.getScenarioType();
         int institutionsType = federatedAuthorityService.getInstitutionsType(partyIdCheckQo.getInstitutions());
 
-        Boolean authorityResult = federatedAuthorityService.checkPartyIdAuthority(partyIdCheckQo, scenarioType,institutionsType);
+        Boolean authorityResult = federatedAuthorityService.checkPartyIdAuthority(partyIdCheckQo, scenarioType, institutionsType);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorityResult);
 

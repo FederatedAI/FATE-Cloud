@@ -295,7 +295,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(RollSitePageQo rollSitePageQo) {
-        if (StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))) {
+        if (rollSitePageQo.getExchangeId() == null) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }

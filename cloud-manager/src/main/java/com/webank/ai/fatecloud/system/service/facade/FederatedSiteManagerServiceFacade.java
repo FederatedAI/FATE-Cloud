@@ -80,31 +80,6 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedSites);
     }
 
-    public CommonResponse<Long> addSite(SiteAddQo siteAddQo) throws UnsupportedEncodingException {
-        Preconditions.checkArgument(StringUtils.isNoneEmpty(siteAddQo.getSiteName(), String.valueOf(siteAddQo.getGroupId())), String.valueOf(siteAddQo.getPartyId()));
-        boolean existSite = federatedSiteManagerService.checkSiteName(new SiteNameQo(siteAddQo));
-        if (existSite) {
-            return new CommonResponse<>(ReturnCodeEnum.SITE_NAME_ERROR);
-        }
-        FederatedGroupSetDo federatedGroupSetDo = federatedGroupSetService.selecFederatedGroupSet(siteAddQo);
-        if (federatedGroupSetDo == null) {
-            return new CommonResponse<>(ReturnCodeEnum.GROUP_SET_ERROR);
-        }
-        String rangeInfo = federatedGroupSetDo.getRangeInfo();
-        Long partyId = siteAddQo.getPartyId();
-        SitePartyIdCheckQo sitePartyIdCheckQo = new SitePartyIdCheckQo(rangeInfo, partyId);
-        CommonResponse commonResponse = checkPartyId(sitePartyIdCheckQo);
-        if (0 != commonResponse.getCode()) {
-            return commonResponse;
-        }
-
-        if (federatedSiteManagerService.checkPartyIdExist(new PartyIdQo(siteAddQo))) {
-            return new CommonResponse<>(ReturnCodeEnum.PARTYID_ERROR);
-        }
-        Long id = federatedSiteManagerService.addSite(siteAddQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, id);
-    }
-
     public CommonResponse<SiteDetailDto> findSite(Long id) {
         SiteDetailDto site = federatedSiteManagerService.findSite(id);
         return site == null ? new CommonResponse<>(ReturnCodeEnum.PARTYID_FIND_ERROR) : new CommonResponse<>(ReturnCodeEnum.SUCCESS, site);
@@ -350,7 +325,11 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Long> addSiteNew(SiteAddQo siteAddQo) throws UnsupportedEncodingException {
-        Preconditions.checkArgument(StringUtils.isNoneEmpty(siteAddQo.getSiteName(), String.valueOf(siteAddQo.getGroupId())), String.valueOf(siteAddQo.getPartyId()), siteAddQo.getNetwork());
+        if (siteAddQo.getGroupId() == null || siteAddQo.getPartyId() == null || siteAddQo.getEncryptType() == null) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        Preconditions.checkArgument(StringUtils.isNoneEmpty(siteAddQo.getSiteName(), siteAddQo.getNetwork()));
         boolean existSite = federatedSiteManagerService.checkSiteName(new SiteNameQo(siteAddQo));
         if (existSite) {
             return new CommonResponse<>(ReturnCodeEnum.SITE_NAME_ERROR);
@@ -450,7 +429,7 @@ public class FederatedSiteManagerServiceFacade {
         }
 
         String institutions = siteListForFateManagerQo.getInstitutions();
-        if(StringUtils.isBlank(institutions)){
+        if (StringUtils.isBlank(institutions)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -458,7 +437,7 @@ public class FederatedSiteManagerServiceFacade {
         String scenarioType = federatedAuthorityService.getScenarioType();
 
         if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
-            PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo,scenarioType,httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
+            PageBean<SiteDetailDto> pagedSites = federatedSiteManagerService.findPagedSitesForFateManager(siteListForFateManagerQo, scenarioType, httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedSites);
         } else {
             return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
