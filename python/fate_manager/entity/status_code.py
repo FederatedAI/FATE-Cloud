@@ -33,5 +33,9 @@ class RequestCloudCode:
     SignatureFailed = 30002 # Signature verification failed
 
 
+class RequestFateFlowCode:
+    HttpRequestFailed = 40001
+
+
 
 

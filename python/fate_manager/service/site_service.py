@@ -4,7 +4,7 @@ from arch.common.base_utils import current_timestamp
 from controller import version_controller
 from controller.apply import apply_result_task, allow_apply_task
 from db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, DeploySite, ChangeLog, TokenInfo, \
-    AccountSiteInfo, ApplyInstitutionsInfo
+    AccountSiteInfo, ApplyInstitutionsInfo, ApplySiteInfo
 from entity import item
 from entity.status_code import UserStatusCode, SiteStatusCode
 from entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
@@ -206,6 +206,7 @@ def get_other_site_list():
         return None
     federated_item_list = []
     logger.info('start get other site list')
+    apply_site_list = DBOperator.query_entity(ApplySiteInfo)
     for institutions_item in apply_institutions_list:
         logger.info("start request cloud OtherSiteUri")
         institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
@@ -229,7 +230,9 @@ def get_other_site_list():
                 site_item.serviceStatus = item.IdPair(code=site.get("detectiveStatus"), desc=ServiceStatusType.to_str(int(site.get("status")))).to_dict()
                 site_item.activationTime = site.get("activationTime")
                 site_item_list.append(site_item.to_dict())
-
+                if site.get("partyId") not in [apply_site.party_id for apply_site in apply_site_list]:
+                    DBOperator.create_entity(ApplySiteInfo, {"institutions": institutions_item.institutions,
+                                                             "party_id": site.get("partyId")})
         federated_item = item.FederatedItem()
         federated_item.federatedId = federated_infos[0].federated_id
         federated_item.fateManagerInstitutions = institutions_item.institutions

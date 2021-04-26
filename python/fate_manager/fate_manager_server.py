@@ -26,12 +26,11 @@ from fate_manager.apps.site_app import manager as site_manager
 from fate_manager.apps.login_app import manager as login_manager
 from fate_manager.apps.user_app import manager as user_manager
 from fate_manager.apps.drop_down_app import manager as drop_down_manager
+from fate_manager.apps.monitor_app import manager as monitor_manager
 from fate_manager.apps.static_app import manager as static_manager
-from fate_manager.settings import IP, PORT, API_VERSION, stat_logger
+from fate_manager.settings import IP, PORT, stat_logger, JOB_DETECTOR_INTERVAL, TASK_DETECTOR_INTERVAL
 from fate_manager.utils.api_utils import get_json_result
-from scheduler.detector import TaskDetector
-
-
+from scheduler.detector import TaskDetector, MonitorDetector
 
 manager = Flask(__name__)
 
@@ -52,31 +51,14 @@ if __name__ == '__main__':
             '/fate-manager/api/login': login_manager,
             '/fate-manager/api/user': user_manager,
             '/fate-manager/api/dropdown': drop_down_manager,
+            '/fate-manager/api/monitor': monitor_manager,
             '/fate-manager': static_manager,
-
-            # '/{}/model'.format(API_VERSION): model_app_manager,
-            # '/{}/job'.format(API_VERSION): job_app_manager,
-            # '/{}/table'.format(API_VERSION): table_app_manager,
-            # '/{}/tracking'.format(API_VERSION): tracking_app_manager,
-            # '/{}/pipeline'.format(API_VERSION): pipeline_app_manager,
-            # '/{}/permission'.format(API_VERSION): permission_app_manager,
-            # '/{}/version'.format(API_VERSION): version_app_manager,
-            # '/{}/party'.format(API_VERSION): party_app_manager,
-            # '/{}/initiator'.format(API_VERSION): initiator_app_manager,
-            # '/{}/tracker'.format(API_VERSION): tracker_app_manager,
-            # '/{}/forward'.format(API_VERSION): proxy_app_manager
         }
     )
-    # init
-    # signal.signal(signal.SIGTERM, job_utils.cleaning)
-    # signal.signal(signal.SIGCHLD, job_utils.wait_child_process)
-
     # init db
     init_database_tables()
-    TaskDetector(interval=30 * 1000).start()
-
-
-    # start http server
+    TaskDetector(interval=TASK_DETECTOR_INTERVAL).start()
+    MonitorDetector(interval=JOB_DETECTOR_INTERVAL).start()
     try:
         stat_logger.info("FATE Manager http server start...")
         run_simple(hostname=IP, port=PORT, application=app, threaded=True)
@@ -86,10 +68,3 @@ if __name__ == '__main__':
     except Exception as e:
         traceback.print_exc()
         os.kill(os.getpid(), signal.SIGKILL)
-    #
-    # try:
-    #     while True:
-    #         time.sleep(_ONE_DAY_IN_SECONDS)
-    # except KeyboardInterrupt:
-    #     server.stop(0)
-    #     sys.exit(0)

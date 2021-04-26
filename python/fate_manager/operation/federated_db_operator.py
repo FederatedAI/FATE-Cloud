@@ -1,6 +1,9 @@
+import operator
+
 from peewee import JOIN
 
-from db.db_models import DB, FederatedInfo, FateSiteInfo, AccountInfo, ApplyInstitutionsInfo, FateUserInfo, ChangeLog
+from db.db_models import DB, FederatedInfo, FateSiteInfo, AccountInfo, ApplyInstitutionsInfo, FateUserInfo, ChangeLog, \
+    FateSiteJobInfo
 from entity.status_code import UserStatusCode
 from entity.types import UserRole, IsValidType
 from operation.db_operator import DBOperator
@@ -109,3 +112,20 @@ def check_user(user_name):
     account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
                                                    AccountInfo.role in [1, 2])
     return [account_info for account_info in account_info_list]
+
+
+@DB.connection_context()
+def query_fate_site_job(**kwargs):
+    filters = []
+    for k, v in kwargs.items():
+        if k in ['job_create_day'] and isinstance(v, list):
+            b_timestamp = v[0]
+            e_timestamp = v[1]
+            filters.append(getattr(FateSiteJobInfo, k).between(b_timestamp, e_timestamp))
+        elif hasattr(FateSiteJobInfo, k):
+            filters.append(operator.attrgetter(k)(FateSiteJobInfo) == v)
+    if not filters:
+        instances = FateSiteJobInfo.select()
+    else:
+        instances = FateSiteJobInfo.select().where(*filters)
+    return [item for item in instances]

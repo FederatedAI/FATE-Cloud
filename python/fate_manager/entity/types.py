@@ -196,6 +196,19 @@ class ServiceStatusType:
             return "Unavaiable"
 
 
+class FateJobStatus:
+    WAITING = 'waiting'
+    RUNNING = "running"
+    CANCELED = "canceled"
+    TIMEOUT = "timeout"
+    FAILED = "failed"
+    SUCCESS = "success"
+
+    @classmethod
+    def status_list(cls):
+        return [cls.__dict__[k] for k in cls.__dict__.keys() if not callable(getattr(cls, k)) and not k.startswith("__")]
+
+
 class LogDealType:
     UNKNOWN = -1
     NO = 0

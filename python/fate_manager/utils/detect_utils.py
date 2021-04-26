@@ -19,11 +19,6 @@ from entity.status_code import ParameterStatusCode
 from settings import stat_logger
 
 
-class _Exception(Exception):
-    def __init__(self, code):
-        self.code = code
-
-
 def check_config(config: typing.Dict, required_arguments: typing.List):
     no_arguments = []
     error_arguments = []

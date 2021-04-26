@@ -1,7 +1,7 @@
 import functools
 import traceback
 
-from controller import apply
+from controller import apply, count
 from operation import federated_db_operator
 from service import task_service
 from service.site_service import get_home_site_list
@@ -97,4 +97,15 @@ class TaskDetector(cron.Cron):
     @exception_catch
     def version_update_task(cls):
         pass
+
+
+class MonitorDetector(cron.Cron):
+    @exception_catch
+    def run_do(self):
+        self.log_fate_flow_job()
+
+    @classmethod
+    @exception_catch
+    def log_fate_flow_job(cls):
+        count.CountJob.count_fate_flow_job()
 

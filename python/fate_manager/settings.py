@@ -30,6 +30,7 @@ STAT_LOGGER_NAME = "fate_manager_stat"
 log.LoggerFactory.set_directory(STAT_LOG_DIR)
 stat_logger = log.getLogger(STAT_LOGGER_NAME)
 request_cloud_logger = log.getLogger('request_cloud')
+request_flow_logger = log.getLogger('requet_fate_flow')
 site_service_logger = log.getLogger('site_service')
 login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
@@ -39,6 +40,9 @@ IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
 
+FATE_FLOW_SETTINGS = {
+    "QueryJob": "/v1/job/query"
+}
 
 HYPERION_SETTINGS = {
     "ConnectUri": "/ansible/v1/server/status",
@@ -88,3 +92,5 @@ CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms
 
+TASK_DETECTOR_INTERVAL = 30 * 1000 # ms
+JOB_DETECTOR_INTERVAL = 10 * 1000

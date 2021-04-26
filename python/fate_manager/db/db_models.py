@@ -20,12 +20,11 @@ import sys
 
 import __main__
 from peewee import (CharField, IntegerField, BigIntegerField, SmallIntegerField,
-                    TextField, CompositeKey, BigAutoField, BooleanField)
+                    TextField, CompositeKey, BigAutoField, BooleanField, AutoField)
 from playhouse.pool import PooledMySQLDatabase
 from playhouse.shortcuts import ReconnectMixin
 
-from arch.common import log
-from fate_manager.db.base_model import JSONField, BaseModel, LongTextField, DateTimeField, ListField
+from fate_manager.db.base_model import JSONField, BaseModel, LongTextField, ListField
 from fate_manager.settings import DATABASE, stat_logger
 
 
@@ -123,6 +122,14 @@ class ApplyInstitutionsInfo(DataBaseModel):
     institutions = CharField(max_length=50, help_text='institutions dict', primary_key=True)
     status = IntegerField(default=0)
     read_status = IntegerField(default=0, help_text='user status 0 unvalid，1 valid')
+
+    class Meta:
+        db_table = "t_fate_apply_institutions_info"
+
+
+class ApplySiteInfo(DataBaseModel):
+    institutions = CharField(max_length=50, help_text='institutions dict')
+    party_id = IntegerField(null=True, help_text='party id')
 
     class Meta:
         db_table = "t_fate_apply_site_info"
@@ -314,25 +321,35 @@ class KubenetesConf(DataBaseModel):
         db_table = "t_fate_kubenetes_conf"
 
 
-class MonitorDetail(DataBaseModel):
-    id = BigAutoField()
-    ds = IntegerField(null=True, help_text='report date')
-    guest_party_id = IntegerField(null=True, help_text='guest partyid')
-    guest_site_name = CharField(max_length=50, null=True, help_text='guest site name')
-    guest_institution = CharField(max_length=64, null=True, help_text='guest institution')
-    host_party_id = IntegerField(null=True, help_text='host partyid')
-    host_site_name = CharField(max_length=50, null=True, help_text='host site name')
-    host_institution = CharField(max_length=64, null=True, help_text='host institution')
-    arbiter_party_id = IntegerField(null=True, help_text='arbiter partyid')
-    arbiter_site_name = CharField(max_length=50, null=True, help_text='arbiter site name')
-    arbiter_institution = CharField(max_length=64, null=True, help_text='arbiter institution')
-    job_id = CharField(max_length=64, null=True, help_text='job id')
-    status = CharField(max_length=50, default='0', help_text='model status,0 success,1failed')
-    start_time = BigIntegerField(null=True, help_text='start time')
-    end_time = BigIntegerField(null=True, help_text='end time')
+class FateSiteCount(DataBaseModel):
+    version = AutoField(primary_key=True)
+    party_id_list = ListField()
+    strftime = CharField(max_length=50)
 
     class Meta:
-        db_table = "t_fate_monitor_detail"
+        db_table = "t_fate_site_count"
+
+
+class FateSiteJobInfo(DataBaseModel):
+    institutions = CharField(max_length=128, null=True, help_text='site belongs to institutions')
+    party_id = IntegerField(null=True, index=True, help_text='party id')
+    role = CharField(max_length=50, index=True)
+    job_id = CharField(max_length=64, null=True, help_text='job id')
+    job_elapsed = BigIntegerField(null=True)
+    roles = JSONField()
+    other_party_id = ListField()
+    other_institutions = ListField()
+    job_type = CharField(max_length=50, index=True)
+    job_create_day = CharField(max_length=10, null=True, help_text='job day', index=True)
+    job_create_time = BigIntegerField(null=True)
+    job_start_time = BigIntegerField(null=True)
+    job_end_time = BigIntegerField(null=True)
+    status = CharField(max_length=50, index=True)
+    job_info = JSONField()
+
+    class Meta:
+        db_table = "t_fate_site_job"
+        primary_key = CompositeKey('party_id', 'role', "job_id")
 
 
 class FateReportInstitution(DataBaseModel):
