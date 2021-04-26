@@ -171,18 +171,21 @@ public class FederatedSiteManagerService {
 
         //update job statistics table
         String institutions = siteAddQo.getInstitutions();
+        String siteName = siteAddQo.getSiteName();
         Long partyId = siteAddQo.getPartyId();
         QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
-        federatedJobStatisticsDoQueryWrapper.eq("site_host_name", partyId).or().eq("site_guest_id", partyId);
+        federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
         List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
         for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
             Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
             Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
             if(siteGuestId.equals(partyId)){
                 federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
+                federatedJobStatisticsDo.setSiteGuestName(siteName);
             }
             if(siteHostId.equals(partyId)){
                 federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
+                federatedJobStatisticsDo.setSiteHostName(siteName);
             }
             federatedJobStatisticsMapper.updateById(federatedJobStatisticsDo);
         }
