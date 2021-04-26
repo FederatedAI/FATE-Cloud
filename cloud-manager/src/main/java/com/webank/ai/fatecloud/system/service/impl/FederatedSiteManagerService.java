@@ -169,27 +169,6 @@ public class FederatedSiteManagerService {
         ew.eq("group_id", groupId);
         federatedGroupSetMapper.update(federatedGroupSetDoUpdate, ew);
 
-        //update job statistics table
-        String institutions = siteAddQo.getInstitutions();
-        String siteName = siteAddQo.getSiteName();
-        Long partyId = siteAddQo.getPartyId();
-        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
-        federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
-        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
-        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
-            Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
-            Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
-            if(siteGuestId.equals(partyId)){
-                federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
-                federatedJobStatisticsDo.setSiteGuestName(siteName);
-            }
-            if(siteHostId.equals(partyId)){
-                federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
-                federatedJobStatisticsDo.setSiteHostName(siteName);
-            }
-            federatedJobStatisticsMapper.updateById(federatedJobStatisticsDo);
-        }
-
         return federatedSiteManagerDo.getId();
     }
 
@@ -318,6 +297,28 @@ public class FederatedSiteManagerService {
             federatedSiteManagerDo.setLastDetectiveTime(date);
         }
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
+
+        //update job statistics table
+        String institutions = federatedSiteManagerDo.getInstitutions();
+        String siteName = federatedSiteManagerDo.getSiteName();
+        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
+        federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
+        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
+        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
+            Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
+            Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
+            if(siteGuestId.equals(partyId)){
+                federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
+                federatedJobStatisticsDo.setSiteGuestName(siteName);
+            }
+            if(siteHostId.equals(partyId)){
+                federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
+                federatedJobStatisticsDo.setSiteHostName(siteName);
+            }
+            QueryWrapper<FederatedJobStatisticsDo> ewForUpdate = new QueryWrapper<>();
+            ewForUpdate.eq("site_guest_id",federatedJobStatisticsDo.getSiteGuestId()).eq("site_host_id",federatedJobStatisticsDo.getSiteHostId()).eq("job_finish_date",federatedJobStatisticsDo.getJobFinishDate());
+            federatedJobStatisticsMapper.update(federatedJobStatisticsDo,ewForUpdate);
+        }
     }
 
     public int checkPartyId(SitePartyIdCheckQo sitePartyIdCheckQo) {
