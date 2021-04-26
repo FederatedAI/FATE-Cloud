@@ -299,8 +299,12 @@ public class FederatedSiteManagerService {
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
         //update job statistics table
-        String institutions = federatedSiteManagerDo.getInstitutions();
-        String siteName = federatedSiteManagerDo.getSiteName();
+        QueryWrapper<FederatedSiteManagerDo> ewForSite = new QueryWrapper<>();
+        ewForSite.eq("party_id", partyId).in("status", 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ewForSite);
+        FederatedSiteManagerDo site = federatedSiteManagerDos.get(0);
+        String institutions = site.getInstitutions();
+        String siteName = site.getSiteName();
         QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
         federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
         List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
