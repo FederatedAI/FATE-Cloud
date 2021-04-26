@@ -196,7 +196,13 @@ class ServiceStatusType:
             return "Unavaiable"
 
 
-class FateJobStatus:
+class Status(object):
+    @classmethod
+    def status_list(cls):
+        return [cls.__dict__[k] for k in cls.__dict__.keys() if not callable(getattr(cls, k)) and not k.startswith("__")]
+
+
+class FateJobStatus(Status):
     WAITING = 'waiting'
     RUNNING = "running"
     CANCELED = "canceled"
@@ -204,9 +210,12 @@ class FateJobStatus:
     FAILED = "failed"
     SUCCESS = "success"
 
-    @classmethod
-    def status_list(cls):
-        return [cls.__dict__[k] for k in cls.__dict__.keys() if not callable(getattr(cls, k)) and not k.startswith("__")]
+
+class FateJobType(Status):
+    INTERSECT = 'intersect'
+    MODELING = "modeling"
+    UPLOAD = "upload"
+    DOWNLOAD = "download"
 
 
 class LogDealType:

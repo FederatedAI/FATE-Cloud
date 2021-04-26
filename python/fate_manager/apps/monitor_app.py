@@ -48,3 +48,9 @@ def get_site_base_statistics():
     data = monitor_service.get_site_total(request_data)
     return get_json_result(data=data)
 
+
+@manager.route('/detail', methods=['post'])
+def get_detail_base_statistics():
+    request_data = request.json
+    data = monitor_service.get_detail_total(request_data)
+    return get_json_result(data=data)
