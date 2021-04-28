@@ -187,6 +187,7 @@ public class FederatedExchangeService implements Serializable {
         String routerTableString;
 
         try {
+            log.info("query request to exchange, ip:{},port:{}, key:{}, partyId:{}, operator:{}",network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
             Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
 
             Proxy.Data body = exchange.getBody();
@@ -198,7 +199,7 @@ public class FederatedExchangeService implements Serializable {
             return null;
         }
 
-
+        log.info("query response from exchange : {}",routerTableString);
         ArrayList<PartyDo> partyDos = buildPartyList(routerTableString);
 
 
@@ -584,12 +585,13 @@ public class FederatedExchangeService implements Serializable {
 
         //send grpc request
         String[] ipAndPort = network.split(":");
+        log.info("publish request to exchange, ip:{}, port:{}, key:{}, content:{}, partyId:{}, operator:{}",ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
         Proxy.Packet packet = ExchangeGrpcUtil.setExchange(ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
 
         Proxy.Data body = packet.getBody();
         ByteString value = body.getValue();
         String information = value.toStringUtf8();
-        log.info("returned information when publish router information from roll site :{}", information);
+        log.info("publish response from exchange:{}", information);
         if (!"setRouteTable finished".equals(information)) {
             throw new Exception();
         }
