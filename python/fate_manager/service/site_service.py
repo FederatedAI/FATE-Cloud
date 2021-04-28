@@ -232,7 +232,8 @@ def get_other_site_list():
                 site_item_list.append(site_item.to_dict())
                 if site.get("partyId") not in [apply_site.party_id for apply_site in apply_site_list]:
                     DBOperator.create_entity(ApplySiteInfo, {"institutions": institutions_item.institutions,
-                                                             "party_id": site.get("partyId")})
+                                                             "party_id": site.get("partyId"),
+                                                             "site_name": site.get("siteName")})
         federated_item = item.FederatedItem()
         federated_item.federatedId = federated_infos[0].federated_id
         federated_item.fateManagerInstitutions = institutions_item.institutions

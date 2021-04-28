@@ -1,3 +1,4 @@
+import datetime
 import json
 import time
 
@@ -67,6 +68,7 @@ class CountJob:
         site_job.job_type = CountJob.get_job_type(job.get("f_dsl"))
         site_job.status = job.get("f_status")
         site_job.job_create_day = job.get("f_job_id")[:8]
+        site_job.job_create_day_date = datetime.datetime.strptime(site_job.job_create_day, "%Y%m%d")
 
         site_job.job_info = job
         other_party_id = set()

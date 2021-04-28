@@ -211,6 +211,20 @@ class FateJobStatus(Status):
     SUCCESS = "success"
 
 
+class FateJobEndStatus(Status):
+    CANCELED = "canceled"
+    TIMEOUT = "timeout"
+    FAILED = "failed"
+    SUCCESS = "success"
+
+    @classmethod
+    def end_status(cls, status):
+        if status in [cls.CANCELED, cls.TIMEOUT, cls.FAILED]:
+            return cls.FAILED
+        if status in [cls.SUCCESS]:
+            return cls.SUCCESS
+
+
 class FateJobType(Status):
     INTERSECT = 'intersect'
     MODELING = "modeling"

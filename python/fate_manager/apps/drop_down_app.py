@@ -105,3 +105,9 @@ def get_manager_ip():
 @manager.route('/manager', methods=['get'])
 def get_manager_ip_port():
     return get_json_result()
+
+
+@manager.route('/party_id', methods=['get'])
+def get_party_id():
+    data = drop_down_service.get_party_id()
+    return get_json_result(data=data)

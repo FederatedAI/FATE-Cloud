@@ -1,4 +1,4 @@
-from db.db_models import FederatedInfo, FateSiteInfo, DeploySite, FateVersion, ComponentVersion
+from db.db_models import FederatedInfo, FateSiteInfo, DeploySite, FateVersion, ComponentVersion, ApplySiteInfo
 from entity import enum
 from entity.types import SiteStatusType, ProductType, IsValidType
 from operation.db_operator import DBOperator
@@ -62,3 +62,11 @@ def get_component_version_list(name, by_fateversion=False):
         }
     component_version_list = DBOperator.query_entity(ComponentVersion, **component_version_info)
     return [component_version.to_dict() for component_version in component_version_list]
+
+
+def get_party_id():
+    site_list = DBOperator.query_entity(ApplySiteInfo)
+    party_id_dict = {}
+    for site in site_list:
+        party_id_dict[site.site_name] = site.party_id
+    return party_id_dict
