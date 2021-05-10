@@ -305,7 +305,10 @@ def get_apply_institutions():
                                  url=None
                                  )
     institutions_list = []
-    for institutions in resp.get("list"):
+    resp_institutions_list = resp.get("list")
+    if not resp_institutions_list:
+        resp_institutions_list = []
+    for institutions in resp_institutions_list:
         apply_result = {
             "status": {"code": institutions.get("status"), "desc": IsValidType.to_str(institutions.get("status"))},
             "institutions": institutions.get("institutions")

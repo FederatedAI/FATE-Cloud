@@ -37,13 +37,13 @@ class CountJob:
                     party_id_list = [site.party_id]
                 request_flow_logger.info(time_list)
                 job_list = post_fate_flow(query_job_url, data={"end_time": time_list})
-                CountJob.log_job_info(job_list, party_id=site.party_id)
+                CountJob.log_job_info(job_list, party_id=site.party_id, site_name=site.site_name)
                 request_flow_logger.info(f"start create fate site count: now_time{now_time}")
                 DBOperator.create_entity(FateSiteCount, {"strftime": now_time, "party_id_list": party_id_list})
 
 
     @staticmethod
-    def log_job_info(job_list, party_id):
+    def log_job_info(job_list, party_id, site_name):
         request_flow_logger.info(job_list)
         apply_site_list = DBOperator.query_entity(ApplySiteInfo)
         other_institutions = {}
@@ -51,15 +51,16 @@ class CountJob:
             other_institutions[str(site.party_id)] = site.institutions
         for job in job_list:
             try:
-                CountJob.save_site_job_item(job, party_id, other_institutions)
+                CountJob.save_site_job_item(job, party_id, other_institutions, site_name)
             except Exception as e:
                 request_flow_logger.exception(e)
 
     @staticmethod
-    def save_site_job_item(job, party_id, other_institutions):
+    def save_site_job_item(job, party_id, other_institutions, site_name):
         site_job = FateSiteJobInfo()
         site_job.job_id = job.get("f_job_id")
         site_job.party_id = party_id
+        site_job.site_name = site_name
         site_job.job_create_time = int(time.mktime(time.strptime(job.get("f_job_id")[:20], "%Y%m%d%H%M%S%f"))*1000)
         site_job.job_elapsed = job.get("f_elapsed")
         site_job.job_start_time = job.get("f_start_time")

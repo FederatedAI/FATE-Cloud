@@ -334,6 +334,7 @@ class FateSiteCount(DataBaseModel):
 class FateSiteJobInfo(DataBaseModel):
     institutions = CharField(max_length=128, null=True, help_text='site belongs to institutions')
     party_id = IntegerField(null=True, index=True, help_text='party id')
+    site_name = CharField(max_length=50, null=True, help_text='site name')
     role = CharField(max_length=50, index=True)
     job_id = CharField(max_length=64, null=True, help_text='job id')
     job_elapsed = BigIntegerField(null=True)

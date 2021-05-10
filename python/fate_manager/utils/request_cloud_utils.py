@@ -53,11 +53,14 @@ def get_old_signature_head(uri, data, body):
 
 def get_institution_signature_head(uri, data, body):
     head = {}
+    head["VERSION"] = "v2"
     head["TIMESTAMP"] = str(int(time.time() * 1000))
     head["FATE_MANAGER_USER_ID"] = str(data.get("fateManagerId"))
     head["NONCE"] = uuid.uuid1().hex
     head["FATE_MANAGER_APP_KEY"] = data.get("appKey")
     # FATE_MANAGER_USER_ID, FATE_MANAGER_APP_KEY, TIMESTAMP, NONCE, HTTP_URI, HTTP_BODY
+    if body == '{}':
+        body = ""
     sign_str = '{}\n{}\n{}\n{}\n{}\n{}'.format(head["FATE_MANAGER_USER_ID"], data.get("appKey"), head["TIMESTAMP"],
                                                head["NONCE"], uri, body)
     key = data.get("appSecret")
@@ -68,6 +71,7 @@ def get_institution_signature_head(uri, data, body):
 
 def get_site_signature_head(uri, data, body):
     head = {}
+    head["VERSION"] = "v2"
     head["TIMESTAMP"] = str(int(time.time()*1000))
     head["PARTY_ID"] = str(data.get("partyId"))
     head["ROLE"] = str(data.get("role"))
@@ -76,7 +80,8 @@ def get_site_signature_head(uri, data, body):
     head["FATE_MANAGER_APP_KEY"] = data["account"].app_key
     head["NONCE"] = uuid.uuid1().hex
     appSecret = data.get("appSecret")
-    # FATE_MANAGER_USER_ID, FATE_MANAGER_APP_KEY, PARTY_ID,ROLE,APP_KEY,TIMESTAMP, NONCE, HTTP_URI, HTTP_BODY
+    if body == '{}':
+        body = ""
     sign_str = '{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}'.format(data["account"].fate_manager_id, data["account"].app_key,
                                                              head["PARTY_ID"], head["ROLE"], head["APP_KEY"],
                                                              head["TIMESTAMP"], head["NONCE"], uri, body)
@@ -118,4 +123,3 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
             raise Exception(RequestCloudCode.SignatureFailed, f'request url {url} failed:code {response.json().get("code")}, msg {response.json().get("msg")}')
     else:
         raise Exception(RequestCloudCode.HttpRequestFailed, f'request url {url} failed,http status code:{response.status_code}')
-
