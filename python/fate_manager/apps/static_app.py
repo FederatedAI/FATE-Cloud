@@ -14,6 +14,11 @@ def internal_server_error(e):
     return server_error_response(e)
 
 
-@manager.route('/static/index', methods=['get'])
+@manager.route('/', methods=['get'])
 def index():
+    return render_template('index.html')
+
+
+@manager.route('/static/index', methods=['get'])
+def static_index():
     return render_template('index.html')

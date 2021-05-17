@@ -34,6 +34,7 @@ request_flow_logger = log.getLogger('requet_fate_flow')
 site_service_logger = log.getLogger('site_service')
 login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
+monitor_logger = log.getLogger('monitor_service')
 
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
@@ -64,7 +65,7 @@ CLOUD_URL= {
     "CheckUri": "/cloud-manager/api/site/checkUrl",
     "FederationUri": "/cloud-manager/api/federation/findOrganization",
     "UpdateVersionUri": "/cloud-manager/api/site/fate/version",
-    "CheckAuthorityUri": "/cloud-manager/api/site/checkAuthority/fateManager",
+    "CheckAuthorityUri": "/cloud-manager/api/site/checkAuthority/fateManager/v3",
     "CheckWebUri": "/cloud-manager/api/site/checkWeb",
     "SystemAddUri": "/cloud-manager/api/system/add",
     "UserActivateUri": "/cloud-manager/api/fate/user/activate",
@@ -76,7 +77,7 @@ CLOUD_URL= {
     "ApprovedUri": "/cloud-manager/api/authority/institutions/approved",
     "CheckPartyUri": "/cloud-manager/api/authority/check/partyId",
     "SystemHeartUri": "/cloud-manager/api/system/heart",
-    "MonitorPushUri": "/cloud-manager/api/job/push",
+    "MonitorPushUri": "/cloud-manager/api/job/v3/push",
     "ProductVersionUri": "/cloud-manager/api/product/page/fatemanager",
     "ExchangeUri": "/cloud-manager/api/exchange/exchange/page/fatemanager",
     "GetApplyListUri": "/cloud-manager/api/authority/findPendingApply",
@@ -87,7 +88,7 @@ CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUr
                         "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri"]
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "OtherSiteUri", "ExchangeUri",
                                "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri", "AuthorityApplied",
-                               "GetApplyListUri"]
+                               "GetApplyListUri", "ApplyLog", "MonitorPushUri"]
 
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms

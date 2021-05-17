@@ -65,7 +65,7 @@ def get_component_version_list(name, by_fateversion=False):
 
 
 def get_party_id():
-    site_list = DBOperator.query_entity(ApplySiteInfo)
+    site_list = DBOperator.query_entity(FateSiteInfo)
     party_id_dict = {}
     for site in site_list:
         party_id_dict[site.site_name] = site.party_id

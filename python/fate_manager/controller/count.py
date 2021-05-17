@@ -2,18 +2,18 @@ import datetime
 import json
 import time
 
-import requests
-
 from db.db_models import DeployComponent, FateSiteInfo, FateSiteCount, FateSiteJobInfo, ApplySiteInfo
+from entity import item
 from entity.types import SiteStatusType
 from operation.db_operator import DBOperator
-from settings import FATE_FLOW_SETTINGS, request_flow_logger
+from settings import FATE_FLOW_SETTINGS, request_flow_logger, request_cloud_logger
+from utils.request_cloud_utils import request_cloud_manager
 from utils.request_fate_flow_utils import post_fate_flow
 
 
 class CountJob:
     @staticmethod
-    def count_fate_flow_job():
+    def count_fate_flow_job(account):
         request_flow_logger.info("start count fate flow job")
         site_list = DBOperator.query_entity(FateSiteInfo, status=SiteStatusType.JOINED)
         component_name = 'FATEFLOW'
@@ -37,28 +37,54 @@ class CountJob:
                     party_id_list = [site.party_id]
                 request_flow_logger.info(time_list)
                 job_list = post_fate_flow(query_job_url, data={"end_time": time_list})
-                CountJob.log_job_info(job_list, party_id=site.party_id, site_name=site.site_name)
+                CountJob.log_job_info(account, job_list, party_id=site.party_id, site_name=site.site_name)
                 request_flow_logger.info(f"start create fate site count: now_time{now_time}")
                 DBOperator.create_entity(FateSiteCount, {"strftime": now_time, "party_id_list": party_id_list})
 
 
     @staticmethod
-    def log_job_info(job_list, party_id, site_name):
+    def log_job_info(account, job_list, party_id, site_name):
         request_flow_logger.info(job_list)
         apply_site_list = DBOperator.query_entity(ApplySiteInfo)
         other_institutions = {}
         for site in apply_site_list:
             other_institutions[str(site.party_id)] = site.institutions
+        report_job_list = []
         for job in job_list:
             try:
-                CountJob.save_site_job_item(job, party_id, other_institutions, site_name)
+                site_job = CountJob.save_site_job_item(job, party_id, other_institutions, site_name, account)
+                site_job.job_info = None
+                site_job.create_date = None
+                site_job.update_date = None
+                site_job.create_time = None
+                site_job.job_create_day_date = int(datetime.datetime.timestamp(site_job.job_create_day_date))*1000
+                site_job.roles = json.dumps(site_job.roles, separators=(',', ':'))
+                site_job.other_party_id = json.dumps(site_job.other_party_id, separators=(',', ':'))
+                site_job.other_institutions = json.dumps(site_job.other_institutions, separators=(',', ':'))
+                report_job_list.append(site_job.to_json())
             except Exception as e:
                 request_flow_logger.exception(e)
+        try:
+            piece = 0
+            count_of_piece = 500
+            while len(report_job_list) > piece*count_of_piece:
+                start = piece*count_of_piece
+                end = piece*count_of_piece + count_of_piece
+                institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
+                                                                           appKey=account.app_key,
+                                                                           appSecret=account.app_secret).to_dict()
+                resp = request_cloud_manager(uri_key="MonitorPushUri", data=institution_signature_item,
+                                             body=report_job_list[start:end],
+                                             url=None)
+                piece += 1
+        except Exception as e:
+            request_cloud_logger.exception(e)
 
     @staticmethod
-    def save_site_job_item(job, party_id, other_institutions, site_name):
+    def save_site_job_item(job, party_id, other_institutions, site_name, account):
         site_job = FateSiteJobInfo()
         site_job.job_id = job.get("f_job_id")
+        site_job.institutions = account.institutions
         site_job.party_id = party_id
         site_job.site_name = site_name
         site_job.job_create_time = int(time.mktime(time.strptime(job.get("f_job_id")[:20], "%Y%m%d%H%M%S%f"))*1000)
@@ -73,19 +99,13 @@ class CountJob:
 
         site_job.job_info = job
         other_party_id = set()
-        for role, party_id_list in job["f_roles"].items():
-            for _party_id in party_id_list:
-                if party_id != _party_id:
-                    other_party_id.add(_party_id)
-            if role == "arbiter":
-                continue
-            if party_id in party_id_list:
-                site_job.role = role
-                break
+        site_job.role = job.get("f_role")
+        if site_job.role == "local":
+            site_job.other_party_id = [party_id]
         else:
-            site_job.role = "local"
-            site_job.other_party_id = []
-        if site_job.role != "local":
+            for role, party_id_list in job["f_roles"].items():
+                for _party_id in party_id_list:
+                    other_party_id.add(_party_id)
             site_job.other_party_id = list(other_party_id)
         # set other institutions by other party id
         institutions_list = []
@@ -94,6 +114,7 @@ class CountJob:
                 institutions_list.append(other_institutions[str(_party_id)])
         site_job.other_institutions = list(set(institutions_list))
         site_job.save(force_insert=True)
+        return site_job
 
     @staticmethod
     def get_job_type(dsl):

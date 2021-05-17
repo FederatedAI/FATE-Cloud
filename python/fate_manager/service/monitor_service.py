@@ -9,11 +9,14 @@ from db.db_models import ApplySiteInfo
 from entity.types import FateJobStatus, FateJobType, FateJobEndStatus
 from operation import federated_db_operator
 from operation.db_operator import DBOperator
+from settings import monitor_logger as logger
 
 
 def get_total(request_data):
     query_info = get_date_info(request_data)
+    logger.info(f"query job by:{query_info}")
     site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    logger.info(f"query job success")
     apply_site_list = DBOperator.query_entity(ApplySiteInfo)
     site_total_dict = {}
     # all
@@ -27,27 +30,35 @@ def get_total(request_data):
         if total_dict["data"]:
             res[str(party_id)] = group_by_status(total_dict["data"])
             res[str(party_id)]["site_name"] = total_dict["site_name"]
+    logger.info(f"get total success: {res}")
     return res
 
 
 def get_institutions_total(request_data):
     query_info = get_date_info(request_data)
+    logger.info(f"query job by:{query_info}")
     site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    logger.info(f"query job success")
     return group_by_institutions(site_job_list)
 
 
 def get_site_total(request_data):
     query_info = get_date_info(request_data)
+    logger.info(f"query job by:{query_info}")
     site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    logger.info(f"query job success")
     return group_by_site(site_job_list)
 
 
 def get_detail_total(request_data):
     query_info = get_date_info(request_data)
-    if request_data.get("party_id") and request_data.get("party_id", "").lower() != "all":
+    if request_data.get("party_id") and str(request_data.get("party_id", "")).lower() != "all":
         query_info["party_id"] = request_data.get("party_id")
+    logger.info(f"start query fate job by {query_info}")
     job_list = federated_db_operator.query_fate_site_job(**query_info)
+    logger.info("start get day list")
     day_list = get_day_list(request_data)
+    logger.info("start group by job type")
     return group_by_job_type(job_list, day_list)
 
 
@@ -62,12 +73,21 @@ def get_day_list(query_info):
     return day_list
 
 
+# def get_date_info(request_data):
+#     date_info = {}
+#     if request_data.get("endDate") and request_data.get("endDate") == request_data.get("startDate"):
+#         date_info["job_create_day"] = request_data.get("startDate")
+#     if request_data.get("endDate") and request_data.get("startDate"):
+#         date_info["job_create_day"] = [request_data.get("startDate"), request_data.get("endDate")]
+#     return date_info
+
+
 def get_date_info(request_data):
     date_info = {}
     if request_data.get("endDate") and request_data.get("endDate") == request_data.get("startDate"):
-        date_info["job_create_day"] = request_data.get("startDate")
+        date_info["job_create_day_date"] = datetime.strptime(request_data.get("startDate"), '%Y%m%d')
     if request_data.get("endDate") and request_data.get("startDate"):
-        date_info["job_create_day"] = [request_data.get("startDate"), request_data.get("endDate")]
+        date_info["job_create_day_date"] = [datetime.strptime(request_data.get("startDate"), '%Y%m%d'), datetime.strptime(request_data.get("endDate"), '%Y%m%d')]
     return date_info
 
 
@@ -107,14 +127,13 @@ def group_by_institutions(site_job_list):
     institutions_dict = {}
     ret = {}
     for site_job in site_job_list:
-        if site_job.other_institutions:
-            for institutions in site_job.other_institutions:
-                if institutions_dict.get(institutions):
-                    institutions_dict[institutions].append(site_job)
-                else:
-                    institutions_dict[institutions] = [site_job]
+        if institutions_dict.get(site_job.institutions):
+            institutions_dict[site_job.institutions].append(site_job)
+        else:
+            institutions_dict[site_job.institutions] = [site_job]
     for institutions, _site_job_list in institutions_dict.items():
         ret[institutions] = group_by_status(_site_job_list)
+    logger.info(f"return:{ret}")
     return ret
 
 
@@ -143,6 +162,7 @@ def group_by_site(site_job_list):
                 site_job_dict[party_id]["institutions"][institutions][other_party_id]["site_name"] = other_site_name_dict[other_party_id]
                 site_job_dict[party_id]["site_name"] = other_site_name_dict[party_id]
                 total_job_num += site_job_dict[party_id]["institutions"][institutions][other_party_id]["data"]["total"]
+    logger.info(f"return:{site_job_dict}")
     return site_job_dict
 
 
@@ -180,18 +200,40 @@ def group_by_job_type(job_list, day_list):
     for job in job_list:
         type_job_dict[job.job_type].append(job)
         type_date_job_dict[job.job_type][job.job_create_day].append(job)
-    # total, duration
+    # type total and type duration
     for _type, job_type_list in type_job_dict.items():
         result[_type], duration_list = group_by_end_status(job_type_list, key="total")
         result[_type]["duration"] = get_job_duration_distribution(duration_list)
+    # all type total
+    all_total = {"total": 0, FateJobEndStatus.FAILED: 0, FateJobEndStatus.SUCCESS: 0}
+    for _type, _type_total in result.items():
+        all_total["total"] += _type_total["total"]["total"]
+        for _status, _status_total in _type_total["total"].items():
+            if _status in [FateJobEndStatus.FAILED, FateJobEndStatus.SUCCESS]:
+                all_total[_status] += _status_total
+    all_total[f"{FateJobEndStatus.SUCCESS}_percent"] = all_total[FateJobEndStatus.SUCCESS] / (all_total["total"] if all_total["total"] else 1)
+    all_total[f"{FateJobEndStatus.FAILED}_percent"] = all_total[FateJobEndStatus.FAILED] / (all_total["total"] if all_total["total"] else 1)
+    result["total"] = all_total
     # date
     for _type, job_type_list in type_date_job_dict.items():
+        type_max = 0
+        type_min = 0
+        type_time_consuming = 0
+        result[_type]["day"] = {}
         for _day, job_day_list in job_type_list.items():
-            result[_type]["day"] = {}
             date_total, _ = group_by_end_status(job_day_list, key="total")
             _max, _min, _mean = get_job_metrics(job_day_list)
             result[_type]["day"][_day] = date_total
             result[_type]["day"][_day]['max'] = _max
             result[_type]["day"][_day]['min'] = _min
             result[_type]["day"][_day]['mean'] = _mean
+            if type_max < _max:
+                type_max = _max
+            if type_min > _min:
+                type_min = _min
+            type_time_consuming += _mean * date_total["total"]["total"]
+        result[_type]["total"]["max"] = type_max
+        result[_type]["total"]["min"] = type_min
+        result[_type]["total"]["mean"] = type_time_consuming / result[_type]["total"]['total'] if result[_type]["total"]['total'] else 1
+    logger.info(f"return {result}")
     return result

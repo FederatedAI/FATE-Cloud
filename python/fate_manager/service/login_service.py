@@ -15,9 +15,9 @@ from utils.request_cloud_utils import request_cloud_manager
 def fate_manager_activate(request_data):
     logger.info(f'request data: {request_data}')
     user_name = request_data.get("userName")
-    accounts = DBOperator.query_entity(AccountInfo, status=IsValidType.YES, user_name=user_name, role=UserRole.ADMIN)
+    accounts = DBOperator.query_entity(AccountInfo, role=UserRole.ADMIN)
     if accounts:
-        raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: User {user_name} has been activated")
+        raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: fate manager has been activated")
     users = DBOperator.query_entity(FateUserInfo, user_name=user_name)
     if not users:
         raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
@@ -55,7 +55,7 @@ def fate_manager_login(request_data):
         raise Exception(UserStatusCode.AccountRoleLow, f"user role {account.role} not in [{UserRole.ADMIN}, {UserRole.DEVELOPER}]")
     users = DBOperator.query_entity(FateUserInfo, user_name=user_name, password=password)
     if not users:
-        raise Exception(UserStatusCode.LoginFailed, f"login failed:user name {user_name} or password {password} error")
+        raise Exception(UserStatusCode.LoginFailed, f"login failed:user name or password error")
     user = users[0]
     token = generate_token(user.user_name, user.password)
     token_info = {

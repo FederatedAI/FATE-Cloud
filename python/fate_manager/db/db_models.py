@@ -20,7 +20,7 @@ import sys
 
 import __main__
 from peewee import (CharField, IntegerField, BigIntegerField, SmallIntegerField,
-                    TextField, CompositeKey, BigAutoField, BooleanField, AutoField, DateTimeField)
+                    TextField, CompositeKey, BigAutoField, BooleanField, AutoField, DateTimeField, DateField)
 from playhouse.pool import PooledMySQLDatabase
 from playhouse.shortcuts import ReconnectMixin
 
@@ -343,7 +343,7 @@ class FateSiteJobInfo(DataBaseModel):
     other_institutions = ListField()
     job_type = CharField(max_length=50, index=True)
     job_create_day = CharField(max_length=10, null=True, help_text='job day', index=True)
-    job_create_day_date = DateTimeField(null=True)
+    job_create_day_date = DateField(null=True, index=True)
     job_create_time = BigIntegerField(null=True)
     job_start_time = BigIntegerField(null=True)
     job_end_time = BigIntegerField(null=True)

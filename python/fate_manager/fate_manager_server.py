@@ -47,6 +47,7 @@ if __name__ == '__main__':
         manager,
         {
             # '/fate-manager/{}/deploy'.format(API_VERSION): deploy_mananger,
+            '/index': static_manager,
             '/fate-manager/api/site': site_manager,
             '/fate-manager/api/login': login_manager,
             '/fate-manager/api/user': user_manager,

@@ -118,14 +118,29 @@ def check_user(user_name):
 def query_fate_site_job(**kwargs):
     filters = []
     for k, v in kwargs.items():
-        if k in ['job_create_day'] and isinstance(v, list):
+        if k in ['job_create_day_date'] and isinstance(v, list):
             b_timestamp = v[0]
             e_timestamp = v[1]
             filters.append(getattr(FateSiteJobInfo, k).between(b_timestamp, e_timestamp))
+        # if k in ['job_create_day_date'] and isinstance(v, list):
+        #     filters.append(getattr(FateSiteJobInfo, k) > v[0])
+        #     filters.append(getattr(FateSiteJobInfo, k) <= v[1])
         elif hasattr(FateSiteJobInfo, k):
             filters.append(operator.attrgetter(k)(FateSiteJobInfo) == v)
     if not filters:
-        instances = FateSiteJobInfo.select()
+        instances = FateSiteJobInfoSelect()
     else:
-        instances = FateSiteJobInfo.select().where(*filters)
+        instances = FateSiteJobInfoSelect().where(*filters)
     return [item for item in instances]
+
+
+def FateSiteJobInfoSelect():
+    return FateSiteJobInfo.select(FateSiteJobInfo.institutions, FateSiteJobInfo.party_id, FateSiteJobInfo.site_name,
+                                  FateSiteJobInfo.role,
+                                  FateSiteJobInfo.job_id, FateSiteJobInfo.job_elapsed, FateSiteJobInfo.roles,
+                                  FateSiteJobInfo.other_party_id,
+                                  FateSiteJobInfo.other_institutions, FateSiteJobInfo.job_type,
+                                  FateSiteJobInfo.job_create_day,
+                                  FateSiteJobInfo.job_create_day_date, FateSiteJobInfo.job_start_time,
+                                  FateSiteJobInfo.job_end_time,
+                                  FateSiteJobInfo.status)

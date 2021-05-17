@@ -83,8 +83,8 @@ def get_site_signature_head(uri, data, body):
     if body == '{}':
         body = ""
     sign_str = '{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}'.format(data["account"].fate_manager_id, data["account"].app_key,
-                                                             head["PARTY_ID"], head["ROLE"], head["APP_KEY"],
-                                                             head["TIMESTAMP"], head["NONCE"], uri, body)
+                                                           head["PARTY_ID"], head["ROLE"], head["APP_KEY"],
+                                                           head["TIMESTAMP"], head["NONCE"], uri, body)
     key = data["account"].app_secret + appSecret
     sign = hash_hmac(key, sign_str)
     head["SIGNATURE"] = sign
@@ -93,7 +93,7 @@ def get_site_signature_head(uri, data, body):
 
 def request_cloud_manager(uri_key, data, body, methods="post", url=None):
     uri = CLOUD_URL[uri_key]
-    body_json = json.dumps(body, separators=(',', ':'))
+    body_json = json.dumps(body, separators=(',', ':'), sort_keys=True)
     if uri_key in CLOUD_INSTITUTION_SIGNATURE:
         head = get_institution_signature_head(uri, data, body_json)
     elif uri_key in CLOUD_SITE_SIGNATURE:

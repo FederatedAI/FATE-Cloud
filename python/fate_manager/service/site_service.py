@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 
 from arch.common.base_utils import current_timestamp
@@ -53,6 +54,11 @@ def register_fate_site(request_data, token):
     }
     logger.info(f"start save site info:{site_info}")
     DBOperator.safe_save(FateSiteInfo, site_info)
+    DBOperator.create_entity(ApplySiteInfo, {
+        "institutions": request_data.get("institutions"),
+        "party_id": request_data.get("partyId"),
+        "site_name": request_data.get("siteName")
+    })
     logger.info("save site info success")
 
     # save account party id
@@ -489,9 +495,10 @@ def function_read():
 
 
 def check_site(request_data):
-    federated_info_list = federated_db_operator.get_party_id_info(party_id=request_data.get("PartyId"))
+    federated_info_list = federated_db_operator.get_party_id_info(party_id=request_data.get("dstPartyId"))
     if federated_info_list:
         federated_item = federated_info_list[0]
+        fate_site_item = federated_item.fatesiteinfo
         uri = CLOUD_URL["CheckAuthorityUri"]
         # guest head
         old_signature_item = item.OldSignatureItem(partyId=request_data.get("srcPartyId"),
@@ -499,7 +506,7 @@ def check_site(request_data):
                                                    appKey=request_data.get("appKey"),
                                                    appSecret=request_data.get("appSecret"))
         old_head = get_old_signature_head(uri, old_signature_item.to_dict(),
-                                          body={"partyId": request_data.get("srcPartyId")})
+                                          body=json.dumps({"partyId": request_data.get("srcPartyId")}, separators=(',', ':')))
         check_site_body = {
             "HTTP_BODY": {"partyId": request_data.get('srcPartyId')},
             "HTTP_URI": uri,
@@ -507,13 +514,13 @@ def check_site(request_data):
         }
         logger.info("start request cloud CheckAuthorityUri")
         site_signature_req = item.SiteSignatureItem(partyId=request_data.get("dstPartyId"),
-                                                    role=int(federated_item.role),
-                                                    appKey=federated_item.app_key,
-                                                    appSecret=federated_item.app_secret).to_dict()
+                                                    role=int(fate_site_item.role),
+                                                    appKey=fate_site_item.app_key,
+                                                    appSecret=fate_site_item.app_secret).to_dict()
         resp = request_cloud_manager(uri_key="CheckAuthorityUri", data=site_signature_req,
-                                     body=check_site_body, url=federated_item.federated_url)
+                                     body={"site": json.dumps(check_site_body, separators=(',', ':'))},
+                                     url=federated_item.federated_url)
         logger.info(f"request cloud success:{resp}")
-
     else:
         raise Exception(SiteStatusCode.NoFoundSite, "no found site")
 

@@ -102,10 +102,11 @@ class TaskDetector(cron.Cron):
 class MonitorDetector(cron.Cron):
     @exception_catch
     def run_do(self):
-        self.log_fate_flow_job()
+        account = federated_db_operator.get_admin_info()
+        self.log_fate_flow_job(account)
 
     @classmethod
     @exception_catch
-    def log_fate_flow_job(cls):
-        count.CountJob.count_fate_flow_job()
+    def log_fate_flow_job(cls, account):
+        count.CountJob.count_fate_flow_job(account)
 

@@ -15,4 +15,5 @@ _build
 .vscode/*
 
 /python/fate_manager/apps/static
+/python/fate_manager/static
 /python/logs
