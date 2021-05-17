@@ -401,12 +401,13 @@ class FateSiteInfo(DataBaseModel):
 
 
 class TokenInfo(DataBaseModel):
-    user_name = CharField(max_length=50, null=True, help_text='user name', primary_key=True)
+    user_name = CharField(max_length=50, null=True, help_text='user name')
     token = CharField(null=True, help_text='token')
     expire_time = BigIntegerField(null=True, help_text='expire time')
 
     class Meta:
         db_table = "t_fate_manager_token_info"
+        primary_key = CompositeKey('user_name', 'token')
 
 
 class FateUserInfo(DataBaseModel):
