@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
@@ -135,37 +136,58 @@ public class FederatedSiteController {
         return federatedSiteManagerServiceFacade.findInstitutionsInGroup(institutionsInGroup);
     }
 
-
+    @PostMapping(value = "/cloudManager/network")
+    @ApiOperation(value = "find default network of cloud manager")
+    public CommonResponse<NetworkDto> findCloudManagerNetwork() {
+        return federatedSiteManagerServiceFacade.findCloudManagerNetwork();
+    }
     //interface for fate-manager
 
     @PostMapping(value = "/checkUrl")
     @ApiOperation(value = "checkUrl of Site for fate manager")
     public CommonResponse checkUrl(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", siteActivateQo);
-        return federatedSiteManagerServiceFacade.checkUrl(siteActivateQo, httpServletRequest);
+        log.info("siteActivateQo:{}", siteActivateQo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkUrl(siteActivateQo, httpServletRequest);
+        log.info("response for check url :{}",commonResponse);
+        return commonResponse;
     }
 
     @PostMapping(value = "/activate")
     @ApiOperation(value = "activate Site for fate manager")
     public CommonResponse activateSite(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", siteActivateQo);
-        return federatedSiteManagerServiceFacade.activateSite(siteActivateQo, httpServletRequest);
+        log.info("siteActivateQo:{}", siteActivateQo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.activateSite(siteActivateQo, httpServletRequest);
+        log.info("response for activate url :{}",commonResponse);
+        return commonResponse;
     }
 
 
     @PostMapping(value = "/findOneSite/fateManager")
     @ApiOperation(value = "find site info for fate manager ")
     public CommonResponse<SiteDetailDto> findOneSite(HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", httpServletRequest);
-        return federatedSiteManagerServiceFacade.findOneSite(httpServletRequest);
+        log.info("httpServletRequest for find one site:{}", httpServletRequest);
+        CommonResponse<SiteDetailDto> oneSite = federatedSiteManagerServiceFacade.findOneSite(httpServletRequest);
+        log.info("response for find one site:{}",oneSite);
+        return oneSite;
     }
 
 
     @PostMapping(value = "/checkAuthority/fateManager")
     @ApiOperation(value = "check site authority in http body for fate manager")
     public CommonResponse checkSiteAuthority(@RequestBody String siteInfo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", siteInfo);
-        return federatedSiteManagerServiceFacade.checkSiteAuthority(siteInfo, httpServletRequest);
+        log.info("site info for checkAuthority:{}", siteInfo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkSiteAuthority(siteInfo, httpServletRequest);
+        log.info("response for checkAuthority:{}",commonResponse);
+        return commonResponse;
+    }
+
+    @PostMapping(value = "/checkAuthority/fateManager/v3")
+    @ApiOperation(value = "check site authority in http body for fate manager")
+    public CommonResponse checkSiteAuthorityV3(@RequestBody CheckAuthorityQo siteInfo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("site info for checkAuthority:{}", siteInfo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkSiteAuthorityV3(siteInfo, httpServletRequest);
+        log.info("response for checkAuthority:{}",commonResponse);
+        return commonResponse;
     }
 
 //    @PostMapping(value = "/heart/fateManager")
@@ -178,63 +200,74 @@ public class FederatedSiteController {
     @PostMapping(value = "/ip/list")
     @ApiOperation(value = "Ip Manager")
     public CommonResponse<PageBean<IpManagerListDto>> selectIpList(@RequestBody IpManagerListQo ipManagerListQo) {
-        log.info("RequestBody:{}", ipManagerListQo);
+        log.info("ipManagerListQo for ip list:{}", ipManagerListQo);
         return federatedIpManagerServiceFacade.getIpList(ipManagerListQo);
     }
 
     @PostMapping(value = "/ip/deal")
     @ApiOperation(value = "Deal Ip Modify Apply")
     public CommonResponse dealIpModify(@RequestBody IpManagerUpdateQo ipManagerUpdateQo) {
-        log.info("RequestBody:{}", ipManagerUpdateQo);
+        log.info("ipManagerUpdateQo for ip deal:{}", ipManagerUpdateQo);
         return federatedIpManagerServiceFacade.dealIpModify(ipManagerUpdateQo);
     }
 
     @PostMapping(value = "/ip/accept")
     @ApiOperation(value = "Accept Ip Modify Apply for fate manager")
-    public CommonResponse<IpManagerAcceptDto> acceptIpModify(@RequestBody IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", ipManagerAcceptQo);
-        return federatedIpManagerServiceFacade.acceptIpModify(ipManagerAcceptQo, httpServletRequest);
+    public CommonResponse<IpManagerAcceptDto> acceptIpModify(@RequestBody IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("ipManagerAcceptQo for ip accept:{}", ipManagerAcceptQo);
+        CommonResponse<IpManagerAcceptDto> ipManagerAcceptDtoCommonResponse = federatedIpManagerServiceFacade.acceptIpModify(ipManagerAcceptQo, httpServletRequest);
+        log.info("response for ip accept:{}",ipManagerAcceptDtoCommonResponse);
+        return ipManagerAcceptDtoCommonResponse;
     }
 
     @PostMapping(value = "/ip/query")
     @ApiOperation(value = "query Ip Modify Process for fate manager")
-    public CommonResponse<IpManagerQueryDto> queryIpModify(@RequestBody IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", ipManagerQueryQo);
-        return federatedIpManagerServiceFacade.queryIpModify(ipManagerQueryQo, httpServletRequest);
+    public CommonResponse<IpManagerQueryDto> queryIpModify(@RequestBody IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("ipManagerQueryQo for ip query:{}", ipManagerQueryQo);
+        CommonResponse<IpManagerQueryDto> ipManagerQueryDtoCommonResponse = federatedIpManagerServiceFacade.queryIpModify(ipManagerQueryQo, httpServletRequest);
+        log.info("response for ip query:{}",ipManagerQueryDtoCommonResponse);
+        return ipManagerQueryDtoCommonResponse;
     }
 
     @PostMapping(value = "/ip/query/history")
     @ApiOperation(value = "query Ip Modify history")
     public CommonResponse<List<FederatedIpManagerDo>> queryIpModifyHistory(@RequestBody HistoryQo historyQo) {
-        log.info("RequestBody:{}", historyQo);
+        log.info("historyQo for ip history:{}", historyQo);
         return federatedIpManagerServiceFacade.queryIpModifyHistory(historyQo);
     }
 
     @PostMapping(value = "/fate/version")
     @ApiOperation(value = "update fate and serving version for fate manager")
-    public CommonResponse updateVersion(@RequestBody VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", versionUpdateQo);
-        return federatedSiteManagerServiceFacade.updateVersion(versionUpdateQo, httpServletRequest);
+    public CommonResponse updateVersion(@RequestBody VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("versionUpdateQo for fate version:{}", versionUpdateQo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.updateVersion(versionUpdateQo, httpServletRequest);
+        log.info("response for fate version:{}",commonResponse);
+        return commonResponse;
     }
 
     @PostMapping(value = "/checkPartyIdInRegionNew")
     @ApiOperation(value = "Check PartyId in regions")
     public CommonResponse checkPartyIdInRegionNew(@RequestBody PartyIdInRegionCheckQo partyIdInRegionCheckQo) {
-        log.info("RequestBody:{}", partyIdInRegionCheckQo);
+        log.info("partyIdInRegionCheckQo for checking party id:{}", partyIdInRegionCheckQo);
         return federatedSiteManagerServiceFacade.checkPartyIdInRegionNew(partyIdInRegionCheckQo);
     }
 
     @PostMapping(value = "/page/fateManager")
     @ApiOperation(value = "find all sites by page for fate manager")
-    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}", siteListForFateManagerQo);
-        return federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo, httpServletRequest);
+    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("siteListForFateManagerQo for page:{}", siteListForFateManagerQo);
+        CommonResponse<PageBean<SiteDetailDto>> pagedSitesForFateManager = federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo, httpServletRequest);
+        log.info("response for page:{}",pagedSitesForFateManager);
+        return pagedSitesForFateManager;
     }
 
     @PostMapping(value = "/rollsite/checkPartyId")
     @ApiOperation(value = "Check PartyId for roll site")
     public CommonResponse checkPartyIdForRollSite(HttpServletRequest httpServletRequest) {
-        return federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
+        log.info("request for check party id for roll site :{}", httpServletRequest);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkPartyIdForRollSite(httpServletRequest);
+        log.info("response for check party id for roll site:{}",commonResponse);
+        return commonResponse;
     }
 
     @PostMapping(value = "/institutions/all/dropdown")

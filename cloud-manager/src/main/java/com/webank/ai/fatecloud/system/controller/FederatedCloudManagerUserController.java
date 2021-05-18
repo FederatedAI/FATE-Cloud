@@ -26,7 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 @RestController
 @RequestMapping(value = "/api/cloud/user")
@@ -65,17 +67,17 @@ public class FederatedCloudManagerUserController {
 
     @PostMapping(value = "/login")
     @ApiOperation(value = "cloud manager user log in")
-    public CommonResponse loginCloudManagerUser(@RequestBody CloudManagerUserLoginQo cloudManagerUserLoginQo, HttpSession httpSession) {
-        log.info("RequestBody:{}", cloudManagerUserLoginQo);
-        return federatedCloudManagerUserServiceFacade.loginCloudManagerUser(cloudManagerUserLoginQo, httpSession);
+    public CommonResponse loginCloudManagerUser(@RequestBody CloudManagerUserLoginQo cloudManagerUserLoginQo, HttpServletRequest httpServletRequest) {
+        log.info("login user:{},login time:{}", cloudManagerUserLoginQo,new Date());
+        return federatedCloudManagerUserServiceFacade.loginCloudManagerUser(cloudManagerUserLoginQo, httpServletRequest);
 
     }
 
     @PostMapping(value = "/logout")
     @ApiOperation(value = "cloud manager user log out")
-    public CommonResponse logoutCloudManagerUser(HttpSession httpSession) {
-        log.info("RequestBody:{}", httpSession);
-        return federatedCloudManagerUserServiceFacade.logoutCloudManagerUser(httpSession);
+    public CommonResponse logoutCloudManagerUser(HttpServletRequest httpServletRequest) {
+        log.info("RequestBody:{}", httpServletRequest);
+        return federatedCloudManagerUserServiceFacade.logoutCloudManagerUser(httpServletRequest);
 
     }
 }

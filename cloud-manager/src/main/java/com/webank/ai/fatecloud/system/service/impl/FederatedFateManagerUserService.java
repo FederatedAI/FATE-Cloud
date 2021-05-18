@@ -51,13 +51,6 @@ public class FederatedFateManagerUserService {
     @Autowired
     FederatedOrganizationMapper federatedOrganizationMapper;
 
-
-    @Value(value = "${cloud-manager.ip}")
-    String ip;
-
-//    @Value(value = "${cloud-manager.https.ip}")
-//    String httpsIp;
-
     @Value(value = "${server.servlet.context-path}")
     String prefix;
 
@@ -87,12 +80,13 @@ public class FederatedFateManagerUserService {
         stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
 
         String userInfo = JSON.toJSONString(stringObjectHashMap);
+        String network = fateManagerUserAddQo.getNetwork();
 
         String fateUserRegistrationUrl = "";
         if ("http://".equals(fateManagerUserAddQo.getProtocol())) {
-            fateUserRegistrationUrl = "http://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "http://" + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            fateUserRegistrationUrl = "https://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "https://" + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
@@ -102,6 +96,7 @@ public class FederatedFateManagerUserService {
         federatedFateManagerUserDo.setCreator(fateManagerUserAddQo.getCreator());
 
         federatedFateManagerUserDo.setProtocol(fateManagerUserAddQo.getProtocol());
+        federatedFateManagerUserDo.setNetwork(network);
 
         federatedFateManagerUserMapper.insert(federatedFateManagerUserDo);
 
@@ -133,12 +128,13 @@ public class FederatedFateManagerUserService {
         stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
 
         String userInfo = JSON.toJSONString(stringObjectHashMap);
+        String network = fateManagerUserUpdateQo.getNetwork();
 
         String fateUserRegistrationUrl = "";
         if ("http://".equals(fateManagerUserUpdateQo.getProtocol())) {
-            fateUserRegistrationUrl = "http://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "http://" + network + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         } else {
-            fateUserRegistrationUrl = "https://" + ip + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = "https://" + network + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
@@ -148,6 +144,7 @@ public class FederatedFateManagerUserService {
         federatedFateManagerUserDoOld.setCreator(fateManagerUserUpdateQo.getCreator());
 
         federatedFateManagerUserDoOld.setProtocol(fateManagerUserUpdateQo.getProtocol());
+        federatedFateManagerUserDoOld.setNetwork(network);
 
         federatedFateManagerUserDoOld.setUpdateTime(new Date());
 
@@ -260,7 +257,9 @@ public class FederatedFateManagerUserService {
     }
 
     public boolean checkUrl(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        if (siteActivateQo.getRegistrationLink() == null) {
+
+        String linkeInput = siteActivateQo.getRegistrationLink();
+        if (linkeInput == null) {
             return false;
         }
 
@@ -274,7 +273,9 @@ public class FederatedFateManagerUserService {
         String registrationLink = federatedFateManagerUserDo1.getRegistrationLink();
         registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
 
-        if (!siteActivateQo.getRegistrationLink().equals(registrationLink)) {
+        if (!linkeInput.equals(registrationLink)) {
+            log.error("linkeInput     :{}",linkeInput);
+            log.error("linkeInDateBase:{}",registrationLink);
             return false;
         }
 

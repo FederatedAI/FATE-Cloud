@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedCloudCertificateMapper">
+
+    <select id="selectByPage" parameterType="com.webank.ai.fatecloud.system.pojo.qo.CertificateQueryQo"
+            resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedCloudCertificateDo">
+        SELECT cm.*,(SELECT type_name FROM t_cloud_certificate_type WHERE id = cm.type_id) AS certificateType FROM
+        <include refid="byPage"/>
+        ORDER BY create_date DESC limit #{pageNum}, #{pageSize}
+    </select>
+
+    <select id="getTotal" parameterType="com.webank.ai.fatecloud.system.pojo.qo.CertificateQueryQo" resultType="int">
+        SELECT COUNT(1) FROM
+        <include refid="byPage"/>
+    </select>
+
+    <sql id="byPage">
+        t_cloud_certificate_manager cm
+        <where>
+            <if test="typeId!=null">
+                and type_id = #{typeId}
+            </if>
+            <if test="institution!=null">
+                and institution = #{institution}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+            <if test="queryString!=null">
+                and (serial_number like #{queryString} or site_authority like #{queryString})
+            </if>
+        </where>
+    </sql>
+
+</mapper>

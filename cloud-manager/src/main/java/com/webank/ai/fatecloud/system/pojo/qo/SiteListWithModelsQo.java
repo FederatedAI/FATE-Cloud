@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -34,6 +35,9 @@ public class SiteListWithModelsQo implements Serializable {
 
     @ApiModelProperty(value = "model version")
     private String version;
+
+    @ApiModelProperty(value = "institutions list")
+    private List<String> institutionsList;
 
     @ApiModelProperty(value = "role,0:all, 1:guest,2:host")
     private Integer role = 0;

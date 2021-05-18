@@ -49,7 +49,7 @@ public enum ReturnCodeEnum {
     CLOUD_MANAGER_PASSWORD_ERROR(129, "This cloud manager user password errors!"),
     CLOUD_MANAGER_LOGIN_ERROR(130, "Please login first!"),
     CLOUD_MANAGER_DELETE_ERROR(131, "The last user can't be deleted!"),
-    CLOUD_MANAGER_ORIGIN_USER_LOGIN_ERROR(132, "The user name or password error!"),
+    CLOUD_MANAGER_ORIGIN_USER_LOGIN_ERROR(132, "The username or password error!"),
     CLOUD_MANAGER_LOGIN_AUTHORITY_ERROR(133, "The user doesn't get the authority!"),
     FATE_MANAGER_USER_ERROR(134, "The institution has been used!"),
     MEMORY_ERROR(135, "Memory has error!"),
@@ -60,6 +60,10 @@ public enum ReturnCodeEnum {
     ROLLSITE_NETWORK_REPEAT(140, "There are duplicated roll site networks!"),
     FATE_MANAGER_STATUS_ERROR(141, "The institution can't edit!"),
     FATE_MANAGER_URL_ERROR(142, "The institution activate url has changed!"),
+    CERTIFICATE_UPDATE_ERROR(143, "The data does not meet the update conditions!"),
+    INVOKE_CONNECT_ERROR(144, "Cannot connect to the server!"),
+    SCENARIO_ERROR(145, "The scenario doesn't exist!"),
+    AUTHORITY_CANCEL_ERROR(146, "Original approved authority-apply doesn't exist!"),
 
     ;
     private int code;

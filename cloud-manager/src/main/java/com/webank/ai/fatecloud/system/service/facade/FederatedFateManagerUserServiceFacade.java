@@ -43,7 +43,7 @@ public class FederatedFateManagerUserServiceFacade {
     CheckSignature checkSignature;
 
     public CommonResponse<FederatedFateManagerUserDo> addFateManagerUser(FateManagerUserAddQo fateManagerUserAddQo) throws UnsupportedEncodingException {
-        Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserAddQo.getInstitutions(), fateManagerUserAddQo.getCreator(), fateManagerUserAddQo.getProtocol()));
+        Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserAddQo.getInstitutions(), fateManagerUserAddQo.getCreator(), fateManagerUserAddQo.getProtocol(),fateManagerUserAddQo.getNetwork()));
         Preconditions.checkArgument(CheckInstitutionsUtil.checkPath(fateManagerUserAddQo.getInstitutions(), fateManagerUserAddQo.getCreator()));
 
         CommonResponse<Boolean> booleanCommonResponse = checkInstitution(new InstitutionCheckQo(fateManagerUserAddQo.getInstitutions()));
@@ -57,7 +57,7 @@ public class FederatedFateManagerUserServiceFacade {
     }
 
     public CommonResponse<FederatedFateManagerUserDo> updateFateManagerUser(FateManagerUserUpdateQo fateManagerUserUpdateQo) throws UnsupportedEncodingException {
-        Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserUpdateQo.getInstitution(), fateManagerUserUpdateQo.getCreator(), fateManagerUserUpdateQo.getProtocol(), fateManagerUserUpdateQo.getFateManagerId()));
+        Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserUpdateQo.getInstitution(), fateManagerUserUpdateQo.getCreator(), fateManagerUserUpdateQo.getProtocol(), fateManagerUserUpdateQo.getFateManagerId(),fateManagerUserUpdateQo.getNetwork()));
         Preconditions.checkArgument(CheckInstitutionsUtil.checkPath(fateManagerUserUpdateQo.getInstitution(), fateManagerUserUpdateQo.getCreator(), fateManagerUserUpdateQo.getFateManagerId()));
 
         boolean institutionResult = federatedFateManagerUserService.checkUpdateInstitution(fateManagerUserUpdateQo);

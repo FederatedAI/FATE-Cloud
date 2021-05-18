@@ -68,8 +68,10 @@ public class FederatedFateManagerUserController {
     @PostMapping(value = "/activate")
     @ApiOperation(value = "activate fate manager user")
     public CommonResponse activateFateManagerUser(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        log.info("RequestBody:{}|{}", httpServletRequest,siteActivateQo);
-        return federatedFateManagerUserServiceFacade.activateFateManagerUser(siteActivateQo,httpServletRequest);
+        log.info("request for activate fate manager, header:{} | body:{}", httpServletRequest,siteActivateQo);
+        CommonResponse commonResponse = federatedFateManagerUserServiceFacade.activateFateManagerUser(siteActivateQo, httpServletRequest);
+        log.info("response for activate fate manager :{}",commonResponse);
+        return commonResponse;
 
     }
 
