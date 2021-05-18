@@ -9,7 +9,7 @@
             </div>
             <el-form ref="inputform" :model="inputform" :rules="rules" @submit.native.prevent >
                 <el-form-item :class="{ name:true,'name-warn': warnActive }" prop="inputUrl">
-                    <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model.trim="inputform.input"></el-input>
+                    <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model="inputform.input"></el-input>
                     <div class="warn-text">
                         <span v-show='warnActive'>The registration link is invalid. Please enter again.</span>
                     </div>

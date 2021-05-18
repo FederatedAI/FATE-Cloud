@@ -1,64 +1,52 @@
 <template>
   <div class="deploying">
     <div class="deploying-box">
-      <div class="serve-title">
-        <div class="deploying-inline">FATE Deployment</div>
-        <div class="inline">
-          <el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
-            <!-- <el-form-item label="Federated organization:">
-              <el-select v-model="formInline.federatedId" @change="changeFederatedId" placeholder="">
-                <el-option
-                    v-for="item in organization"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-              </el-select>
-            </el-form-item> -->
-            <el-form-item label="PartyID:">
-              <el-select v-model="formInline.partyId" placeholder="" @change="tochangepartyId" :class="{'option-select':showwarn}">
-                <el-option
-                    v-for="item in partyId"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
-              </el-select>
-              <div v-if="showwarn" class="option-partyId">The PartyID is required.</div>
-            </el-form-item>
-            <el-form-item label="Site name:" class="form-item">
-                <span style="color:#217AD9">{{formInline.siteName}}</span>
-            </el-form-item>
-          </el-form>
+        <div class="serve-title">
+            <div class="inline">
+                <el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
+                    <el-form-item label="PartyID:">
+                        <el-select v-model="formInline.partyId" placeholder="" @change="tochangepartyId">
+                            <el-option
+                                v-for="item in partyId"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="Site name:" class="form-item">
+                        <span style="color:#217AD9">{{formInline.siteName}}</span>
+                    </el-form-item>
+                </el-form>
+            </div>
         </div>
-      </div>
-        <div class="steps-content">
+        <div v-if="page!==1" class="steps-content">
+
             <!-- 第一步 -->
-            <div @click="toSteps('1')" :class="{'state-one':true,'state-two':currentSteps.pullPrepare,'state-three':currentSteps.pullFinish}">
+            <div @click="toSteps('1')" :class="{'define':true,'hover':currentSteps.pullPrepare,'activa':currentSteps.pullFinish}">
                 <div class="steps" >
                     <span class="text circul">1</span>
                     <span class="text">Pull image</span>
                 </div>
-                <div class="arrow-left"></div>
+                <i class="el-icon-caret-right"></i>
             </div>
             <!-- 第二步 -->
-            <div @click="toSteps('2')" :class="{'state-one':true ,'state-two':currentSteps.instllPrepare,'state-three':currentSteps.instllFinish}">
-                <div class="arrow-right" ></div>
+            <div @click="toSteps('2')" :class="{'define':true ,'hover':currentSteps.instllPrepare,'activa':currentSteps.instllFinish}">
                 <div class="steps-two steps" >
                     <span class="circul">2</span>
-                    <span >Install image</span>
+                    <span class="text">Install image</span>
                 </div>
-                <div class="arrow-left"></div>
+                <i class="el-icon-caret-right"></i>
             </div>
             <!-- 第三步 -->
-            <div @click="toSteps('3')" :class="{'state-one':true ,'state-two':currentSteps.autoPrepare,'state-three':currentSteps.autoFinish}">
-                <div class="arrow-right" ></div>
+            <div @click="toSteps('3')" :class="{'define':true ,'hover':currentSteps.autoPrepare,'activa':currentSteps.autoFinish}">
                 <div class="steps-three steps" >
                     <span class=" circul">3</span>
-                    <span >Auto-test</span>
+                    <span class="text">Auto-test</span>
                 </div>
             </div>
         </div>
+        <prepare ref="prepare" v-show="page === 1" :currentSteps='currentSteps' :formInline='formInline' />
         <tablepull ref="tablepull" v-show="page === 2" :currentSteps='currentSteps' :formInline='formInline' />
         <tableinstall ref="tableinstall" v-show="page === 3" :currentSteps='currentSteps' :formInline='formInline'/>
         <tableauto ref="tableauto" v-show="page === 4"  :currentSteps='currentSteps' :formInline='formInline'/>
@@ -68,17 +56,18 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import prepare from './prepare'
 import tablepull from './tablepull'
 import tableinstall from './tableinstall'
 import tableauto from './tableauto'
 import { pagesStep, deployversion } from '@/api/deploy'
 export default {
     name: 'deploying',
-    components: { tablepull, tableinstall, tableauto },
+    components: { prepare, tablepull, tableinstall, tableauto },
     data() {
         return {
             showwarn: false,
-            page: 2, // 当前页
+            page: 1, // 当前页
             currentpage: 2, // 当前进行到第几步
             currentSteps: {
                 pullPrepare: false,
@@ -92,7 +81,8 @@ export default {
                 federatedId: parseInt(this.$route.query.federatedId),
                 partyId: parseInt(this.$route.query.partyId),
                 siteName: this.$route.query.siteName,
-                fateVersion: ''
+                fateVersion: this.$route.query.fateVersion,
+                deployType: this.$route.query.deployType// 部署类型
             }
         }
     },
@@ -153,74 +143,102 @@ export default {
                 productType: 1
             }
             pagesStep(data).then(res => {
-                this.currentpage = this.page = res.data.pageStatus.code
                 if (res.data.pageStatus.code === 0) {
                     this.$router.push({
                         name: 'auto',
                         query: {
                             siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
                             partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType
                         }
                     })
-                } else if (res.data.pageStatus.code === 1) {
-                    this.$router.push({
-                        name: 'prepare',
-                        query: {
-                            siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
-                            partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
+                }
+                switch (res.data.deployType.code) {
+                case 1 :
+                    this.currentpage = this.page = res.data.pageStatus.code
+                    if (res.data.pageStatus.code === 0) {
+                        this.$router.push({
+                            name: 'auto',
+                            query: {
+                                siteName: this.formInline.siteName,
+                                federatedId: this.formInline.federatedId,
+                                partyId: this.formInline.partyId,
+                                fateVersion: this.formInline.fateVersion,
+                                deployType: this.formInline.deployType
+                            }
+                        })
+                    } else if (res.data.pageStatus.code === 1) {
+                        this.page = 1
+                    // this.$router.push({
+                    //     name: 'prepare',
+                    //     query: {
+                    //         siteName: this.formInline.siteName,
+                    //         federatedId: this.formInline.federatedId,
+                    //         partyId: this.formInline.partyId,
+                    //         fateVersion: this.formInline.fateVersion
+                    //     }
+                    // })
+                    } else if (res.data.pageStatus.code === 2) {
+                        this.currentSteps = {
+                            pullPrepare: false,
+                            pullFinish: false,
+                            instllPrepare: false,
+                            instllFinish: false,
+                            autoPrepare: false,
+                            autoFinish: false
                         }
-                    })
-                } else if (res.data.pageStatus.code === 2) {
-                    this.currentSteps = {
-                        pullPrepare: false,
-                        pullFinish: false,
-                        instllPrepare: false,
-                        instllFinish: false,
-                        autoPrepare: false,
-                        autoFinish: false
+                        this.$refs['tablepull'].lessTime()
+                    } else if (res.data.pageStatus.code === 3) {
+                        this.$nextTick(() => {
+                            this.$refs['tableinstall'].lessTime()
+                            this.$refs['tablepull'].initiPullList()
+                        })
+                        this.currentSteps = {
+                            pullPrepare: true,
+                            pullFinish: true,
+                            instllPrepare: true,
+                            instllFinish: false,
+                            autoPrepare: false,
+                            autoFinish: false
+                        }
+                    } else if (res.data.pageStatus.code === 4) {
+                        this.$nextTick(() => {
+                            this.$refs['tableauto'].lessTime()
+                            this.$refs['tablepull'].initiPullList()
+                            this.$refs['tableinstall'].initiInstallList()
+                        })
+                        this.currentSteps = {
+                            pullPrepare: true,
+                            pullFinish: true,
+                            instllPrepare: true,
+                            instllFinish: true,
+                            autoPrepare: true,
+                            autoFinish: false
+                        }
+                    } else if (res.data.pageStatus.code === 5) {
+                        this.$router.push({
+                            name: 'service',
+                            query: {
+                                siteName: this.formInline.siteName,
+                                federatedId: this.formInline.federatedId,
+                                partyId: this.formInline.partyId,
+                                fateVersion: this.formInline.fateVersion
+                            }
+                        })
                     }
-                    this.$refs['tablepull'].lessTime()
-                } else if (res.data.pageStatus.code === 3) {
-                    this.$nextTick(() => {
-                        this.$refs['tableinstall'].lessTime()
-                        this.$refs['tablepull'].initiPullList()
-                    })
-                    this.currentSteps = {
-                        pullPrepare: true,
-                        pullFinish: true,
-                        instllPrepare: true,
-                        instllFinish: false,
-                        autoPrepare: false,
-                        autoFinish: false
-                    }
-                } else if (res.data.pageStatus.code === 4) {
-                    this.$nextTick(() => {
-                        this.$refs['tableauto'].lessTime()
-                        this.$refs['tablepull'].initiPullList()
-                        this.$refs['tableinstall'].initiInstallList()
-                    })
-                    this.currentSteps = {
-                        pullPrepare: true,
-                        pullFinish: true,
-                        instllPrepare: true,
-                        instllFinish: true,
-                        autoPrepare: true,
-                        autoFinish: false
-                    }
-                } else if (res.data.pageStatus.code === 5) {
+                    break
+                case 2 :
                     this.$router.push({
                         name: 'service',
                         query: {
                             siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
                             partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType
                         }
                     })
+                    break
                 }
             })
         },

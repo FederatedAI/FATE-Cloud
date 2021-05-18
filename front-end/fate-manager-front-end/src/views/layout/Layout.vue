@@ -3,19 +3,31 @@
     <el-container>
       <el-header>
         <div class="logo">
-            <img src="@/assets/logo.png">
+            <!-- <img src="@/assets/logo.png"> -->
             <span>FATE Cloud</span>
 
         </div>
         <div class="right-bar">
             <el-popover v-if="userName" placement="bottom" popper-class="usrname-pop" :visible-arrow="false" trigger="click">
-                <div class="mane" @click="tologout">Sign out</div>
+                <div class="mane" @click="tologout">{{$t('Sign out')}}</div>
                 <div slot="reference" >
                     <span>{{userName}}</span>
                     <i class="el-icon-caret-bottom" />
                 </div>
             </el-popover>
-            <span v-else @click="tologin">Sign in</span>
+            <span v-else @click="tologin">{{$t('Sign in')}}</span>
+        </div>
+        <div class="lang-bar">
+            <el-dropdown  trigger="click"  @command="handleCommand">
+                <span class="text-link">
+                    <span>{{language==='zh'?'中文':'English'}}</span>
+                    <i class="el-icon-caret-bottom"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown"  class="dropdown-lang">
+                    <el-dropdown-item command='zh' :disabled="language==='zh'">中文</el-dropdown-item>
+                    <el-dropdown-item command='en' :disabled="language==='en'">English</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </div>
         <topbar ref="topbar" />
       </el-header>
@@ -66,11 +78,11 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['userId', 'userName'])
+        ...mapGetters(['language', 'userId', 'userName'])
     },
     created() {
         this.$store.dispatch('TogetAuthorSite')
-        this.togetAuthorSite()// 开启定时器
+        // this.togetAuthorSite()// 发版之前记得开启定时器
     },
     beforeDestroy() {
         window.clearTimeout(this.autositetimeless)
@@ -85,7 +97,8 @@ export default {
                 userName: this.userName
             }
             this.$store.dispatch('LogOut', data).then(res => {
-                location.reload()
+                // location.reload()
+                this.$router.push({ path: '/welcome/login' })
             })
         },
         tologin() {
@@ -121,6 +134,10 @@ export default {
                 this.siteAuth = false
                 this.togetAuthorSite()
             })
+        },
+        handleCommand(val) {
+            this.$i18n.locale = val
+            this.$store.dispatch('setLanguage', val)
         }
 
     }
@@ -134,11 +151,11 @@ export default {
     line-height: 35px;
     margin-top:0 !important;
     min-width: 95px !important;
-    left: calc(100% - 143px) !important;
-    padding: 5px;
+    left: calc(100% - 195px) !important;
+    padding: 0px;
     .mane{
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         color: #217AD9;
     }
     .mane:hover{
@@ -146,4 +163,14 @@ export default {
     }
 }
 @import 'src/styles/home.scss';
+.dropdown-lang{
+    text-align: center;
+
+    margin-top:0 !important;
+
+    left: calc(100% - 110px) !important;
+    .popper__arrow{
+        display: none
+    }
+}
 </style>

@@ -1,10 +1,9 @@
 .site-detail-box{
-    margin: 24px 36px;
-    
+    margin: 0px 12px;
     .site-detail{
         position: absolute;
-        height: calc(100% - 56px);
-        width: calc(100% - 72px);
+        height: calc(100% - 40px);
+        width: calc(100% - 24px);
         overflow: auto;
         
         .info-box{

@@ -1,29 +1,29 @@
 <template>
 <div>
-    <div class="row-content">
-        <div  class="row-type">
-            <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane label="Auto test" name="autotest"></el-tab-pane>
-                <el-tab-pane label="Log" name="log"></el-tab-pane>
-            </el-tabs>
-            <div class="empty"></div>
-            <div class="row-activa">
-                <el-button v-if='startStatus===1' :disabled="disabledStart"  @click="toStart" type="primary" >
-                    <img src="@/assets/start.png" alt="">
-                    <span>Start</span>
-                </el-button>
-                <el-button v-if='startStatus===2' :disabled="disabledStart" @click="toStart" type="primary" >
-                    <img src="@/assets/restart.png" alt="">
-                    <span>Retry</span>
-                </el-button>
-                <el-button v-if='startStatus===3' :disabled="disabledStart" @click="toStart" type="primary" >
-                    <img src="@/assets/restart.png" alt="">
-                    <span>Restart</span>
-                </el-button>
-            </div>
-        </div>
+   <div class="row-content">
+        <el-radio-group class="radio" v-model="activeName" @change="handleClick">
+            <el-radio-button label="Auto-test"></el-radio-button>
+            <el-radio-button label="Log"></el-radio-button>
+        </el-radio-group>
     </div>
-    <div v-if="activeName==='autotest'" class="deploying-body">
+    <div v-if="activeName==='Auto-test'" class="deploying-body">
+        <div class="row-activa">
+            <el-button v-if='startStatus===1' :disabled="disabledStart"  type="text"  @click="toStart"  >
+                <img class="disable" v-if='disabledStart'  src="@/assets/start.png">
+                <img class="activa" v-else src="@/assets/start.png">
+                <span>Start</span>
+            </el-button>
+            <el-button v-if='startStatus===2' :disabled="disabledStart" @click="toStart" type="text" >
+                <img class="disable" v-if='disabledStart'  src="@/assets/retry.png">
+                <img class="activa" v-else src="@/assets/retry.png">
+                <span>Retry</span>
+            </el-button>
+            <el-button v-if='startStatus===3' :disabled="disabledStart" @click="toStart" type="text" >
+                <img class="disable" v-if='disabledStart' src="@/assets/restart.png">
+                <img class="activa" v-else src="@/assets/restart.png">
+                <span>Restart</span>
+            </el-button>
+        </div>
         <div class="table">
             <el-table
                 :data="tableData"
@@ -79,7 +79,7 @@
             <el-button v-else type="info" disabled >Finish</el-button>
         </div>
     </div>
-    <div v-if="activeName==='log'" class="deploying-body">
+    <div v-if="activeName==='Log'" class="deploying-body">
         <log  ref="log" />
     </div>
 </div>
@@ -130,7 +130,7 @@ export default {
     data() {
         return {
             startStatus: 1,
-            activeName: 'autotest',
+            activeName: 'Auto-test',
             disabledStart: false,
             //
             length: '',
@@ -167,9 +167,8 @@ export default {
             }
             let res = await getTestList(data)
             // 判断返回值是否为空
-            if (JSON.stringify(res.data.AutoTest) === '{}') {
-                this.tableData = []
-                return false // 如果为空,返回false
+            if (!res.data || JSON.stringify(res.data.AutoTest) === '{}') {
+                return [] // 如果为空,返回[]
             }
             // Pod/SVC Status Of Each Component 首项赋值
             this.length = res.data.AutoTest['Pod/SVC Status Of Each Component'].length + 1
@@ -213,7 +212,7 @@ export default {
             // 其他项排序
             let ind = 2
             let ArrList = [] // 临时赋值
-            let itemstrArr = ['Single Test', 'Toy Test', 'Mininmize Fast Test', 'Minimize Normal Test']
+            let itemstrArr = ['Single Test', 'Toy Test', 'Minimize Fast Test', 'Minimize Normal Test']
             itemstrArr.forEach(elm => {
                 for (const key in res.data.AutoTest) {
                     if (key === elm) {
@@ -281,7 +280,7 @@ export default {
                 partyId: this.formInline.partyId,
                 productType: 1
             }
-            if (this.activeName === 'log') {
+            if (this.activeName === 'Log') {
                 this.disabledStart = true
                 window.clearTimeout(this.time)
                 getTestLog(data).then(res => {
@@ -343,7 +342,7 @@ export default {
                     this.disabledStart = false
                     this.startStatus = 1
                 } else if (res.length > 0 && res.every(item => item.status.code === 2)) { // 测试成功
-                    this.startStatus = 1
+                    this.startStatus = 3
                     this.btntype = 'primary'
                     this.disabledStart = true
                     this.currentSteps.autoFinish = true

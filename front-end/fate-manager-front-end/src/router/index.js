@@ -112,6 +112,28 @@ export const constantRouterMap = [
                 path: 'deploying',
                 name: 'deploying', //
                 component: () => import('@/views/fatedeploy/deploying')
+            },
+            {
+                path: 'ansible',
+                name: 'ansible', //
+                component: () => import('@/views/fatedeployAnsible/deployAnsible')
+            }
+        ]
+    }, {
+        path: '/monitor',
+        component: Layout,
+        name: 'monitor',
+        hidden: true,
+        children: [
+            {
+                path: 'cooperation',
+                name: 'cooperation', //
+                component: () => import('@/views/monitor/cooperation')
+            },
+            {
+                path: 'jobmonitor',
+                name: 'jobmonitor', //
+                component: () => import('@/views/monitor/jobMonitor')
             }
         ]
     }
@@ -120,7 +142,7 @@ export const constantRouterMap = [
 
 const router = new Router({
     // mode: 'history', // 后端支持可开
-    scrollBehavior: () => ({ y: 0 }),
+    scrollBehavior: () => ({ x: 0, y: 0 }),
     routes: constantRouterMap
 })
 

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
-
+// import router from '@/router'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 // axios.defaults.headers.common['Authorization'] = getToken()
@@ -19,7 +19,10 @@ let URL = [
     '/fate-manager/api/deploy/testlist',
     '/fate-manager/api/service/test',
     '/fate-manager/api/deploy/testresult',
-    '/fate-manager/api/site/function'
+    '/fate-manager/api/site/function',
+    '/fate-manager/api/ansible/testlist',
+    '/fate-manager/api/ansible/getcheck',
+    '/fate-manager/api/ansible/installlist'
 ]
 // request interceptor
 // 请求拦截
@@ -60,7 +63,6 @@ service.interceptors.response.use(
    */
     response => {
         // 关闭全局loading
-
         let res = response.data
         let url = response.config.url
         // 关闭全局loading
@@ -72,7 +74,10 @@ service.interceptors.response.use(
             return res
         } else if (res.code === 10066) {
             store.dispatch('LogOut').then(() => {
+                this.$router.push({ path: '/welcome/login' })
                 location.reload() // 为了重新实例化vue-router对象 避免bug
+            }).catch(err => {
+                console.log(err)
             })
         } else if (msgCode(res.code)) {
             return Promise.reject(res)
@@ -99,11 +104,13 @@ service.interceptors.response.use(
             type: 'error',
             duration: 5 * 1000
         })
+
         // 服务端发生错误退出
         // setTimeout(() => {
-        //     store.dispatch('LogOut').then(res => {
-        //         location.reload() // 为了重新实例化vue-router对象 避免bug
+        //     router.push({
+        //         path: '/welcome/login'
         //     })
+        //     location.reload() // 为了重新实例化vue-router对象 避免bug
         // }, 1500)
 
         return Promise.reject(error)

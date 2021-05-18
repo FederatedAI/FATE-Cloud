@@ -1,23 +1,24 @@
 .access {
     position: absolute;
-    height: calc(100% - 65px);
+    height: calc(100% - 105px);
     width: 100%;
-    overflow: auto;
+    
     background: #F5F8FA;
-
+    padding-top: 12px;
+ 
     .access-box {
         box-sizing: border-box;
-        padding: 0 36px;
         background: #fff;
-        width: 1200px;
-        min-height: 100%;
+        width: 1400px;
+        height: 100%;
         margin: 0 auto;
-     
-    
+        overflow: auto;
         .partyid-header {
-            height: 36px;
-            padding: 24px 0;
+            height: 40px;
+            // padding: 12px 0;
             text-align: right;
+            border-bottom: 2px solid #E6EBF0;
+           
             .el-button{
                 padding: 0;
                 height: 36px;
@@ -28,50 +29,57 @@
                 line-height: 36px;
             }
             .el-input__inner {
-                background-color: #E6EBF0;
-                color: #848C99;
-                border: 0px;
-                outline: none;
+               
                 height: 36px;
                 line-height: 36px;
-                border-radius: 0;
             }
             .add{
+                span{
+                    color: #217AD9;
+                    vertical-align: 5px;
+                }
                 float: left;
-                width: 126px;
-                font-size: 16px
+                margin-top: 2px;
+                font-size: 16px;
+                margin-left: 24px;
+            }
+            .add:hover{
+                opacity: 0.85;
             }
             .input {
+                margin-top: 2px;
                 width: 250px;
                 margin-left: 16px;
                 .search {
                     cursor: pointer;
-                    margin-right: 0px
                 }
             }
             .go{
                 float: right;
                 width: 64px;
                 margin-left: 16px;
-                font-size: 16px
-            }
-            .sel-role {
-                width: 85px;
-                margin-left: 16px;
+                margin-right: 24px;
+                font-size: 16px;
+                margin-top: 2px;
+                
             }
             .sel-institutions {
+                margin-top: 2px;
                 width: 115px;
                 margin-left: 16px;
             }
         }
 
         .table {
-      
             height: calc(100% - 104px);
+            padding: 0 24px;
             .el-table {
                 width: 100%;
-
-                height:100% !important;
+                height:calc(100% + 50px) !important;
+                th,
+                td{
+                    padding: 9px 0;
+                }
                 .el-button{
                     padding:0;
                     height: initial;
@@ -89,7 +97,6 @@
                     color: #217AD9
                 }
             }
-
         }
     }
     .access-delete-dialog {

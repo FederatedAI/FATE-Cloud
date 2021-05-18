@@ -1,13 +1,13 @@
 <template>
   <div class="contentbox">
     <div class="breadcrumb">
-      <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb separator="/" >
         <el-breadcrumb-item v-for="(item,index) in path" :key="index">
-          <span class="item" v-if="index===0" @click="toroute(item)">{{item}}</span>
-          <span v-else class="item active" @click="toroute(item)">{{item}}</span>
+          <span class="item" v-if="index===0" @click="toroute(item)">{{$t(`${item}`)}}</span>
+          <span v-else :class="{item:true,active:!$route.query.groupName}" @click="toroute(item)">{{$t(`${item}`)}}</span>
         </el-breadcrumb-item>
-        <el-breadcrumb-item v-if="siteName">
-          <span class="item">{{siteName}}</span>
+        <el-breadcrumb-item v-if="$route.query.groupName">
+          <span class="active">{{$route.query.groupName}}</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+
 export default {
     name: 'contentbox',
     data() {
@@ -29,17 +29,13 @@ export default {
             handler: function(val) {
                 let routerList = ['partyuser', 'siteadd', 'detail', 'Add an Exchange']
                 if (!routerList.some(item => item === val.name)) {
-                    this.$store.dispatch('SiteName', '')
+                    this.$store.dispatch('setSiteName', '')
                 }
                 this.toPath()
             },
             immediate: true
         }
     },
-    computed: {
-        ...mapGetters(['siteName'])
-    },
-    // 防止刷新
     created() {
         this.toPath()
     },
@@ -54,12 +50,16 @@ export default {
                 this.path = ['Federated Site', 'Service Manage']
             } else if (name === 'Site Monitor') {
                 this.path = ['Federated Site', 'Site Monitor']
+            } else if (name === 'Job Monitor') {
+                this.path = ['Federated Site', 'Job Monitor']
             } else if (name === 'Party ID' || name === 'partyuser') {
                 this.path = ['Setting', 'Party ID']
+            } else if (name === 'Certificate') {
+                this.path = ['Setting', 'Certificate']
             } else if (name === 'Repository') {
                 this.path = ['Setting', 'Repository']
             } else if (name === 'Admin Access') {
-                this.path = ['Setting', 'User Access']
+                this.path = ['Setting', 'Admin Access']
             } else if (name === 'System Function Switch') {
                 this.path = ['Setting', 'System Function Switch']
             }
@@ -83,26 +83,20 @@ export default {
 .contentbox {
     position: absolute;
     top: 65px;
-    left: 300px;
+    left: 245px;
     background: #f5f8fa;
     height: calc(100% - 65px);
-    width: calc(100% - 300px);
-    // .el-icon-arrow-right {
-    //     margin: 0 !important;
-    // }
+    width: calc(100% - 245px);
     .breadcrumb {
-        height: 32px;
-        margin-left: 36px;
         font-size: 14px;
-        width: calc(100% - 72px);
-        background-color: #e6ebf0;
+        width: calc(100% - 24px);
+        // background-color: #e6ebf0;
         .el-breadcrumb {
-            line-height: 32px;
-            margin: 0 10px;
-
+            height: 40px;
+            line-height: 40px;
+            margin-left: 12px;
             .item {
                 font-size: 14px;
-                font-weight: 550;
                 cursor: pointer;
                 color: #848c99;
             }
@@ -110,7 +104,8 @@ export default {
                 color: #217ad9;
             }
             .active {
-                color: #217ad9;
+                color: #4E5766;
+                font-weight: 600;
             }
         }
     }

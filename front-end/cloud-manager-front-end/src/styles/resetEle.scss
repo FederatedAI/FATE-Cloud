@@ -1,10 +1,8 @@
 button, input {
-    font-family: productsans;
+    font-family: 'OPPOSans';
 }
 
-.el-button {
-    border-radius: 0;
-}
+
 
 .el-input__icon {
     color: #848C99;
@@ -12,7 +10,7 @@ button, input {
 }
 .el-input__inner {
     // background-color: #E6EBF0;
-    color: #848C99;
+    // color: #848C99;
     // border: 0px;
     outline: none;
     height: 36px;
@@ -45,7 +43,7 @@ button, input {
 .add {
     float: left;
     width: 125px;
-    font-size: 18px;
+    font-size: 16px;
 }
 .go {
     float: right;

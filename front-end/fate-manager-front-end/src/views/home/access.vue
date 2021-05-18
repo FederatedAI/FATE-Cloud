@@ -2,11 +2,14 @@
   <div class="access">
     <div class="access-box">
         <div class="partyid-header">
-            <el-button class="add" type="primary" @click="addRoleUser">Add</el-button>
-            <el-input class="input input-placeholder" clearable v-model.trim="data.userName" placeholder="Name">
+            <el-button class="add" type="text" @click="addRoleUser">
+                <img src="@/assets/add_user.png">
+                <span>{{$t('add')}}</span>
+            </el-button>
+            <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('Name')">
                 <i slot="prefix" @click="getList" class="el-icon-search search el-input__icon" />
             </el-input>
-            <el-select class="sel-institutions input-placeholder" v-model="data.partyId" placeholder="Site">
+            <el-select class="sel-institutions" v-model="data.partyId" :placeholder="$t('Site')">
                 <el-option
                     v-for="item in partyIdSiteList"
                     :key="item.value"
@@ -14,7 +17,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-select class="sel-institutions input-placeholder" v-model="data.roleId" placeholder="Role">
+            <el-select class="sel-institutions" v-model="data.roleId" :placeholder="$t('Role')">
                 <el-option
                     v-for="item in typeSelect"
                     :key="item.value"
@@ -22,7 +25,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-button class="go" type="primary" @click="getList">GO</el-button>
+            <el-button class="go" type="primary" @click="getList">{{$t('GO')}}</el-button>
         </div>
         <div class="table">
             <el-table
@@ -30,22 +33,23 @@
                 header-row-class-name="tableHead"
                 header-cell-class-name="tableHeadCell"
                 cell-class-name="tableCell"
+                height="100%"
                 tooltip-effect="light">
-                <el-table-column prop="userName"  label="Name" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="site.siteName" label="Site"></el-table-column>
-                <el-table-column prop="role.roleName" label="Role" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="permissionList" label="Permission" show-overflow-tooltip>
+                <el-table-column prop="userName"  :label="$t('Name')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="site.siteName" :label="$t('Site')" ></el-table-column>
+                <el-table-column prop="role.roleName" :label="$t('Role')"  show-overflow-tooltip></el-table-column>
+                <el-table-column prop="permissionList" :label="$t('Permission')" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span v-for="(item, index) in scope.row.permissionList" :key="index">{{item.permissionName}};</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="creator" label="Creator" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="createTime" label="Create Time">
+                <el-table-column prop="creator" :label="$t('Creator')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="createTime" :label="$t('Create Time')" >
                     <template slot-scope="scope">
                         <span >{{scope.row.createTime | dateFormat}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="Action" label="Action" align="center">
+                <el-table-column prop="Action" :label="$t('Action')" align="center">
                     <template slot-scope="scope" >
                         <!-- 由could生成不能编辑与删除 -->
                         <span v-if='scope.row.cloudUser'>
@@ -91,12 +95,13 @@
       <div class="dialog-box">
           <el-form :model="siteTemp" :rules="rules" ref="ruleForm">
             <div class="dialog-title">
-                <span>{{typetitle}}</span>
-            user
+                <span>{{typetitle==='Edit'?'Edit':'Add'}}</span>
+                {{$t('user')}}
             </div>
             <el-form-item class="add-input" prop="userName">
                 <span class="input-title">
-                    User
+                    {{$t('User')}}
+
                 </span>
                 <el-select
                     v-if="typetitle!=='Edit'"
@@ -107,8 +112,7 @@
                     placeholder="Please enter a name"
                     :remote-method="remoteMethod"
                     @change="userchange"
-                    @focus="toclearValid('userName')"
-                    :loading="loading">
+                    @focus="toclearValid('userName')">
                     <el-option
                         v-for="item in userList"
                         :key="item.value"
@@ -120,15 +124,15 @@
                 <!-- <div v-if='userWarn' class="text-warn" >The User Name field is required.</div> -->
             </el-form-item>
              <el-form-item class="add-input"  prop="roleId">
-                <span class="input-title">Role</span>
+                <span class="input-title">{{$t('Role')}}</span>
                 <el-radio-group v-model="siteTemp.roleId">
-                    <el-radio label="1">admin</el-radio>
-                    <el-radio label="2">Developer or OP</el-radio>
-                    <el-radio label="3">Business or Data Analyst</el-radio>
+                    <el-radio label="1">{{$t('admin')}}</el-radio>
+                    <el-radio label="2">{{$t('Developer or OP')}}</el-radio>
+                    <el-radio label="3">{{$t('Business or Data Analyst')}}</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item v-if="!sitedisable" class="add-input" prop="siteName">
-                 <span class="input-title">Site</span>
+                 <span class="input-title">{{$t('Site')}}</span>
                 <el-select v-model="siteTemp.siteName"
                     :disabled="sitedisable"
                     @change="sitechange"
@@ -146,22 +150,23 @@
             </el-form-item>
          </el-form>
         <div  class="permission">
-            <span class="input-title">Permission</span>
+            <span class="input-title">{{$t('Permission')}}</span>
             <span class="item" >
                 <span v-for="(item, index) in permissionList" :key="index">
                     <div v-if="item.show" class="show-item">
                         <i class="el-icon-check"></i>
-                        {{item.item}}
+                        {{$t(`${item.item}`)}}
+
                     </div>
                     <div v-else class="hide-item">
-                        <span>{{item.item}}</span>
+                        <span>{{$t(`${item.item}`)}}</span>
                     </div>
                 </span>
             </span>
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">Sure</el-button>
-          <el-button type="info" @click="adddialog=false">Cancel</el-button>
+          <el-button type="primary" @click="toSure">{{$t('Sure')}}</el-button>
+          <el-button type="info" @click="adddialog=false">{{$t('Cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>
@@ -173,6 +178,50 @@ import { accessList, userListDown, siteListDown, addUser, editUser, deleteUser }
 
 import moment from 'moment'
 import { mapGetters } from 'vuex'
+
+// 国际化
+const local = {
+    zh: {
+        'GO': '搜索',
+        'Name': '用户名',
+        'Site': '站点',
+        'Role': '站点角色',
+        'Permission': '权限',
+        'Creator': '创建者',
+        'Create Time': '创建时间',
+        'Action': '操作',
+        'user': '用户',
+        'User': '用户名',
+        'admin': '管理员',
+        'Developer or OP': '开发者',
+        'Business or Data Analyst': '商业组或数据分析师',
+        'FATE Cloud: Basic management': 'FATE Cloud: 基础管理',
+        'FATE Cloud: Auto-deploy': 'FATE Cloud: 自动部署',
+        'FATE Studio': 'FATE Studio',
+        'FATEBoard': 'FATEBoard'
+
+    },
+    en: {
+        'GO': 'GO',
+        'Name': 'Name',
+        'Site': 'Site',
+        'Role': 'Role',
+        'Permission': 'Permission',
+        'Creator': 'Creator',
+        'Create Time': 'Create Time',
+        'Action': 'Action',
+        'user': 'user',
+        'User': 'User',
+        'admin': 'admin',
+        'Developer or OP': 'Developer or OP',
+        'Business or Data Analyst': 'Business or Data Analyst',
+        'FATE Cloud: Basic management': 'FATE Cloud: Basic management',
+        'FATE Cloud: Auto-deploy': 'FATE Cloud: Auto-deploy',
+        'FATE Studio': 'FATE Studio',
+        'FATEBoard': 'FATEBoard'
+
+    }
+}
 
 export default {
     name: 'access',
@@ -196,7 +245,7 @@ export default {
                     label: 'Site'
                 }
             ], // 头部站点下拉
-            loading: true, // list加载
+
             sitedisable: true, // 是否可选site
             deletesite: {}, // 将要删除site
             siteTemp: {
@@ -285,6 +334,8 @@ export default {
         ...mapGetters(['userName'])
     },
     created() {
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.getList()
         this.tositeListDown()
     },
@@ -351,11 +402,11 @@ export default {
         toSure() {
             let permissionList
             if (this.siteTemp.roleId === '1') {
-                permissionList = [1, 2, 3, 4, 5]
+                permissionList = [1, 2, 3, 4]
             } else if (this.siteTemp.roleId === '2') {
                 permissionList = [1, 2]
             } else if (this.siteTemp.roleId === '3') {
-                permissionList = [3, 4, 5]
+                permissionList = [3, 4]
             }
             let data = {
                 creator: this.userName,
@@ -419,7 +470,6 @@ export default {
             })
         },
         remoteMethod(query) {
-            this.loading = true
             this.userList = []
             if (query !== '') {
                 let data = {
@@ -433,7 +483,6 @@ export default {
                         this.userList.push(obj)
                     })
                 })
-                this.loading = false
             }
         },
         userchange(val) {

@@ -1,6 +1,5 @@
 import { login, logout, getInfo } from '@/api/welcomepage'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-
+import { getToken, setToken, removeToken, setCookie, getCookie, removeCookie } from '@/utils/auth'
 const user = {
     state: {
         // 站点激活状态
@@ -58,11 +57,17 @@ const user = {
         // 登出
         LogOut({ commit, state }) {
             return new Promise((resolve, reject) => {
+                if (!state.userId) {
+                    commit('USER_Id', getCookie('USER_Id'))
+                    commit('USER_NAME', getCookie('USER_NAME'))
+                }
                 logout({ userId: state.userId, userName: state.userName }).then(response => {
                     commit('ROLE', {})
                     commit('USER_Id', '')
                     commit('USER_NAME', '')
                     commit('PIL', '')
+                    removeCookie('USER_Id')
+                    removeCookie('USER_NAME')
                     removeToken()
                     resolve(response)
                 }).catch((error) => {
@@ -87,6 +92,8 @@ const user = {
                     commit('ROLE', role)
                     commit('USER_Id', userId)
                     commit('USER_NAME', userName)
+                    setCookie('USER_Id', userId)
+                    setCookie('USER_NAME', userName)
                     commit('PIL', permissionList)
                     resolve(response)
                 }).catch(error => {
