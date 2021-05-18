@@ -271,7 +271,7 @@ export default {
                             } else if (value.length > 20) {
                                 callback(new Error(this.$t('m.siteAdd.maxCharacters')))
                             } else if (this.siteNameExists) {
-                                callback(new Error(this.$t('m.common.alreadyExists')))
+                                callback(new Error(this.$t('m.siteAdd.alreadyExists')))
                             } else {
                                 callback()
                             }
