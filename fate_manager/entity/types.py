@@ -224,6 +224,8 @@ class FateJobEndStatus(Status):
             return cls.FAILED
         if status in [cls.SUCCESS]:
             return cls.SUCCESS
+        else:
+            return status
 
 
 class FateJobType(Status):

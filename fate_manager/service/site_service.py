@@ -197,8 +197,7 @@ def get_home_site_list():
 
 def get_fate_manager_list():
     account = federated_db_operator.get_admin_info()
-    allow_apply_task(account)
-    allow_institutions_list = account.allow_instituions
+    allow_institutions_list = allow_apply_task(account)
     return allow_institutions_list
 
 
