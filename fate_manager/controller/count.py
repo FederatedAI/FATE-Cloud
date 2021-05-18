@@ -49,7 +49,7 @@ class CountJob:
         other_institutions = {}
         for site in apply_site_list:
             other_institutions[str(site.party_id)] = site.institutions
-        report_job_list = []
+        synchronization_job_list = []
         for job in job_list:
             try:
                 site_job = CountJob.save_site_job_item(job, party_id, other_institutions, site_name, account)
@@ -57,24 +57,24 @@ class CountJob:
                 site_job.create_date = None
                 site_job.update_date = None
                 site_job.create_time = None
-                site_job.job_create_day_date = int(datetime.datetime.timestamp(site_job.job_create_day_date))*1000
+                site_job.job_create_day_date = int(datetime.datetime.timestamp(site_job.job_create_day_date)) * 1000
                 site_job.roles = json.dumps(site_job.roles, separators=(',', ':'))
                 site_job.other_party_id = json.dumps(site_job.other_party_id, separators=(',', ':'))
                 site_job.other_institutions = json.dumps(site_job.other_institutions, separators=(',', ':'))
-                report_job_list.append(site_job.to_json())
+                synchronization_job_list.append(site_job.to_json())
             except Exception as e:
                 request_flow_logger.exception(e)
         try:
             piece = 0
             count_of_piece = 500
-            while len(report_job_list) > piece*count_of_piece:
+            while len(synchronization_job_list) > piece*count_of_piece:
                 start = piece*count_of_piece
                 end = piece*count_of_piece + count_of_piece
                 institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                            appKey=account.app_key,
                                                                            appSecret=account.app_secret).to_dict()
                 resp = request_cloud_manager(uri_key="MonitorPushUri", data=institution_signature_item,
-                                             body=report_job_list[start:end],
+                                             body=synchronization_job_list[start:end],
                                              url=None)
                 piece += 1
         except Exception as e:
