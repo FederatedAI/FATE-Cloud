@@ -93,7 +93,8 @@ export const m = {
         'The institution cant edit!': "The institution can't edit!",
         'The username or password error!': 'The username or password error!',
         'System error!': 'System error!',
-        'The party id doesnt register or has been activated or removed!': 'The party id doesnt register or has been activated or removed!'
+        'The party id doesnt register or has  been activated or removed!': 'The party id doesnt register or has been activated or removed!',
+        'This rollsite already exist!': 'This rollsite already exist!'
     },
     login: {
         'signTitle': 'Sign in to FATE Cloud',
