@@ -665,4 +665,17 @@ public class FederatedSiteManagerService {
 
         return siteDetailDtoPageBean;
     }
+
+    public List<Long> findAllSite(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+
+        LinkedList<Long> partyIdList = new LinkedList<>();
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.eq(StringUtils.isNotBlank(authorityApplyDetailsQo.getInstitutions()),"institutions", authorityApplyDetailsQo.getInstitutions()).in("status", 1, 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
+        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
+            partyIdList.add(federatedSiteManagerDo.getPartyId());
+        }
+        return partyIdList;
+
+    }
 }
