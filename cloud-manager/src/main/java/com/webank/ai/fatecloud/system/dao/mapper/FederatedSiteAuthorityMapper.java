@@ -31,12 +31,6 @@ public interface FederatedSiteAuthorityMapper extends BaseMapper<FederatedSiteAu
 
     List<AuthorityApplyStatusDto> findAuthorityApplyStatus(AuthorityApplyStatusQo authorityApplyStatusQo);
 
-    List<FederatedSiteAuthorityDo> findAuthorityApplyDetails(AuthorityApplyDetailsQo authorityApplyDetailsQo);
-
-    long findAuthorityHistoryCount();
-
-    List<AuthorityHistoryDto> findAuthorityHistory(@Param("authorityHistoryQo") AuthorityHistoryQo authorityHistoryQo, @Param("startIndex") long startIndex);
-
     long findMaxAuthoritySequence(String institutions);
 
     long findAuthorityHistoryOfFateManagerCount(AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo);

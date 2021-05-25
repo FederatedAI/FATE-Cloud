@@ -23,6 +23,7 @@ import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.system.pojo.dto.FunctionStatusDto;
 import com.webank.ai.fatecloud.system.pojo.qo.FunctionUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.ScenarioQo;
 import com.webank.ai.fatecloud.system.service.impl.FederatedFunctionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,8 @@ public class FederatedFunctionServiceFacade {
 
     public CommonResponse updateFunctionStatus(FunctionUpdateQo functionUpdateQo) {
 
-        if (functionUpdateQo.getStatus() != 1 && functionUpdateQo.getStatus() != 2) {
+        //check parameters
+        if(!federatedFunctionService.checkParameters(functionUpdateQo)){
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -60,7 +62,7 @@ public class FederatedFunctionServiceFacade {
     public CommonResponse<List<FunctionStatusDto>> findAllFunctionStatusForFateManager(HttpServletRequest httpServletRequest) {
 
         //check authority
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest,"", Dict.FATE_MANAGER_USER, new int[]{2},null);
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -76,5 +78,12 @@ public class FederatedFunctionServiceFacade {
     }
 
 
+    public CommonResponse updateScenario(ScenarioQo scenarioQo) {
+        if(!federatedFunctionService.checkScenarioParameters(scenarioQo)){
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        federatedFunctionService.updateScenario(scenarioQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 
+    }
 }

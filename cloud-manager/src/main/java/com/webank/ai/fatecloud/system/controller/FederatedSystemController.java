@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
@@ -44,14 +45,14 @@ public class FederatedSystemController {
 
     @PostMapping(value = "/add")
     @ApiOperation(value = "add model information for site")
-    public CommonResponse addModelNew(@RequestBody ArrayList<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest){
+    public CommonResponse addModelNew(@RequestBody ArrayList<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("RequestBody:{} Http:{}", modelAddQos,httpServletRequest);
         return federatedModelServiceFacade.addModelNew(modelAddQos,httpServletRequest);
     }
 
     @PostMapping(value = "/heart")
     @ApiOperation(value = "update model status")
-    public CommonResponse modelHeart(@RequestBody ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest){
+    public CommonResponse modelHeart(@RequestBody ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("RequestBody:{} Http:{}", modelHeartQos,httpServletRequest);
         return federatedModelServiceFacade.modelHeart(modelHeartQos,httpServletRequest);
     }

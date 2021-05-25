@@ -16,6 +16,8 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
@@ -195,9 +197,15 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
 
-    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) {
-
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(exchangePageForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(exchangePageForFateManagerQo);
+        } else {
+            httpBody = JSON.toJSONString(exchangePageForFateManagerQo);
+        }
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -295,7 +303,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(RollSitePageQo rollSitePageQo) {
-        if (StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))) {
+        if (rollSitePageQo.getExchangeId() == null) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }

@@ -16,11 +16,13 @@
 package com.webank.ai.fatecloud.system.pojo.qo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
+@JsonPropertyOrder(alphabetic = true)
 
 @Data
 @NoArgsConstructor
