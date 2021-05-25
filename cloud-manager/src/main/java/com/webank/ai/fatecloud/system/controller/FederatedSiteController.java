@@ -142,7 +142,7 @@ public class FederatedSiteController {
     }
     @PostMapping(value = "/find/all")
     @ApiOperation(value = "find all site")
-    public CommonResponse<List<Long>> findAllSite(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+    public CommonResponse<List<Long>> findAllSite(@RequestBody AuthorityApplyDetailsQo authorityApplyDetailsQo) {
         return federatedSiteManagerServiceFacade.findAllSite(authorityApplyDetailsQo);
     }
 
