@@ -197,6 +197,15 @@ export function institutionsListDropdown(data) {
     })
 }
 
+// 添加站点新增查询全部institutions下拉枚举
+export function institutionsAll(data) {
+    return request({
+        url: '/cloud-manager/api/fate/user/institutions/all',
+        method: 'post',
+        data
+    })
+}
+
 // 取消权限
 export function cancelAuthority(data) {
     return request({

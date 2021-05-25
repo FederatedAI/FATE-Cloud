@@ -92,7 +92,6 @@ export default {
     watch: {
         $route: {
             handler: function(val) {
-                console.log(val, 'val')
                 if (val.name === 'siteadd' || val.name === 'detail') {
                     this.$store.dispatch('SetMune', 'Site Manage')
                 } else if (val.name === 'Add an Exchange') {

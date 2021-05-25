@@ -174,7 +174,7 @@
                     <span v-if="addfrom.status==='Valid'">{{addfrom.institution}}</span>
                     <el-select v-else v-model="addfrom.institution" @change="togetSite" filterable @focus="$refs['addfrom'].clearValidate('institution')"  :placeholder="$t('Institution')">
                         <el-option
-                            v-for="item in institutionsSelectList"
+                            v-for="item in institutionsSelectListAll"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value" ></el-option>
@@ -244,7 +244,7 @@ import { getCertiCate,
     addCertificate,
     updateCertificate,
     downloadCertificate } from '@/api/setting'
-import { institutionsListDropdown, siteList } from '@/api/federated'
+import { institutionsListDropdown, siteList, institutionsAll } from '@/api/federated'
 import certiAddType from './certiAddType'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
@@ -312,6 +312,7 @@ export default {
             },
             addfrom: { },
             institutionsSelectList: [], // 机构下拉选项
+            institutionsSelectListAll: [], // 新增弹窗内全部机构
             certiTypeSelect: [], // 类型下拉选项
             addCertiTypeList: [],
             siteSelect: [], // 站点下拉选项
@@ -396,6 +397,14 @@ export default {
                     let obj = {}
                     obj.label = obj.value = element
                     this.institutionsSelectList.push(obj)
+                })
+            })
+            institutionsAll().then(res => {
+                this.institutionsSelectListAll = res.data.map(element => {
+                    return {
+                        label: element,
+                        value: element
+                    }
                 })
             })
             certiType().then(res => {

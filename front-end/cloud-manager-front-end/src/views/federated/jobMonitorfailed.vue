@@ -142,7 +142,6 @@ export default {
         chartData: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal')
                     this.options.xAxis[0].data = []
                     this.options.series[0].data = []
                     this.options.xAxis[0].axisLabel.rotate = ''

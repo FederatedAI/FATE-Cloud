@@ -5,7 +5,6 @@ let dateFormat = (value, formats) => {
 }
 
 let timeFormat = (timeStamp) => {
-    // console.log(timeStamp, 'timeStamp')
     let secondTime = parseInt(timeStamp / 1000)
     let min = 0
     let h = 0

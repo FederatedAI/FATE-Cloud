@@ -28,8 +28,6 @@ const setErrorMsgToI18n = (msg) => {
     i18n.locale = getCookie('language') || store.getters.language
     let tipKey = msg.replace("'", '')
     let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? msg : tipI18n.$t(`m.errorTips.${tipKey}`)
-    console.log(tipText, 'tipText')
-    console.log(tipKey, 'tipKey')
     Vue.prototype.$message.error({
         message: `${msg ? tipText : tipI18n.$t('m.errorTips.reqestFailed')}`,
         duration: 5 * 1000

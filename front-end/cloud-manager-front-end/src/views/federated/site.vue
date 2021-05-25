@@ -330,9 +330,6 @@ export default {
                 this.activeName = localStorage.getItem('activeName').split(',').filter(item => item) // 缓存记录取折叠记录
             }
         })
-        console.log(this, 'this')
-        // this.$i18n.mergeLocaleMessage('en', local.en)
-        // this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
 
     methods: {
@@ -454,9 +451,6 @@ export default {
                 })
             })
         },
-        handleSizeChange(val) {
-            console.log(`每页 ${val} 条`)
-        },
         handleCurrentChange(val) {
             this.data.pageNum = val
             this.getinitinstitutions().then(res => {
@@ -571,7 +565,6 @@ export default {
         },
         // 审批全选
         instituAllChange(val) {
-            console.log(val, 'val')
             this.tipstempData.institucheckList = val ? this.tipstempData.institucheckboxList : []
             this.tipstempData.instituisnate = false
         },

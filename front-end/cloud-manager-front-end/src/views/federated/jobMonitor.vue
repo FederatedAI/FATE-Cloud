@@ -270,7 +270,6 @@ export default {
             handler: function(val) {
                 this.$set(this.searchData, 'beginDate', val[0])
                 this.$set(this.searchData, 'endDate', val[1])
-                console.log(this.searchData, 'searchData')
             },
             deep: true,
             immediate: true
@@ -285,7 +284,6 @@ export default {
         this.lang = this.$t(`xAxis`).split(',')
         this.getProgressData()
         this.getinsSelectList()
-        console.log(this.$t(`start`))
     },
 
     mounted() {
@@ -299,8 +297,6 @@ export default {
             let success = []
             let failed = []
             getFinished(this.searchData).then(res => {
-                console.log(res)
-
                 // 总计
                 let { failedJobs, failedRatio, successfulJobs, successfulRatio, total } = res.data
                 this.totalData = { failedJobs, failedRatio, successfulJobs, successfulRatio, total }
@@ -328,11 +324,9 @@ export default {
                         allChartData[item].typeTableList = value[1].data
                     })
                 })
-                console.log(allChartData, 'allChartData')
                 this.$set(this.chartData, 'success', success)
                 this.$set(this.chartData, 'failed', failed)
                 this.changeProgressType('intersect')
-                console.log(this.chartData, 'chartData')
             })
         },
         // 机构下拉接口
@@ -364,11 +358,9 @@ export default {
             this.getProgressData()
         },
         changeProgressType(name) {
-            console.log(name, 'name')
             this.selectData = this.allChartData[name]
             loading.style.display = 'block'
             setTimeout(() => {
-                console.log(this.selectData, 'selectData')
                 this.setDayChartData(this.selectData.typeTableList)
                 this.setFailedData(this.selectData.typeTableList)
                 this.setDurData(this.selectData.durationList)
@@ -376,7 +368,6 @@ export default {
             }, 300)
         },
         setDayChartData(data) {
-            console.log(data, 'data-day')
             this.dayListData = []
             this.dayListData.list = data && data.map(item => {
                 // this.dayListData.total = data[item].total
@@ -392,10 +383,8 @@ export default {
                     ...item
                 }
             })
-            console.log(this.dayListData, 'dayListData')
         },
         setFailedData(data) {
-            console.log(data, 'data-failed')
             let chartdata = []
             let day = []
             data.map(item => {
