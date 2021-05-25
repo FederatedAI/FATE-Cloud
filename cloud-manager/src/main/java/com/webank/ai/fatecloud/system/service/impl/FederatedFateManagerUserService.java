@@ -282,4 +282,16 @@ public class FederatedFateManagerUserService {
         return true;
     }
 
+    public List<String> findAllInstitutions() {
+
+        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+        federatedFateManagerUserDoQueryWrapper.select("institutions");
+        List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
+
+        LinkedList<String> institutionsList = new LinkedList<>();
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : federatedFateManagerUserDos) {
+            institutionsList.add(federatedFateManagerUserDo.getInstitutions());
+        }
+        return institutionsList;
+    }
 }
