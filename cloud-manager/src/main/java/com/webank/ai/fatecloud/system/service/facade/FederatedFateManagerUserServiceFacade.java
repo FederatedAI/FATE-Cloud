@@ -115,4 +115,9 @@ public class FederatedFateManagerUserServiceFacade {
         PageBean<FederatedFateManagerUserDo> pagedFateManagerUser = federatedFateManagerUserService.findPagedFateManagerUser(fateManagerUserPagedQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedFateManagerUser);
     }
+
+    public CommonResponse<List<String>> findAllInstitutions() {
+        List<String> allFateManagerUser = federatedFateManagerUserService.findAllInstitutions();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, allFateManagerUser);
+    }
 }
