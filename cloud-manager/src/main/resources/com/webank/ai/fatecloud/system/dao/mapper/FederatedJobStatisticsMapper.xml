@@ -331,7 +331,7 @@
         where job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         and (site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions} OR site_host_institutions = #{jobOfSiteDimensionPeriodQo.institutions})
         group by institution, institutionSiteName, siteName
-        order by institution asc, institutionSiteName asc, siteName asc
+        order BY CONVERT( institution USING gbk) ASC,  CONVERT (institutionSiteName USING GBK )asc, CONVERT (siteName USING gbk) ASC
         limit #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
 
     </select>

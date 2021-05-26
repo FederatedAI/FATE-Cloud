@@ -84,10 +84,6 @@ public class FederatedJobStatisticsService {
     }
 
 
-
-
-
-
     public PageBean<JobStatisticOfInstitutionsDimensionDto> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
 
         int count = federatedJobStatisticsMapper.findInstitutionsCountPeriod(jobOfSiteDimensionPeriodQo);
@@ -107,18 +103,18 @@ public class FederatedJobStatisticsService {
         String institutions = jobOfSiteDimensionPeriodQo.getInstitutions();
         HashSet<String> sites = new HashSet<>();
         QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
-        federatedJobStatisticsDoQueryWrapper.eq("site_guest_institutions", institutions).or().eq("site_host_institutions",institutions);
+        federatedJobStatisticsDoQueryWrapper.eq("site_guest_institutions", institutions).or().eq("site_host_institutions", institutions);
         List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
         for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
 
             String siteGuestInstitutions = federatedJobStatisticsDo.getSiteGuestInstitutions();
             String siteHostInstitutions = federatedJobStatisticsDo.getSiteHostInstitutions();
 
-            if(siteGuestInstitutions.equals(institutions)){
+            if (siteGuestInstitutions.equals(institutions)) {
                 String siteGuestName = federatedJobStatisticsDo.getSiteGuestName();
                 sites.add(siteGuestName);
             }
-            if(siteHostInstitutions.equals(institutions)){
+            if (siteHostInstitutions.equals(institutions)) {
                 String siteHostName = federatedJobStatisticsDo.getSiteHostName();
                 sites.add(siteHostName);
             }
@@ -144,7 +140,7 @@ public class FederatedJobStatisticsService {
                         siteBase.setRunningPercent(String.format("%.2f", (double) (100 * runningJobs / totalJobs)) + "%");
                         siteBase.setFailedPercent(String.format("%.2f", (double) (100 * failedJobs / totalJobs)) + "%");
                         siteBase.setWaitingPercent(String.format("%.2f", (double) (100 * waitingJobs / totalJobs)) + "%");
-                    }else {
+                    } else {
                         siteBase.setSuccessPercent("0.00%");
                         siteBase.setRunningPercent("0.00%");
                         siteBase.setFailedPercent("0.00%");
@@ -154,7 +150,9 @@ public class FederatedJobStatisticsService {
             }
         }
         MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
-        monitorSiteDto.setSiteList(new ArrayList<>(sites));
+        ArrayList<String> siteList = new ArrayList<>(sites);
+        Collections.sort(siteList);
+        monitorSiteDto.setSiteList(siteList);
         monitorSiteDto.setTotal(count);
         monitorSiteDto.setData(siteItems);
 
