@@ -104,7 +104,7 @@
         where ( site_guest_institutions = #{jobOfSiteDimensionPeriodQo.institutions} or site_host_institutions = #{jobOfSiteDimensionPeriodQo.institutions} )
         and job_finish_date between #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} and #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE} ) temp
         group by institutions
-        order by institutions asc
+        order by CONVERT( institutions USING gbk) ASC
         limit #{startIndex},#{jobOfSiteDimensionPeriodQo.pageSize}
 
     </select>
@@ -176,12 +176,12 @@
 
         SELECT institutions ,SUM(b.job_failed_count) failedJobCount,sum(b.job_success_count) successJobCount,sum(b.job_running_count) runningJobCount,sum(b.job_waiting_count) waitingJobCount
         FROM
-        ( (SELECT  site_guest_institutions institutions FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} )  UNION ( SELECT  site_host_institutions FROM  t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} ) order by institutions ASC limit #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}) a,
+        ( (SELECT  site_guest_institutions institutions FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} )  UNION ( SELECT  site_host_institutions FROM  t_job_statistics WHERE job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE} ) order by  CONVERT( institutions  USING gbk) ASC limit #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}) a,
         t_job_statistics b
         WHERE b.job_finish_date between #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}
         AND ( a.institutions=b.site_guest_institutions OR a.institutions=b.site_host_institutions)
         GROUP BY a.institutions
-        order by institutions ASC
+        order by  CONVERT( institutions  USING gbk) ASC
     </select>
 
     <select id="getJobStatisticsSummaryTodayInstitutionsEach"
@@ -234,11 +234,11 @@
             (SELECT site_guest_name site FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_guest_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions} )
              UNION
             (SELECT site_host_name site  FROM t_job_statistics WHERE job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE} AND site_host_institutions= #{jobStatisticsSummarySiteAllForPeriodQo.institutions}  )
-          ) tmp ORDER BY site asc LIMIT #{startIndex}, #{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
+          ) tmp ORDER BY CONVERT( site  USING gbk) ASC LIMIT #{startIndex}, #{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
         ) a, t_job_statistics b
         WHERE b.job_finish_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
         AND  ( b.site_guest_name= a.site OR b.site_host_name= a.site)
-        GROUP BY a.site order by  a.site asc
+        GROUP BY a.site order by  CONVERT( a.site  USING gbk) ASC
 
     </select>
 
