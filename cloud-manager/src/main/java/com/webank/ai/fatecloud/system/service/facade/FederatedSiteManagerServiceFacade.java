@@ -512,4 +512,11 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, networkDto);
     }
 
+    public CommonResponse<List<Long>> findAllSite(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+
+        List<Long> partyIdList=  federatedSiteManagerService.findAllSite(authorityApplyDetailsQo);
+
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, partyIdList);
+
+    }
 }
