@@ -141,6 +141,12 @@ public class FederatedSiteController {
     public CommonResponse<NetworkDto> findCloudManagerNetwork() {
         return federatedSiteManagerServiceFacade.findCloudManagerNetwork();
     }
+    @PostMapping(value = "/find/all")
+    @ApiOperation(value = "find all site")
+    public CommonResponse<List<Long>> findAllSite(@RequestBody AuthorityApplyDetailsQo authorityApplyDetailsQo) {
+        return federatedSiteManagerServiceFacade.findAllSite(authorityApplyDetailsQo);
+    }
+
     //interface for fate-manager
 
     @PostMapping(value = "/checkUrl")
