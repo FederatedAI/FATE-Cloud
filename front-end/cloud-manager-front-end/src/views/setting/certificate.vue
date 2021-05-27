@@ -244,7 +244,7 @@ import { getCertiCate,
     addCertificate,
     updateCertificate,
     downloadCertificate } from '@/api/setting'
-import { institutionsListDropdown, siteList, institutionsAll } from '@/api/federated'
+import { institutionsListDropdown, siteListAll, institutionsAll } from '@/api/federated'
 import certiAddType from './certiAddType'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
@@ -424,12 +424,11 @@ export default {
             }
             this.siteSelect = []
             this.addfrom.siteAuthority = []
-            siteList(data).then(res => {
-                res.data && res.data.list.forEach(item => {
-                    if (item.status === 2) {
-                        let obj = {}
-                        obj.value = obj.label = item.partyId.toString()
-                        this.siteSelect.push(obj)
+            siteListAll(data).then(res => {
+                this.siteSelect = res.data && res.data.map(item => {
+                    return {
+                        value: item,
+                        label: item
                     }
                 })
             })

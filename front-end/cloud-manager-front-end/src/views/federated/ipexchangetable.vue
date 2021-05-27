@@ -50,7 +50,7 @@
             ></el-pagination>
         </div>
         <!-- 显示Site Network -->
-        <el-dialog :visible.sync="showSiteNet" class="show-site-dialog" width="710px">
+        <el-dialog :visible.sync="showSiteNet" class="show-site-dialog" width="780px">
             <div class="site-net-title">
                 {{$t('m.ip.routerInfo')}}
             </div>
@@ -74,7 +74,7 @@
                             <span>{{scope.row.pollingStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column  prop="updateTime" :label="$t('m.common.updateTime')" show-overflow-tooltip>
+                    <el-table-column  prop="updateTime" :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <span>{{scope.row.validTime | dateFormat}}</span>
                         </template>
@@ -222,5 +222,11 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 @import 'src/styles/ip.scss';
-
+.site-net-table{
+    .el-table_3_column_20{
+        .cell{
+            width: 150px
+        }
+    }
+}
 </style>

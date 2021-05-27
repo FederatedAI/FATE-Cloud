@@ -2,7 +2,7 @@
  <div>
     <div v-if="type==='Today’s active data'" class="type-time">
         <span>{{$t('m.monitor.activeInstitutionsToday')}}</span>
-        <span style="color:#217AD9">{{activejobs.active}}</span>
+        <span style="color:#217AD9"> {{instTotal}}</span>
     </div>
     <div v-else class="time-picker">
         <span class="date">{{$t('m.common.date')}}</span>
@@ -426,17 +426,7 @@ export default {
         * @param { string } name 选中的枚举值
         * @param { string } key 数据中排序依据字段
         */
-        setTopItem(data, name, key) {
-            if (data.length < 1) return []
-            let signArr = []
-            for (var i = 0; i < data.length; i++) {
-                if (data[i][key] === name) {
-                    signArr.push(data[i])
-                    data.splice(i, 1)
-                }
-            }
-            return signArr.concat(data)
-        },
+
         institutionsAll() {
             let data = {
                 beginDate: this.dateToday,
@@ -707,6 +697,23 @@ export default {
                 arr = this.setTopItem(arr, this.institutionSite, 'institution')
                 this.tableIntSiteData = [...arr]
             })
+        },
+        setTopItem(data, name, key) {
+            if (data.length < 1) return []
+            let signArr = []
+            let self = this
+            let lengthList = []
+            for (var i = 0; i < data.length; i++) {
+                if (data[i][key] === name) {
+                    signArr.push(data[i])
+                    data.splice(i, 1)
+                    lengthList.push(self.lengthList[i])
+                    self.lengthList.splice(i, 1)
+                }
+            }
+            // 同时还要处理rowspan
+            self.lengthList = lengthList.concat(self.lengthList)
+            return signArr.concat(data)
         }
     }
 }
@@ -714,5 +721,12 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 @import 'src/styles/monitor.scss';
-
+.institution-table{
+    .el-table{
+        border: 1px solid #e6e6e6;
+        .tableHeadCell:not(:nth-of-type(1)):not(:nth-of-type(2)){
+            font-weight: normal;
+        }
+    }
+}
 </style>

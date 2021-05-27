@@ -1,7 +1,7 @@
 <template>
     <div >
         <!-- 添加或编辑 -->
-        <el-dialog :visible.sync="editdialog" class="access-edit-dialog" width="860px" :close-on-click-modal="false" :close-on-press-escape="false">
+        <el-dialog :visible.sync="editdialog" class="access-edit-dialog" width="930px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="dialog-title">
                 {{exchangeData.networkAccess ? `${$t('m.ip.editRollsite')}` : `${$t('m.ip.addRollsite')}`}}
             </div>
@@ -44,7 +44,7 @@
                                     <span>{{scope.row.pollingStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                                 </template>
                             </el-table-column>
-                             <el-table-column prop="updateTime"  :label="$t('m.common.updateTime')" width="150" show-overflow-tooltip>
+                             <el-table-column prop="updateTime"  :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
                                 </template>

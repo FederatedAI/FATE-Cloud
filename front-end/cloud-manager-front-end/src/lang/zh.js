@@ -145,7 +145,7 @@ export const m = {
         'chooseRole': '选择角色',
         'chooseGroup': '选择ID分组',
         'typePartyID': '输入ID',
-        'registrationLinkSetting': '注册连接设置',
+        'registrationLinkSetting': '注册链接设置',
         'registrationLink': '注册链接',
         'linkType': '链接类型',
         'encryption': '链接加密',
@@ -179,8 +179,8 @@ export const m = {
 
     },
     ip: {
-        'telnetFailed': '远程登录失败',
-        'telnetSuccess': '远程登录成功',
+        'telnetFailed': '测试连接失败',
+        'telnetSuccess': '测试连接成功',
         'updateSuccess': '更改成功',
         'handleSuccess': '处理成功',
         'IPmanage': 'IP管理',
@@ -193,7 +193,7 @@ export const m = {
         'appliesAcessExits': '网关出口',
         'confirmUpdates': '是否确认此更新？',
         'toChange': '更改',
-        'telent': '远程登录',
+        'telent': '测试连接',
         'siteNetworkAccess': '站点网关',
         'routerNetworkAccess': '路由网关',
         'rollsiteNetworkAccess': 'Rollsite网关',

@@ -9,6 +9,15 @@ export function siteList(data) {
     })
 }
 
+// 获取site下拉
+export function siteListAll(data) {
+    return request({
+        url: '/cloud-manager/api/site/find/all',
+        method: 'post',
+        data
+    })
+}
+
 // // 下拉获取getParty范围
 // export function getPartyRang(data) {
 //     return request({
