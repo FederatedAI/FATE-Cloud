@@ -104,7 +104,7 @@ class AccountSiteInfo(DataBaseModel):
 class ApplyInstitutionsInfo(DataBaseModel):
     institutions = CharField(max_length=50, help_text='institutions dict', primary_key=True)
     status = IntegerField(default=0)
-    read_status = IntegerField(default=0, help_text='user status 0 unvalid，1 valid')
+    read_status = IntegerField(default=1, help_text='user status 0 unvalid，1 valid')
 
     class Meta:
         db_table = "t_fate_apply_institutions_info"
