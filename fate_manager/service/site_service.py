@@ -62,11 +62,11 @@ def register_fate_site(request_data, token):
     logger.info("save site info success")
 
     # save account party id
-    account_site = AccountSiteInfo()
-    account_site.party_id = request_data.get("partyId")
-    account_site.user_name = account.user_name
-    account_site.fate_manager_id = account.fate_manager_id
-    DBOperator.create_entity(AccountSiteInfo, account_site.to_json())
+    # account_site = AccountSiteInfo()
+    # account_site.party_id = request_data.get("partyId")
+    # account_site.user_name = account.user_name
+    # account_site.fate_manager_id = account.fate_manager_id
+    # DBOperator.create_entity(AccountSiteInfo, account_site.to_json())
 
     logger.info(f"start request cloud SiteQueryUri")
     data = request_cloud_manager(uri_key="SiteQueryUri", data=item.SiteSignatureItem(**request_data).to_dict(), body={},
@@ -232,7 +232,7 @@ def get_other_site_list():
                 site_item.siteName = site.get("siteName")
                 site_item.role = item.IdPair(code=site.get("role"), desc=RoleType.to_str(int(site.get("role")))).to_dict()
                 site_item.status = item.IdPair(code=site.get("status"), desc=SiteStatusType.to_str(int(site.get("status")))).to_dict()
-                site_item.serviceStatus = item.IdPair(code=site.get("detectiveStatus"), desc=ServiceStatusType.to_str(int(site.get("status")))).to_dict()
+                site_item.serviceStatus = item.IdPair(code=site.get("detectiveStatus"), desc=ServiceStatusType.to_str(int(site.get("detectiveStatus")))).to_dict()
                 site_item.activationTime = site.get("activationTime")
                 site_item_list.append(site_item.to_dict())
                 if site.get("partyId") not in [apply_site.party_id for apply_site in apply_site_list]:

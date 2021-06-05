@@ -173,25 +173,18 @@ def get_user_site_list():
 
 
 def get_site_info_user_list(request_data):
-    account_site_info = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data.get("partyId")})
-    if not account_site_info:
-        raise Exception(UserStatusCode.NoFoundPartyId, f"no found party id{request_data.get('partyId')}")
-
-    account_info_list = DBOperator.query_entity(AccountInfo, **{"user_name": account_site_info[0].user_name,
-                                                                "fate_manager_id": account_site_info[0].fate_manager_id,
-                                                                "status": IsValidType.YES})
-    if not account_info_list:
-        raise Exception(UserStatusCode.NoFoundAccount, f"no found account by status {IsValidType.YES}")
+    user_info_list = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data["partyId"]})
     data = []
-    for account in account_info_list:
-        permission_list = account.permission_list
+    for account in user_info_list:
+        account_info = DBOperator.query_entity(AccountInfo, **{"user_name": account.user_name})[0]
+        permission_list = account_info.permission_list
         permission_str = ""
         for permission in permission_list:
             permission_name = PermissionType.to_str(int(permission))
             permission_str += permission_name + ";"
         data.append({
-            "userName": account.user_name,
-            "role": UserRole.to_str(account.role),
+            "userName": account_info.user_name,
+            "role": UserRole.to_str(account_info.role),
             "permission": permission_str
         })
     return data

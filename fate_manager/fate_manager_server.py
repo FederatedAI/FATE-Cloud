@@ -27,6 +27,7 @@ from fate_manager.apps.login_app import manager as login_manager
 from fate_manager.apps.user_app import manager as user_manager
 from fate_manager.apps.drop_down_app import manager as drop_down_manager
 from fate_manager.apps.monitor_app import manager as monitor_manager
+from fate_manager.apps.service_app import manager as service_manager
 from fate_manager.apps.static_app import manager as static_manager
 from fate_manager.settings import IP, PORT, stat_logger, JOB_DETECTOR_INTERVAL, TASK_DETECTOR_INTERVAL
 from fate_manager.utils.api_utils import get_json_result
@@ -53,6 +54,7 @@ if __name__ == '__main__':
             '/fate-manager/api/user': user_manager,
             '/fate-manager/api/dropdown': drop_down_manager,
             '/fate-manager/api/monitor': monitor_manager,
+            '/fate-manager/api/service': service_manager,
             '/fate-manager': static_manager,
         }
     )
