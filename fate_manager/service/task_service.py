@@ -1,8 +1,10 @@
+from fate_manager.entity.status_code import SiteStatusCode
 from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent
 from fate_manager.entity import item
-from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, IsValidType, \
-    ToyTestOnlyType, DeployType, ProductType
+from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
+    IsValidType, \
+    ToyTestOnlyType, DeployType, ProductType, ApplyReadStatusType
 from fate_manager.operation import federated_db_operator
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
@@ -15,9 +17,19 @@ def get_change_log_task():
         federated_info_list = DBOperator.query_entity(FederatedInfo, **{"federated_id": change_log.federated_id})
         body = {"caseId": change_log.case_id, "partyId": change_log.party_id}
         logger.info(f"start request cloud IpQueryUri, body:{body}")
-        site_signature_req = item.SiteSignatureItem(partyId=change_log.party_id, role=change_log.role,
-                                                    appKey=change_log.app_key,
-                                                    appSecret=change_log.app_secret).to_dict()
+        site_info = DBOperator.query_entity(FateSiteInfo, **{"federated_id": change_log.federated_id,
+                                                             "party_id": change_log.party_id})
+        if not site_info:
+            DBOperator.update_entity(ChangeLog, {"federated_id": change_log.federated_id,
+                                                 "party_id": change_log.party_id,
+                                                 "case_id": change_log.case_id,
+                                                 "status": LogDealType.UNKNOWN})
+            logger.error('no found site')
+            return
+        site_info = site_info[0]
+        site_signature_req = item.SiteSignatureItem(partyId=site_info.party_id, role=site_info.role,
+                                                    appKey=site_info.app_key,
+                                                    appSecret=site_info.app_secret).to_dict()
 
         resp = request_cloud_manager(uri_key="IpQueryUri", data=site_signature_req,
                                      body=body,
@@ -38,10 +50,11 @@ def get_change_log_task():
                 "read_status": resp.get("status"),
                 "update_time": current_timestamp()
             }
-            if change_log.network_access_exits:
-                site_info["network_access_exits"] = change_log.network_access_exits
-            if change_log.network_access_entrances:
-                site_info["network_access_entrances"] = change_log.network_access_entrances
+            if resp.get("status") == LogDealType.AGREED:
+                if change_log.network_access_exits:
+                    site_info["network_access_exits"] = change_log.network_access_exits
+                if change_log.network_access_entrances:
+                    site_info["network_access_entrances"] = change_log.network_access_entrances
             logger.info(f"start update site info: {site_info}")
             DBOperator.update_entity(FateSiteInfo, site_info)
             logger.info("update site info success")

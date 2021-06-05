@@ -102,7 +102,6 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
     request_cloud_logger.info(f'response:{response.text}')
     if response.status_code == 200:
         if not response.json().get('code'):
-
             return response.json().get('data')
         else:
             raise Exception(RequestCloudCode.SignatureFailed, f'request url {url} failed:code {response.json().get("code")}, msg {response.json().get("msg")}')

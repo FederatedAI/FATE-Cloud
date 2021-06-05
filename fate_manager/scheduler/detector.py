@@ -31,6 +31,7 @@ class TaskDetector(cron.Cron):
         self.heart_task()
         self.apply_result_task(admin_info)
         self.allow_apply_task(admin_info)
+        self.ip_manager_task()
 
     @classmethod
     @exception_catch

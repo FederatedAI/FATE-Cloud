@@ -9,7 +9,7 @@ from fate_manager.db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, 
 from fate_manager.entity import item
 from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
-    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType
+    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
 from fate_manager.operation import federated_db_operator
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import site_service_logger as logger, CLOUD_URL
@@ -408,25 +408,31 @@ def update_site(request_data):
                                        }, url=federated_info.federated_url)
     logger.info(f"request cloud success:{resp}")
     change_log_info = {
-        "partyId": request_data.get("partyId"),
-        "networkAccessEntrances": request_data.get("networkAccessEntrances"),
-        "networkAccessExits": request_data.get("networkAccessExits"),
-        "status": site.status,
+        "party_id": request_data.get("partyId"),
+        "network_access_entrances": request_data.get("networkAccessEntrances"),
+        "network_access_exits": request_data.get("networkAccessExits"),
+        "status": LogDealType.NO,
         "federated_id": request_data.get("federatedId"),
         "federated_organization": request_data.get("federatedOrganization"),
         "case_id":resp.get("caseId")
     }
+    logger.info(f"change log info: {change_log_info}")
     DBOperator.create_entity(ChangeLog, entity_info=change_log_info)
     DBOperator.update_entity(FateSiteInfo, {"site_id": site.site_id, "federated_id": site.federated_id,
                                             "party_id": site.party_id, "edit_status": EditType.NO})
 
 
 def telnet_ip(request_data):
-    federated_info = federated_db_operator.get_party_id_info(request_data.get("partyId"))
+    federated_info = DBOperator.query_entity(FederatedInfo, federated_id=request_data.get("federatedId"))[0]
     logger.info("start request cloud CheckWebUri")
-    request_cloud_manager(uri_key="CheckWebUri", data=None,
-                          body={"ip": request_data.get("ip"), "port": request_data.get("port")},
-                          url=federated_info.federated_url)
+    site_info = DBOperator.query_entity(FateSiteInfo, **{"federated_id": request_data.get("federatedId"),
+                                                         "party_id": request_data.get("partyId")})[0]
+    site_signature_req = item.SiteSignatureItem(partyId=site_info.party_id, role=site_info.role,
+                                                appKey=site_info.app_key,
+                                                appSecret=site_info.app_secret).to_dict()
+    resp = request_cloud_manager(uri_key="CheckWebUri", data=site_signature_req,
+                                 body={"ip": request_data.get("ip"), "port": request_data.get("port")},
+                                 url=federated_info.federated_url)
     logger.info("request cloud success")
 
 
