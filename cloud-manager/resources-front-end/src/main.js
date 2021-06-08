@@ -1,13 +1,16 @@
 import Vue from 'vue'
+import ECharts from 'vue-echarts'
+import 'echarts'
 import ElementUI from 'element-ui'
+import singleMessageCell from './message'
 import '@/styles/loading.scss'
-import locale from 'element-ui/lib/locale/lang/en'
+import i18n from './lang'
 import '@/styles/theme/index.css'
 import '@/styles/index.scss'
 import App from './App'
 import store from './store'
 import router from './router'
-
+import * as _filter from './filters/filter'
 import '@/icons' // icon
 import '@/permission' // permission control
 /**
@@ -22,13 +25,24 @@ import '@/permission' // permission control
 if (process.env.NODE_ENV === 'mock') {
     require('../mock') // simulation data
 }
+Vue.component('v-chart', ECharts)
+Vue.component('v-bar', ECharts)
+Vue.use(ElementUI, {
+    i18n: (key, value) => i18n.t(key, value)
+})
 
-Vue.use(ElementUI, { locale })
+console.log(_filter, '_filter')
+Object.keys(_filter).forEach(item => {
+    Vue.filter(item, _filter[item])
+})
+
+Vue.prototype.$message = singleMessageCell
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     router,
     store,
+    i18n,
     render: h => h(App)
 })

@@ -5,7 +5,6 @@ import 'nprogress/nprogress.css' // progress bar style
 import { find } from '@/api/welcomepage'
 NProgress.configure({ showSpinner: false })// NProgress configuration
 
-// 不重定向白名单
 const whiteList =
   [
       '/home/login',
@@ -53,7 +52,7 @@ const routeHandler = (to, from, next) => {
             next()
         }
     } else {
-        // 清除登录缓存
+        // clear cache
         store.dispatch('setloginname', '').then(r => {
             localStorage.setItem('name', r)
         })
@@ -67,5 +66,5 @@ const routeHandler = (to, from, next) => {
 }
 
 router.afterEach(() => {
-    NProgress.done() // 结束Progress
+    NProgress.done()
 })

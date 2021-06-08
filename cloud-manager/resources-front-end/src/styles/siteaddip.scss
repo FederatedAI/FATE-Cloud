@@ -43,7 +43,7 @@
                 height: 340px;
                 overflow:auto;
                 .line {
-                    font-size: 18px;
+                    font-size: 16px;
                     height: 34px;
                     line-height: 34px;
                     position: relative;
@@ -92,18 +92,18 @@
                         input::-webkit-input-placeholder {
                             /* WebKit browsers 适配谷歌 */
                             color: #B8BFCC;
-                            font-size: 18px;
+                            font-size: 16px;
                         }
     
                         input:-moz-placeholder {
                             /* Mozilla Firefox 4 to 18 适配火狐 */
                             color: #B8BFCC;
-                            font-size: 18px;
+                            font-size: 16px;
                         }
     
                         .el-input__inner {
                             width: 100%;
-                            font-size: 18px;
+                            font-size: 16px;
                             height: 34px;
                             color: #2D3642;
                             padding: 0 10px;

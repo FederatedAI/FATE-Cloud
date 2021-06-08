@@ -3,11 +3,11 @@
         <div class="table-head">
             <el-button class="route-add" type="text" @click="toAddExchange">
                 <img src="@/assets/add_ip.png">
-                <span>add</span>
+                <span>{{$t('m.common.add')}}</span>
             </el-button>
             <el-button v-if='exchangeList.length' class="fold" type="text" @click="toFold" >
-                <span v-if='activeName.length>0'>unfold all</span>
-                <span v-else>fold all</span>
+                <span v-if='activeName.length>0'>{{$t('m.common.foldAll')}}</span>
+                <span v-else>{{$t('m.common.unfoldAll')}}</span>
             </el-button>
         </div>
         <span v-if='exchangeList.length'>
@@ -16,19 +16,19 @@
                     <template slot="title">
                         <span class="collapse-title-name">{{item.exchangeName}}</span>
                         <span class="collapse-title-vip">VIP：{{item.vip}}</span>
-                        <span class="collapse-title-time">Update Time：{{item.updateTime | dateFormat}}</span>
-                        <el-button   @click.stop="toAddRollsite(item)"  type="text">
-                            add rollsite
+                        <span class="collapse-title-time"> {{$t('m.common.updateTime')}} ：{{item.updateTime | dateFormat}}</span>
+                        <el-button style="margin-right:10px"  @click.stop="toAddRollsite(item)"  type="text">
+                            {{$t('m.common.add')}} rollsite
                         </el-button>
                         <el-button  @click.stop="toDeleteExchangeId(item)"  type="text">
-                            delete
+                            {{$t('m.common.delete')}}
                         </el-button>
                     </template>
                     <ipexchangetable  ref="ipexchangetable"   :exchangeId="item.exchangeId" />
                 </el-collapse-item>
             </el-collapse>
         </span>
-        <div class='no-data' v-else>No Data</div>
+        <div class='no-data' v-else>{{$t('m.common.noData')}}</div>
         <div class="pagination">
             <el-pagination
                 background
@@ -42,10 +42,12 @@
         </div>
          <!-- 删除 -->
         <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
-            <div class="line-text-one">Are you sure you want to delete this exchange?</div>
+            <div class="line-text-one">
+                {{$t('m.ip.sureWantDeleteExchange')}}
+            </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="toDelet">Sure</el-button>
-                <el-button class="ok-btn" type="info" @click="deletedialog = false">Cancel</el-button>
+                <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="deletedialog = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
         <ipaddrollsite ref="ipaddrollsite"/>
@@ -54,7 +56,6 @@
 
 <script>
 import { getIpchangeList, deleteIpchange } from '@/api/federated'
-
 import moment from 'moment'
 import ipexchangetable from './ipexchangetable'
 import ipaddrollsite from './ipaddrollsite'
@@ -70,6 +71,7 @@ export default {
     data() {
         return {
             activeName: [], // 折叠版激活
+            isAllFold: false,
             exchangeList: [],
             deletedialog: false, // 删除框
             editdialog: false,
@@ -103,6 +105,9 @@ export default {
         initList() {
             getIpchangeList(this.data).then(res => {
                 this.exchangeList = res.data.list
+                if (this.isAllFold) {
+                    this.activeName = this.activeName.concat(this.exchangeList.map(item => item.exchangeName))
+                }
                 this.total = res.data.totalRecord
                 setTimeout(() => {
                     this.exchangeList.forEach((item, index) => {
@@ -121,6 +126,7 @@ export default {
             let data = {
                 exchangeId: this.deleteExchangeId
             }
+
             deleteIpchange(data).then(res => {
                 this.deletedialog = false
                 this.initList()
@@ -135,7 +141,8 @@ export default {
         },
         // 跳转添加Exchange路由
         toAddExchange() {
-            this.$store.dispatch('SiteName', 'Add an Exchange')
+            this.$store.dispatch('setSiteName', 'Add an Exchange')
+            this.$store.dispatch('SetMune', 'IP Manage')
             this.$router.push({
                 name: 'Add an Exchange',
                 path: '/federated/ipexchange'
@@ -153,7 +160,9 @@ export default {
                 this.activeName = []
             } else {
                 this.activeName = this.exchangeList.map(item => item.exchangeName)
+                console.log(this.activeName, 'activeName')
             }
+            this.isAllFold = !this.isAllFold
         }
 
     }

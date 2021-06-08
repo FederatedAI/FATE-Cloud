@@ -1,10 +1,11 @@
 
 .access-box {
-    margin: 24px 36px;
+    margin: 0px 12px;
     .system-header {
-        height: 34px;
-        margin-bottom: 24px;
+        height: 36px;
         text-align: right;
+        width: calc(100% - 24px);
+       
         .radio{
             float: left;
             .el-radio-button__inner{
@@ -18,6 +19,7 @@
                 line-height: 23px;
 
             }
+            
             .el-radio-button{
                 
                 .el-radio-button__inner{
@@ -37,13 +39,14 @@
       
     }
     .row-add{
+        border-bottom: 2px solid #E6EBF0;
         background-color: #fff;
         width: 100%;
         .btn-add{
             height: 42px;
             width: calc(100% - 72px);
             margin: 0 36px;
-            border-bottom: 2px solid #E6EBF0;
+           
         }
         .access-add{
             height: 42px;
@@ -67,10 +70,7 @@
             .el-input__inner{
                 padding-left: 40px
             }
-            .search {
-                cursor: pointer;
-                margin-right: 0px
-            }
+          
             .el-input__prefix{
                 color: #848C99;
             }
@@ -78,16 +78,17 @@
                 left: 9px;
                 position: absolute;
                 top:12px;
-                cursor: pointer;
             }
         }
+        .go{
+            margin-top: 3px
+        }
     }
-
     .system-body {
         background-color: #fff;
         position: absolute;
-        width: calc(100% - 72px);
-        height: calc(100% - 158px);
+        width: calc(100% - 24px);
+        height: calc(100% - 120px);
         .table {
             height: calc(100% - 82px);
             .el-table {
@@ -121,6 +122,7 @@
             padding: 36px;
 
             .dialog-title {
+                margin: 12px 0;
                 font-size: 32px;
                 color: #217AD9;
                 font-weight: bold;
@@ -130,60 +132,76 @@
                 font-size: 18px;
             }
             .add-input {
-                margin-top: 24px;
+                // margin-top: 24px;
+                .el-form-item{
+                    margin-bottom: 5px;
+                }
                 position: relative;
+                .el-form-item__label:before{
+                    display: none;
+                    color: #fff;
+                }
                 .input-title{
-                    display:inline-block;
-                    width: 35%;
                     font-size: 18px;
                     color: #848C99;
                 }
-                .el-input{
-                    border-bottom: 2px solid #E6EBF0;
-                    width: 60%;
-                }
-                .input-warn{
-                    border-bottom: 2px solid #FF9D00;
-                }
+
+
                 .el-input__inner {
-                     border: 0px;
-                    background-color: #fff;
-                    height: 32px;
-                    font-size: 18px;
-                    color: #217AD9;
+                    font-size: 16px;
+                    background:#fff;
+                    padding:0;
+                    border-bottom: 2px solid #E6EBF0;
+                    border-top: 0px;
+                    border-right: 0px;
+                    border-left: 0px;
+                }
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
+                    //错误提示
+                .el-form-item__error{
+                    top:90%;
+                    color: #FF9D00;
+                    font-size: 14px
                 }
                 .el-checkbox{
                     .el-checkbox__label{
-                        font-size: 18px;
+                        font-size: 16px;
                     }
                     .el-checkbox__inner::after {
                         transition: none!important;
                     }
                 }
-                
-                .text-warn{
-                    position: absolute;
-                    top:35px;
-                    left: 140px;
-                    color:#FF9D00
+                .input{
+                    width: 270px;
+                }
+                .reset{
+                    color: #217AD9;
+                    margin-left: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
                 }
             }
+
             .line-text-one{
                 font-size: 24px;
-                color: #4E5766;
+       
                 text-align: center;
                 margin-top: 28px;
             }
 
             .dialog-foot {
                 text-align: center;
-                margin: 48px 0 12px 0;
+                margin: 24px 0 12px 0;
 
                 .el-button {
-                    height: 36px;
-                    width: 200px;
+                    height: 26px;
+                    line-height: 26px;
+                    width: 130px;
+                    border-radius: 2px;
                     padding: 0;
-                    font-size: 18px;
+                    font-size: 16px;
 
                 }
             }
@@ -191,8 +209,6 @@
         }
     }
     .add-success-dialog {
-        text-align: center;
-
         //弹框居中
         .el-dialog {
             width: 700px;
@@ -209,34 +225,68 @@
             .el-dialog__header {
                 display: none
             }
-
-            .icon {
-                height: 35px;
-                font-size: 80px;
-                color: #217AD9;
+            .el-dialog__body{
+                padding: 36px
             }
-
-            .line-text-one {
-                font-size: 32px;
-                margin-top: 15px;
-                margin-bottom: 35px;
-                color: #217AD9;
-                font-weight: 700;
+            .input-title{
+                font-size: 18px;
+                color: #848C99;
             }
-
+            .add-input {
+                // margin-top: 24px;
+                .el-form-item{
+                    margin-bottom: 5px;
+                    .el-form-item__label{
+                        font-size: 18px;
+                        color: #848C99;
+                    }
+                    .el-form-item__content{
+                        font-size: 16px;
+                    }
+                }
+                .registration-box{
+                    width: 100%;
+                    display: inline-block;
+                    background-color: #FAFBFC;
+                    padding: 10px;
+                    box-sizing: border-box;
+                    .el-form-item__label{
+                        text-align: right;
+                    }
+                }
+                .el-input__inner{
+                    font-size: 16px;
+                    padding:0;
+                    border-bottom: 2px solid #E6EBF0;
+                    border-top: 0px;
+                    border-right: 0px;
+                    border-left: 0px;
+                }
+                .input{
+                    width: 260px;
+                }
+                .reset{
+                    color: #217AD9;
+                    margin-left: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
+                }
+                
+            }
             .line-text-two {
                 font-size: 18px;
-                margin-bottom: 12px;
+                margin-bottom: 18px;
+                font-weight: bold;
             }
 
             .line-text-three {
-                font-size: 18px;
+                font-size: 16px;
                 color: #217AD9;
                 margin-bottom: 48px;
-                vertical-align: middle;
+                vertical-align: top;
                 .copy-link{
                     display:inline-block;
-                    width: 530px;
+                    width: 330px;
                     white-space: nowrap; //文本强制不换行；
                     text-overflow:ellipsis; //文本溢出显示省略号；
                     overflow:hidden; //溢出的部分隐藏；
@@ -247,19 +297,24 @@
                     vertical-align:top
                 }
             }
-            .line-text-four {
-                color: #848C99;
-                margin-bottom: 48px;
-            }
             .regenerate{
                 color: #217AD9;
                 cursor: pointer;
             }
-            .ok-btn {
-                width: 200px;
-                font-size: 18px;
-                margin-bottom: 34px;
+           
+            .dialog-footer{
+                text-align: center;
+                margin-top: 10px;
+                .ok-btn {
+                    height: 26px;
+                    line-height: 26px;
+                    width: 130px;
+                    border-radius: 2px;
+                    font-size: 16px;
+                    margin-right: 10px;
+                }
             }
+            
         }
     }
 }
