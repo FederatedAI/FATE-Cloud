@@ -1,11 +1,11 @@
 <template>
  <div>
     <div v-if="type==='Today’s active data'" class="type-time">
-        <span>Active institutions today: </span>
-        <span style="color:#217AD9">{{activejobs.active}}</span>
+        <span>{{$t('m.monitor.activeInstitutionsToday')}}</span>
+        <span style="color:#217AD9"> {{instTotal}}</span>
     </div>
     <div v-else class="time-picker">
-        <span class="date">Date</span>
+        <span class="date">{{$t('m.common.date')}}</span>
         <el-date-picker
             v-model="timevalue"
             @change="initi"
@@ -13,35 +13,36 @@
             type="daterange"
             range-separator="~"
             value-format="timestamp"
-            start-placeholder="start"
-            end-placeholder="end"
+            :start-placeholder="$t('m.common.start')"
+            :end-placeholder="$t('m.common.end')"
             :picker-options="pickerOptions">
         </el-date-picker>
     </div>
     <div class="content-item">
         <div class="jobs-complete">
-            <span>Federated modeling jobs：</span> <span class="span">{{activejobs.total}}</span>
-            <span>waiting：</span> <span class="span">{{activejobs.waiting}} ({{(activejobs.waiting/activejobs.total) | toGetFixed}}%)   </span>
-            <span>running：</span> <span class="span">{{activejobs.running}} ({{(activejobs.running/activejobs.total) | toGetFixed}}%)   </span>
-            <span>success：</span> <span class="span">{{activejobs.success}} ({{(activejobs.success/activejobs.total) | toGetFixed}}%)   </span>
-            <span>failed：</span> <span class="span">{{activejobs.failed}} ({{(1 -(activejobs.waiting/activejobs.total) - (activejobs.running/activejobs.total) - (activejobs.success/activejobs.total)) | toGetFixed}}%)</span>
+            <span>{{$t('m.monitor.totalJobs')}}：</span> <span class="span">{{activejobs.total}}</span>
+            <span>{{$t('m.monitor.waiting',{type:'w'})}}：</span> <span class="span">{{activejobs.waiting}} ({{(activejobs.waiting/activejobs.total) | toGetFixed}}%)   </span>
+            <span>{{$t('m.monitor.running',{type:'r'})}}：</span> <span class="span">{{activejobs.running}} ({{(activejobs.running/activejobs.total) | toGetFixed}}%)   </span>
+            <span>{{$t('m.common.success')}}：</span> <span class="span">{{activejobs.success}} ({{(activejobs.success/activejobs.total) | toGetFixed}}%)   </span>
+            <span>{{$t('m.common.failed')}}：</span> <span class="span">{{activejobs.failed}} ({{(1 -(activejobs.waiting/activejobs.total) - (activejobs.running/activejobs.total) - (activejobs.success/activejobs.total)) | toGetFixed}}%)</span>
         </div>
         <div class="institutions-jobs">
             <div class="institutions" >
                 <div v-if='institutionsList.length>0' class="item-box">
                     <span v-for="(item, index) in institutionsList" :key="index">
-                        <div :class="{'item-institution':true,'institution-activa':item.show}" @click="getsite(item,index)">
-                            <overflowtooltip class="item-text" :width="'100px'" :content="item.institutions" :placement="'top'"/>
-                            <span class="bar" ref='bar' :style='stylebar'>
-                                <div class="item-bar" :style="`width:${(item.total)*institutionsitemWidth/item.max}px`"> </div>
-                                <span class="text" ref="text">{{item.total}}</span>
-                            </span>
-                            <i v-if="item.show" class="el-icon-caret-right icon-right"></i>
-                        </div>
+
+                            <div :class="{'item-institution':true,'institution-activa':item.show}" @click="getsite(item,index)">
+                                <overflowtooltip class="item-text" :width="'100px'" :content="item.institutions" :placement="'top'"/>
+                                <span class="bar" ref='bar' :style='stylebar'>
+                                    <div class="item-bar" :style="`width:${(item.total)*institutionsitemWidth/item.max}px`"> </div>
+                                    <span class="text" ref="text">{{item.total}}</span>
+                                </span>
+                                <i v-if="item.show" class="el-icon-caret-right icon-right"></i>
+                            </div>
                     </span>
                 </div>
                 <div v-else class="item-box no-date-box">
-                    No Data
+                    {{$t('m.common.noData')}}
                 </div>
                 <div  class="institutions-pagination">
                     <el-pagination
@@ -55,44 +56,44 @@
                 </div>
             </div>
             <div class="jobs">
-                <div v-if="type==='Today’s active data'" class="jobs-site-title">Active sites today:{{activeSite.active}}</div>
+                <div v-if="type==='Today’s active data'" class="jobs-site-title">{{$t('m.monitor.activeSitesToday')}}:{{activeSite.active}}</div>
                 <div class="job-alone-complete">
-                    <span>Federated modeling jobs：</span> <span class="span">{{activeSite.total}}</span>
-                    <span >waiting：</span> <span class="span">{{activeSite.waiting}} ({{(activeSite.waiting/activeSite.total) | toGetFixed}}%)</span>
-                    <span >running：</span> <span class="span">{{activeSite.running}} ({{(activeSite.running/activeSite.total) | toGetFixed}}%)</span>
-                    <span>success：</span> <span class="span">{{activeSite.success}}  ({{(activeSite.success/activeSite.total) | toGetFixed}}%)</span>
-                    <span>failed：</span> <span class="span">{{activeSite.failed}}  ({{(1 - (activeSite.waiting/activeSite.total) - (activeSite.running/activeSite.total) - (activeSite.success/activeSite.total)) | toGetFixed}}%)</span>
+                    <span> {{$t('m.monitor.totalJobs')}}：</span> <span class="span">{{activeSite.total}}</span>
+                    <span >{{$t('m.monitor.waiting',{type:'w'})}}：</span> <span class="span">{{activeSite.waiting}} ({{(activeSite.waiting/activeSite.total) | toGetFixed}}%)</span>
+                    <span >{{$t('m.monitor.running',{type:'r'})}}：</span> <span class="span">{{activeSite.running}} ({{(activeSite.running/activeSite.total) | toGetFixed}}%)</span>
+                    <span>{{$t('m.common.success')}}：</span> <span class="span">{{activeSite.success}}  ({{(activeSite.success/activeSite.total) | toGetFixed}}%)</span>
+                    <span>{{$t('m.common.failed')}}：</span> <span class="span">{{activeSite.failed}}  ({{(1 - (activeSite.waiting/activeSite.total) - (activeSite.running/activeSite.total) - (activeSite.success/activeSite.total)) | toGetFixed}}%)</span>
                 </div>
                 <div class="jobs-title">
                     <span class="waiting"></span>
-                    <span>waiting</span>
+                    <span>{{$t('m.monitor.waiting',{type:'w'})}}</span>
                     <span class="running"></span>
-                    <span>running</span>
+                    <span>{{$t('m.monitor.running',{type:'r'})}}</span>
                     <span class="complete"></span>
-                    <span>success</span>
+                    <span>{{$t('m.common.success')}}</span>
                     <span class="failed"></span>
-                    <span >failed</span>
+                    <span >{{$t('m.common.failed')}}</span>
                 </div>
                 <div v-if='siteList.length>0' class="jobs-box" >
                     <span v-for="(item, index) in siteList" :key="index">
                         <div class="jobs-institution" ref='jobs' >
-                            <overflowtooltip class="jobs-text" :width="'50px'" :content="item.site" :placement="'top'"/>
+                            <overflowtooltip class="jobs-text" :width="'80px'" :content="item.site" :placement="'top'"/>
                             <overflowtooltip class="jobs-text" :width="'50px'" :content="item.partyId" :placement="'top'"/>
                             <el-tooltip placement="top">
                                 <div slot="content">
-                                    <div>waiting:
+                                    <div>{{$t('m.monitor.waiting',{type:'w'})}}:
                                         {{(item.waiting )}}
                                         ({{item.waiting/item.total | toGetFixed}}%)
                                     </div>
-                                    <div>running:
+                                    <div>{{$t('m.monitor.running',{type:'r'})}}:
                                         {{(item.running )}}
                                         ({{item.running/item.total | toGetFixed}}%)
                                     </div>
-                                    <div>success:
+                                    <div>{{$t('m.common.success')}}:
                                         {{(item.success)}}
                                         ({{item.success/item.total | toGetFixed}}%)
                                     </div>
-                                    <div>failed:
+                                    <div>{{$t('m.common.failed')}}:
                                         {{(item.failed)}}
                                         ({{item.failed/item.total | toGetFixed}}%)
                                     </div>
@@ -111,7 +112,7 @@
                     </span>
                 </div>
                 <div v-else class="jobs-box no-date-box">
-                    No Data
+                    {{$t('m.common.noData')}}
                 </div>
                 <div v-if="type!=='Today’s active data'" style="height:34px">
                     <!-- <el-pagination
@@ -129,20 +130,22 @@
     <!-- 机构维度 -->
     <div class="content-item">
         <div class="institution-based">
-            <div class="statistics">Institution based statistics</div>
+            <div class="statistics">{{$t('m.monitor.institutionBasedStatistics')}}</div>
             <div class="cooperation">
-                Statistics of cooperation between institutions
+                {{$t('m.monitor.institutionsCooperation')}}
             </div>
             <div class="select">
-                <span class="select-text">Institution</span>
-                <el-select v-model="institutionStat" @change="toGetinstitutions" placeholder="请选择">
-                    <el-option
-                    v-for="item in institutionsdownList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
+                <span class="select-text">{{$t('m.monitor.checkInstitution')}}</span>
+                <el-tooltip class="item" effect="light" :content="institutionStat" placement="top">
+                    <el-select v-model="institutionStat" @change="toGetinstitutions" filterable :placeholder="$t('m.common.pleaseSelect')">
+                        <el-option
+                        v-for="item in institutionsdownList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-tooltip>
             </div>
             <div class="institution-table">
                 <el-table
@@ -156,30 +159,32 @@
                     max-height="250">
                     <el-table-column prop="institutions" fixed align="center" :resizable="false" label="" >
                         <template slot-scope="scope">
-                            <span style="color:#4E5766;font-weight:bold">{{scope.row.institutions}}</span>
+                            <el-tooltip class="item" effect="light" :content="scope.row.institutions" placement="top">
+                                <span style="color:#4E5766;font-weight:bold">{{scope.row.institutions}}</span>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="name" label="Jobs" :resizable="false"  >
+                    <el-table-column prop="name" :label="$t('m.monitor.jobs')" :resizable="false"  >
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.total}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Waiting" :resizable="false">
+                    <el-table-column prop="" :label="$t('m.monitor.waiting',{type:'W'})" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.waiting}} ({{scope.row.waiting/scope.row.total | toGetFixed}}%)</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Running" :resizable="false">
+                    <el-table-column prop="" :label="$t('m.monitor.running',{type:'R'})" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.running}} ({{scope.row.running/scope.row.total | toGetFixed}}%)</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Success" :resizable="false">
+                    <el-table-column prop="" :label="$t('m.common.success')" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.success}} ({{scope.row.success/scope.row.total | toGetFixed}}%)</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Failed" :resizable="false">
+                    <el-table-column prop="" :label="$t('m.common.failed')" :resizable="false">
                         <template slot-scope="scope">
                             <span style="color:#848C99">{{scope.row.failed}} ({{scope.row.failed/scope.row.total | toGetFixed}}%)</span>
                         </template>
@@ -201,20 +206,22 @@
     <!-- 站点维度 -->
     <div class="content-item">
         <div class="institution-based">
-            <div class="statistics">Site based statistics</div>
+            <div class="statistics">{{$t('m.monitor.siteBasedStatistics')}}</div>
             <div class="cooperation">
-                Statistics of cooperation between sites
+                {{$t('m.monitor.sitesCooperation')}}
             </div>
             <div class="select">
-                <span class="select-text">Institution</span>
-                <el-select v-model="institutionSite" @change="toGetIntSite" placeholder="请选择">
-                    <el-option
-                    v-for="item in institutionsdownList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
+                <span class="select-text">{{$t('m.monitor.checkInstitution')}}</span>
+                <el-tooltip class="item" effect="light" :content="institutionSite" placement="top">
+                    <el-select v-model="institutionSite" @change="toGetIntSite" filterable :placeholder="$t('m.common.pleaseSelect')">
+                        <el-option
+                        v-for="item in institutionsdownList"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-tooltip>
             </div>
             <div class="institution-table">
                 <el-table
@@ -229,33 +236,42 @@
                     max-height="250">
                     <el-table-column prop="" align="center"  :resizable="false"  label="" >
                         <template slot-scope="scope">
-                            <span style="color:#4E5766;font-weight:bold">{{scope.row.institution}}</span>
+                            <el-tooltip class="item" effect="light" :content="scope.row.institution" placement="top">
+                                <span style="color:#4E5766;font-weight:bold">{{scope.row.institution}}</span>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
                     <el-table-column prop="siteName" align="center"  :resizable="false"  label="site" show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <span >{{scope.row.institutionSiteName}}</span>
+                            <el-tooltip class="item" effect="light" :content="scope.row.institutionSiteName" placement="top">
+                                <span >{{scope.row.institutionSiteName}}</span>
+                            </el-tooltip>
                         </template>
                     </el-table-column>
-                    <el-table-column v-for="(item, index) in tableIntLabeList" :key="index" align="center"  :resizable="false" :prop="item"  :label="item">
+                    <el-table-column v-for="(item, index) in tableIntLabeList" :key="index" align="center"  :resizable="false" :prop="item" :label="item">
+                        <template slot="header">
+                            <el-tooltip class="item" effect="light" :content="item" placement="top">
+                                <span>{{item}}</span>
+                            </el-tooltip>
+                        </template>
                         <template slot-scope="scope">
                             <el-tooltip v-if='scope.row[item]' placement="top">
                                 <div slot="content">
                                     <div>
-                                        <span style="margin-right:5px;">running：{{scope.row[item].runningJobs}}  </span>
+                                        <span style="margin-right:5px;">{{$t('m.monitor.waiting',{type:'w'})}}：{{scope.row[item].waitingJobs}}  </span>
+                                        <span>({{scope.row[item].waitingPercent }})</span>
+                                    </div>
+                                    <div>
+                                        <span style="margin-right:5px;">{{$t('m.monitor.running',{type:'r'})}}{{scope.row[item].runningJobs}}  </span>
                                         <span >({{scope.row[item].runningPercent }})</span>
                                     </div>
                                     <div>
-                                        <span style="margin-right:5px;">success：{{scope.row[item].successJobs}}  </span>
+                                        <span style="margin-right:5px;">{{$t('m.common.success')}}：{{scope.row[item].successJobs}}  </span>
                                         <span >({{scope.row[item].successPercent }})</span>
                                     </div>
                                     <div>
-                                        <span style="margin-right:5px;">failed：{{scope.row[item].failedJobs}}  </span>
+                                        <span style="margin-right:5px;">{{$t('m.common.failed')}}：{{scope.row[item].failedJobs}}  </span>
                                         <span>({{scope.row[item].failedPercent }})</span>
-                                    </div>
-                                    <div>
-                                        <span style="margin-right:5px;">waiting：{{scope.row[item].waitingJobs}}  </span>
-                                        <span>({{scope.row[item].waitingPercent }})</span>
                                     </div>
                                 </div>
                                 <span >{{scope.row[item].totalJobs}}</span>
@@ -263,20 +279,20 @@
                             <span v-else>
                                  <el-tooltip  placement="top">
                                     <div slot="content">
-                                        <div>
-                                            <span style="margin-right:5px;">running：0  </span>
-                                            <span >(0%)</span>
-                                        </div>
-                                        <div>
-                                            <span style="margin-right:5px;">success：0  </span>
-                                            <span >(0%)</span>
-                                        </div>
-                                        <div>
-                                            <span style="margin-right:5px;">failed：0  </span>
+                                         <div>
+                                            <span style="margin-right:5px;">{{$t('m.monitor.waiting',{type:'w'})}}：0  </span>
                                             <span>(0%)</span>
                                         </div>
                                         <div>
-                                            <span style="margin-right:5px;">waiting：0  </span>
+                                            <span style="margin-right:5px;">{{$t('m.monitor.running',{type:'r'})}}：0  </span>
+                                            <span >(0%)</span>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right:5px;">{{$t('m.common.success')}}：0  </span>
+                                            <span >(0%)</span>
+                                        </div>
+                                        <div>
+                                            <span style="margin-right:5px;">{{$t('m.common.failed')}}：0  </span>
                                             <span>(0%)</span>
                                         </div>
                                     </div>
@@ -284,7 +300,6 @@
                                 </el-tooltip>
                             </span>
                         </template>
-
                     </el-table-column>
                 </el-table>
                 <div class="paginationInstitutionSize">
@@ -305,13 +320,7 @@
 
 <script>
 import overflowtooltip from '@/components/Tooltip'
-import moment from 'moment'
 import {
-    institutionsListToday,
-    siteListToday,
-    institutionsSataToday,
-    institutionsAllToday,
-    siteAllToday,
     institutionsListPeriod,
     siteListPeriod,
     institutionsSataPeriod,
@@ -336,7 +345,7 @@ export default {
         return {
             type: 'Today’s active data',
             dateToday: new Date().getTime(),
-            timevalue: [new Date() - 24 * 60 * 60 * 1000, new Date().getTime()],
+            timevalue: [new Date() - 30 * 24 * 60 * 60 * 1000, new Date().getTime()],
             instTotal: 0,
             pageSizeInst: 80,
             instpageNum: 1,
@@ -379,7 +388,7 @@ export default {
                 if (val.length > 0) {
                     this.$nextTick(() => {
                         this.calcinstitution().then(res => {
-                            this.institutionsitemWidth = this.$refs.bar[0].clientWidth - res - 10 // 最大值的宽度
+                            this.institutionsitemWidth = this.$refs.bar[0].clientWidth - res - 30 // 最大值的宽度
                         })
                     })
                 }
@@ -391,18 +400,16 @@ export default {
             handler(val) {
                 if (val.length > 0) {
                     this.$nextTick(() => {
-                        this.sitemWidth = this.$refs.jobs[0].clientWidth - 130 // 最大值的宽度
+                        this.sitemWidth = this.$refs.jobs[0].clientWidth - 160 // 最大值的宽度
                     })
                 }
             }
         }
     },
     created() {
-
     },
 
     mounted() {
-        this.getinstitutionsdownList()
         this.initi()
     },
     methods: {
@@ -410,33 +417,33 @@ export default {
             this.getInstitutionsListToday()
             // 机构和站点
             this.institutionsAll()
-            this.toGetinstitutions(this.institutionStat)
-            this.toGetIntSite(this.institutionSite, 'type')
+            // 获取站点枚举
+            this.getinstitutionsdownList()
         },
+        /**
+        *前端优化排序,下拉选中项置顶
+        * @param { array } data 需要重新排序的数据
+        * @param { string } name 选中的枚举值
+        * @param { string } key 数据中排序依据字段
+        */
+
         institutionsAll() {
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    dateToday: this.dateToday,
-                    pageNum: this.instpageNum,
-                    pageSize: 80
-                }
-                institutionsAllToday(data).then(res => {
-                    getData(res)
-                })
-            } else {
-                let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    pageNum: this.instpageNum,
-                    pageSize: 80
-                }
-                institutionsAllPeriod(data).then(res => {
-                    getData(res)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                pageNum: this.instpageNum,
+                pageSize: 80
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            institutionsAllPeriod(data).then(res => {
+                getData(res)
+            })
             let that = this
             let getData = function (res) {
-                let datares = res.data
+                let datares = (res && res.data) || {}
                 let obj = {}
                 obj.active = datares.institutionsCount || 0
                 obj.waiting = datares.waitingJobCount || 0
@@ -488,29 +495,23 @@ export default {
         },
         // 获取机构维度
         getInstitutionsListToday() {
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    dateToday: this.dateToday,
-                    pageNum: 1,
-                    pageSize: 80
-                }
-                institutionsListToday(data).then(res => {
-                    getData(res)
-                })
-            } else {
-                let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    pageNum: 1,
-                    pageSize: 80
-                }
-                institutionsListPeriod(data).then(res => {
-                    getData(res)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                pageNum: 1,
+                pageSize: 80
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            institutionsListPeriod(data).then(res => {
+                getData(res)
+            })
 
             let that = this
             let getData = function (res) {
+                // console.log(res, 'list-data')
                 that.instTotal = res.data.totalRecord
                 let maxlist = []
                 res.data.list.forEach(element => {
@@ -524,7 +525,7 @@ export default {
                     obj.running = item.runningJobCount
                     obj.success = item.successJobCount
                     obj.failed = item.failedJobCount
-                    obj.total = item.failedJobCount + item.successJobCount + item.runningJobCount + item.waitingJobCount
+                    obj.total = obj.waiting + obj.running + obj.success + obj.failed
                     obj.max = max
                     obj.show = false
                     return obj
@@ -534,34 +535,23 @@ export default {
         },
         // 获取site
         getsite(row, ind) {
-            let tempArr = []
-            this.institutionsList.forEach((item, index) => {
-                if (index === ind) {
-                    item.show = true
-                } else {
-                    item.show = false
-                }
-                tempArr.push(item)
+            let tempArr = this.institutionsList.map((item, index) => {
+                item.show = index === ind
+                return item
             })
             this.institutionsList = [...tempArr]
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    dateToday: this.dateToday,
-                    institutions: row ? row.institutions : ''
-                }
-                siteListToday(data).then(res => {
-                    getData(res)
-                })
-            } else {
-                let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    institutions: row ? row.institutions : ''
-                }
-                siteListPeriod(data).then(res => {
-                    getData(res)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                institutions: row ? row.institutions : ''
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            siteListPeriod(data).then(res => {
+                getData(res)
+            })
 
             let that = this
             let getData = function (res) {
@@ -586,30 +576,22 @@ export default {
                 })
             }
         },
-        // 获取站点site总数
+        // 获取站点site枚举
         getsiteAllToday(val) {
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    dateToday: this.dateToday,
-                    institutions: val,
-                    pageNum: 1,
-                    pageSize: 100
-                }
-                siteAllToday(data).then(res => {
-                    getData(res)
-                })
-            } else {
-                let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    institutions: val,
-                    pageNum: 1,
-                    pageSize: 100
-                }
-                siteAllPeriod(data).then(res => {
-                    getData(res)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                institutions: val,
+                pageNum: 1,
+                pageSize: 100
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            siteAllPeriod(data).then(res => {
+                getData(res)
+            })
             let that = this
             let getData = function (res) {
                 let datares = res.data
@@ -634,32 +616,24 @@ export default {
                 }
             }
         },
-        // 第一个表格下拉选择
+        // 机构维度下拉选择
         toGetinstitutions(val) {
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    dateToday: this.dateToday,
-                    institutions: val || this.institutionStat,
-                    pageNum: this.firstPageNum,
-                    pageSize: 10
-                }
-                institutionsSataToday(data).then(res => {
-                    getData(res)
-                })
-            } else {
-                let data = {
-                    beginDate: this.timevalue[0],
-                    endDate: this.timevalue[1],
-                    institutions: val || this.institutionStat
-                }
-                institutionsSataPeriod(data).then(res => {
-                    getData(res)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                institutions: val || this.institutionStat
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            institutionsSataPeriod(data).then(res => {
+                getData(res)
+            })
             let that = this
             let getData = function (res) {
                 that.totalInstitution = res.data.totalRecord
-                that.tableIntSateData = res.data.list.map((item) => {
+                that.tableIntSateData = res.data.list.map(item => {
                     item.waiting = parseInt(item.waitingJobCountForInstitutions) || 0
                     item.running = parseInt(item.runningJobCountForInstitutions) || 0
                     item.failed = parseInt(item.failedJobCountForInstitutions) || 0
@@ -667,46 +641,37 @@ export default {
                     item.total = item.failed + item.success + item.running + item.waiting
                     return item
                 })
+                // 下拉项置顶
+                that.tableIntSateData = that.setTopItem(that.tableIntSateData, val, 'institutions')
             }
         },
-        // 第二个表格下拉选择
+        // 站点维度下拉选择
         toGetIntSite(val, type) {
             this.institutionSite = val
-            if (this.type === 'Today’s active data') {
-                let data = {
-                    startDate: moment(this.dateToday).format('YYYY-MM-DD 00:00:00'),
-                    endDate: moment(this.dateToday).format('YYYY-MM-DD 23:59:59'),
-                    institution: val || this.institutionSite,
-                    pageNum: this.secondPageNum,
-                    pageSize: 10
-                }
-                getSummarySite(data).then(res => {
-                    this.getsiteSataData(res, type)
-                })
-            } else {
-                let data = {
-                    startDate: moment(this.timevalue[0]).format('YYYY-MM-DD 00:00:00'),
-                    endDate: moment(this.timevalue[1]).format('YYYY-MM-DD 23:59:59'),
-                    institution: val || this.institutionSite,
-                    pageNum: this.secondPageNum,
-                    pageSize: 10
-                }
-                // siteSataPeriod(data).then(res => {
-                //     this.getsiteSataData(res, type)
-                // })
-                getSummarySite(data).then(res => {
-                    this.getsiteSataData(res, type)
-                })
+            let data = {
+                beginDate: this.dateToday,
+                endDate: this.dateToday,
+                institutions: val || this.institutionSite,
+                pageNum: this.secondPageNum,
+                pageSize: 10
             }
+            if (this.type !== 'Today’s active data') {
+                data.beginDate = this.timevalue[0]
+                data.endDate = this.timevalue[1]
+            }
+            getSummarySite(data).then(res => {
+                // console.log(res, 'TO-res')
+                this.getsiteSataData(res, type)
+            })
         },
-        // 第二个下拉表格返回方法
+        // 站点表格返回方法
         getsiteSataData(res, type) {
             this.lengthList = [] // 清空空格数据
             this.totalSitetitution = (res.data && res.data.total) || 0
             this.tableIntLabeList = res.data && res.data.siteList
-
             let arr = []
             res.data && res.data.data.forEach(item => {
+                console.log(item, 'item')
                 // 空格位置
                 if (item.institutionSiteList.length > 1) {
                     this.lengthList.push(item.institutionSiteList.length)
@@ -727,13 +692,28 @@ export default {
                     arr.push(obj)
                 })
             })
-            if (type) {
+            // 下拉项置顶
+            this.$nextTick(() => {
+                arr = this.setTopItem(arr, this.institutionSite, 'institution')
                 this.tableIntSiteData = [...arr]
-            } else {
-                setTimeout(() => {
-                    this.tableIntSiteData = [...arr]
-                }, 500)
+            })
+        },
+        setTopItem(data, name, key) {
+            if (data.length < 1) return []
+            let signArr = []
+            let self = this
+            let lengthList = []
+            for (var i = 0; i < data.length; i++) {
+                if (data[i][key] === name) {
+                    signArr.push(data[i])
+                    data.splice(i, 1)
+                    lengthList.push(self.lengthList[i])
+                    self.lengthList.splice(i, 1)
+                }
             }
+            // 同时还要处理rowspan
+            self.lengthList = lengthList.concat(self.lengthList)
+            return signArr.concat(data)
         }
     }
 }
@@ -741,5 +721,12 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 @import 'src/styles/monitor.scss';
-
+.institution-table {
+    .el-table{
+        border: 1px solid #e6e6e6;
+        .tableHeadCell:not(:nth-of-type(1)):not(:nth-of-type(2)){
+            font-weight: normal;
+        }
+    }
+}
 </style>

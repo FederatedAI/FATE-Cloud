@@ -3,9 +3,9 @@
         <div class="table-head">
             <el-button class="route-add" type="text" @click="toAdd">
                 <img src="@/assets/add_ip.png">
-                <span>add</span>
+                <span>{{$t('add')}}</span>
             </el-button>
-            <el-select class="product input-placeholder" v-model="data.productName" placeholder="product">
+            <el-select class="product input-placeholder" v-model="data.productName" clearable :placeholder="$t('Product')">
                 <el-option
                     v-for="item in productSelect"
                     :key="item.value"
@@ -13,7 +13,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-select class="version input-placeholder" v-model="data.productVersion" placeholder="FATE_Version">
+            <el-select class="version input-placeholder" v-model="data.productVersion" clearable :placeholder="$t('Product_Version')">
                 <el-option
                     v-for="item in versionSelect"
                     :key="item.value"
@@ -21,7 +21,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-button class="go" type="primary" @click="toSearch">GO</el-button>
+            <el-button class="go" type="primary" @click="toSearch">{{$t('m.common.go')}}</el-button>
         </div>
         <el-table
             :data="tableData"
@@ -30,25 +30,25 @@
             ref="table"
             height="100%"
             tooltip-effect="light">
-            <el-table-column prop="productName" label="Product"  class-name="cell-td-td"  show-overflow-tooltip>
+            <el-table-column prop="productName" :label="$t('Product')"  class-name="cell-td-td"  show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="productVersion" label="Version" class-name="cell-td-td"  show-overflow-tooltip>
+            <el-table-column prop="productVersion"  :label="$t('Product_Version')" class-name="cell-td-td"  show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="kubernetesChart" label="Kubernetes Chart Version"  class-name="cell-td-td">
+            <el-table-column prop="kubernetesChart" :label="$t('Kubernetes Chart Version')"  class-name="cell-td-td">
                  <template slot-scope="scope">
                     <span v-if="scope.row.kubernetesChart">{{scope.row.kubernetesChart}}</span>
                     <span v-else>-</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="" label="Component_name" min-width="85">
+            <el-table-column prop="" :label="$t('Component_Name')"  min-width="85">
                 <template slot-scope="scope">
-                   <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
+                    <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
                         <span v-if="item.componentName">{{item.componentName}}</span>
                         <span v-else>-</span>
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedGroupSetDo"  min-width="100" label="Component_version" >
+            <el-table-column prop="federatedGroupSetDo"  min-width="100" :label="$t('Component_Version')" >
                 <template slot-scope="scope">
                    <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
                         <span v-if="item.componentVersion">{{item.componentVersion}}</span>
@@ -56,8 +56,8 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column prop="" label="Image Info."  align="center" >
-                <el-table-column prop="federatedGroupSetDo" label="Repository" >
+            <el-table-column prop="" :label="$t('Image Info.')"  align="center" >
+                <el-table-column prop="federatedGroupSetDo" :label="$t('Repository')"  >
                     <template slot-scope="scope">
                         <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
                             <span v-if='item.imageRepository'>{{item.imageRepository}}</span>
@@ -65,7 +65,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="" label="Tag" >
+                <el-table-column prop="" :label="$t('Tag')"  >
                     <template slot-scope="scope">
                         <div v-for="(item, index) in scope.row.federatedComponentVersionDos" :key="index">
                             <span v-if="item.imageTag">{{item.imageTag}}</span>
@@ -73,28 +73,20 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="imageDownloadUrl" label="Download_URL" class-name="cell-td-td"  show-overflow-tooltip >
-                    <template slot-scope="scope">
-                        <span v-if="scope.row.imageDownloadUrl">{{scope.row.imageDownloadUrl}}</span>
-                        <span v-else>-</span>
-                    </template>
+                <el-table-column prop="imageDownloadUrl" :label="$t('Download_URL')" class-name="cell-td-td"  show-overflow-tooltip >
                 </el-table-column>
             </el-table-column>
-            <el-table-column prop="" label="Package Info."  >
-                <el-table-column prop="packageDownloadUrl" label="Download_URL" class-name="cell-td-td" show-overflow-tooltip>
-                    <template slot-scope="scope">
-                        <span v-if="scope.row.packageDownloadUrl">{{scope.row.packageDownloadUrl}}</span>
-                        <span v-else>-</span>
-                    </template>
+            <el-table-column prop="" :label="$t('Package Info.')"  >
+                <el-table-column prop="packageDownloadUrl" :label="$t('Download_URL')" class-name="cell-td-td" show-overflow-tooltip>
                 </el-table-column>
             </el-table-column>
-            <el-table-column prop="publicStatus" align="center"  label="Publish_status" >
+            <el-table-column prop="publicStatus" align="center" :label="$t('Publish_status')"   >
                 <template slot-scope="scope">
                     <el-switch v-model="scope.row.status" @change="changeSwitch(scope.row) ">
                     </el-switch>
                 </template>
             </el-table-column>
-            <el-table-column prop="federatedSiteModelDos" align="center" label="Action" >
+            <el-table-column prop="federatedSiteModelDos" align="center"  :label="$t('Action')" >
                 <template slot-scope="scope">
                     <el-button type="text" @click="toEditRow(scope.row)">
                         <i class="el-icon-edit"></i>
@@ -117,16 +109,17 @@
             </el-pagination>
         </div>
         <!-- 添加或编辑 -->
-        <el-dialog :visible.sync="editdialog" class="sys-edit-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+        <el-dialog :visible.sync="editdialog" class="sys-edit-dialog" width="540px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="dialog-title">
-                {{type}}
+                <span v-if="type==='Add'">{{$t('Add')}}</span>
+                <span v-else>{{$t('Edit')}}</span>
             </div>
             <div class="dialog-body">
-                <el-form label-position="left" ref="editform" class="edit-form" :rules="editRules"   label-width="190px"  :model="editFormData">
-                    <el-form-item label="product" prop="productName" >
+                <el-form label-position="left" ref="editform" class="edit-form" :rules="editRules"   label-width="203px"  :model="editFormData">
+                    <el-form-item label="Product" prop="productName" >
                         <span slot="label">
-                            <span>product</span>
-                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                            <i style="margin-right: 10px;" class="el-icon-star-on"></i>
+                            <span>{{$t('Product')}}</span>
                         </span>
                         <el-select class="version input-placeholder" v-model="editFormData.productName" placeholder=" ">
                             <el-option
@@ -139,25 +132,25 @@
                     </el-form-item>
                     <el-form-item label="Version" prop="productVersion" >
                         <span slot="label">
-                            <span>Version</span>
-                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                            <i style="margin-right: 10px;" class="el-icon-star-on"></i>
+                            <span>{{$t('Version')}}</span>
                         </span>
                         <el-input @focus="cancelValid('productVersion')" v-model="editFormData.productVersion"></el-input>
                     </el-form-item>
                     <el-form-item label="Kubernetes Chart Version" prop="kubernetesChart" >
                         <span slot="label">
-                            <span>Kubernetes Chart Version</span>
+                            <span>{{$t('Kubernetes Chart Version')}}</span>
                             <el-tooltip effect="dark" placement="top">
                                 <div style="font-size:12px" slot="content">
-                                    <div>Required when using k8s deployment</div>
+                                    <div>{{$t('Required when using k8s deployment')}}</div>
                                 </div>
-                                <i style="margin-left: 5px;" class="el-icon-info icon-info"></i>
+                                <i style="margin-right: 8px;" class="el-icon-info icon-info"></i>
                             </el-tooltip>
                         </span>
                         <el-input  v-model="editFormData.kubernetesChart"></el-input>
                     </el-form-item>
-                    <div class="title-body">
-                        <span>Component</span>
+                    <div class="title-body table-title">
+                        <span>{{$t('Component')}}</span>
                         <el-button type="text" @click="toAddComponent" icon="el-icon-circle-plus"></el-button>
                     </div>
                     <div class="content-body">
@@ -166,16 +159,17 @@
                             header-row-class-name="tableHead"
                             header-cell-class-name="tableHeadCell"
                             cell-class-name="tableCell"
+                            border="true"
                             height="100%">
-                            <el-table-column prop="componentName"  label="Name" show-overflow-tooltip>
+                            <el-table-column prop="componentName"  :label="$t('componentName')"  show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="componentVersion" align="center" label="Version"  show-overflow-tooltip>
+                            <el-table-column prop="componentVersion" align="center" :label="$t('Version')"   show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="imageRepository" align="center" label="Repository" show-overflow-tooltip>
+                            <el-table-column prop="imageRepository" align="center" :label="$t('Repository')" show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="imageTag" align="center" label="Tag" show-overflow-tooltip>
+                            <el-table-column prop="imageTag" align="center" :label="$t('Tag')"  show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="" align="center" label="Action">
+                            <el-table-column prop="" align="center" :label="$t('Action')">
                                 <template slot-scope="scope">
                                     <el-button type="text" @click="toeEditComponent(scope.row)">
                                         <i class="el-icon-edit"></i>
@@ -187,93 +181,98 @@
                             </el-table-column>
                         </el-table>
                     </div>
-
-                    <div class="componentWarn" v-if='componentWarn'>The field is required !</div>
+                    <div class="componentWarn" v-if='componentWarn'>{{$t('m.common.fieldRequired')}}</div>
                     <div class="componentWarn" v-else></div>
                     <div class="checked-box">
-                        <el-checkbox v-model="checkedImage">Image Download</el-checkbox>
+                        <el-checkbox v-model="checkedImage">{{$t('Image Download')}}</el-checkbox>
                     </div>
                     <el-form-item label="Download_name" prop="imageName" >
                         <span slot="label">
-                            <span>Download_name</span>
-                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                            <i style="margin-right: 8px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                            <span :class="{'label-not-active':!checkedImage}">{{$t('Download_name')}}</span>
                         </span>
                         <el-input @focus="cancelValid('imageName')" :disabled="!checkedImage" v-model="editFormData.imageName"></el-input>
                     </el-form-item>
                     <el-form-item label="Download_URL" prop="imageDownloadUrl" >
                         <span slot="label">
-                            <span>Download_URL</span>
-                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                            <i style="margin-right: 8px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedImage}"></i>
+                            <span :class="{'label-not-active':!checkedImage}">{{$t('Download_URL')}}</span>
                         </span>
                         <el-input @focus="cancelValid('imageDownloadUrl')" :disabled="!checkedImage" v-model="editFormData.imageDownloadUrl"></el-input>
                     </el-form-item>
                     <div class="checked-box">
-                        <el-checkbox v-model="checkedPackage">Package Download</el-checkbox>
+                        <el-checkbox v-model="checkedPackage">{{$t('Package Download')}}</el-checkbox>
                     </div>
                     <el-form-item label="Download_name" prop="packageName" >
                         <span slot="label">
-                            <span>Download_name</span>
-                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                            <i style="margin-right: 8px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                            <span :class="{'label-not-active':!checkedPackage}">{{$t('Download_name')}}</span>
                         </span>
                         <el-input @focus="cancelValid('packageName')" :disabled="!checkedPackage" v-model="editFormData.packageName"></el-input>
                     </el-form-item>
                     <el-form-item label="Download_URL" prop="packageDownloadUrl" >
                         <span slot="label">
-                            <span>Download_URL</span>
-                            <i style="margin-left: 3px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                            <i style="margin-right: 8px;" :class="{'el-icon-star-on':true,'star-not-active':!checkedPackage}"></i>
+                            <span :class="{'label-not-active':!checkedPackage}">{{$t('Download_URL')}}</span>
                         </span>
                         <el-input @focus="cancelValid('packageDownloadUrl')" :disabled="!checkedPackage" v-model="editFormData.packageDownloadUrl"></el-input>
                     </el-form-item>
                     <div class="title-body">
-                        <span>Publish_status</span>
-                        <el-switch style="margin-left: 78px;" v-model="editFormData.status"> </el-switch>
+                        <span>{{$t('Publish_status')}}</span>
+                        <el-switch class="switch"  v-model="editFormData.status"> </el-switch>
                     </div>
                 </el-form>
             </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="toSave">Save</el-button>
-                <el-button class="ok-btn" type="info" @click="tocancel">Cancel</el-button>
+                <el-button class="ok-btn" type="primary" @click="toSave">{{$t('m.common.save')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="tocancel">{{$t('m.common.cancel')}}</el-button>
             </div>
-            <el-dialog class="sys-edit-inner" width="600px" :visible.sync="componentVisible" append-to-body>
-                <el-form label-position="left" ref="editcomponentform" class="inner-form" :rules="editRules"   label-width="140px"  :model="tempEditComponent">
+            <el-dialog class="sys-edit-inner" width="400px" :visible.sync="componentVisible" append-to-body>
+                <el-form label-position="left" ref="editcomponentform" class="inner-form" :rules="editRules"   label-width="150px"  :model="tempEditComponent">
                     <div class="title-body">
-                        <span>Component</span>
+                        <span>{{$t('Component')}}</span>
                     </div>
-                    <el-form-item label="Component_Name" prop="componentName" >
-                        <span slot="label">
-                        <span>Component_Name</span>
-                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
-                        </span>
+                     <span class="form-label">
+                        <i style="margin-right: 10px;" class="el-icon-star-on"></i>
+                        <span>{{$t('Component_Name')}}</span>
+                    </span>
+                    <el-form-item  prop="componentName" >
                         <el-input @focus="cancelValid('componentName')"  v-model="tempEditComponent.componentName"></el-input>
                     </el-form-item>
-                    <el-form-item label="Component_Version" prop="componentVersion" >
-                        <span slot="label">
-                        <span>Component_Version</span>
-                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
-                        </span>
+                    <span class="form-label">
+                        <i style="margin-right: 10px;" class="el-icon-star-on"></i>
+                        <span>{{$t('Component_Version')}}</span>
+                    </span>
+                    <el-form-item prop="componentVersion" >
                         <el-input @focus="cancelValid('componentVersion')"  v-model="tempEditComponent.componentVersion"></el-input>
                     </el-form-item>
-                    <el-form-item label="Repository" prop="imageRepository" >
+                    <span class="form-label">
+                        <span>{{$t('Repository')}}</span>
+                    </span>
+                    <el-form-item prop="imageRepository" >
                         <el-input @focus="cancelValid('imageRepository')"  v-model="tempEditComponent.imageRepository"></el-input>
                     </el-form-item>
-                    <el-form-item label="Tag" prop="imageTag" >
+                    <span class="form-label">
+                        <span>{{$t('Tag')}}</span>
+                    </span>
+                    <el-form-item prop="imageTag" >
                         <el-input @focus="cancelValid('imageTag')"  v-model="tempEditComponent.imageTag"></el-input>
                     </el-form-item>
                 </el-form>
                 <div class="dialog-footer">
-                    <el-button class="ok-btn" type="primary" @click="toInnerOk">OK</el-button>
-                    <el-button class="ok-btn" type="info" @click="toInnerCancel">Cancel</el-button>
+                    <el-button class="ok-btn" type="primary" @click="toInnerOk">{{$t('m.common.OK')}}</el-button>
+                    <el-button class="ok-btn" type="info" @click="toInnerCancel">{{$t('m.common.cancel')}}</el-button>
                 </div>
             </el-dialog>
         </el-dialog>
         <!-- 确认删除 -->
         <el-dialog class="sys-delete" width="700px" :visible.sync="deleteVisible">
             <div class="title">
-                Are you sure you want to delete it ?
+                {{$t('Are you sure you want to delete it ?')}}
             </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="todelete">OK</el-button>
-                <el-button class="ok-btn" type="info" @click="deleteVisible = false">Cancel</el-button>
+                <el-button class="ok-btn" type="primary" @click="todelete">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="deleteVisible = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
     </div>
@@ -284,6 +283,67 @@ import { serviceManageList, addManageList, updateManageList, deleteManageList, g
 import { deepClone } from '@/utils/deepClone'
 import moment from 'moment'
 import { setTimeout } from 'timers'
+// 国际化
+const local = {
+    zh: {
+        'add': '添加',
+        'Add': '添加',
+        'Edit': '编辑',
+        'Product': '产品',
+        'Product_Version': '产品版本',
+        'Kubernetes Chart Version': 'Kubernetes版本',
+        'Component_Name': '服务组件名',
+        'Component_Version': '服务组件版本',
+        'Image Info.': '镜像信息',
+        'Repository': '仓库',
+        'Tag': '标签',
+        'Download_URL': '下载URL',
+        'Package Info.': '安装信息包',
+        'Publish_status': '发布状态',
+        'Action': '操作',
+        'Component': '服务组件',
+        'componentName': '组件名',
+        'Required when using k8s deployment': '使用K8S部署时需要',
+        'Image Download': '镜像下载',
+        'Download_name': '下载名称',
+        'Package Download': '安装包下载',
+        'Are you sure you want to delete it ?': '确认删除该服务吗?',
+        'Save': '确定',
+        'OK': '确定',
+        'Cancel': '取消',
+        'Version': '版本'
+
+    },
+    en: {
+        'add': 'add',
+        'Add': 'add',
+        'Edit': 'Edit',
+        'Product': 'Product',
+        'Product_Version': 'Version',
+        'Kubernetes Chart Version': 'Kubernetes Chart Version',
+        'Component_Name': 'Component_Name',
+        'Component_Version': 'Component_Version',
+        'Image Info.': 'Image Info.',
+        'Repository': 'Repository',
+        'Tag': 'Tag',
+        'Download_URL': 'Download_URL',
+        'Package Info.': 'Package Info.',
+        'Publish_status': 'Publish_status',
+        'Action': 'Action',
+        'Component': 'Component',
+        'componentName': 'Name',
+        'Required when using k8s deployment': 'Required when using k8s deployment',
+        'Image Download': 'Image Download',
+        'Download_name': 'Download_name',
+        'Package Download': 'Package Download',
+        'Are you sure you want to delete it ?': 'Are you sure you want to delete it ?',
+        'Save': 'Save',
+        'OK': 'OK',
+        'Cancel': 'Cancel',
+        'Version': 'Version'
+
+    }
+}
 
 export default {
     name: 'PartyId',
@@ -323,38 +383,38 @@ export default {
             componentWarn: false,
             componentType: 'add',
             editRules: {
-                productName: [{ required: true, message: 'The field is required !', trigger: 'change' }],
+                productName: [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }],
                 productVersion: [{
                     required: true,
                     trigger: 'change',
                     validator: (rule, value, callback) => {
                         let versionReg = new RegExp(/^\d(\.\d+)+$/)
                         if (!value) {
-                            callback(new Error('The field is required !'))
+                            callback(new Error(this.$t('m.common.fieldRequired')))
                         } else if (!versionReg.test(value)) {
-                            callback(new Error('Please enter the correct version!'))
+                            callback(new Error(this.$t('m.system.versionInvalid')))
                         } else {
                             callback()
                         }
                     }
                 }],
-                componentName: [{ required: true, message: 'The field is required !', trigger: 'change' }],
+                componentName: [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }],
                 componentVersion: [{
                     required: true,
                     trigger: 'blur',
                     validator: (rule, value, callback) => {
                         let versionReg = new RegExp(/^\d(\.\d+)+$/)
                         if (!value) {
-                            callback(new Error('The field is required !'))
+                            callback(new Error(this.$t('m.common.fieldRequired')))
                         } else if (!versionReg.test(value)) {
-                            callback(new Error('Please enter the correct version!'))
+                            callback(new Error(this.$t('m.common.correctVersion')))
                         } else {
                             callback()
                         }
                     }
                 }]
-                // imageRepository: [{ required: true, message: 'The field is required !', trigger: 'change' }],
-                // imageTag: [{ required: true, message: 'The field is required !', trigger: 'change' }]
+                // imageRepository: [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }],
+                // imageTag: [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }]
             }
         }
     },
@@ -362,8 +422,8 @@ export default {
         checkedImage: {
             handler(newVal) {
                 if (newVal) {
-                    this.editRules.imageName = [{ required: true, message: 'The field is required !', trigger: 'change' }]
-                    this.editRules.imageDownloadUrl = [{ required: true, message: 'The field is required !', trigger: 'change' }]
+                    this.editRules.imageName = [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }]
+                    this.editRules.imageDownloadUrl = [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }]
                 } else {
                     delete this.editRules.imageName
                     delete this.editRules.imageDownloadUrl
@@ -373,8 +433,8 @@ export default {
         checkedPackage: {
             handler(newVal) {
                 if (newVal) {
-                    this.editRules.packageName = [{ required: true, message: 'The field is required !', trigger: 'change' }]
-                    this.editRules.packageDownloadUrl = [{ required: true, message: 'The field is required !', trigger: 'change' }]
+                    this.editRules.packageName = [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }]
+                    this.editRules.packageDownloadUrl = [{ required: true, message: this.$t('m.common.fieldRequired'), trigger: 'change' }]
                 } else {
                     delete this.editRules.packageName
                     delete this.editRules.packageDownloadUrl
@@ -385,6 +445,8 @@ export default {
     },
     created() {
         this.initList()
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     mounted() {
 
@@ -412,15 +474,9 @@ export default {
             this.togetSelect()
         },
         togetSelect() {
-            this.productSelect = [{
-                value: '',
-                label: 'product'
-            }]
+            this.productSelect = []
             this.productName = []
-            this.versionSelect = [{
-                value: '',
-                label: 'FATE_Version'
-            }]
+            this.versionSelect = []
             getSelect().then(res => {
                 res.data.productNameList.forEach(item => {
                     let obj = {}
