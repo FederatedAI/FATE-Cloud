@@ -46,7 +46,7 @@ def add_user():
     request_data = request.json
     token = request.headers.get("token")
     detect_utils.check_config(config=request_data, required_arguments=["userId", "userName", "roleId",
-                                                                       "creator", "permissionList"])
+                                                                       "creator", "permissionList", "siteName"])
     data = user_service.add_user(request_data, token)
     return get_json_result(data=data)
 

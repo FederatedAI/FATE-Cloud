@@ -95,6 +95,7 @@ class AccountSiteInfo(DataBaseModel):
     user_name = CharField(max_length=50, null=True, help_text='user name')
     fate_manager_id = CharField(max_length=50, null=True, help_text='fate manager id')
     party_id = IntegerField(null=True, help_text='party id', default=0)
+    site_name = CharField(max_length=50, null=True, help_text='site name')
 
     class Meta:
         db_table = "t_fate_account_site_info"

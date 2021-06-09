@@ -50,9 +50,15 @@ class CountJob:
         for site in apply_site_list:
             other_institutions[str(site.party_id)] = site.institutions
         synchronization_job_list = []
+        job_id_list = []
         for job in job_list:
             try:
+                if job.get("f_job_id") in job_id_list:
+                    continue
+                if not CountJob.check_roles(job.get("f_roles")):
+                    continue
                 site_job = CountJob.save_site_job_item(job, party_id, other_institutions, site_name, account)
+                job_id_list.append(site_job.job_id)
                 site_job.job_info = None
                 site_job.create_date = None
                 site_job.update_date = None
@@ -79,6 +85,11 @@ class CountJob:
                 piece += 1
         except Exception as e:
             request_cloud_logger.exception(e)
+
+    @staticmethod
+    def check_roles(roles):
+        return True
+
 
     @staticmethod
     def save_site_job_item(job, party_id, other_institutions, site_name, account):

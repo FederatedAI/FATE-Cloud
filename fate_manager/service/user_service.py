@@ -49,12 +49,12 @@ def get_user_access_list(request_data):
     logger.info(f"account list: {account_list}")
     if request_data.get("partyId"):
         account_site_list = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data.get("partyId")})
-        if not account_site_list:
-            account_list = []
-        account_site = account_site_list[0]
-        for account in account_list:
-            if account.user_name == account_site.user_name and account.fate_manager_id == account_site.fate_manager_id:
-                account_list = [account]
+        account_list_temp = []
+        for account_site in account_site_list:
+            for account in account_list:
+                if account.user_name == account_site.user_name and account.fate_manager_id == account_site.fate_manager_id:
+                    account_list_temp.append(account)
+        account_list = account_list_temp
     data = []
     for account in account_list:
         permission_pair_list = []
@@ -63,10 +63,12 @@ def get_user_access_list(request_data):
                 "permissionId": int(permission_id),
                 "permissionName": PermissionType.to_str(int(permission_id))
             })
+        account_site_list = DBOperator.query_entity(AccountSiteInfo, **{"user_name": account.user_name})
+        account_site = account_site_list[0] if account_site_list else None
         user_access_list_item = {
             "userId": "",
             "userName": account.user_name,
-            "site": item.SitePair(partyId=request_data.get("partyId"), siteName=account.site_name).to_dict(),
+            "site": item.SitePair(partyId=account_site.party_id, siteName=account_site.site_name).to_dict() if account_site else {},
             "role": item.Role(roleId=account.role, roleName=UserRole.to_str(account.role)).to_dict(),
             "cloudUser": True if account.fate_manager_id else False,
             "permissionList": permission_pair_list,
@@ -109,7 +111,8 @@ def add_user(request_data, token):
         account_site_info = {
             "party_id": request_data.get("partyId", 0),
             "user_name": request_data.get("userName", ""),
-            "fate_manager_id": request_account.fate_manager_id
+            "fate_manager_id": request_account.fate_manager_id,
+            "site_name": request_data.get("siteName")
         }
         DBOperator.create_entity(AccountSiteInfo, account_site_info)
 
