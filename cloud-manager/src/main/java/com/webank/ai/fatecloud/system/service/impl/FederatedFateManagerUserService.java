@@ -271,7 +271,7 @@ public class FederatedFateManagerUserService {
             return false;
         }
         String registrationLink = federatedFateManagerUserDo1.getRegistrationLink();
-        registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+//        registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
 
         if (!linkeInput.equals(registrationLink)) {
             log.error("linkeInput     :{}",linkeInput);
