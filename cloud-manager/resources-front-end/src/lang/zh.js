@@ -198,7 +198,7 @@ export const m = {
         'routerNetworkAccess': '路由网关',
         'rollsiteNetworkAccess': 'Rollsite网关',
         'isSecure': '加密传输',
-        'isPolling': '轮询',
+        'isPolling': '单向模式',
         'sureWantSaveExchange': '确定要保存这个Exchange吗?',
         'updateToServer': '站点网络访问信息也将更新到服务器。',
         'addRollsite': '添加Rollsite',
