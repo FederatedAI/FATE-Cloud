@@ -98,5 +98,11 @@ public class FederatedFateManagerUserController {
 
     }
 
+    @PostMapping(value = "/institutions/all")
+    @ApiOperation(value = "all institutions including not activated")
+    public CommonResponse<List<String>> findAllInstitutions() {
+        return federatedFateManagerUserServiceFacade.findAllInstitutions();
+
+    }
 
 }
