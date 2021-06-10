@@ -85,6 +85,7 @@ class AccountInfo(DataBaseModel):
     block_msg = ListField(null=True, help_text='function block')
     permission_list = ListField(null=True, help_text='permission list')
     allow_instituions = ListField(null=True, help_text='allow other fate manager to apply')
+    cloud_user = IntegerField(default=0, help_text='0 no, 1 yes')
 
     class Meta:
         db_table = "t_fate_account_info"
@@ -95,16 +96,17 @@ class AccountSiteInfo(DataBaseModel):
     user_name = CharField(max_length=50, null=True, help_text='user name')
     fate_manager_id = CharField(max_length=50, null=True, help_text='fate manager id')
     party_id = IntegerField(null=True, help_text='party id', default=0)
+    site_name = CharField(max_length=50, null=True, help_text='site name')
 
     class Meta:
         db_table = "t_fate_account_site_info"
-        primary_key = CompositeKey("user_name", "fate_manager_id", "party_id")
+        primary_key = CompositeKey("user_name", "fate_manager_id")
 
 
 class ApplyInstitutionsInfo(DataBaseModel):
     institutions = CharField(max_length=50, help_text='institutions dict', primary_key=True)
     status = IntegerField(default=0)
-    read_status = IntegerField(default=0, help_text='user status 0 unvalid，1 valid')
+    read_status = IntegerField(default=1, help_text='user status 0 unvalid，1 valid')
 
     class Meta:
         db_table = "t_fate_apply_institutions_info"
