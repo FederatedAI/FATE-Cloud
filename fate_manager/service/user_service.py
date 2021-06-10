@@ -70,7 +70,7 @@ def get_user_access_list(request_data):
             "userName": account.user_name,
             "site": item.SitePair(partyId=account_site.party_id, siteName=account_site.site_name).to_dict() if account_site else {},
             "role": item.Role(roleId=account.role, roleName=UserRole.to_str(account.role)).to_dict(),
-            "cloudUser": True if account.fate_manager_id else False,
+            "cloudUser": True if account.cloud_user else False,
             "permissionList": permission_pair_list,
             "creator": account.creator,
             "createTime": account.create_time
@@ -122,16 +122,13 @@ def delete_user(token, request_data):
     if not token_info_list:
         raise Exception(UserStatusCode.NoFoundToken, f"no found token: {token}")
     token_info = token_info_list[0]
-    account_info = {"user_id": request_data.get("userId"),
-                    "user_name": request_data.get("UserName"),
-                    "site_name": request_data.get("siteName"),
-                    "status": IsValidType.YES}
+    account_info = {"user_name": request_data.get("userName")}
     account_info_list = DBOperator.query_entity(AccountInfo, **account_info)
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundUser, "no found user")
     account = account_info_list[0]
     if account.role == UserRole.ADMIN and account.fate_manager_id:
-        raise Exception(UserStatusCode.DeleteUserFailed, f"Admin {request_data.get('UserName')} Could Not Be Delete")
+        raise Exception(UserStatusCode.DeleteUserFailed, f"Admin {request_data.get('userName')} Could Not Be Delete")
     if account.user_name == token_info.user_name:
         raise Exception(UserStatusCode.DeleteUserFailed, "Could Not Be Delete Self")
     account_info["status"] = IsValidType.NO
@@ -161,7 +158,20 @@ def edit_user(request_data):
         "permission_list": request_data.get("permissionList"),
         "update_time": current_timestamp()
     }
+    logger.info(f"update accont info: {account_info}")
     DBOperator.update_entity(AccountInfo, account_info)
+    if request_data.get("roleId") == UserRole.BUSINESS and request_data.get("partyId"):
+        account_site_info = {"user_name": request_data.get("userName"),
+                             "fate_manager_id": account.fate_manager_id,
+                             "party_id": request_data.get("partyId"),
+                             "site_name": request_data.get("siteName")}
+        logger.info(f"save account info: {account_site_info}")
+        DBOperator.safe_save(AccountSiteInfo, )
+    else:
+        try:
+            DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
+        except:
+            logger.info("account no found site")
 
 
 def get_user_site_list():

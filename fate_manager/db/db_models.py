@@ -85,6 +85,7 @@ class AccountInfo(DataBaseModel):
     block_msg = ListField(null=True, help_text='function block')
     permission_list = ListField(null=True, help_text='permission list')
     allow_instituions = ListField(null=True, help_text='allow other fate manager to apply')
+    cloud_user = IntegerField(default=0, help_text='0 no, 1 yes')
 
     class Meta:
         db_table = "t_fate_account_info"
@@ -99,7 +100,7 @@ class AccountSiteInfo(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_account_site_info"
-        primary_key = CompositeKey("user_name", "fate_manager_id", "party_id")
+        primary_key = CompositeKey("user_name", "fate_manager_id")
 
 
 class ApplyInstitutionsInfo(DataBaseModel):

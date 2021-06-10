@@ -55,8 +55,7 @@ def add_user():
 @check_token
 def delete_user():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["userId", "userName", "siteName", "institution",
-                                                                       "partyId"])
+    detect_utils.check_config(config=request_data, required_arguments=["userName"])
     token = request.headers.get("token")
     user_service.delete_user(token, request_data)
     return get_json_result()
@@ -66,8 +65,6 @@ def delete_user():
 @check_token
 def edit_user():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["oldPartyId", "oldRoleId", "roleId", "partyId",
-                                                                       "permissionList", "siteName", "userId", "userName"])
     user_service.edit_user(request_data)
     return get_json_result()
 

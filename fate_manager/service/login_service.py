@@ -35,6 +35,7 @@ def fate_manager_activate(request_data):
     request_info["role"] = UserRole.ADMIN
     request_info["active_url"] = request_info["activate_url"]
     request_info["status"] = IsValidType.YES
+    request_info["cloud_user"] = 1
     logger.info(f'create account info: {request_info}')
     DBOperator.create_entity(AccountInfo, request_info)
 
