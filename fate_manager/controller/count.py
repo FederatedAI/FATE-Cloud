@@ -4,7 +4,7 @@ import time
 
 from fate_manager.db.db_models import DeployComponent, FateSiteInfo, FateSiteCount, FateSiteJobInfo, ApplySiteInfo
 from fate_manager.entity import item
-from fate_manager.entity.types import SiteStatusType
+from fate_manager.entity.types import SiteStatusType, FateJobEndStatus
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import FATE_FLOW_SETTINGS, request_flow_logger, request_cloud_logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
@@ -104,7 +104,7 @@ class CountJob:
         site_job.job_end_time = job.get("f_end_time")
         site_job.roles = job.get("f_roles")
         site_job.job_type = CountJob.get_job_type(job.get("f_dsl"))
-        site_job.status = job.get("f_status")
+        site_job.status = FateJobEndStatus.end_status(job.get("f_status"))
         site_job.job_create_day = job.get("f_job_id")[:8]
         site_job.job_create_day_date = datetime.datetime.strptime(site_job.job_create_day, "%Y%m%d")
 
