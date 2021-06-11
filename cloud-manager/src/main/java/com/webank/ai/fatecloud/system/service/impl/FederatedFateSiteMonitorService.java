@@ -410,14 +410,20 @@ public class FederatedFateSiteMonitorService {
 
     }
 
-    public MonitorSiteDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+    public MonitorSiteDto getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) throws ParseException {
         String institutions = jobOfSiteDimensionPeriodQo.getInstitutions();
         Date beginDate = jobOfSiteDimensionPeriodQo.getBeginDate();
         Date endDate = jobOfSiteDimensionPeriodQo.getEndDate();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String bd = sdf.format(beginDate);
+        beginDate = sdf.parse(bd);
+        String ed = sdf.format(endDate);
+        endDate = sdf.parse(ed);
+
         //get table site columns
         QueryWrapper<FateSiteJobDetailDo> fateSiteJobDetailDoEw = new QueryWrapper<>();
-        fateSiteJobDetailDoEw.select("detail_site_name").eq("detail_institutions", institutions).between("detail_job_create_day_date", beginDate, endDate).groupBy("detail_site_name").orderByAsc("detail_site_name");
+        fateSiteJobDetailDoEw.select("detail_site_name").eq("detail_institutions", institutions).between("detail_job_create_day_date", bd, ed).groupBy("detail_site_name").orderByAsc("detail_site_name");
         List<FateSiteJobDetailDo> fateSiteJobDetailDos = fateSiteDetailMapper.selectList(fateSiteJobDetailDoEw);
         HashSet<String> sites = new HashSet<>();
         for (FateSiteJobDetailDo fateSiteJobDetailDo : fateSiteJobDetailDos) {
