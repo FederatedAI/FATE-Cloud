@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.pojo.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedFunctionDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -34,6 +35,7 @@ public class FunctionStatusDto implements Serializable {
         this.functionId = federatedFunctionDo.getFunctionId();
         this.functionName = federatedFunctionDo.getFunctionName();
         this.status = federatedFunctionDo.getStatus();
+        this.descriptions = federatedFunctionDo.getDescriptions();
     }
 
     @ApiModelProperty(value = "primary key")
@@ -44,4 +46,7 @@ public class FunctionStatusDto implements Serializable {
 
     @ApiModelProperty(value = "function status")
     private Integer status;
+
+    @ApiModelProperty(value = "descriptions")
+    private String descriptions;
 }

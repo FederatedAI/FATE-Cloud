@@ -39,6 +39,9 @@ public class FateManagerUserUpdateQo implements Serializable {
     @ApiModelProperty("protocol type")
     private String protocol;
 
+    @ApiModelProperty("network")
+    private String network;
+
     @ApiModelProperty(value = "primary key")
     private String fateManagerId;
 }

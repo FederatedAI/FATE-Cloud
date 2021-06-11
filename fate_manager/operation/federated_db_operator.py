@@ -5,7 +5,7 @@ from peewee import JOIN
 from fate_manager.db.db_models import DB, FederatedInfo, FateSiteInfo, AccountInfo, ApplyInstitutionsInfo, FateUserInfo, ChangeLog, \
     FateSiteJobInfo
 from fate_manager.entity.status_code import UserStatusCode
-from fate_manager.entity.types import UserRole, IsValidType
+from fate_manager.entity.types import UserRole, IsValidType, LogDealType
 from fate_manager.operation.db_operator import DBOperator
 
 
@@ -36,14 +36,7 @@ def get_home_site():
 
 @DB.connection_context()
 def get_no_deal_list():
-    change_log_list = ChangeLog.select(ChangeLog.federated_id, ChangeLog.party_id, FateSiteInfo.app_key,
-                                       ChangeLog.case_id, FateSiteInfo.app_secret, ChangeLog.status,
-                                       FateSiteInfo.role, ChangeLog.network_access_entrances,
-                                       ChangeLog.network_access_exits).join(FateSiteInfo, join_type=JOIN.LEFT_OUTER,
-                                                                            on=(
-                                                                            ChangeLog.party_id == FateSiteInfo.party_id,
-                                                                            ChangeLog.federated_id == FateSiteInfo.federated_id)).where(
-        ChangeLog.status == 0)
+    change_log_list = ChangeLog.select().where(ChangeLog.status == LogDealType.NO)
     return [change_log for change_log in change_log_list]
 
 

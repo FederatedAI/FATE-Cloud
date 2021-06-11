@@ -49,12 +49,12 @@ def get_user_access_list(request_data):
     logger.info(f"account list: {account_list}")
     if request_data.get("partyId"):
         account_site_list = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data.get("partyId")})
-        if not account_site_list:
-            account_list = []
-        account_site = account_site_list[0]
-        for account in account_list:
-            if account.user_name == account_site.user_name and account.fate_manager_id == account_site.fate_manager_id:
-                account_list = [account]
+        account_list_temp = []
+        for account_site in account_site_list:
+            for account in account_list:
+                if account.user_name == account_site.user_name and account.fate_manager_id == account_site.fate_manager_id:
+                    account_list_temp.append(account)
+        account_list = account_list_temp
     data = []
     for account in account_list:
         permission_pair_list = []
@@ -63,12 +63,14 @@ def get_user_access_list(request_data):
                 "permissionId": int(permission_id),
                 "permissionName": PermissionType.to_str(int(permission_id))
             })
+        account_site_list = DBOperator.query_entity(AccountSiteInfo, **{"user_name": account.user_name})
+        account_site = account_site_list[0] if account_site_list else None
         user_access_list_item = {
             "userId": "",
             "userName": account.user_name,
-            "site": item.SitePair(partyId=request_data.get("partyId"), siteName=account.site_name).to_dict(),
+            "site": item.SitePair(partyId=account_site.party_id, siteName=account_site.site_name).to_dict() if account_site else {},
             "role": item.Role(roleId=account.role, roleName=UserRole.to_str(account.role)).to_dict(),
-            "cloudUser": True if account.fate_manager_id else False,
+            "cloudUser": True if account.cloud_user else False,
             "permissionList": permission_pair_list,
             "creator": account.creator,
             "createTime": account.create_time
@@ -109,7 +111,8 @@ def add_user(request_data, token):
         account_site_info = {
             "party_id": request_data.get("partyId", 0),
             "user_name": request_data.get("userName", ""),
-            "fate_manager_id": request_account.fate_manager_id
+            "fate_manager_id": request_account.fate_manager_id,
+            "site_name": request_data.get("siteName")
         }
         DBOperator.create_entity(AccountSiteInfo, account_site_info)
 
@@ -119,16 +122,13 @@ def delete_user(token, request_data):
     if not token_info_list:
         raise Exception(UserStatusCode.NoFoundToken, f"no found token: {token}")
     token_info = token_info_list[0]
-    account_info = {"user_id": request_data.get("userId"),
-                    "user_name": request_data.get("UserName"),
-                    "site_name": request_data.get("siteName"),
-                    "status": IsValidType.YES}
+    account_info = {"user_name": request_data.get("userName")}
     account_info_list = DBOperator.query_entity(AccountInfo, **account_info)
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundUser, "no found user")
     account = account_info_list[0]
     if account.role == UserRole.ADMIN and account.fate_manager_id:
-        raise Exception(UserStatusCode.DeleteUserFailed, f"Admin {request_data.get('UserName')} Could Not Be Delete")
+        raise Exception(UserStatusCode.DeleteUserFailed, f"Admin {request_data.get('userName')} Could Not Be Delete")
     if account.user_name == token_info.user_name:
         raise Exception(UserStatusCode.DeleteUserFailed, "Could Not Be Delete Self")
     account_info["status"] = IsValidType.NO
@@ -158,7 +158,20 @@ def edit_user(request_data):
         "permission_list": request_data.get("permissionList"),
         "update_time": current_timestamp()
     }
+    logger.info(f"update accont info: {account_info}")
     DBOperator.update_entity(AccountInfo, account_info)
+    if request_data.get("roleId") == UserRole.BUSINESS and request_data.get("partyId"):
+        account_site_info = {"user_name": request_data.get("userName"),
+                             "fate_manager_id": account.fate_manager_id,
+                             "party_id": request_data.get("partyId"),
+                             "site_name": request_data.get("siteName")}
+        logger.info(f"save account info: {account_site_info}")
+        DBOperator.safe_save(AccountSiteInfo, )
+    else:
+        try:
+            DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
+        except:
+            logger.info("account no found site")
 
 
 def get_user_site_list():
@@ -173,25 +186,18 @@ def get_user_site_list():
 
 
 def get_site_info_user_list(request_data):
-    account_site_info = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data.get("partyId")})
-    if not account_site_info:
-        raise Exception(UserStatusCode.NoFoundPartyId, f"no found party id{request_data.get('partyId')}")
-
-    account_info_list = DBOperator.query_entity(AccountInfo, **{"user_name": account_site_info[0].user_name,
-                                                                "fate_manager_id": account_site_info[0].fate_manager_id,
-                                                                "status": IsValidType.YES})
-    if not account_info_list:
-        raise Exception(UserStatusCode.NoFoundAccount, f"no found account by status {IsValidType.YES}")
+    user_info_list = DBOperator.query_entity(AccountSiteInfo, **{"party_id": request_data["partyId"]})
     data = []
-    for account in account_info_list:
-        permission_list = account.permission_list
+    for account in user_info_list:
+        account_info = DBOperator.query_entity(AccountInfo, **{"user_name": account.user_name})[0]
+        permission_list = account_info.permission_list
         permission_str = ""
         for permission in permission_list:
             permission_name = PermissionType.to_str(int(permission))
             permission_str += permission_name + ";"
         data.append({
-            "userName": account.user_name,
-            "role": UserRole.to_str(account.role),
+            "userName": account_info.user_name,
+            "role": UserRole.to_str(account_info.role),
             "permission": permission_str
         })
     return data

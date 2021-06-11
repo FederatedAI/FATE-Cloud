@@ -114,6 +114,18 @@ public class FederatedSiteManagerDo  implements Serializable {
     @TableField(value = "last_detective_time")
     private Date lastDetectiveTime;
 
+    @ApiModelProperty(value = "internet protocol")
+    @TableField(value = "protocol")
+    private String protocol;
+
+    @ApiModelProperty(value = "network of cloud manager")
+    @TableField(value = "network")
+    private String network;
+
+    @ApiModelProperty(value = "encrypt type")
+    @TableField(value = "encrypt_type")
+    private Integer encryptType;
+
     @ApiModelProperty(value = "party id  group")
     @TableField(value = "group_id")
     private Long groupId;

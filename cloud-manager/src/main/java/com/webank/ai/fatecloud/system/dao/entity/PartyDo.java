@@ -67,6 +67,10 @@ public class PartyDo implements Serializable {
     @TableField(value = "update_time")
     private Date updateTime;
 
+    @ApiModelProperty(value = "valid time")
+    @TableField(value = "valid_time")
+    private Date validTime;
+
     @ApiModelProperty(value = "roll site  id")
     @TableId(value = "roll_site_id")
     private Long rollSiteId;

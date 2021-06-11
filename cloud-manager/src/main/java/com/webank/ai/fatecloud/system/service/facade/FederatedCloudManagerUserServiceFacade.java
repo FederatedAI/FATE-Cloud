@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Service
@@ -79,7 +80,7 @@ public class FederatedCloudManagerUserServiceFacade {
 
     }
 
-    public CommonResponse<FederatedCloudManagerUserDo> loginCloudManagerUser(CloudManagerUserLoginQo cloudManagerUserLoginQo, HttpSession httpSession) {
+    public CommonResponse<FederatedCloudManagerUserDo> loginCloudManagerUser(CloudManagerUserLoginQo cloudManagerUserLoginQo, HttpServletRequest httpServletRequest) {
 
         boolean originUserResult = federatedCloudManagerOriginUserServiceInterface.checkFederatedCloudManagerOriginUser(cloudManagerUserLoginQo.getName(), cloudManagerUserLoginQo.getPassword());
         if (!originUserResult) {
@@ -90,15 +91,17 @@ public class FederatedCloudManagerUserServiceFacade {
         FederatedCloudManagerUserDo federatedCloudManagerUserDo = federatedCloudManagerUserService.loginCloudManagerUser(cloudManagerUserLoginQo);
 
         if (federatedCloudManagerUserDo != null) {
-            httpSession.setAttribute(Dict.CLOUD_USER, federatedCloudManagerUserDo);
+            HttpSession session = httpServletRequest.getSession();
+            session.setAttribute(Dict.CLOUD_USER, federatedCloudManagerUserDo);
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS, federatedCloudManagerUserDo);
         }
         return new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_AUTHORITY_ERROR);
 
     }
 
-    public CommonResponse logoutCloudManagerUser(HttpSession httpSession) {
-        httpSession.invalidate();
+    public CommonResponse logoutCloudManagerUser(HttpServletRequest httpServletRequest) {
+        HttpSession session = httpServletRequest.getSession();
+        session.invalidate();
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 
     }

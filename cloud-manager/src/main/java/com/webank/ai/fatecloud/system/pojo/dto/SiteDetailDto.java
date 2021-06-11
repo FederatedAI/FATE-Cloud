@@ -17,6 +17,7 @@ package com.webank.ai.fatecloud.system.pojo.dto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.webank.ai.fatecloud.common.SecretInfo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import io.swagger.annotations.ApiModel;
@@ -49,7 +50,10 @@ public class SiteDetailDto implements Serializable {
         this.fateServingVersion = federatedSiteManagerDo.getFateServingVersion();
         this.componentVersion = federatedSiteManagerDo.getComponentVersion();
         this.status = federatedSiteManagerDo.getStatus();
-        this.detectiveStatus=federatedSiteManagerDo.getDetectiveStatus();
+        this.detectiveStatus = federatedSiteManagerDo.getDetectiveStatus();
+        this.network = federatedSiteManagerDo.getNetwork();
+        this.protocol = federatedSiteManagerDo.getProtocol();
+        this.encryptType=federatedSiteManagerDo.getEncryptType();
         if (federatedSiteManagerDo.getCreateTime() != null) {
             this.createTime = federatedSiteManagerDo.getCreateTime().getTime();
         }
@@ -105,6 +109,12 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "site status,1 not joined,2 joined,3 removed")
     private Integer status;
 
+    @ApiModelProperty(value = "protocol")
+    private String protocol;
+
+    @ApiModelProperty(value = "network")
+    private String network;
+
     @ApiModelProperty(value = "create time")
     private Long createTime;
 
@@ -125,4 +135,7 @@ public class SiteDetailDto implements Serializable {
 
     @ApiModelProperty(value = "site detective status")
     private Integer detectiveStatus;
+
+    @ApiModelProperty(value = "encrypt type")
+    private Integer encryptType;
 }
