@@ -181,7 +181,8 @@ export default {
             paramsData: {
                 functionId: '',
                 status: ''
-            }
+            },
+            functionIdObj: {}
         }
     },
     created() {
@@ -198,10 +199,12 @@ export default {
                     if (item.functionName === 'Auto-Deploy') {
                         this.autostatus = item.status === 1
                         this.$store.dispatch('Getautostatus', this.autostatus)
+                        this.functionIdObj['auto'] = item.functionId
                     }
                     if (item.functionName === 'Site-Authorization') {
                         this.sitestatus = item.status === 1
                         this.$store.dispatch('Getsitestatus', this.sitestatus)
+                        this.functionIdObj['site'] = item.functionId
                         if (item.descriptions) {
                             this.descriptions = item.descriptions
                         } else {
@@ -209,6 +212,7 @@ export default {
                         }
                     }
                 })
+                console.log(this.functionIdObj, 'functionIdObj')
             })
         },
         // 确定改变状态
@@ -252,8 +256,9 @@ export default {
             this.typedialog = type
             this.status = ''
             this.switchVisible = true // 弹框
+            this.paramsData.functionId = this.functionIdObj[type]
+            console.log(this.functionIdObj, 'paramsData')
             if (type === 'auto') {
-                this.paramsData.functionId = 1
                 if (this.autostatus) {
                     this.paramsData.status = 1
                     this.status = 'on'
@@ -268,7 +273,6 @@ export default {
                     this.itmeline = 'automatic deployment and upgrade will not'
                 }
             } else if (type === 'site') {
-                this.paramsData.functionId = 2
                 if (this.sitestatus) {
                     this.paramsData.status = 1
                     this.status = 'on'

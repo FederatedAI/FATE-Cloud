@@ -23,14 +23,16 @@
             // width: 200px;
             font-size: 14px;
             color: #848C99;
+            // margin-left: 10px;
         }
         .site-title{
             float: right;
         }
-        .sitt-tiem-view{
+        .site-tiem-view{
             font-size: 14px;
             color: #217AD9;
             cursor: pointer;
+            // margin-right: 10px;
         }
     }
     .sitemanage-box {
@@ -91,6 +93,7 @@
                 font-size: 14px;
                 color: #B8BFCC;
                 text-align: right;
+                margin-right: 10px;
             }
         }
         .site-name{
@@ -174,12 +177,17 @@
                 font-size: 32px;
                 color: #217AD9;
                 font-weight: bold;
-                margin-bottom: 48px
+                margin-bottom: 36px
             }
             .line-text-one{
                 font-size: 18px;
                 color: #2D3642;
-                line-height: 36px;
+                line-height: 32px;
+            }
+            .line-text-gray{
+                font-size: 14px;
+                color: #848C99;
+                margin-top: 15px;
             }
             .dialog-main{
                 padding: 12px 24px;

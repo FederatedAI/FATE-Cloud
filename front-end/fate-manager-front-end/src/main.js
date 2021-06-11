@@ -3,6 +3,7 @@ import ECharts from 'vue-echarts'
 import 'echarts'
 import i18n from './lang'
 import ElementUI from 'element-ui'
+import singleMessageCell from './message'
 import '@/styles/theme/index.css'
 import '@/styles/index.scss'
 import '@/styles/loading.scss'
@@ -12,6 +13,7 @@ import store from './store'
 import router from './router'
 import waterfall from 'vue-waterfall2'
 import * as _filter from './filters/filter'
+import map from '@/utils/map'
 import '@/icons' // icon
 
 import '@/permission' // permission control
@@ -44,6 +46,9 @@ Vue.use(ElementUI, {
 // Vue.component('my-tooltip', Tooltip)
 // Vue.component('v-chart', ECharts)// 全局使用
 Vue.config.productionTip = false
+Vue.prototype.$message = singleMessageCell
+Vue.prototype.$Map = map
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',

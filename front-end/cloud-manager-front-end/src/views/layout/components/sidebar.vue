@@ -112,16 +112,18 @@ export default {
     },
     methods: {
         init() {
-            switchState().then(res => {
-                res.data.forEach(item => {
-                    if (item.functionName === 'Auto-Deploy') {
-                        this.$store.dispatch('Getautostatus', item.status === 1)
-                    }
-                    if (item.functionName === 'Site-Authorization') {
-                        this.$store.dispatch('Getsitestatus', item.status === 1)
-                    }
+            if (this.active !== 'System Function Switch') {
+                switchState().then(res => {
+                    res.data.forEach(item => {
+                        if (item.functionName === 'Auto-Deploy') {
+                            this.$store.dispatch('Getautostatus', item.status === 1)
+                        }
+                        if (item.functionName === 'Site-Authorization') {
+                            this.$store.dispatch('Getsitestatus', item.status === 1)
+                        }
+                    })
                 })
-            })
+            }
         },
         handleOpen(key, keyPath) {
 

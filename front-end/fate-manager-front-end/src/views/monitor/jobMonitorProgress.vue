@@ -14,7 +14,6 @@
 
 import store from '@/store'
 import { getCookie } from '@/utils/auth'
-
 // 国际化
 const local = {
     zh: {
@@ -61,7 +60,7 @@ export default {
             },
             chartExtend: {
                 tooltip: {
-                    trigger: 'axis',
+                    trigger: 'item',
                     triggerOn: 'mousemove|click',
                     axisPointer: { type: 'none' },
                     backgroundColor: 'rgba(45, 54, 66, .8)',
@@ -71,9 +70,16 @@ export default {
                         fontSize: 12
                     },
                     formatter: function (params, ticket, callback) {
-                        let total = params[1].value * 1 + params[2].value * 1
-                        let success = total === 0 ? 0 : (params[2].value / total).toFixed(1) * 100
-                        let failed = total === 0 ? 0 : (params[1].value / total).toFixed(1) * 100
+                        // if (params.componentIndex !== 3) {
+                        console.log(arguments, 'arg')
+                        console.log(self.chartData, 'chartData')
+                        let data = self.chartData
+                        let index = params.dataIndex
+                        let success = data.success[index] * 1
+                        let failed = data.failed[index] * 1
+                        let total = success + failed
+                        let successPer = total === 0 ? 0 : (success / total).toFixed(1) * 100
+                        let failedPer = total === 0 ? 0 : (failed / total).toFixed(1) * 100
                         return `<div style="margin-bottom:10px;text-align:left">
                                     <span style="
                                     display:inline-block;
@@ -81,8 +87,8 @@ export default {
                                     height:6px;
                                     border-radius:100%;
                                     background:#00C99E">
-                                    </span> 
-                                    ${self.$t('success')} : ${params[2].value} (${success}%)
+                                    </span>
+                                    ${self.$t('success')} : ${success} (${successPer}%)
                                 </div>
                                 <div style="text-align:left">
                                     <span style="
@@ -91,9 +97,10 @@ export default {
                                         height:6px;
                                         border-radius:100%;
                                         background:#E6EBF0">
-                                    </span> 
-                                    ${self.$t('failed')} : ${params[1].value} (${failed}%)
+                                    </span>
+                                    ${self.$t('failed')} : ${failed} (${failedPer}%)
                                 </div>`
+                        // }
                     }
                 },
                 xAxis: {
@@ -195,6 +202,7 @@ export default {
                         itemStyle: {
                             normal: {
                                 barBorderRadius: 0,
+                                // color: '#ccc'
                                 color: function(param) {
                                     return self.selectedProgressBarIndex === param.dataIndex ? '#FAFBFC' : '#FFFFFF'
                                 }
@@ -214,6 +222,22 @@ export default {
             this.$refs.chart_progress.chart.on('click', (e) => {
                 this.clickProgress(e)
             })
+            // const myChart = this.$refs.chart_progress.init(document.querySelectorAll('.echarts canvas')[1])
+            // console.log(document.querySelectorAll('.echarts canvas')[0], 'echarts')
+            // console.log(this.$refs.chart_progress, 'pro')
+            // console.log(myChart, 'chart')
+            // this.$refs.chart_progress.chart.on('mouseover', (e) => {
+            //     console.log(e, 'eeee')
+            //     if (e.targetType === 'axisLabel') {
+            //         let index = this.getclickxAxisIndex(e)
+            //         console.log(index, 'index')
+            //         this.$refs.chart_progress.dispatchAction({
+            //             type: 'showTip',
+            //             // 数据项的 index，如果不指定也可以通过 name 属性根据名称指定数据项
+            //             dataIndex: index
+            //         })
+            //     }
+            // })
         })
     },
 
@@ -222,7 +246,6 @@ export default {
     },
     methods: {
         clickProgress(e) {
-            console.log(e, 'e')
             // 根据鼠标点击事件设置选中的项
             let dataName
             let hightLightIndex

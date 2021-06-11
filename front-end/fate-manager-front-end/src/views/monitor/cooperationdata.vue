@@ -47,7 +47,7 @@
                     <div v-if="totalList.length>0" class="jobs-box">
                         <span v-for="(item, index) in totalList" :key="index">
                             <div class="jobs-institution" ref='jobs' >
-                                <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/>
+                                <!-- <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/> -->
                                 <overflowtooltip class="jobs-text" :width="'60px'" :content="`${item.partyId}`" :placement="'top'"/>
                                 <el-tooltip placement="top">
                                     <div slot="content">
@@ -244,7 +244,7 @@ const local = {
         'Today’s active data': '今日活跃数据',
         'Cumulative active data': '累加活跃数据',
         'Date': '日期',
-        'Active sites today': '今日活跃机构数',
+        'Active sites today': '今日活跃站点数',
         'start': '开始',
         'end': 'end',
         'Total jobs': '总任务数',
@@ -256,7 +256,7 @@ const local = {
         'Institution based statistics': '基于机构数据统计',
         'Statistics of cooperation between my institution and other institutions': '各机构间的建模任务统计',
         'Jobs': '任务数',
-        'Site based statistics': '基于机构数据统计',
+        'Site based statistics': '基于站点数据统计',
         'Statistics of cooperation between my site and other institutions sites': '各站点间的建模任务统计'
     },
     en: {
@@ -319,6 +319,7 @@ export default {
             currentSitePage: 1, // 站点维度当前页
             firstInstPageNum: 1, // 机构维度第一页
             secondSitePageNum: 1, // 机构维度第一页
+            sortArr: {},
             pickerOptions: {
                 disabledDate(time) {
                     return time.getTime() > Date.now()
@@ -400,6 +401,7 @@ export default {
         },
         // 空格部分
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+            // console.log(row, column, rowIndex, columnIndex, 'row-column-rowIndex-columnIndex')
             if (columnIndex === 0) {
                 let row = this.lengthList[rowIndex]
                 let col = row > 0 ? 1 : 0
@@ -465,11 +467,13 @@ export default {
             }
             getSite(data).then(res => {
                 let tableData = res.data || []
-                this.lengthList = [] // 清空空格数据
+                tableData = JSON.parse(localStorage.getItem('siteData'))
+                console.log(tableData, 'tableData')
 
                 this.siteNameList = Object.values(tableData).map((item) => {
                     return item.site_name
                 })
+                // console.log(this.siteNameList, 'siteNameList')
                 this.totalSitetitution = (tableData.total) || 0
                 let arr = []
                 Object.values(tableData).map(items => {
@@ -486,17 +490,8 @@ export default {
                                     }
                                 })
                             })
+                            console.log(items, 'items1111')
                             Object.values(items['institutionList']).map(j => {
-                                // 空格位置
-                                if (j.siteList.length > 1) {
-                                    this.lengthList.push(j.siteList.length)
-                                    for (let index = 0; index < j.siteList.length - 1; index++) {
-                                        this.lengthList.push(0)
-                                    }
-                                } else {
-                                    this.lengthList.push(j.siteList.length)
-                                }
-
                                 j.siteList.map((elm, index) => {
                                     let obj = {}
                                     obj.institutionSiteName = elm.siteName
@@ -508,9 +503,42 @@ export default {
                         })
                     }
                 })
-                setTimeout(() => {
-                    this.siteTableList = [...arr]
-                }, 500)
+                // 合并同类站点数据
+                console.log(arr, 'arr')
+                let sortArr = this.sortArr
+                arr.map((i, k) => {
+                    sortArr[i.institution] = sortArr[i.institution] ? sortArr[i.institution] : {}
+                    sortArr[i.institution][i.institutionSiteName] = sortArr[i.institution][i.institutionSiteName] ? sortArr[i.institution][i.institutionSiteName] : []
+                    if (sortArr[i.institution][i.institutionSiteName].length > 0) {
+                        sortArr[i.institution][i.institutionSiteName][0][Object.keys(i)[2]] = Object.values(i)[2]
+                    } else {
+                        sortArr[i.institution][i.institutionSiteName].push(i)
+                    }
+                })
+                console.log(sortArr, 'sortArr')
+
+                this.lengthList = [] // 清空空格数据
+                let newArr = {}
+                Object.keys(sortArr).forEach(sort => {
+                    // console.log(sortArr[sort])
+                    newArr[sort] = []
+                    Object.keys(sortArr[sort]).forEach(key => {
+                        newArr[sort] = newArr[sort].concat(sortArr[sort][key])
+                    })
+                    // 空格位置
+                    if (newArr[sort].length > 1) {
+                        this.lengthList.push(newArr[sort].length)
+                        for (let index = 0; index < newArr[sort].length - 1; index++) {
+                            this.lengthList.push(0)
+                        }
+                    } else {
+                        this.lengthList.push(sortArr[sort].length)
+                    }
+                })
+                Object.keys(newArr).forEach(items => {
+                    this.siteTableList = this.siteTableList.concat(newArr[items])
+                })
+                console.log(this.siteTableList, 'this.siteTableList')
             })
         },
         // 机构维度(第一个表格翻页)翻页
@@ -529,5 +557,28 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" >
 @import 'src/styles/cooperation.scss';
+    .time-picker{
 
+        .el-input__inner {
+            width:320px;
+            height: 35px;
+            line-height: 35px;
+
+            .el-range__icon {
+                line-height: 30px;
+            }
+
+            .el-range__close-icon{
+                width: 0;
+            }
+        }
+    }
+    .institution-table{
+        .el-table{
+            border: 1px solid #e6e6e6;
+            .tableHeadCell:not(:nth-of-type(1)):not(:nth-of-type(2)){
+                font-weight: normal;
+            }
+        }
+    }
 </style>

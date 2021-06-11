@@ -18,28 +18,28 @@
             <div style="color:#4E5766;">{{myInstitution.createTime | dateFormat}}</div>
         </div>
         <div class="site-title">
-            <span class="sitt-tiem-view" @click="togetexchangeList">{{$t('view exchange')}}</span>
+            <span class="site-tiem-view" @click="togetexchangeList">{{$t('view exchange')}}</span>
         </div>
     </div>
     <div class="sitemanage-box">
         <div class="add-site">
             <span v-if="role.roleName==='Admin'">
-                <el-tooltip effect="dark" content="Add a new site to join a federated organization" placement="top">
+                <el-tooltip effect="dark" :content="$t('Add a new site to join a federated organization')" placement="top">
                     <div  class="add" @click="toAddSite">
                         <img src="@/assets/add_site.png">
-                        <span>{{$t('add')}}</span>
+                        <span>{{$t('m.common.add')}}</span>
                     </div>
                 </el-tooltip>
                 <span v-if='siteState'>
                     <div class="app" v-if="applyStatus === 1">
-                        <span>You have applied to view the fate manager sites of
+                        <span>{{$t('m.sitemanage.alreadyApply')}}
                             <span v-for="(item, index) in applyStatusList" :key="index">
                                 <span v-if="index===applyStatusList.length-1">{{item}}</span>
                                 <span v-else> {{item}},</span>
                             </span>
                         </span>
 
-                        <span style="margin-left: 10px">Please wait for the approval of Cloud Manager…</span>
+                        <span style="margin-left: 10px">{{$t('m.sitemanage.waitApproval')}}</span>
                     </div>
                     <div class="apply"  v-if='applyStatus === 3' >
                         <span  class="apply-click" v-if='showapplyBtn' @click="showApply">
@@ -52,11 +52,11 @@
                             width="700"
                             :offset="-340"
                             popper-class="site-history"
-                            trigger="hover">
+                            trigger="click">
                             <div class="content">
                                 <div class="title">
-                                    <div class="title-time">Time</div>
-                                    <div class="title-history">History</div>
+                                    <div class="title-time">{{$t('m.common.time')}}</div>
+                                    <div class="title-history">{{$t('m.common.history')}}</div>
                                 </div>
                                 <div class="content-box">
                                     <div v-for="(item, index) in siteHistoryList" :key="index" >
@@ -100,7 +100,7 @@
             <span v-else>
                 <div class="add" style="cursor:not-allowed">
                     <img src="@/assets/add_site.png">
-                    <span>{{$t('add')}}</span>
+                    <span>{{$t('m.common.add')}}</span>
                 </div>
                 <div v-if='siteState' class="apply" style="cursor:not-allowed;color:#c8c9cc" >
                     <span >{{$t('Apply to view other FATE Manager sites.')}} </span>
@@ -210,14 +210,12 @@
     <el-dialog :visible.sync="applydialog" class="apply-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="dialog-box">
             <div class="dialog-title">
-                Apply
+                {{$t('m.sitemanage.apply')}}
             </div>
             <div class="line-text-one">
-                Please select the FATE Manager you want to view.
+                {{$t('m.sitemanage.selectTips')}}
             </div>
-            <div class="line-text-one">
-                After submitting the application, please wait for the Cloud Manager’s approval.
-            </div>
+            <div class="line-text-gray">{{$t('m.sitemanage.applyOther')}}</div>
             <div class="dialog-main">
                 <el-checkbox-group v-model="checkList">
                     <div v-for="(item, index) in checkboxList" :key="index">
@@ -226,8 +224,8 @@
                 </el-checkbox-group>
             </div>
             <div class="dialog-foot">
-                <el-button type="primary" :disabled="(checkList.length-applyed.length)===0" @click="toApply">OK</el-button>
-                <el-button type="info" @click="applydialog=false">Cancel</el-button>
+                <el-button type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
+                <el-button type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </div>
     </el-dialog>
@@ -288,7 +286,7 @@
                 cell-class-name="tableCell"
                 height="250"
                 tooltip-effect="light">
-                <el-table-column type="index" :label="$t('Index')" width="250"></el-table-column>
+                <el-table-column type="index" :label="$t('m.common.index')" width="250"></el-table-column>
                 <el-table-column prop="exchangeName" label="Exchange" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="vip" label="VIP"></el-table-column>
             </el-table>
@@ -317,6 +315,7 @@ const local = {
         'view exchange': 'exchange服务信息',
         'Exchange Info.': 'Exchange服务信息',
         'Apply to view other FATE Manager sites.': '申请查看成员联邦站点',
+        'Add a new site to join a federated organization': '新增站点到联邦组织',
         'My site has been applied to view by': '我的站点已被',
         'FATE Managers': '位联邦成员申请查看',
         'My Institution': '我的站点机构',
@@ -328,8 +327,9 @@ const local = {
         'Party ID': '站点ID',
         'Activation Time': '激活时间',
         'Host sites viewed by:': '数据源站点被以下机构查看：',
-        'Guest sites viewed by:': '应用方站点被以下机构查看：'
-
+        'Guest sites viewed by:': '应用方站点被以下机构查看：',
+        'History': '操作历史',
+        'Time': '时间'
     },
     en: {
         'Federated Organization': 'Federated Organization',
@@ -340,6 +340,7 @@ const local = {
         'view exchange': 'view exchange',
         'Exchange Info.': 'Exchange Info.',
         'Apply to view other FATE Manager sites.': 'Apply to view other FATE Manager sites.',
+        'Add a new site to join a federated organization': 'Add a new site to join a federated organization',
         'My site has been applied to view by': 'My site has been applied to view by',
         'FATE Managers': 'FATE Managers',
         'My Institution': 'My Institution',
@@ -351,7 +352,9 @@ const local = {
         'Party ID': 'Party ID',
         'Activation Time': 'Activation Time',
         'Host sites viewed by:': 'Host sites viewed by:',
-        'Guest sites viewed by:': 'Guest sites viewed by:'
+        'Guest sites viewed by:': 'Guest sites viewed by:',
+        'History': 'History',
+        'Time': 'Time'
 
     }
 }
@@ -389,7 +392,9 @@ export default {
             cancelList: [], // 取消列表
             siteHistoryList: [], // 历史审批记录
             exchangedialog: false,
-            exchangeList: { }
+            exchangeList: { },
+            chartTimer: null // 轮询定时器
+
         }
     },
     computed: {
@@ -417,6 +422,10 @@ export default {
     mounted() {
 
     },
+    beforeDestroy() {
+        this.clearPollingTimer()
+        clearInterval(this.clusterTimer)
+    },
     methods: {
         getList() {
             // 我的站点
@@ -434,23 +443,9 @@ export default {
                 }
             })
             // 其他人申请列表
-            fatemanagerList().then(res => {
-                // res.data = []
-                let data = res.data.institutions || []
-                let scenarioType = data.scenarioType
-                // mock
-                // let scenarioType = '1'
-                // data.guestList = ['WZH-HOST', 'manager-1']
-                // data.hostList = ['WZH-HOST', 'manager-1']
-                this.viewContent.scenarioType = scenarioType
-                if (scenarioType === '1') { // 混合
-                    this.viewContent.allInstuList = (data.all && data.all.map(item => item)) || []
-                } else if (scenarioType === '2' || scenarioType === '3') {
-                    this.viewContent.guestInstuList = (data.guestList && data.guestList.map(item => item)) || []
-                    this.viewContent.hostInstuList = (data.hostList && data.hostList.map(item => item)) || []
-                }
-                this.viewContent.totalLength = this.viewContent.allInstuList.length + this.viewContent.guestInstuList.length + this.viewContent.hostInstuList.length
-                console.log(this.viewContent)
+            this.otherApplys()
+            this.setPollingTimer(() => {
+                this.otherApplys()
             })
             // 查看他人站点
             otherSitList().then(res => {
@@ -471,6 +466,26 @@ export default {
                     this.applyStatus = 3 // 无申请记录
                 }
                 console.log(this.applyStatus, 'applyStatus')
+            })
+        },
+        otherApplys() {
+            fatemanagerList().then(res => {
+                // res.data = []
+                let data = res.data.institutions || []
+                let scenarioType = data.scenarioType
+                // mock
+                // let scenarioType = '1'
+                // data.guestList = ['WZH-HOST', 'manager-1']
+                // data.hostList = ['WZH-HOST', 'manager-1']
+                this.viewContent.scenarioType = scenarioType
+                if (scenarioType === '1') { // 混合
+                    this.viewContent.allInstuList = (data.all && data.all.map(item => item)) || []
+                } else if (scenarioType === '2' || scenarioType === '3') {
+                    this.viewContent.guestInstuList = (data.guestList && data.guestList.map(item => item)) || []
+                    this.viewContent.hostInstuList = (data.hostList && data.hostList.map(item => item)) || []
+                }
+                this.viewContent.totalLength = this.viewContent.allInstuList.length + this.viewContent.guestInstuList.length + this.viewContent.hostInstuList.length
+                console.log(this.viewContent)
             })
         },
         // 机构审批状态查询
@@ -502,6 +517,7 @@ export default {
         toAddSite() {
             // 前往注册
             this.$refs['siteregister'].registerVisible = true
+            this.$refs['siteregister'].inputform = { inputUrl: '' }
             // this.$router.push({ path: '/welcome/register' })
         },
         toSietInfo(row) {
@@ -521,19 +537,21 @@ export default {
         showApply() {
             this.checkList = []
             // 显示已经加入的Institution
-            this.otherSiteList && this.otherSiteList.forEach((item) => {
-                this.checkList.push(item.fateManagerInstitutions)
-                this.applyed = this.checkList
-            })
+            // this.otherSiteList && this.otherSiteList.forEach((item) => {
+            //     this.checkList.push(item.fateManagerInstitutions)
+            // })
             getInstitutions().then(res => {
+                let applyedArr = []
                 this.checkboxList = res.data.map(item => {
-                    this.checkList.forEach(ele => {
-                        if (ele === item.institutions) {
-                            item.disable = true
-                        }
-                    })
+                    // item.status.code = 1
+                    if (item.status.code === 2) {
+                        item.disable = true
+                        applyedArr.push(item.institutions)
+                    }
                     return item
                 })
+                this.applyed = this.applyed.concat(applyedArr)
+                console.log(this.applyed, 'applyed')
                 this.applydialog = true
             })
         },
@@ -580,6 +598,14 @@ export default {
                     this.siteHistoryList.push(obj)
                 })
             })
+        },
+        // 轮询定时器
+        setPollingTimer(cb, interval) {
+            clearInterval(this.chartTimer)
+            this.chartTimer = setInterval(cb, interval || 5000)
+        },
+        clearPollingTimer() {
+            clearInterval(this.chartTimer)
         }
     }
 }
@@ -630,17 +656,17 @@ export default {
     border: 1px solid #999 !important;
     width: 250px;
     .viewcontent{
-    .content-title{
-        margin: 0 0 10px 0;
-        font-size: 16px;
-        color: #999;
+        .content-title{
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #999;
+        }
+        .sites-list{
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
     }
-    .sites-list{
-        font-size: 14px;
-        font-weight: 600;
-        color: #666;
-    }
-}
 }
 
 </style>

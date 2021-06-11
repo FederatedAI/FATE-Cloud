@@ -7,7 +7,7 @@
         </div>
         <el-form ref="inputform" :model="inputform" :rules="rules" @submit.native.prevent >
             <el-form-item :class="{ name:true,'name-warn': warnActive }" prop="inputUrl">
-                <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model.trim="inputform.input"></el-input>
+                <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model="inputform.input"></el-input>
                 <div class="warn-text">
                     <span v-show='warnActive'>The registration link is invalid. Please enter again.</span>
                 </div>
@@ -49,7 +49,9 @@ export default {
                 // this.showBtn()
                 if (val) {
                     this.inputClass = true
-                    this.inputform.inputUrl = this.inputform.input ? utf8to16(decode64(this.inputform.input)).split('?st')[0] : ''
+                    let url = this.inputform.input.split('\\n').join('')
+                    console.log(url, 'url-watch')
+                    this.inputform.inputUrl = url ? utf8to16(decode64(url)).split('?st')[0] : ''
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true
@@ -75,8 +77,11 @@ export default {
     methods: {
 
         okAction() {
-            let Url = utf8to16(decode64(this.inputform.input))
+            let urlStr = this.inputform.input.split('\\n').join('')
+            let Url = utf8to16(decode64(urlStr))
             let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+            this.inputform.input = this.inputform.input.replace(/\\n/g, '\n')
+            // console.log(this.inputform.input, 'this.inputform.input')
             // 判断URL后面是否是json
             try {
                 let data = {}

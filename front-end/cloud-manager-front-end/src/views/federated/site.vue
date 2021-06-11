@@ -119,7 +119,6 @@
             <div class="pagination">
                 <el-pagination
                     background
-                    @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page.sync="currentPage"
                     :page-size="data.pageSize"
@@ -191,7 +190,7 @@
                     <span class="no-data">{{$t('m.common.noData')}}</span>
                 </div> -->
             </span>
-            <span v-if="canceltempData.scenarioType==='2'">
+            <span v-if="canceltempData.scenarioType==='2' || canceltempData.scenarioType==='3'">
                 <div class="siteType">{{$t('m.site.guestSites')}} :</div>
                 <div class="dialog-main" v-if="canceltempData.guestboxList.length > 0">
                     <el-checkbox style="margin-bottom:10px" :indeterminate="canceltempData.guestisnate" v-model="canceltempData.guestAll" @change="guestChange">{{$t('m.common.all')}}</el-checkbox>

@@ -568,13 +568,15 @@ export default {
                 id: this.id ? parseInt(this.id) : parseInt(this.$route.query.id)
             }
             getSiteInfo(data).then(res => {
+                // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
+                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
                 if (this.type === 'siteinfo') {
                     let data = { ...res.data }
                     if (!res.data.protocol && !res.data.encryptType) {
                         data.protocol = 'https://'
                         data.encryptType = 1
                     }
-                    this.form = { ...data }
+                    this.form = data
                 } else {
                     this.form.registrationLink = res.data.registrationLink
                 }
@@ -590,6 +592,7 @@ export default {
             if (type === 'tooltip') {
                 let dialogClipboard = new Clipboard('.dialogcopy')
                 dialogClipboard.on('success', e => {
+                    console.log(e, 'copy-e')
                     this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     dialogClipboard.destroy()

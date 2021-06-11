@@ -22,8 +22,8 @@
                 </el-form>
             </div>
             <div class="dialog-footer">
-                <el-button class="sure-btn" type="primary" @click="toActivte">{{$t('OK')}}</el-button>
-                <el-button class="cancel-btn" type="info" @click="activDialog = false">{{$t('Cancel')}}</el-button>
+                <el-button class="sure-btn" type="primary" @click="toActivte">{{$t('m.common.OK')}}</el-button>
+                <el-button class="cancel-btn" type="info" @click="activDialog = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
         <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="ok-dialog">
@@ -40,7 +40,7 @@
                 <div class="line-text-two">{{$t('Please re-enter')}}</div>
             </span>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="toOK">{{$t('OK')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="toOK">{{$t('m.common.OK')}}</el-button>
             </div>
         </el-dialog>
     </div>
@@ -150,7 +150,27 @@ export default {
         toActivte() {
             this.$refs['activteForm'].validate((valid) => {
                 if (valid) {
-                    activateAct({ ...this.activteForm }).then(res => {
+                    let urlStr = this.activteForm.link.split('\\n').join('')
+                    let Url = utf8to16(decode64(urlStr))
+                    let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+                    this.activteForm.link = this.activteForm.link.replace(/\\n/g, '\n')
+                    console.log(newStr, 'newStr')
+                    let data = {}
+                    var obj = { ...JSON.parse(newStr) }
+                    console.log(obj, 'obj')
+                    data.activateUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
+                    data.appKey = obj.fateManagerUser.secretInfo.key
+                    data.appSecret = obj.fateManagerUser.secretInfo.secret
+                    data.fateManagerId = obj.fateManagerUser.fateManagerId
+                    data.federatedId = obj.federatedOrganization.id
+                    data.federatedOrganization = obj.federatedOrganization.institution
+                    data.link = this.activteForm.link
+                    data.federatedUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
+                    data.institution = obj.federatedOrganization.institution
+                    data.institutions = obj.fateManagerUser.institutions
+                    data.userName = this.activteForm.userName
+                    data.passWord = this.activteForm.passWord
+                    activateAct(data).then(res => {
                         this.okdialog = true
                         this.activate = true
                     }).catch(res => {

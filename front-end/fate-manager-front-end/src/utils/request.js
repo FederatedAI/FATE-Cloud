@@ -2,7 +2,21 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 // import router from '@/router'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import { getToken, getCookie } from '@/utils/auth'
+import Vue from 'vue'
+import VueI18n from 'vue-i18n'
+
+Vue.use(VueI18n)
+const messages = {
+    en: { ...require('../lang/en.js') },
+    zh: { ...require('../lang/zh.js') }
+}
+const i18n = new VueI18n({
+    locale: getCookie('language') || 'zh',
+    messages
+})
+const tipI18n = new Vue({ i18n })
+
 // axios.defaults.headers.common['Authorization'] = getToken()
 // create an axios instance
 const service = axios.create({
@@ -10,6 +24,25 @@ const service = axios.create({
     withCredentials: true, // 跨域请求时发送 cookies
     timeout: 15000 // request timeout
 })
+
+const setErrorMsgToI18n = (msg) => {
+    i18n.locale = getCookie('language') || store.getters.language
+    let tipKey = ''
+    if (msg.indexOf('msg') > -1) {
+        tipKey = msg.split('msg')[1].trim().replace("'", '')
+    } else {
+        tipKey = msg.replace("'", '')
+    }
+    console.log(tipKey, 'tipKey')
+    let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? tipKey : tipI18n.$t(`m.errorTips.${tipKey}`)
+    Vue.prototype.$message.error({
+        message: `${msg ? tipText : tipI18n.$t('m.errorTips.reqestFailed')}`,
+        duration: 5 * 1000
+    })
+}
+
+const loading = document.getElementById('ajaxLoading')
+
 // 不开启loading的接口
 let URL = [
     '/fate-manager/api/service/toy',
@@ -22,7 +55,8 @@ let URL = [
     '/fate-manager/api/site/function',
     '/fate-manager/api/ansible/testlist',
     '/fate-manager/api/ansible/getcheck',
-    '/fate-manager/api/ansible/installlist'
+    '/fate-manager/api/ansible/installlist',
+    '/fate-manager/api/site/fatemanager'
 ]
 // request interceptor
 // 请求拦截
@@ -30,7 +64,6 @@ service.interceptors.request.use(
     config => {
         // 开启全局loading
         if (!URL.includes(config.url)) {
-            let loading = document.getElementById('ajaxLoading')
             loading.style.display = 'block'
         }
         // if (store.getters.token) {
@@ -67,7 +100,6 @@ service.interceptors.response.use(
         let url = response.config.url
         // 关闭全局loading
         if (!URL.includes(url)) {
-            let loading = document.getElementById('ajaxLoading')
             loading.style.display = 'none'
         };
         if (res.code === 0) {
@@ -82,11 +114,12 @@ service.interceptors.response.use(
         } else if (msgCode(res.code)) {
             return Promise.reject(res)
         } else {
-            Message({
-                message: `${res.msg ? res.msg : 'http reqest failed!'}`,
-                type: 'error',
-                duration: 5 * 1000
-            })
+            setErrorMsgToI18n(res.msg)
+            // Message({
+            //     message: `${res.msg ? res.msg : 'http reqest failed!'}`,
+            //     type: 'error',
+            //     duration: 5 * 1000
+            // })
             return Promise.reject(res)
         }
         function msgCode(code) {
@@ -97,13 +130,14 @@ service.interceptors.response.use(
     },
     error => {
         // 关闭全局loading
-        let loading = document.getElementById('ajaxLoading')
         loading.style.display = 'none'
-        Message({
-            message: `${error}`,
-            type: 'error',
-            duration: 5 * 1000
-        })
+        console.log(111)
+        setErrorMsgToI18n(error)
+        // Message({
+        //     message: `${error}`,
+        //     type: 'error',
+        //     duration: 5 * 1000
+        // })
 
         // 服务端发生错误退出
         // setTimeout(() => {

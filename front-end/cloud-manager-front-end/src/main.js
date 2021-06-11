@@ -37,6 +37,7 @@ Object.keys(_filter).forEach(item => {
 })
 
 Vue.prototype.$message = singleMessageCell
+console.log(Vue.prototype, 'vue')
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({

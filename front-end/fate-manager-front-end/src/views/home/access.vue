@@ -4,7 +4,7 @@
         <div class="partyid-header">
             <el-button class="add" type="text" @click="addRoleUser">
                 <img src="@/assets/add_user.png">
-                <span>{{$t('add')}}</span>
+                <span>{{$t('m.common.add')}}</span>
             </el-button>
             <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('Name')">
                 <i slot="prefix" @click="getList" class="el-icon-search search el-input__icon" />
@@ -25,7 +25,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-button class="go" type="primary" @click="getList">{{$t('GO')}}</el-button>
+            <el-button class="go" type="primary" @click="getList">{{$t('m.common.go')}}</el-button>
         </div>
         <div class="table">
             <el-table
@@ -61,7 +61,7 @@
                             </el-button>
                         </span>
                          <!-- 不能删除自己 -->
-                        <span v-else-if="userName===scope.row.userName">
+                        <span v-else-if="siteTemp.userName===scope.row.userName">
                             <el-button type="text" >
                                 <i class="el-icon-edit edit" @click="handleEdit(scope.row)"></i>
                             </el-button>
@@ -84,10 +84,10 @@
     </div>
     <!-- 删除 -->
     <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
-        <div class="line-text-one">Are you sure you want to delete this user?</div>
+        <div class="line-text-one">{{$t('Are you sure you want to delete this user?')}}</div>
         <div class="dialog-footer">
-        <el-button class="ok-btn" type="primary" @click="toDelet">Sure</el-button>
-        <el-button class="ok-btn" type="info" @click="deletedialog = false">Cancel</el-button>
+        <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="deletedialog = false">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
     <!-- 添加弹框 -->
@@ -95,8 +95,7 @@
       <div class="dialog-box">
           <el-form :model="siteTemp" :rules="rules" ref="ruleForm">
             <div class="dialog-title">
-                <span>{{typetitle==='Edit'?'Edit':'Add'}}</span>
-                {{$t('user')}}
+                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add') }}</span>{{$t('user')}}
             </div>
             <el-form-item class="add-input" prop="userName">
                 <span class="input-title">
@@ -109,7 +108,7 @@
                     filterable
                     remote
                     reserve-keyword
-                    placeholder="Please enter a name"
+                    :placeholder="$t('Please enter a name')"
                     :remote-method="remoteMethod"
                     @change="userchange"
                     @focus="toclearValid('userName')">
@@ -126,9 +125,12 @@
              <el-form-item class="add-input"  prop="roleId">
                 <span class="input-title">{{$t('Role')}}</span>
                 <el-radio-group v-model="siteTemp.roleId">
-                    <el-radio label="1">{{$t('admin')}}</el-radio>
-                    <el-radio label="2">{{$t('Developer or OP')}}</el-radio>
-                    <el-radio label="3">{{$t('Business or Data Analyst')}}</el-radio>
+                    <el-radio
+                        v-for="item in typeSelect"
+                        :key="item.value"
+                        :label="item.value"
+                        :value="item.label">{{item.label}}
+                    </el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item v-if="!sitedisable" class="add-input" prop="siteName">
@@ -165,8 +167,8 @@
             </span>
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">{{$t('Sure')}}</el-button>
-          <el-button type="info" @click="adddialog=false">{{$t('Cancel')}}</el-button>
+          <el-button type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
+          <el-button type="info" @click="adddialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>
@@ -198,8 +200,9 @@ const local = {
         'FATE Cloud: Basic management': 'FATE Cloud: 基础管理',
         'FATE Cloud: Auto-deploy': 'FATE Cloud: 自动部署',
         'FATE Studio': 'FATE Studio',
-        'FATEBoard': 'FATEBoard'
-
+        'FATEBoard': 'FATEBoard',
+        'Please enter a name': '请输入用户名',
+        'Are you sure you want to delete this user?': '是否确认删除该用户'
     },
     en: {
         'GO': 'GO',
@@ -218,8 +221,9 @@ const local = {
         'FATE Cloud: Basic management': 'FATE Cloud: Basic management',
         'FATE Cloud: Auto-deploy': 'FATE Cloud: Auto-deploy',
         'FATE Studio': 'FATE Studio',
-        'FATEBoard': 'FATEBoard'
-
+        'FATEBoard': 'FATEBoard',
+        'Please enter a name': 'Please enter a name',
+        'Are you sure you want to delete this user?': 'Are you sure you want to delete this user?'
     }
 }
 
@@ -239,13 +243,7 @@ export default {
             siteWarn: false, // 显示警告
             userList: [], // 用户下拉
             siteList: [], // 站点下拉
-            partyIdSiteList: [
-                {
-                    value: 0,
-                    label: 'Site'
-                }
-            ], // 头部站点下拉
-
+            partyIdSiteList: [], // 头部站点下拉
             sitedisable: true, // 是否可选site
             deletesite: {}, // 将要删除site
             siteTemp: {
@@ -263,24 +261,7 @@ export default {
                 { item: 'FATEBoard', show: true }
                 // { item: 'FDN', show: true }
             ],
-            typeSelect: [
-                {
-                    value: 0,
-                    label: 'Role'
-                },
-                {
-                    value: 1,
-                    label: 'Admin'
-                },
-                {
-                    value: 2,
-                    label: 'Developer or OP'
-                },
-                {
-                    value: 3,
-                    label: 'Business or Data Analyst'
-                }
-            ],
+            typeSelect: this.$Map.roleType,
             rules: {
                 userName: [
                     { required: true, message: 'The User Name field is required !', trigger: 'blur' }

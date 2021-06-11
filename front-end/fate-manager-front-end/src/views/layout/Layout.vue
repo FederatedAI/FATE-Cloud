@@ -9,7 +9,7 @@
         </div>
         <div class="right-bar">
             <el-popover v-if="userName" placement="bottom" popper-class="usrname-pop" :visible-arrow="false" trigger="click">
-                <div class="mane" @click="tologout">{{$t('Sign out')}}</div>
+                <div class="mane" @click="tologout">{{$t('m.Sign out')}}</div>
                 <div slot="reference" >
                     <span>{{userName}}</span>
                     <i class="el-icon-caret-bottom" />
@@ -138,6 +138,7 @@ export default {
         handleCommand(val) {
             this.$i18n.locale = val
             this.$store.dispatch('setLanguage', val)
+            this.$Map.setLanguage(val)
         }
 
     }

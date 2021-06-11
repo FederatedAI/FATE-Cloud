@@ -51,7 +51,9 @@ export default {
                 // this.showBtn()
                 if (val) {
                     this.inputClass = true
+                    console.log(this.inputform.input, 'this.inputform.input')
                     this.inputform.inputUrl = this.inputform.input ? utf8to16(decode64(this.inputform.input)).split('?st')[0] : ''
+                    console.log(this.inputform.inputUrl, 'this.inputform.inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true
@@ -86,7 +88,7 @@ export default {
                 data.appKey = obj.secretInfo.key
                 data.appSecret = obj.secretInfo.secret
                 data.federatedUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
-                data.registrationLink = this.inputform.input
+                data.registrationLink = JSON.stringify(this.inputform.input).replace()
                 data.federatedOrganization = obj.federatedOrganization
                 data.id = obj.id
                 data.institutions = obj.institutions

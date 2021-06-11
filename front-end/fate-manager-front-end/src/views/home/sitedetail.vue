@@ -421,7 +421,7 @@ export default {
         this.$i18n.mergeLocaleMessage('en', local.en)
         this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.initInfo()
-        this.togetMsg()
+        // this.togetMsg()
         this.$store.dispatch('selectEnum')
     },
     beforeDestroy() {

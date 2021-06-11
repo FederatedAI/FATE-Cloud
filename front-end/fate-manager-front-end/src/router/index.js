@@ -140,6 +140,13 @@ export const constantRouterMap = [
 
 ]
 
+// 获取原型对象上的push函数
+const originalPush = Router.prototype.push
+// 修改原型对象中的push方法
+Router.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+}
+
 const router = new Router({
     // mode: 'history', // 后端支持可开
     scrollBehavior: () => ({ x: 0, y: 0 }),

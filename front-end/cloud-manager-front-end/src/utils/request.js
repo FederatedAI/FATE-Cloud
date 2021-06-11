@@ -1,9 +1,9 @@
 import axios from 'axios'
 import store from '@/store'
-import { getCookie } from '@/utils/auth'
 import router from '@/router'
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
+import { getCookie } from '@/utils/auth'
 
 Vue.use(VueI18n)
 const messages = {
