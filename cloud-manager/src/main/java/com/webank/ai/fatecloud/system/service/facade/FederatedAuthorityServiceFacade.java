@@ -116,8 +116,13 @@ public class FederatedAuthorityServiceFacade {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        PageBean<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
+        String scenarioType = federatedAuthorityService.getScenarioType();
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            PageBean<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findApprovedInstitutions(authorityInstitutionsQo, scenarioType);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
+        }
+        log.error("scenario type {} doesn't support", scenarioType);
+        return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
 
     }
 
@@ -286,7 +291,7 @@ public class FederatedAuthorityServiceFacade {
         //get the site-authority scenario, 1.mix 2.homo 3.hetero
         String scenarioType = federatedAuthorityService.getScenarioType();
         if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
-            CancelListDto authorizedInstitutions = federatedAuthorityService.findAuthorizedInstitutions(authorityApplyResultsQo,scenarioType);
+            CancelListDto authorizedInstitutions = federatedAuthorityService.findAuthorizedInstitutions(authorityApplyResultsQo, scenarioType);
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS, authorizedInstitutions);
         }
         log.error("scenario type {} doesn't support", scenarioType);
@@ -387,4 +392,25 @@ public class FederatedAuthorityServiceFacade {
 
     }
 
+    public CommonResponse<List<InstitutionsForFateDto>> findSelfApprovedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        //check signature
+        ObjectMapper mapper = new ObjectMapper();
+        String httpBody = mapper.writeValueAsString(authorityApplyResultsQo);
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_MANAGER_USER, new int[]{2}, null);
+        if (!result) {
+            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+
+        if (StringUtils.isBlank(authorityApplyResultsQo.getInstitutions())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        String scenarioType = federatedAuthorityService.getScenarioType();
+        if ("1".equals(scenarioType) || "2".equals(scenarioType) || "3".equals(scenarioType)) {
+            List<InstitutionsForFateDto> approvedInstitutions = federatedAuthorityService.findSelfApprovedInstitutions(authorityApplyResultsQo, scenarioType);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, approvedInstitutions);
+        }
+        log.error("scenario type {} doesn't support", scenarioType);
+        return new CommonResponse<>(ReturnCodeEnum.SCENARIO_ERROR);
+    }
 }

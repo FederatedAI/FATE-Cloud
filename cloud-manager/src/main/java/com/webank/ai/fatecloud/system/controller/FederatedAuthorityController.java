@@ -76,6 +76,14 @@ public class FederatedAuthorityController {
 
     }
 
+    @PostMapping(value = "/institutions/self/approved")
+    @ApiOperation(value = "find the finished apply results of the input institutions launching")
+    public CommonResponse<List<InstitutionsForFateDto>> findSelfApprovedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+
+        return federatedAuthorityServiceFacade.findSelfApprovedInstitutions(authorityApplyResultsQo, httpServletRequest);
+
+    }
+
     @PostMapping(value = "/applied")
     @ApiOperation(value = "find  institutions lists which get the authority of the input institutions")
     public CommonResponse<CancelListDto> findAuthorizedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
