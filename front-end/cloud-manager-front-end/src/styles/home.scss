@@ -32,13 +32,33 @@
                 margin-left: 30px
             }
         }
-        .right-bar{
+        .top-bar {
+            height: 65px;
+            line-height: 65px;
+            .avatar-container {
+                position: absolute;
+                display: inline-block;
+                cursor: pointer;
+                right: 240px;
+                top: 0px;
+                font-size: 16px;
+                color: #fff;
+                height: 65px;
+            }
+           
+            img{
+                position: absolute;
+                right: 35px;
+                top: 20px;
+            }
+        }
+        .name-bar{
             cursor: pointer;
             height: 65px;
             line-height: 65px;
             position: absolute;
             display: inline-block;
-            right: 60px;
+            right: 140px;
             top: 0px;
             .name-text{
                 vertical-align: top;
@@ -47,10 +67,25 @@
                 text-overflow:ellipsis; //文本溢出显示省略号；
                 overflow:hidden; //溢出的部分隐藏；
                 text-align: right;
-                width: 160px;
+                // width: 160px;
                 // background-color: red;
             }
         }
+        .lang-bar{
+            cursor: pointer;
+            height: 65px;
+            line-height: 65px;
+            position: absolute;
+            display: inline-block;
+            font-size: 16px;
+            right: 40px;
+            top: 0px;
+            .text-link{
+                color: #fff
+            }
+        }
+       
+        
         
     }
 
@@ -61,9 +96,8 @@
             text-align: center;
 
             .title {
-                font-size: 4.5em;
+                font-size: 4em;
                 color: #217ad9;
-                font-weight: 800;
                 margin: 0px 0 2vw 0;
             }
 
@@ -76,31 +110,30 @@
 
             .text {
                 margin: 2vw 0;
-                font-size: 1.75em;
+                font-size: 1.5em;
                 font-weight: 650;
                 color: #4e5766;
             }
 
             .text-two {
-                font-size: 1.25em;
+                font-size: 1em;
                 color: #848c99;
             }
 
             .begin-btn {
-                margin: 5vw 0 0 0;
-                width: 18%;
-                font-size: 2.3vw;
-                height: 3.5vw;
-                line-height: 3.5vw;
+                margin: 4vw 0 0 0;
+                width: 200px;
+                font-size: 20px;
+                height: unset !important;
+                line-height: 36px;
             }
 
             .round {
-                margin-top: 2.5vw;
-
+                margin-top: 1.8vw;
                 .circul {
                     display: block;
-                    width: 1vw;
-                    height: 1vw;
+                    width: 0.8vw;
+                    height: 0.8vw;
                     background: #217ad9;
                     border-radius: 50%;
                     margin: 0 auto;
@@ -125,8 +158,8 @@
             .title {
                 font-size: 4em;
                 color: #217ad9;
-                font-weight: bold;
-                margin-bottom: 1vw;
+                // font-weight: bold;
+                margin-bottom: 2vw;
             }
             .el-input__inner {
                 border: 0px;
@@ -138,30 +171,27 @@
                     width: 466px;
                     top:95%;
                     color: #FF9D00;
-                    font-size: 14px;
                 }
                 
                  //改变placeholder颜色 
                 input{
                     box-shadow: inset 0 0 0 1000px #fff!important;
                     text-align: center;
-                    border-bottom: 2px solid #E6EBF0;
-                    color: #2D3642;
-                    font-size: 1.5em
+                    border-bottom: 1px solid #c3c3c3;
+                    color: #4E5766;
+                    font-size: 16px
                 }
                 .from-text{
                     color:#848C99
                 }
                 .btn-login{
-                    width: 10vw;
-                    font-size: 1.2vw;
-                    height: 2.2vw;
-                    line-height: 2.2vw;
-                    
-                    
+                    width: 200px;
+                    font-size: 20px;
+                    height: 36px;
+                    line-height: 36px;
                 }
                 .el-form-item{
-                    margin: 0.8vw 0 2vw 0;
+                    margin: 0.8vw 0 1.5vw 0;
                     .view{
                         top:5px;
                         right: 10px;
@@ -185,12 +215,11 @@
         }
         .register {
             text-align: center;
-            font-family: 'Product Sans';
+            font-family: 'OPPOSans';
             .title {
                 font-size: 4em;
-                // font-size: 56px;
+
                 color: #217ad9;
-                font-weight: 800;
                 margin: 0px 0 4.5vw 0;
             }
 

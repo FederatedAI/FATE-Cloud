@@ -10,14 +10,23 @@
         @select="handleSelect">
         <el-menu-item  index="Manage">
             <el-popover placement="bottom" v-model="visible" popper-class="bar-pop" :visible-arrow="false" trigger="hover">
-                <div class="item" @click="clickSite">Site Manage</div>
-                <div class="item" v-if="role.roleName==='Admin'" @click="clickAccess">User Access</div>
+                <div :class="{item:true,itemactive:$route.name === 'sitemanage'}" @click="clickSite">{{$t('Site Manage')}}</div>
+                <div :class="{item:true,itemactive:$route.name === 'access'}" v-if="role.roleName==='Admin'" @click="clickAccess">{{$t('User Access')}}</div>
                 <div slot="reference" >
-                    <span :class="{active:active}">Manage</span>
+                    <span :class="{active}">{{$t('Manage')}}</span>
                 </div>
             </el-popover>
         </el-menu-item>
-        <el-menu-item v-if='autoState' index="Auto-deploy" :class="{notactive:active}" >Auto-deploy</el-menu-item>
+        <el-menu-item v-if='autoState' index="Auto-deploy" :class="{notactive:active || monitoractive}" >{{$t('Auto-deploy')}}</el-menu-item>
+        <el-menu-item  v-if="role.roleName==='Admin'" index="Monitor">
+            <el-popover placement="bottom" v-model="monitorvisible" popper-class="bar-pop" :visible-arrow="false" trigger="hover">
+                <div :class="{item:true,itemactive:$route.name === 'cooperation'}" @click="clickCooperation" >{{$t('Site Cooperation')}}</div>
+                <div :class="{item:true,itemactive:$route.name === 'jobmonitor'}" @click="clickJobmonitor" >{{$t('Job Monitor')}}</div>
+                <div slot="reference" >
+                    <span :class="{active:monitoractive}">{{$t('Monitor')}}</span>
+                </div>
+            </el-popover>
+        </el-menu-item>
     </el-menu>
 
   </div>
@@ -25,12 +34,34 @@
 
 <script>
 import { mapGetters } from 'vuex'
+// 国际化
+const local = {
+    zh: {
+        'Manage': '管理',
+        'Auto-deploy': '自动部署',
+        'Monitor': '监控',
+        'Site Manage': '站点管理',
+        'User Access': '用户授权',
+        'Site Cooperation': '站点合作监控',
+        'Job Monitor': '离线任务监控'
+    },
+    en: {
+        'Manage': 'Manage',
+        'Auto-deploy': 'Auto-deploy',
+        'Monitor': 'Monitor',
+        'Site Manage': 'Site Manage',
+        'User Access': 'User Access',
+        'Site Cooperation': 'Site Cooperation',
+        'Job Monitor': 'Job Monitor'
+    }
+}
 export default {
     data() {
         return {
             visible: false,
+            monitorvisible: false,
             active: false,
-            activeName: 'first',
+            monitoractive: false,
             activeIndex: 'Auto-deploy'
         }
     },
@@ -39,40 +70,62 @@ export default {
         $route: {
             handler(value) {
                 if (value.name === 'sitemanage' || value.name === 'access') {
+                    this.activeIndex = 'Manage'
                     this.active = true
+                    this.monitoractive = false
+                } else if (value.name === 'cooperation' || value.name === 'jobmonitor') {
+                    this.activeIndex = 'Monitor'
+                    this.monitoractive = true
+                    this.active = false
                 } else {
                     this.active = false
+                    this.monitoractive = false
                 }
             }
         }
-
     },
     computed: {
         ...mapGetters(['role', 'autoState'])
     },
+    created() {
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
+    },
     mounted() {
         if (this.$route.name === 'sitemanage' || this.$route.name === 'access') {
             this.activeIndex = 'Manage'
+        } else if (this.$route.name === 'cooperation' || this.$route.name === 'jobmonitor') {
+            this.activeIndex = 'Monitor'
         }
     },
     methods: {
         handleSelect(key, keyPath) {
             if (key === 'Auto-deploy') {
                 this.$router.push({ name: 'overview' })
-            } else {
-                keyPath = key = 'Manage'
+            } else if (key === 'Manage') {
+                this.$router.push({ name: 'sitemanage' })
+            } else if (key === 'Monitor') {
+                this.$router.push({ name: 'cooperation' })
             }
         },
         clickSite() {
-            // this.visible = false
             this.$router.push({
                 name: 'sitemanage'
             })
         },
         clickAccess() {
-            // this.visible = false
             this.$router.push({
                 name: 'access'
+            })
+        },
+        clickCooperation() {
+            this.$router.push({
+                name: 'cooperation'
+            })
+        },
+        clickJobmonitor() {
+            this.$router.push({
+                name: 'jobmonitor'
             })
         }
 
@@ -87,8 +140,12 @@ export default {
     .top-menu{
         position: absolute;
         display: inline-block;
-        left: 265px;
+        left: 240px;
+        .focusing:focus {
+            outline:none;
+        }
         .el-menu-item:hover{
+            border-bottom:0px;
             background-color: #4AA2FF !important;
             border-bottom-color:#4AA2FF !important;
         }
@@ -108,14 +165,17 @@ export default {
 }
 .bar-pop{
     text-align: center;
-    line-height: 35px;
+    line-height: 30px;
     margin-top:0 !important;
-    min-width: 124px !important;
+    min-width: 110px !important;
     padding: 5px;
     .item{
         cursor: pointer;
-        font-size: 16px;
-        color: #217AD9;
+        font-size: 14px;
+        color: #4E5766;
+    }
+    .itemactive{
+        color: #217AD9
     }
     .item:hover{
         background-color: #ecf5ff;

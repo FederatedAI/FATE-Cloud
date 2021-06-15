@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="row-content">
-            <div class="row-type">
+        <div  class="deploying-body">
+            <div class="row-activa" >
                 <div class="version">
                     <el-select v-model="formInline.fateVersion" :disabled="disVersion" placeholder="Version" @change="toVersion">
                         <el-option
@@ -12,14 +12,12 @@
                         </el-option>
                     </el-select>
                 </div>
-                <div class="row-activa" >
-                    <el-button @click="toPull" :disabled="distopull" type="primary" >
-                        Pull
-                    </el-button>
-                </div>
+                <el-button @click="toPull" :disabled="distopull" type="text" >
+                    <img class="disable" v-if='distopull'  src="@/assets/pull.png">
+                    <img class="activa" v-else src="@/assets/pull.png">
+                    <span>Pull</span>
+                </el-button>
             </div>
-        </div>
-        <div  class="deploying-body">
             <div class="warn-box">
                 <i class="el-icon-warning"></i>
                 The current images are stored on Master, please ensure that the docker images of Node are consistent with the Master’s, otherwise the installation will fail.

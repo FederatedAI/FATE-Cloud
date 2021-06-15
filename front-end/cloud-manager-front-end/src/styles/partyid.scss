@@ -1,81 +1,68 @@
 .partyid-box {
-    .partyid {
-        margin: 24px 36px;
-
-        .partyid-header {
-            height: 34px;
-            margin-bottom: 24px;
-            text-align: right;
-
-            .input {
-                width: 250px;
-                margin-left: 16px;
-
-                .search {
-                    cursor: pointer;
-                    margin-right: 0px
-                }
-            }
-
-            .sel-role {
-                width: 85px;
-                margin-left: 16px;
-            }
-
-            .sel-institutions {
-                width: 115px;
-                margin-left: 16px;
-            }
-            .add{
-                width: initial;
-                color: #217AD9;
-                height: 36px;
-                vertical-align: middle;
-                font-size: 14px;
-                img{
-                    margin-right: 2px;
-                    vertical-align: -7px
-                }
-            }
-            .add:hover{
-                opacity: 0.85;
+    margin: 0px 12px;
+    .partyid-header {
+        height: 39px;
+        text-align: right;
+        background-color: #fff;
+        border-bottom:2px solid #E6EBF0; 
+        padding-top: 3px;
+        .input {
+            height: 24px;
+            width: 160px;
+            .search {
+                cursor: pointer;
+                margin-right: 0px
             }
         }
-
-        .partyid-body {
-            background-color: #fff;
-            position: absolute;
-            width: calc(100% - 72px);
-            height: calc(100% - 114px);
-
-            .table {
-                
-                height: calc(100% - 104px);
-                .el-table {
-                    width: calc(100% - 72px);
-                    height:100% !important;
-                    .el-button{
-                        padding:0;
-                        height: initial;
-                        line-height: initial;
-                    }
-
-                    .edit {
-                        margin-right: 10px;
-                        cursor: pointer;
-                        color: #217AD9
-                    }
-
-                    .delete {
-                        cursor: pointer;
-                        color: #217AD9
-                    }
-                }
-
+        .sel-institutions {
+            width: 115px;
+            margin-left: 16px;
+        }
+        .add{
+            width: initial;
+            vertical-align: middle;
+            font-size: 16px;
+            margin-left: 36px;
+            img{
+                margin-right: 2px;
+                vertical-align: -7px
             }
+        }
+  
+        .add:hover{
+            opacity: 0.85;
+        }
+
+    }
+    .partyid-body {
+        background-color: #fff;
+        position: absolute;
+        width: calc(100% - 24px);
+        height: calc(100% - 84px);
+        .table {
+            height: calc(100% - 128px);
+            .el-table {
+                width: calc(100% - 76px);
+                height:100% !important;
+                .el-button{
+                    padding:0;
+                    height: initial;
+                    line-height: initial;
+                }
+                .edit {
+                    margin-right: 10px;
+                    cursor: pointer;
+                    color: #217AD9
+                }
+                .delete {
+                    cursor: pointer;
+                    color: #217AD9
+                }
+            }
+
         }
     }
-
+   
     .partyid-delete-dialog {
 
         //弹框居中
@@ -120,7 +107,6 @@
         }
 
     }
-
 }
 
 // .el-select-dropdown__item {

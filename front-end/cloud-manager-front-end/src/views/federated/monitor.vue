@@ -1,20 +1,18 @@
 <template>
   <div class="monitor-box">
-    <div class="monitor">
-      <div class="monitor-header">
+
+    <div class="monitor-header">
         <el-radio-group class="radio" v-model="radio" @change="handleChahe">
-            <el-radio-button label="Today’s active data"></el-radio-button>
-            <el-radio-button label="Cumulative active data"></el-radio-button>
+            <el-radio-button label="Today’s active data">{{$t('m.monitor.todayActiveData')}}</el-radio-button>
+            <el-radio-button label="Cumulative active data">{{$t('m.monitor.cumulativeActiveData')}}</el-radio-button>
         </el-radio-group>
-      </div>
-      <div class="monitor-body">
+    </div>
+    <div class="monitor-body">
         <div class="content" >
             <monitortoday ref="monitortoday"/>
         </div >
-
-      </div>
-
     </div>
+
   </div>
 </template>
 
@@ -35,10 +33,6 @@ export default {
         }
     },
     created() {
-        // this.getInstitutionsToday()
-
-        // this.getSiteToday()
-
     },
 
     mounted() {

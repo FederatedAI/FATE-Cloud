@@ -1,8 +1,9 @@
 import { getOrganizationEnum, getPartyIDEnum, getVersionEnum } from '@/api/deploy'
 import { getAuthorState } from '@/api/home'
-
+import { getCookie, setCookie } from '@/utils/auth'
 const app = {
     state: {
+        language: getCookie('language') || 'zh',
         sidebar: [],
         organization: [],
         partyId: [],
@@ -48,6 +49,11 @@ const app = {
         },
         SITE_STATE: (state, data) => {
             state.siteState = data
+        },
+        // 中英文
+        SET_LANGUAGE: (state, language) => {
+            state.language = language
+            setCookie('language', language)
         }
     },
     actions: {
@@ -82,6 +88,10 @@ const app = {
                 }
             }
             return res
+        },
+        // 设中英文
+        setLanguage({ commit }, language) {
+            commit('SET_LANGUAGE', language)
         }
     }
 }

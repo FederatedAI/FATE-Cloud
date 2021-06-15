@@ -3,16 +3,15 @@
     // margin: 24px 36px;
     .site-detail {
         position: absolute;
-        height: calc(100% - 65px);
+        height: calc(100% - 93px);
         width: calc(100%);
         background: #F5F8FA;
         overflow: auto;
-
         .Basic {
             padding: 32px 64px 20px 64px;
-            width: 1200px;
+            width: 1272px;
             background: #fff;
-            margin: 23px auto;
+            margin: 12px auto;
             .Network {
                 font-size: 18px;
                 color: #4E5766;
@@ -27,43 +26,7 @@
                     margin-bottom: 10px;
                     height:42px;
                     min-width: 260px;
-                    .label{
-                        font-size: 14px;
-                        width: 350px;
-                        .label-title{
-                            margin-left: 36px;
-                            display:inline-block;
-                            width: 100px;
-                        }
-                        .label-version{
-                            margin-left: 45px;
-                        }
-                    }
-                    .info-text-select{
-                        .el-select{
-                            width: 100%;
-                        }
-                        .el-input{
-                            .el-input__inner{
-                                height: 38px;
-                                box-sizing:border-box;
-                                border-bottom: 2px #E6EBF0 solid;
-                                font-size: 18px;
-                                color: #2D3642;
-                                background-color: #fff
-                            }
-                        }
-                    }
-                    .label-select{
-                        .el-input{
-                            .el-input__inner{
-                                height: 38px;
-                                box-sizing:border-box;
-                                border-bottom: 2px #E6EBF0 solid;
-                                background-color: #fff
-                            }
-                        }
-                    }
+                   
                     .info-text {
                         font-size: 18px;
                         color: #2D3642;
@@ -153,14 +116,77 @@
                         color: #FF9D00;
                         font-size: 14px
                     }
+                   
+    
+                }
+                .label{
+                    font-size: 14px;
+                    width: 900px;
+                    color: #848C99;
+                    height: 40px;
+                    line-height: 40px;
+                    .label-title{
+                        display:inline-block;
+                        width: 216px;
+                    }
+                    .label-version{
+                        display:inline-block;
+                        width: 215px;
+                        margin-left: 45px;
+                        .el-select{
+                            width: 100%;
+                        }
+                        .el-input{
+                            .el-input__inner{
+                                height: 38px;
+                                box-sizing:border-box;
+                                border-bottom: 2px #E6EBF0 solid;
+                                font-size: 14px;
+                                color: #2D3642;
+                                background-color: #fff
+                            }
+                        }
+                    }
+                    .label-ip{
+                        margin-left: 45px;
+                        display:inline-block;
+                    }
+                }
+                .system-label{
+                    height: 40px;
+                    line-height: 40px;
+                    border-bottom: 2px #E6EBF0 solid;
+                    width: 100%;
+                    .system-title{
+                        color: #2D3642;
+                        font-weight: bold;
+                    }
+                    .info-text {
+                        font-size: 14px;
+                        color: #2D3642;
+                        margin-left: 15px;
+                    }
+                    .info-text-select{
+                        .el-input{
+                            .el-input__inner{
+                                width: 100px;
+                                height: 38px;
+                                box-sizing:border-box;
+                                font-size: 14px;
+                                color: #2D3642;
+                                background-color: #fff
+                            }
+                        }
+                    }
                     .icon-info{
                         margin-left: 10px;
                     }
                     .icon-info:hover{
                         color: #FF9D00
                     }
-    
+
                 }
+                
                 
             }
             

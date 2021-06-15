@@ -3,22 +3,22 @@
     <div class="site-detail">
         <div class="Basic">
             <div class="info">
-            <span>Basic Info</span>
+            <span>{{$t('Basic Info')}}</span>
             <div class="info-del">
-                <span class="info-sta">Status</span>
+                <span class="info-sta">{{$t('Status')}}</span>
                 <span class="sta-action">{{form.status ? form.status.desc:''}}</span>
             </div>
             </div>
             <el-form ref="form" :model="form" label-position="left" label-width="180px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                <el-form-item label="Site Name">
+                <el-form-item :label="$t('Site Name')">
                     <span class="info-text">{{form.siteName}}</span>
                 </el-form-item>
-                <el-form-item label="Institution">
+                <el-form-item :label="$t('Institution')">
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
-                <el-form-item label="Role">
+                <el-form-item  :label="$t('Role')" >
                     <span class="info-text">{{form.role?form.role.desc:form.role}}</span>
                 </el-form-item>
                 <el-form-item label="Federation key">
@@ -31,19 +31,19 @@
                 </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                <el-form-item label="Status">
+                <el-form-item :label="$t('Status')" >
                     <span class="info-text">{{form.status?form.status.desc:form.status}}</span>
                 </el-form-item>
-                <el-form-item label="Party ID">
+                <el-form-item :label="$t('Party ID')" >
                     <span class="info-text">{{form.partyId}}</span>
                 </el-form-item>
-                <el-form-item label="Creation Time">
+                <el-form-item  :label="$t('Creation Time')">
                     <span class="info-text">{{form.createTime | dateFormat}}</span>
                 </el-form-item>
-                <el-form-item label="Activation Time">
+                <el-form-item  :label="$t('Activation Time')" >
                     <span class="info-text">{{form.acativationTime | dateFormat}}</span>
                 </el-form-item>
-                <el-form-item label="Registration Link">
+                <el-form-item  :label="$t('Registration Link')">
                     <el-popover
                     placement="top"
                     width="400"
@@ -59,7 +59,7 @@
         </div>
         <div class="Basic">
             <div class="info">
-                <span>Network configuration</span>
+                <span>{{$t('Network configuration')}}</span>
                 <span  v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                     <div class="info-del" v-if="form.status && form.status.code !== 3">
                         <img src="@/assets/edit_click.png" v-if="editSubmitted === 1" @click="toEdit" class="edit" alt />
@@ -75,7 +75,7 @@
             <el-form ref="form" :model="form" label-position="left" :rules="rules" label-width="230px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                    <el-form-item label="Network Acess Entrances" style="height:100%;" prop="networkAccessEntrances" >
+                    <el-form-item :label="$t('Network Acess Entrances')" style="height:100%;" prop="networkAccessEntrances" >
                         <span class="info-text" v-if="editSubmitted!==2 &&  form.networkAccessEntrances">
                             <div v-for="(item,index) in form.networkAccessEntrances.split(';')" :key="index" >{{item}}</div>
                         </span>
@@ -91,7 +91,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="Network Acess Exits" style="height:100%;" prop="networkAccessExits" >
+                    <el-form-item :label="$t('Network Acess Exits')" style="height:100%;" prop="networkAccessExits" >
                         <span class="info-text" v-if="editSubmitted!==2 && form.networkAccessExits">
                             <div v-for="(item,index) in form.networkAccessExits.split(';')" :key="index" >{{item}}</div>
                         </span>
@@ -111,14 +111,7 @@
         </div>
         <div class="Basic">
             <div class="info">
-                <span>System version</span>
-                <!-- 暂时不需求自动更新 -->
-                <!-- <el-tooltip effect="dark" placement="bottom">
-                    <div style="font-size:14px" slot="content">
-                        <div>Get version automatically</div>
-                    </div>
-                    <img src="@/assets/presss.png" class="refresh" @click="autodialog=true"  alt />
-                </el-tooltip> -->
+                <span>{{$t('System version')}}</span>
                 <span v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                     <div class="info-del" v-if="form.status && form.status.code !== 3">
                         <span v-if="form.versionEditStatus.code===2">
@@ -133,71 +126,55 @@
                     </div>
                 </span>
             </div>
-            <el-form ref="form" :model="form" label-position="left" :rules="rules" label-width="180px">
-            <el-row :gutter="140">
-                <el-col :span="12">
-                    <el-form-item label="FATE version" style="height:100%;">
-                        <span slot="label">
-                            <span>FATE version</span>
-                            <el-tooltip effect="dark" placement="bottom">
-                                <div style="font-size:14px" slot="content">
-                                    <div>including FATE-Board, FATE-Flow</div>
-                                </div>
-                                <i class="el-icon-info icon-info"></i>
-                            </el-tooltip>
-                            <div class="label" v-for="(item, index) in form.componentVersion" :key="index">
-                                <span class="label-title">{{item.label}} </span>
-                                <span class="label-version" v-if="editVersion === 1" >{{item.version}}</span>
-                            </div>
-                        </span>
-                        <!-- fateVersion版本下拉 -->
-                        <span v-if="editVersion === 1" class="info-text">{{form.fateVersion}}</span>
-                        <span  v-if="editVersion === 2" class="info-text-select" >
-                            <el-select v-model="fateVersion" @change="togetcomponentVersion" placeholder="">
-                                <el-option
-                                    v-for="item in version"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                ></el-option>
-                            </el-select>
-                        </span>
-                        <!-- label版本循环 -->
-                        <span v-if="editVersion === 2" class="label-select" >
-                            <span v-for="(item, index) in form.componentVersion" :key="index">
+            <el-form ref="form" :model="form" label-position="left" :rules="rules" >
+                 <!-- fateVersion版本下拉 -->
+                <div class="system-label" >
+                    <span class="system-title">{{$t('FATE version')}}</span>
+                    <el-tooltip effect="dark" placement="bottom">
+                        <div style="font-size:14px" slot="content">
+                            <div>including FATE-Board, FATE-Flow</div>
+                        </div>
+                        <i class="el-icon-info icon-info"></i>
+                    </el-tooltip>
+                    <span v-if="editVersion === 1" class="info-text">{{form.fateVersion}}</span>
+                    <span  v-if="editVersion === 2" class="info-text-select" >
+                        <el-select v-model="fateVersion" @change="togetcomponentVersion" placeholder="">
+                            <el-option
+                                v-for="item in version"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            ></el-option>
+                        </el-select>
+                    </span>
+                </div>
+                <div class="label" >
+                    <span class="label-title" style="color:#4E5766;font-weight:bold">{{$t('FATE Component')}}</span>
+                    <span class="label-version" style="color:#4E5766;font-weight:bold" >{{$t('Version')}}</span>
+                    <span class="label-ip" style="color:#4E5766;font-weight:bold">IP </span>
+                </div>
+                <el-form-item label="" style="height:100%;">
+                    <div class="label" v-for="(item, index) in form.componentVersion" :key="index">
+                        <span class="label-title">{{item.label}} </span>
+                        <span class="label-version" v-if="editVersion === 1" >{{item.version}}</span>
+                        <span class="label-version" v-else>
                                 <el-select v-model="formVersion[item.label]" >
-                                    <el-option
-                                        v-for="item in item.setl"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    ></el-option>
-                                </el-select>
-                            </span>
-                        </span>
-                    </el-form-item>
-                </el-col>
-                <!-- <el-col :span="12">
-                    <el-form-item label="FATE-Serving version" style="height:100%;">
-                        <span v-if="editVersion === 1" class="info-text Network-text">{{form.fateServingVersion}}</span>
-                        <span v-if="editVersion === 2" class="info-text-select">
-                            <el-select v-model="fateServingVersion" placeholder="">
                                 <el-option
-                                    v-for="item in fateServingVersionList"
+                                    v-for="item in item.setl"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
                                 ></el-option>
                             </el-select>
                         </span>
-                    </el-form-item>
-                </el-col> -->
-            </el-row>
+                        <span class="label-ip">{{item.ip}} </span>
+                    </div>
+                </el-form-item>
             </el-form>
         </div>
         <div  class="Basic"  v-if="role.roleName==='Admin'">
             <div class="info">
-                <span>User List</span>
+                <span>{{$t('User List')}}</span>
             </div>
             <el-table
                 :data="siteList"
@@ -206,9 +183,9 @@
                 header-cell-class-name="tableHeadCell"
                 cell-class-name="tableCell"
                 tooltip-effect="light">
-                <el-table-column prop="userName" label="Name" width="200" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="role" label="Role" width="200"></el-table-column>
-                <el-table-column prop="permission" label="Permission"></el-table-column>
+                <el-table-column prop="userName" :label="$t('Name')" width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="role" :label="$t('Role')"  width="200"></el-table-column>
+                <el-table-column prop="permission" :label="$t('Permission')" ></el-table-column>
             </el-table>
         </div>
 
@@ -285,41 +262,7 @@
             <el-button class="ok-btn" style="margin-left:20px" type="info" @click="changedialog=false" >Cancel</el-button>
         </div>
     </el-dialog>
-    <!-- 自动更新弹框 -->
-    <el-dialog :visible.sync="autodialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
-        <div class="line-one">The system gets the following version automatically:</div>
-        <div class="conten-box">
-            <div>
-                <span class="title">Fate version</span>
-                <span class="version">1.1.4</span>
-            </div>
-            <div>
-                <span class="subtitle">Fate version</span>
-                <span class="sub-version">1.1.4</span>
-            </div>
-            <div>
-                <span class="subtitle">Fate version</span>
-                <span class="sub-version">1.1.4</span>
-            </div>
-            <div>
-                <span class="subtitle">Fate version</span>
-                <span class="sub-version">1.1.4</span>
-            </div><div>
-                <span class="subtitle">Fate version</span>
-                <span class="sub-version">1.1.4</span>
-            </div>
-            <div>
-                <span class="title">Fate version</span>
-                <span class="version">1.1.4</span>
-            </div>
-        </div>
-        <div class="line-one">Are you sure you want to change system version?</div>
-        <div class="line-two">The results will be synchronized to cloud manager.</div>
-        <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="sureVersion">Sure</el-button>
-            <el-button class="ok-btn" type="info" @click="autodialog=false">cancel</el-button>
-        </div>
-    </el-dialog>
+
     <sitedetailip ref="sitedetailip" />
   </div>
 </template>
@@ -344,6 +287,55 @@ import {
 import moment from 'moment'
 import sitedetailip from './sitedetailip'
 import { mapGetters } from 'vuex'
+// 国际化
+const local = {
+    zh: {
+        'Basic Info': '基本信息',
+        'Status': '状态',
+        'Joined': '已加入',
+        'Delete': '已删除',
+        'Site Name': '站点名称',
+        'Institution': '站点机构',
+        'Party ID': '站点ID',
+        'Role': '站点角色',
+        'Creation Time': '创建时间',
+        'Activation Time': '激活时间',
+        'Registration Link': '注册链接',
+        'Network configuration': '网关设置',
+        'Network Acess Entrances': '网关入口',
+        'Network Acess Exits': '网关出口',
+        'System version': '系统版本',
+        'FATE version': 'FATE版本',
+        'FATE Component': 'FATE服务组件',
+        'Version': '版本',
+        'User List': '站点用户列表',
+        'Name': '用户名称',
+        'Permission': '权限'
+    },
+    en: {
+        'Basic Info': 'Basic Info',
+        'Status': 'Status',
+        'Joined': 'Joined',
+        'Delete': 'Delete',
+        'Site Name': 'Site Name',
+        'Institution': 'Institution',
+        'Party ID': 'Party ID',
+        'Role': 'Role',
+        'Creation Time': 'Creation Time',
+        'Activation Time': 'Activation Time',
+        'Registration Link': 'Registration Link',
+        'Network configuration': 'Network configuration',
+        'Network Acess Entrances': 'Network Acess Entrances',
+        'Network Acess Exits': 'Network Acess Exits',
+        'System version': 'System version',
+        'FATE version': 'FATE version',
+        'FATE Component': 'FATE Component',
+        'Version': 'Version',
+        'User List': 'User List',
+        'Name': 'Name',
+        'Permission': 'Permission'
+
+    } }
 export default {
     name: 'sitedetail',
     components: {
@@ -375,7 +367,6 @@ export default {
             fateServingVersion: '', // 待更新
             fateVersion: '', // 待更新
             versiondialog: false, // 是否确定更新版本弹框
-            autodialog: false, // 是否自动更新弹框
             fateServingVersionList: [],
             form: {
                 networkAccessEntrances: '',
@@ -427,8 +418,10 @@ export default {
         ...mapGetters(['role', 'version'])
     },
     created() {
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.initInfo()
-        this.togetMsg()
+        // this.togetMsg()
         this.$store.dispatch('selectEnum')
     },
     beforeDestroy() {
@@ -451,13 +444,16 @@ export default {
                 }
 
                 this.form.componentVersion = []
+                console.log('JSON==>>', JSON.parse(res.data.componentVersion))
+
                 // 版本号赋值
                 if (res.data.componentVersion) {
                     let object = JSON.parse(res.data.componentVersion)
                     for (const key in object) {
                         let obj = {}
                         obj.label = key
-                        obj.version = object[key]
+                        obj.version = object[key].version
+                        obj.ip = object[key].address
                         this.form.componentVersion.push(obj)
                     }
                 }

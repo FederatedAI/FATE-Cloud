@@ -3,13 +3,15 @@
         <img src="@/assets/welcomepage.svg" />
         <div class="welcomepage">
             <div class="title">
-            <span>Welcome to FATE Cloud!</span>
+            <span>{{$t('Welcome to FATE Cloud!')}}</span>
             </div>
             <div class="text">
-            <span>It is an Infrastructure for Building and Managing Federated Data Collaboration Network.</span>
+            <span>
+                {{$t('It is an Infrastructure for Building and Managing Federated Data Collaboration Network.')}}
+            </span>
             </div>
             <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" label-position="left">
-                <div class="from-text">Username/Email/Phone</div>
+                <div class="from-text">{{$t('Username/Email/Phone')}}</div>
                 <el-form-item prop="username">
                     <el-input
                         style="width:450px"
@@ -23,7 +25,7 @@
                         @keyup.enter.native="handleLogin">
                     </el-input>
                 </el-form-item>
-                <div class="from-text"> Password</div>
+                <div class="from-text">{{$t('Password')}}</div>
                 <el-form-item prop="password">
                     <el-input
                         style="width:450px"
@@ -40,24 +42,28 @@
                     <span  @click="toshowPwd" v-else class="view"> <img src="@/assets/view_show.png" /></span>
                 </el-form-item>
                 <div class="Remember-text">
-                    <el-checkbox v-model="checked">Remember me</el-checkbox>
+                    <el-checkbox v-model="checked">{{$t('Remember me')}}</el-checkbox>
                 </div>
                 <el-form-item>
                     <el-button  class="btn-login" type="primary" @click.native.prevent="handleLogin">
-                    Sign in
+                        {{$t('Sign in')}}
                     </el-button>
                 </el-form-item>
                 <div class="activate-it">
-                    <span style="color:#848C99">Administrator account not activated yet? </span>
-                    <span class="it" @click="toAct">Activate it.</span>
+                    <span style="color:#848C99">
+                        {{$t('Administrator account not activated yet?')}}
+                    </span>
+                    <span class="it" @click="toAct">{{$t('Activate it.')}}</span>
                 </div>
             </el-form>
         </div>
         <activte-dialog ref="activtedialog"/>
         <el-dialog :visible.sync="contactdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="contact-dialog">
-            <div class="line-text-two">Please contact the administrator to add permission for you.</div>
+            <div class="line-text-two">
+                {{$t('Please contact the administrator to add permission for you.')}}
+            </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="contactdialog=false">OK</el-button>
+                <el-button class="ok-btn" type="primary" @click="contactdialog=false"> {{$t('OK')}}</el-button>
             </div>
         </el-dialog>
     </div>
@@ -67,6 +73,31 @@
 <script>
 import activteDialog from './loginDialog'
 import { decode64, encode64 } from '@/utils/base64'
+// 国际化
+const local = {
+    zh: {
+        'Welcome to FATE Cloud!': '欢迎来到FATE Cloud!',
+        'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.': '作为构建和管理联邦数据合作网络的基础设施，提供一站式联邦数据合作服务。',
+        'Username/Email/Phone': '用户名/邮箱/手机号',
+        'Password': '密码',
+        'Remember me': '记住密码',
+        'Sign in': '登录',
+        'Administrator account not activated yet?': '管理员账号尚未激活？',
+        'Activate it.': '点此激活',
+        'Please contact the administrator to add permission for you.': '请联系管理员为你添加权限'
+    },
+    en: {
+        'Welcome to FATE Cloud!': 'Welcome to FATE Cloud!',
+        'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.': 'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.',
+        'Username/Email/Phone': 'Username/Email/Phone',
+        'Password': 'Password',
+        'Remember me': 'Remember me',
+        'Sign in': 'Sign in',
+        'Administrator account not activated yet?': 'Administrator account not activated yet?',
+        'Activate it.': 'Activate it.',
+        'Please contact the administrator to add permission for you.': 'Please contact the administrator to add permission for you.'
+    }
+}
 
 export default {
     name: 'login',
@@ -122,12 +153,6 @@ export default {
                             } else {
                                 callback()
                             }
-                            // const pwdRegex = new RegExp('(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,20}')
-                            // if (!pwdRegex.test(value)) {
-                            //   callback(new Error('密码长度为 8-20 个字 ，需同时包含数字、字母以及特殊符号'))
-                            // } else {
-                            //   callback()
-                            // }
                         }
                     }
                 ]
@@ -147,7 +172,8 @@ export default {
     },
     computed: {},
     created() {
-
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     mounted() {
         this.checked = localStorage.getItem('fatechecked') === 'true'

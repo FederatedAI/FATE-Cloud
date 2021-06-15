@@ -1,140 +1,125 @@
 <template>
   <div class="service">
     <div class="service-box">
-      <div class="serve-title">
-        <div class="Service-inline">Site service management</div>
-        <div class="inline">
-          <el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
-                <!-- <el-form-item label="Federated organization:">
-                    <el-select v-model="formInline.federatedId" placeholder="" @change="changeFederatedId">
-                        <el-option
-                            v-for="item in organization"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item> -->
-                <el-form-item label="PartyID:">
-                    <el-select v-model="formInline.partyId" placeholder="" @change="tochangepartyId">
-                        <el-option
-                            v-for="item in partyId"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="Site name:" class="form-item">
-                    <span style="color:#217AD9">{{formInline.siteName}}</span>
-                </el-form-item>
-          </el-form>
-        </div>
-      </div>
-      <div class="serve-content">
-        <el-tabs v-model="activeName" @tab-click="handleClick">
-          <el-tab-pane label="FATE" name="FATE"></el-tab-pane>
-          <!-- <el-tab-pane disabled label="FATE Serving" name="FATE Serving"></el-tab-pane> -->
-        </el-tabs>
-        <div class="empty"></div>
-        <div v-if="showcontinue" class="continue" @click="toDeployment">FATE in deployment, continue >></div>
-        <div v-if="!showcontinue" class="toy-test">
-            <span @click="totest"  v-if="!testloading">Toy test</span>
-            <span v-else> <i  class="el-icon-loading test-loading"></i>Testing...</span>
-        </div>
-        <div v-if="!showcontinue"  @click="toShowLog" class="log">Log</div>
-        <span v-if="!showcontinue" >
-            <div v-if="upgradelist.length===0" class="upfate-default">
-                <span> Upgrade FATE </span>
+        <div class="row-content">
+            <el-radio-group class="radio" v-model="activeName" @change="handleClick">
+                <el-radio-button label="FATE"></el-radio-button>
+                <el-radio-button disabled label="FATE Serving"></el-radio-button>
+            </el-radio-group>
+            <div class="inline">
+                <el-form :inline="true" :model="formInline" class="demo-form-inline" size="mini">
+                    <el-form-item label="PartyID:">
+                        <el-select v-model="formInline.partyId" placeholder="" @change="tochangepartyId">
+                            <el-option
+                                v-for="item in partyId"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="Site name:" class="form-item">
+                        <span style="color:#217AD9">{{formInline.siteName}}</span>
+                    </el-form-item>
+                </el-form>
             </div>
-            <el-dropdown v-else trigger="click" class="upfate-dropdown" @command="handleCommand">
-                <div class="upfate-activa">
-                    <el-badge is-dot type="warning">
-                        <span type="text"> Upgrade FATE </span>
-                    </el-badge>
-                </div>
-                <el-dropdown-menu slot="dropdown" >
-                    <el-dropdown-item v-for="(item, index) in upgradelist" :key="index" :command="item">upgrade to
-                        <span style="color:#217AD9">{{item.FateVersion}}</span>
-                    </el-dropdown-item>
-                </el-dropdown-menu>
-            </el-dropdown>
-        </span>
-      </div>
-      <div class="partyid-body">
-        <div class="table">
-          <el-table
-            :data="tableData"
-            header-row-class-name="tableHead"
-            header-cell-class-name="tableHeadCell"
-            cell-class-name="tableCell"
-            height="100%"
-            tooltip-effect="light"
-          >
-            <el-table-column type="index" label="Index" width="70"></el-table-column>
-            <el-table-column prop="componentName" label="FATE component" show-overflow-tooltip width="130">
-                <template slot-scope="scope">
-                    <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >
-                        {{scope.row.componentName}}
-                        <el-tooltip effect="dark" placement="bottom">
-                            <div style="font-size:14px" slot="content">
-                                <div>Before accessing FATEBoard, please configure the host that corresponding to </div>
-                                <div>FATEBoard deployment machine IP, for example: 172.16.0.1 10000.fateboard.kubefate.net</div>
-                            </div>
-                            <i class="el-icon-info icon-info"></i>
-                        </el-tooltip>
-                    </span>
-                    <span v-else> {{scope.row.componentName}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="componentVersion" label="Version" >
-                <template slot-scope="scope">
-                    <span>v{{scope.row.componentVersion}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="address" label="Node" show-overflow-tooltip width="220">
-                <template slot-scope="scope">
-                    <div>{{scope.row.address}}</div>
-                </template>
-            </el-table-column>
-            <el-table-column prop="finishTime" label="Deployment time" show-overflow-tooltip width="200">
-                <template slot-scope="scope">
-                    <span>{{scope.row.finishTime|dateFormat}}</span>
-                </template>
-            </el-table-column>
-            <!-- <el-table-column prop="startTime" label="Start time" show-overflow-tooltip width="200">
-                <template slot-scope="scope">
-                    <span>{{scope.row.startTime|dateFormat}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop="duration" label="Duration">
-                <template slot-scope="scope">
-                    <span>{{scope.row.duration | durationFormat}}</span>
-                </template>
-            </el-table-column> -->
-            <el-table-column prop="deployStatus.desc" label="Deploy status" width="130"></el-table-column>
-            <el-table-column prop="status.desc" label="Status" align="center">
-                <template slot-scope="scope">
-                    <span  v-if="scope.row.status.code===0">- -</span>
-                    <span v-else>{{scope.row.status.desc}}</span>
-                </template>
-            </el-table-column>
-            <el-table-column prop=""  align="center"  label="Action">
-                <template slot-scope="scope">
-                    <span v-if="scope.row.status.code===0">- -</span>
-                    <el-button @click="toAction(scope.row,'restart')" v-if="scope.row.status.code===1" type="text">
-                       restart
-                    </el-button>
-                    <el-button @click="toAction(scope.row,'stop')" v-if="scope.row.status.code===2" type="text">
-                        stop
-                    </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
         </div>
-      </div>
+        <div class="serve-content">
+            <div v-if="showcontinue" class="continue" @click="toDeployment">
+                {{$t('FATE in deployment, continue >>')}}
+            </div>
+            <div v-if="!showcontinue" class="toy-test">
+                <span @click="totest"  v-if="!testloading">{{$t('Toy test')}}</span>
+                <span v-else> <i  class="el-icon-loading test-loading"></i>{{$t('Testing')}}...</span>
+            </div>
+            <div v-if="!showcontinue"  @click="toShowLog" class="log">{{$t('Log')}}</div>
+            <span v-if="!showcontinue" >
+                <div v-if="upgradelist.length===0" class="upfate-default">
+                    <span> {{$t('Upgrade FATE')}} </span>
+                </div>
+                <el-dropdown v-else trigger="click" class="upfate-dropdown" @command="handleCommand">
+                    <div class="upfate-activa">
+                        <el-badge is-dot type="warning">
+                            <span type="text"> {{$t('Upgrade FATE')}} </span>
+                        </el-badge>
+                    </div>
+                    <el-dropdown-menu class="upgrade-menu" slot="dropdown" >
+                        <el-dropdown-item v-for="(item, index) in upgradelist" :key="index" :command="item">{{$t('upgrade to')}}
+                            <span style="color:#217AD9">{{item.FateVersion}}</span>
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+            </span>
+        </div>
+        <div v-if='showAnsible ' class="progress">
+            <span v-if='ansiblePage===4'>
+                FATE package acquisition...
+            </span>
+        </div>
+        <div v-else class="service-body">
+            <div  class="table">
+            <el-table
+                :data="tableData"
+                header-row-class-name="tableHead"
+                header-cell-class-name="tableHeadCell"
+                cell-class-name="tableCell"
+                height="100%"
+                tooltip-effect="light"
+            >
+                <el-table-column type="index" :label="$t('Index')" width="70"></el-table-column>
+                <el-table-column prop="componentName" :label="$t('FATE component')"  show-overflow-tooltip >
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.componentName==='fateboard'" @click="tofateboard" style="color:#217AD9;cursor:pointer;" >{{scope.row.componentName}}</span>
+                        <span v-else> {{scope.row.componentName}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="componentVersion" :label="$t('Version')"  >
+                    <template slot-scope="scope">
+                        <span>v{{scope.row.componentVersion}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="address" :label="$t('Node')" width="220" show-overflow-tooltip >
+                    <template slot-scope="scope">
+                        <div>{{scope.row.address}}</div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="finishTime"  :label="$t('Deployment time')"  show-overflow-tooltip width="200">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.finishTime|dateFormat}}</span>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column prop="startTime" label="Start time" show-overflow-tooltip width="200">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.startTime|dateFormat}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="duration" label="Duration">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.duration | durationFormat}}</span>
+                    </template>
+                </el-table-column> -->
+                <el-table-column prop="deployStatus.desc" :label="$t('Deploy status')"  width="130"></el-table-column>
+                <el-table-column prop="status.desc" label="Status" align="center">
+                    <template slot-scope="scope">
+                        <span  v-if="scope.row.status.code===0">-</span>
+                        <span v-else>{{scope.row.status.desc}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop=""  align="center" :label="$t('Action')" >
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.status.code===0">-</span>
+                        <el-button @click="toAction(scope.row,'restart')" v-if="scope.row.status.code===1" type="text">
+                        restart
+                        </el-button>
+                        <el-button @click="toAction(scope.row,'stop')" v-if="scope.row.status.code===2" type="text">
+                            stop
+                        </el-button>
+                </template>
+                </el-table-column>
+            </el-table>
+            </div>
+        </div>
     </div>
-
     <el-dialog
         :visible.sync="upgradedialog"
         class="servicedialog"
@@ -160,8 +145,43 @@ import { mapGetters } from 'vuex'
 import servicelog from './servicelog'
 import servicedialog from './servicedialog'
 import { getserviceList, toyTest, toLog, upGradeList, pagesStep, testresult, deployversion } from '@/api/deploy'
+import { ansibletoyTest, ansibleUpgrade, ansibleLoge } from '@/api/fatedeployAnsible'
 import { toupgrade, tofateboard } from '@/api/fatedeploy'
 import moment from 'moment'
+// 国际化
+const local = {
+    zh: {
+        'Index': '序号',
+        'FATE component': 'FATE服务组件',
+        'Version': '版本',
+        'Node': '节点',
+        'Deployment time': '部署时间',
+        'Deploy status': '部署状态',
+        'Action': '操作',
+        'FATE in deployment, continue >>': 'FATE部署中，继续下一步 >>',
+        'Upgrade FATE': 'FATE版本升级',
+        'upgrade to': '升级到',
+        'Toy test': 'Toy 测试',
+        'Testing': '测试中',
+        'Log': '日志'
+    },
+    en: {
+        'Index': 'Index',
+        'FATE component': 'FATE component',
+        'Version': 'Version',
+        'Node': 'Node',
+        'Deployment time': 'Deployment time',
+        'Deploy status': 'Deploy status',
+        'Action': 'Action',
+        'FATE in deployment, continue >>': 'FATE in deployment, continue >>',
+        'Upgrade FATE': 'Upgrade FATE',
+        'upgrade to': 'upgrade to',
+        'Toy test': 'Toy test',
+        'Testing': 'Testing',
+        'Log': 'Log'
+
+    }
+}
 
 export default {
     name: 'service',
@@ -193,14 +213,16 @@ export default {
             tableData: [],
             currentPage: 1, // 当前页
             total: 0, // 表格条数
+            showAnsible: false,
+            ansiblePage: 0,
             // servicedialog: false,
             upgradedialog: false, // 确认升级弹框
             upgradeData: {},
             formInline: {
-                federatedId: parseInt(this.$route.query.federatedId),
                 partyId: parseInt(this.$route.query.partyId),
                 siteName: this.$route.query.siteName,
-                fateVersion: this.$route.query.fateVersion
+                fateVersion: this.$route.query.fateVersion,
+                deployType: this.$route.query.deployType// 部署类型
             },
             activeName: 'FATE',
             address: '',
@@ -208,7 +230,8 @@ export default {
             testloading: false,
             upgradelist: [],
             showcontinue: false,
-            timeLess: null// 定时器
+            timeLess: null // 定时器
+
         }
     },
     watch: {
@@ -223,19 +246,23 @@ export default {
         ...mapGetters(['organization', 'partyId', 'version'])
     },
     created() {
-        this.getinitiList()
-        this.$store.dispatch('selectEnum', this.formInline.federatedId)
-        this.topagesStep()
-        this.getUpGradeList()
-        this.testres()
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
+        this.init()
     },
     beforeDestroy() {
         window.clearTimeout(this.timeToyTimeless)
     },
     methods: {
+        init() {
+            this.getinitiList()
+            this.getUpGradeList()
+            this.testres()
+            this.topagesStep()
+            this.$store.dispatch('selectEnum', this.formInline.federatedId)
+        },
         getinitiList() {
             let data = {
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
@@ -248,13 +275,14 @@ export default {
                     } else {
                         this.showcontinue = true
                     }
+                } else {
+                    this.showcontinue = true
                 }
             })
         },
         async getUpGradeList() {
             this.upgradelist = []
             let data = {
-                federatedId: parseInt(this.formInline.federatedId),
                 partyId: parseInt(this.formInline.partyId),
                 productType: 1
             }
@@ -278,24 +306,41 @@ export default {
         },
         toShowLog() {
             let data = {
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
-            toLog(data).then(res => {
+            if (this.formInline.deployType === 1) {
+                toLog(data).then(res => {
+                    this.$refs['log'].logdialog = true
+                    this.$refs['log'].data = res.data
+                    for (const key in res.data) {
+                        res.data[key].forEach(item => {
+                            this.$refs['log'].dataList.push(item)
+                        })
+                    }
+                })
+            } else if (this.formInline.deployType === 2) {
+                this.$refs['log'].data.all = []
+                this.$refs['log'].dataList = []
                 this.$refs['log'].logdialog = true
-                this.$refs['log'].data = res.data
-                for (const key in res.data) {
-                    res.data[key].forEach(item => {
-                        this.$refs['log'].dataList.push(item)
+                let dataparams = ['debug', 'error', 'info', 'waring']
+                dataparams.forEach(item => {
+                    let data = {
+                        level: item
+                    }
+                    ansibleLoge(data).then(res => {
+                        this.$refs['log'].data[item] = res.data.content || []
+                        res.data.content && res.data.content.forEach((item) => {
+                            this.$refs['log'].dataList.push(item)
+                        })
                     })
-                }
-            })
+                    this.$refs['log'].data.all = this.$refs['log'].dataList
+                })
+            }
         },
         testres() {
             let data = {
                 testItem: 'Toy Test',
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
@@ -320,22 +365,31 @@ export default {
         },
         totest() {
             this.testloading = true
-            let data = {
-                testItemList: { 'Toy Test': ['Toy Test'] },
-                federatedId: this.formInline.federatedId,
-                partyId: this.formInline.partyId,
-                productType: 1,
-                ifonly: true
+            if (this.formInline.deployType === 1) {
+                let data = {
+                    testItemList: { 'Toy Test': ['Toy Test'] },
+                    partyId: this.formInline.partyId,
+                    productType: 1,
+                    ifonly: true
+                }
+                toyTest(data).then(res => {
+                    this.testres()
+                })
+            } else if (this.formInline.deployType === 2) {
+                let data = {
+                    partyId: this.formInline.partyId,
+                    productType: 1,
+                    ifonly: true
+                }
+                ansibletoyTest(data).then(res => {
+                    this.testres()
+                })
             }
-            toyTest(data).then(res => {
-                this.testres()
-            })
         },
         toAction(row, type) {
             let data = {
                 action: type === 'stop' ? 0 : 1,
                 componentName: row.componentName,
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
@@ -347,16 +401,16 @@ export default {
         // 前往部署页面
         toDeployment() {
             this.$router.push({
-                name: 'deploying',
+                name: this.formInline.deployType === 1 ? 'deploying' : 'ansible',
                 query: {
-                    federatedId: this.formInline.federatedId,
                     partyId: this.formInline.partyId,
                     siteName: this.formInline.siteName,
-                    fateVersion: this.formInline.fateVersion
+                    fateVersion: this.formInline.fateVersion,
+                    deployType: this.formInline.deployType// 部署类型
                 }
             })
         },
-        // 下拉升级版本
+        // 下拉更新
         handleCommand(command) {
             this.upgradeData.FateVersion = command.FateVersion
             this.upgradedialog = true
@@ -365,21 +419,36 @@ export default {
         toSureUpgrade() {
             let data = {
                 fateVersion: this.upgradeData.FateVersion,
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
-            toupgrade(data).then(res => {
-                this.$router.push({
-                    name: 'deploying',
-                    query: {
-                        siteName: this.formInline.siteName,
-                        federatedId: this.formInline.federatedId,
-                        partyId: this.formInline.partyId,
-                        fateVersion: this.formInline.fateVersion
-                    }
+            if (this.formInline.deployType === 1) {
+                toupgrade(data).then(res => {
+                    this.$router.push({
+                        name: 'deploying',
+                        query: {
+                            siteName: this.formInline.siteName,
+                            partyId: this.formInline.partyId,
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType, // 部署类型
+                            upgrade: true
+                        }
+                    })
                 })
-            })
+            } else {
+                ansibleUpgrade(data).then(res => {
+                    this.$router.push({
+                        name: 'ansible',
+                        query: {
+                            siteName: this.formInline.siteName,
+                            partyId: this.formInline.partyId,
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType, // 部署类型
+                            upgrade: true
+                        }
+                    })
+                })
+            }
         },
         // 下拉改变partyip
         tochangepartyId() {
@@ -389,12 +458,11 @@ export default {
                 }
             })
             let data = {
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId
             }
             deployversion(data).then(res => {
                 this.formInline.fateVersion = res.data
-                this.topagesStep()
+                this.init()
             })
             this.testloading = false
             window.clearTimeout(this.timeToyTimeless)
@@ -402,67 +470,67 @@ export default {
         // 当前页按照
         topagesStep() {
             let data = {
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId,
                 productType: 1
             }
             pagesStep(data).then(res => {
-                // debugger
                 if (res.data.pageStatus.code === 0) {
                     this.$router.push({
                         name: 'auto',
                         query: {
                             siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
                             partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType
                         }
                     })
-                } else if (res.data.pageStatus.code === 1) {
-                    this.$router.push({
-                        name: 'prepare',
-                        query: {
-                            siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
-                            partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
-                        }
-                    })
-                } else if (res.data.pageStatus.code === 2) {
-                    this.$router.push({
-                        name: 'deploying',
-                        query: {
-                            siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
-                            partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
-                        }
-                    })
-                } else {
-                    this.getinitiList()
-                    this.getUpGradeList()
+                }
+                this.formInline.deployType = res.data.deployType.code
+                switch (res.data.deployType.code) {
+                case 1 :
                     this.$router.push({
                         name: 'service',
                         query: {
                             siteName: this.formInline.siteName,
-                            federatedId: this.formInline.federatedId,
                             partyId: this.formInline.partyId,
-                            fateVersion: this.formInline.fateVersion
+                            fateVersion: this.formInline.fateVersion,
+                            deployType: this.formInline.deployType
                         }
                     })
+                    break
+                case 2 :
+                    if (res.data.pageStatus.code === 4) {
+                        this.ansiblePage = res.data.pageStatus.code
+                        this.showcontinue = true
+                        this.showAnsible = true
+                        this.$router.push({
+                            name: 'service',
+                            query: {
+                                siteName: this.formInline.siteName,
+                                partyId: this.formInline.partyId,
+                                fateVersion: this.formInline.fateVersion,
+                                deployType: this.formInline.deployType
+                            }
+                        })
+                    } else {
+                        this.$router.push({
+                            name: 'service',
+                            query: {
+                                siteName: this.formInline.siteName,
+                                partyId: this.formInline.partyId,
+                                fateVersion: this.formInline.fateVersion,
+                                deployType: this.formInline.deployType
+                            }
+                        })
+                    }
+                    break
                 }
             })
         },
-        // 下拉关闭组织
-        // changeFederatedId(data) {
-        //     this.$store.dispatch('selectEnum', data)
-        //     this.formInline.partyId = ''
-        //     this.formInline.siteName = ''
-        // }
+
         // 跳转fateboard
         tofateboard() {
             let data = {
-                federatedId: this.formInline.federatedId,
                 partyId: this.formInline.partyId
             }
             tofateboard(data).then(res => {
@@ -478,15 +546,15 @@ export default {
 <style rel="stylesheet/scss" lang="scss" >
 @import 'src/styles/service.scss';
 
-.el-dropdown-menu{
+.upgrade-menu{
     width: 240px;
     margin-top:0 !important;
+
     .popper__arrow{
         display: none
     }
     .el-dropdown-menu__item{
-        margin-left: 20px;
-        width: 160px;
+
         color: #2D3642;
         text-align:center;
         font-size: 18px;

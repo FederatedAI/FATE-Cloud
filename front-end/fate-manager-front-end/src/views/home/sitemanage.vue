@@ -1,47 +1,51 @@
 <template>
   <div class="sitemanage">
     <div class="site-item">
-        <div class="site-title">
-            <div class="site-item-title">Federated Organization</div>
-            <div class="site-item-title">Institution</div>
-            <div class="site-item-title">Organization Size</div>
-            <div class="site-item-title">Creation Time</div>
+        <div class="site-item-text">
+            <span class="title">{{$t('Federated Organization')}}</span>
+            <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization}`" :placement="'top'"/>
+        </div>
+        <div class="site-item-text">
+            <span class="title">{{$t('Institutio')}}</span>
+            <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
+        </div>
+        <div class="site-item-text">
+            <span class="title">{{$t('Organization Size')}}</span>
+            <div class="text"> {{myInstitution.size}} </div>
+        </div>
+        <div class="site-item-text">
+            <span class="title">{{$t('Creation Time')}}</span>
+            <div style="color:#4E5766;">{{myInstitution.createTime | dateFormat}}</div>
         </div>
         <div class="site-title">
-            <div class="site-item-text">
-                <tooltip :width="'282px'" :content="myInstitution.federatedOrganization" :placement="'top'"/>
-            </div>
-            <div class="site-item-text">
-                <tooltip :width="'282px'" :content="myInstitution.institutions" :placement="'top'"/>
-            </div>
-            <div class="site-item-text">{{myInstitution.size}}</div>
-            <div class="site-item-text">{{myInstitution.createTime | dateFormat}}</div>
+            <span class="site-tiem-view" @click="togetexchangeList">{{$t('view exchange')}}</span>
         </div>
     </div>
     <div class="sitemanage-box">
         <div class="add-site">
             <span v-if="role.roleName==='Admin'">
-                <el-tooltip effect="dark" content="Add a new site to join a federated organization" placement="right">
+                <el-tooltip effect="dark" :content="$t('Add a new site to join a federated organization')" placement="top">
                     <div  class="add" @click="toAddSite">
-                        <span>Add</span>
+                        <img src="@/assets/add_site.png">
+                        <span>{{$t('m.common.add')}}</span>
                     </div>
                 </el-tooltip>
                 <span v-if='siteState'>
                     <div class="app" v-if="applyStatus === 1">
-                        <span>You have applied to view the fate manager sites of
+                        <span>{{$t('m.sitemanage.alreadyApply')}}
                             <span v-for="(item, index) in applyStatusList" :key="index">
-                                <span v-if="index===applyStatusList.length-1">{{item.desc}}</span>
-                                <span v-else> {{item.desc}},</span>
+                                <span v-if="index===applyStatusList.length-1">{{item}}</span>
+                                <span v-else> {{item}},</span>
                             </span>
                         </span>
 
-                        <span style="margin-left: 10px">Please wait for the approval of Cloud Manager…</span>
+                        <span style="margin-left: 10px">{{$t('m.sitemanage.waitApproval')}}</span>
                     </div>
                     <div class="apply"  v-if='applyStatus === 3' >
                         <span  class="apply-click" v-if='showapplyBtn' @click="showApply">
-                            Apply to view other FATE Manager sites.
+                            {{$t('Apply to view other FATE Manager sites.')}}
                         </span>
-                        <span v-else class="apply-click"  style="color: #848C99;cursor:not-allowed">Apply to view other FATE Manager sites.</span>
+                        <span v-else class="apply-click"  style="color: #848C99;cursor:not-allowed">{{$t('Apply to view other FATE Manager sites.')}}</span>
                         <el-popover
                             placement="bottom"
                             :visible-arrow="false"
@@ -51,8 +55,8 @@
                             trigger="click">
                             <div class="content">
                                 <div class="title">
-                                    <div class="title-time">Time</div>
-                                    <div class="title-history">History</div>
+                                    <div class="title-time">{{$t('m.common.time')}}</div>
+                                    <div class="title-history">{{$t('m.common.history')}}</div>
                                 </div>
                                 <div class="content-box">
                                     <div v-for="(item, index) in siteHistoryList" :key="index" >
@@ -94,11 +98,12 @@
                 </span>
             </span>
             <span v-else>
-                <div class="add" style="cursor:not-allowed;background-color:#c8c9cc">
-                    <span>Add</span>
+                <div class="add" style="cursor:not-allowed">
+                    <img src="@/assets/add_site.png">
+                    <span>{{$t('m.common.add')}}</span>
                 </div>
                 <div v-if='siteState' class="apply" style="cursor:not-allowed;color:#c8c9cc" >
-                    <span >Apply to view other FATE Manager sites. </span>
+                    <span >{{$t('Apply to view other FATE Manager sites.')}} </span>
                     <img slot="reference" class="tickets" src="@/assets/history.png" style="cursor:not-allowed" alt="" >
                 </div>
             </span>
@@ -106,98 +111,111 @@
         <!-- 我的站点申请 -->
         <div class="site-name">
             <div class="name-left">
-                <span class="institution-title">My Institution</span>
+                <span class="institution-title">{{$t('My Institution')}}</span>
                 <span class="institution-text">
                     <tooltip :width="'170px'" :content="myInstitution.fateManagerInstitutions" :placement="'top'"/>
                 </span>
-                <span class="size-title">Size</span>
+                <span class="size-title">{{$t('Size')}}</span>
                 <span class="size-num">{{myInstitution.joinedSites }}</span>
             </div>
             <div class="name-right">
-                <span class="right-text">My site has been applied to view by</span>
-                <el-tooltip v-if="viewContent.institutions&&viewContent.institutions.length>0" effect="dark" placement="bottom">
-                    <span slot="content">
+                <span class="right-text">{{$t('My site has been applied to view by')}}</span>
+                <el-tooltip v-if="viewContent.totalLength>0" popper-class="view-tip" effect="light"  placement="bottom">
+                    <span slot="content" >
+                        <div class="viewcontent" v-if="viewContent.scenarioType !== '1'">
+                            <p class="content-title">{{$t('Host sites viewed by:')}}</p>
+                            <div class="sites-list">{{hostListText}}</div>
+                        </div>
+                        <div class="viewcontent" style="margin-top:25px" v-if="viewContent.scenarioType !== '1'">
+                            <p class="content-title">{{$t('Guest sites viewed by:')}}</p>
+                            <div class="sites-list">{{guestListText}}</div>
+                        </div>
+                        <div class="viewcontent" v-if="viewContent.scenarioType === '1'">
+                            <div class="sites-list">{{allListText}}</div>
+                        </div>
                         <span v-for="(item, index) in viewContent.institutions" :key="index">
                             <span v-if="index===viewContent.institutions.length-1">{{item}}</span>
                             <span v-else> {{item}},</span>
                         </span>
                     </span>
-                    <span class="right-num">{{viewContent.institutions.length}}</span>
+                    <span class="right-num">{{viewContent.totalLength}}</span>
                 </el-tooltip>
                 <span v-else class="right-num">{{0}}</span>
-                <span class="right-title">FATE Managers</span>
+                <span class="right-title">{{$t('FATE Managers')}}</span>
                 <span class="refresh">
                     <i @click="getList" class="el-icon-refresh-right"></i>
                 </span>
             </div>
         </div>
         <el-table
+            border
             :data="myInstitution.siteList"
             class="site-table"
             header-row-class-name="tableHead"
             header-cell-class-name="tableHeadCell"
             cell-class-name="tableCell"
             tooltip-effect="light">
-            <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip>
+            <el-table-column prop="siteName" :label="$t('Site Name')"  show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span @click="toSietInfo(scope.row)" style="color:#217AD9;cursor:pointer;">{{scope.row.siteName}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="status.desc" label="Status">
+            <el-table-column prop="status.desc" :label="$t('Status')" >
             </el-table-column>
-            <el-table-column prop="role.desc" label="Role"></el-table-column>
-            <el-table-column prop="partyId" label="Party ID"></el-table-column>
-            <el-table-column prop="acativationTime" label="Activation Time">
+            <el-table-column prop="serviceStatus.desc" :label="$t('Service Status')" ></el-table-column>
+            <el-table-column prop="role.desc" :label="$t('Role')" ></el-table-column>
+            <el-table-column prop="partyId" :label="$t('Party ID')" ></el-table-column>
+            <el-table-column prop="activationTime" :label="$t('Activation Time')">
                 <template slot-scope="scope">
-                    <span>{{scope.row.acativationTime | dateFormat}}</span>
+                    <span>{{scope.row.activationTime | dateFormat}}</span>
                 </template>
             </el-table-column>
         </el-table>
         <!-- 申请查看其它站点 -->
         <span v-if='siteState'>
-            <span v-for="(item, index) in otherSiteList" :key="index">
-                <div class="site-name">
+            <span v-for="(item, index) in otherSiteList" :key="index" >
+                <div class="site-name" style="margin-top: 12px;">
                     <div class="name-left">
-                        <span class="institution-title">Institution</span>
+                        <span class="institution-title">{{$t('Other Institution')}}</span>
                         <span class="institution-text">
                             <tooltip :width="'170px'" :content="item.fateManagerInstitutions" :placement="'top'"/>
                         </span>
-                        <span class="size-title">Size</span>
+                        <span class="size-title">{{$t('Size')}}</span>
                         <span class="size-num">{{item.size}}</span>
                     </div>
                 </div>
                 <el-table
                     :data="item.siteList"
                     class="site-table"
+                    border
                     header-row-class-name="tableHead"
                     header-cell-class-name="tableHeadCell"
                     cell-class-name="tableCell"
                     tooltip-effect="light">
-                    <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="status.desc" label="Status"></el-table-column>
-                    <el-table-column prop="role.desc" label="Role"></el-table-column>
-                    <el-table-column prop="partyId" label="Party ID"></el-table-column>
-                    <el-table-column prop="acativationTime" label="Activation Time">
+                    <el-table-column prop="siteName" :label="$t('Site Name')" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="status.desc" :label="$t('Status')"></el-table-column>
+                    <el-table-column prop="serviceStatus.desc" :label="$t('Service Status')"></el-table-column>
+                    <el-table-column prop="role.desc" :label="$t('Role')"></el-table-column>
+                    <el-table-column prop="partyId" :label="$t('Party ID')"></el-table-column>
+                    <el-table-column prop="activationTime" :label="$t('Activation Time')">
                         <template slot-scope="scope">
-                            <span>{{scope.row.acativationTime | dateFormat}}</span>
+                            <span>{{scope.row.activationTime | dateFormat}}</span>
                         </template>
                     </el-table-column>
                 </el-table>
             </span>
         </span>
     </div>
-      <!-- 添加弹框 -->
+    <!-- 添加弹框 -->
     <el-dialog :visible.sync="applydialog" class="apply-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="dialog-box">
             <div class="dialog-title">
-                Apply
+                {{$t('m.sitemanage.apply')}}
             </div>
             <div class="line-text-one">
-                Please select the FATE Manager you want to view.
+                {{$t('m.sitemanage.selectTips')}}
             </div>
-            <div class="line-text-one">
-                After submitting the application, please wait for the Cloud Manager’s approval.
-            </div>
+            <div class="line-text-gray">{{$t('m.sitemanage.applyOther')}}</div>
             <div class="dialog-main">
                 <el-checkbox-group v-model="checkList">
                     <div v-for="(item, index) in checkboxList" :key="index">
@@ -206,8 +224,8 @@
                 </el-checkbox-group>
             </div>
             <div class="dialog-foot">
-                <el-button type="primary" :disabled="(checkList.length-applyed.length)===0" @click="toApply">OK</el-button>
-                <el-button type="info" @click="applydialog=false">Cancel</el-button>
+                <el-button type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
+                <el-button type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </div>
     </el-dialog>
@@ -246,8 +264,8 @@
             </div>
             <div class="line-text-one">to view the fate manager sites of </div>
             <div class="line-text-one" >
-                <span class="span" v-for="(item, index) in rejectList" :key="index">
-                    <span v-if="index===rejectList.length-1">{{item}}</span>
+                <span class="span" v-for="(item, index) in cancelList" :key="index">
+                    <span v-if="index===cancelList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
             </div>
@@ -256,6 +274,26 @@
             <el-button class="ok-btn" type="primary" @click="toapplynotpass">OK</el-button>
         </div>
     </el-dialog>
+      <!-- Exchange弹框 -->
+    <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
+        <div class="vip-box">
+            <div class="dialog-title">{{$t('Exchange Info.')}}</div>
+            <el-table
+                :data="exchangeList.exchangeVip"
+                class="site-table"
+                header-row-class-name="tableHead"
+                header-cell-class-name="tableHeadCell"
+                cell-class-name="tableCell"
+                height="250"
+                tooltip-effect="light">
+                <el-table-column type="index" :label="$t('m.common.index')" width="250"></el-table-column>
+                <el-table-column prop="exchangeName" label="Exchange" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="vip" label="VIP"></el-table-column>
+            </el-table>
+        </div>
+    </el-dialog>
+    <!-- 注册弹框 -->
+    <siteregister ref="siteregister"/>
   </div>
 </template>
 
@@ -263,8 +301,63 @@
 
 import moment from 'moment'
 import { mapGetters } from 'vuex'
+import siteregister from './siteregister'
 import tooltip from '@/components/Tooltip'
-import { getInstitutions, applysite, mySiteList, otherSitList, applyState, readState, fatemanagerList, applyHistory } from '@/api/home'
+import { getInstitutions, applysite, mySiteList, otherSitList, applyState, readState, fatemanagerList, applyHistory, getexchangeList, getNoticeapplysite } from '@/api/home'
+// 国际化
+const local = {
+    zh: {
+        'Federated Organization': '联邦组织',
+        'Institutio': '机构',
+        'Other Institution': '其他联邦机构',
+        'Organization Size': '成员数',
+        'Creation Time': '创建时间',
+        'view exchange': 'exchange服务信息',
+        'Exchange Info.': 'Exchange服务信息',
+        'Apply to view other FATE Manager sites.': '申请查看成员联邦站点',
+        'Add a new site to join a federated organization': '新增站点到联邦组织',
+        'My site has been applied to view by': '我的站点已被',
+        'FATE Managers': '位联邦成员申请查看',
+        'My Institution': '我的站点机构',
+        'Size': '站点数',
+        'Site Name': '站点名',
+        'Status': '状态',
+        'Service Status': '服务状态',
+        'Role': '站点角色',
+        'Party ID': '站点ID',
+        'Activation Time': '激活时间',
+        'Host sites viewed by:': '数据源站点被以下机构查看：',
+        'Guest sites viewed by:': '应用方站点被以下机构查看：',
+        'History': '操作历史',
+        'Time': '时间'
+    },
+    en: {
+        'Federated Organization': 'Federated Organization',
+        'Institutio': 'Institutio',
+        'Other Institution': 'Institutio',
+        'Organization Size': 'Organization Size',
+        'Creation Time': 'Creation Time',
+        'view exchange': 'view exchange',
+        'Exchange Info.': 'Exchange Info.',
+        'Apply to view other FATE Manager sites.': 'Apply to view other FATE Manager sites.',
+        'Add a new site to join a federated organization': 'Add a new site to join a federated organization',
+        'My site has been applied to view by': 'My site has been applied to view by',
+        'FATE Managers': 'FATE Managers',
+        'My Institution': 'My Institution',
+        'Size': 'Size',
+        'Site Name': 'Site Name',
+        'Status': 'Status',
+        'Service Status': 'Service Status',
+        'Role': 'Role',
+        'Party ID': 'Party ID',
+        'Activation Time': 'Activation Time',
+        'Host sites viewed by:': 'Host sites viewed by:',
+        'Guest sites viewed by:': 'Guest sites viewed by:',
+        'History': 'History',
+        'Time': 'Time'
+
+    }
+}
 export default {
     name: 'homeview',
     filters: {
@@ -273,7 +366,8 @@ export default {
         }
     },
     components: {
-        tooltip
+        tooltip,
+        siteregister
     },
     data() {
         return {
@@ -285,29 +379,52 @@ export default {
             applynotList: [], // 审核不通过弹框列表
             myInstitution: [],
             otherSiteList: [],
-            viewContent: {}, // 被别人查看的内容
+            viewContent: {
+                allInstuList: [],
+                guestInstuList: [],
+                hostInstuList: []
+            }, // 被别人查看的内容
             applyed: [], // 已经申请
             applyStatus: 3, // 默认审批通过
             applyStatusList: [],
             agreedList: [], // 同意列表
             rejectList: [], // 拒绝列表
             cancelList: [], // 取消列表
-            siteHistoryList: []// 历史审批记录
+            siteHistoryList: [], // 历史审批记录
+            exchangedialog: false,
+            exchangeList: { },
+            chartTimer: null // 轮询定时器
+
         }
     },
     computed: {
-        ...mapGetters(['role', 'siteState'])
-
+        ...mapGetters(['role', 'siteState']),
+        hostListText() {
+            return this.viewContent.hostInstuList.length > 0 ? this.viewContent.hostInstuList.join(',') : 'No Data'
+        },
+        guestListText() {
+            return this.viewContent.guestInstuList.length > 0 ? this.viewContent.guestInstuList.join(',') : 'No Data'
+        },
+        allListText() {
+            return this.viewContent.allInstuList.length > 0 ? this.viewContent.allInstuList.join(',') : 'No Data'
+        }
     },
     created() {
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.$nextTick(() => {
             this.getList()
+            this.getNoticeapplysite()
             this.getapplyList()
         })
     },
 
     mounted() {
 
+    },
+    beforeDestroy() {
+        this.clearPollingTimer()
+        clearInterval(this.clusterTimer)
     },
     methods: {
         getList() {
@@ -316,7 +433,7 @@ export default {
                 if (res.data) {
                     this.myInstitution = res.data[0]
                     this.myInstitution.joinedSites = 0
-                    this.myInstitution.siteList = res.data[0].siteList.map(item => {
+                    this.myInstitution.siteList = res.data[0].siteList && res.data[0].siteList.map(item => {
                         if (item.status.code === 2) {
                             this.myInstitution.joinedSites += 1
                         }
@@ -326,8 +443,9 @@ export default {
                 }
             })
             // 其他人申请列表
-            fatemanagerList().then(res => {
-                this.viewContent = res.data
+            this.otherApplys()
+            this.setPollingTimer(() => {
+                this.otherApplys()
             })
             // 查看他人站点
             otherSitList().then(res => {
@@ -336,32 +454,71 @@ export default {
                     this.otherSiteList.push(item)
                 })
             })
-            // 审批状态列表
+            // 站点状态列表
             applyState().then(res => {
                 this.applyStatusList = res.data || []
-                if (res.data && [...res.data].every(item => item.code === 1)) {
+                // mock
+                // this.applyStatusList = ['test_wzh', 'stu1']
+                console.log(this.applyStatusList, 'applyStatusList')
+                if (this.applyStatusList.length > 0) {
                     this.applyStatus = 1 // 审批中
-                } else if (res.data && [...res.data].some(item => item.code === 2 || item.code === 3 || item.code === 4)) {
-                    this.applyStatus = 2 // code === 2 审批通过、code === 3拒绝或code === 4被取消
-                    this.applynotpass = true
                 } else {
                     this.applyStatus = 3 // 无申请记录
                 }
-                res.data && res.data.forEach(item => {
-                    if (item.code === 2) {
-                        this.agreedList.push(item.desc)
-                    } else if (item.code === 3) {
-                        this.rejectList.push(item.desc)
-                    } else if (item.code === 4) {
-                        this.cancelList.push(item.desc)
-                    }
-                })
+                console.log(this.applyStatus, 'applyStatus')
+            })
+        },
+        otherApplys() {
+            fatemanagerList().then(res => {
+                // res.data = []
+                let data = res.data.institutions || []
+                let scenarioType = data.scenarioType
+                // mock
+                // let scenarioType = '1'
+                // data.guestList = ['WZH-HOST', 'manager-1']
+                // data.hostList = ['WZH-HOST', 'manager-1']
+                this.viewContent.scenarioType = scenarioType
+                if (scenarioType === '1') { // 混合
+                    this.viewContent.allInstuList = (data.all && data.all.map(item => item)) || []
+                } else if (scenarioType === '2' || scenarioType === '3') {
+                    this.viewContent.guestInstuList = (data.guestList && data.guestList.map(item => item)) || []
+                    this.viewContent.hostInstuList = (data.hostList && data.hostList.map(item => item)) || []
+                }
+                this.viewContent.totalLength = this.viewContent.allInstuList.length + this.viewContent.guestInstuList.length + this.viewContent.hostInstuList.length
+                console.log(this.viewContent)
+            })
+        },
+        // 机构审批状态查询
+        getNoticeapplysite() {
+            getNoticeapplysite().then(res => {
+                // res.data = [{ 'institutions': 'A', 'status': 2 }, { 'institutions': 'B', 'status': 3 }, { 'institutions': 'C', 'status': 4 }]
+                if (res.data.length > 0) {
+                    res.data.forEach(item => {
+                        if (item.status === 2) {
+                            this.agreedList.push(item.institutions)
+                        } else if (item.status === 3) {
+                            this.rejectList.push(item.institutions)
+                        } else if (item.status === 4) {
+                            this.cancelList.push(item.institutions)
+                        }
+                    })
+                    this.applynotpass = true
+                }
+            })
+        },
+        // 获取exchangeList 列表
+        togetexchangeList() {
+            this.exchangedialog = true
+            getexchangeList().then(res => {
+                this.exchangeList = res.data || []
             })
         },
         // 添加站点
         toAddSite() {
             // 前往注册
-            this.$router.push({ path: '/welcome/register' })
+            this.$refs['siteregister'].registerVisible = true
+            this.$refs['siteregister'].inputform = { inputUrl: '' }
+            // this.$router.push({ path: '/welcome/register' })
         },
         toSietInfo(row) {
             this.$router.push({
@@ -373,26 +530,28 @@ export default {
         // 获取申请弹框列表
         getapplyList() {
             getInstitutions().then(res => {
-                this.showapplyBtn = res.data.length > 0
+                this.showapplyBtn = res.data && res.data.length > 0
             })
         },
         // 显示申请弹框
         showApply() {
             this.checkList = []
             // 显示已经加入的Institution
-            this.otherSiteList && this.otherSiteList.forEach((item) => {
-                this.checkList.push(item.fateManagerInstitutions)
-                this.applyed = this.checkList
-            })
+            // this.otherSiteList && this.otherSiteList.forEach((item) => {
+            //     this.checkList.push(item.fateManagerInstitutions)
+            // })
             getInstitutions().then(res => {
+                let applyedArr = []
                 this.checkboxList = res.data.map(item => {
-                    this.checkList.forEach(ele => {
-                        if (ele === item.institutions) {
-                            item.disable = true
-                        }
-                    })
+                    // item.status.code = 1
+                    if (item.status.code === 2) {
+                        item.disable = true
+                        applyedArr.push(item.institutions)
+                    }
                     return item
                 })
+                this.applyed = this.applyed.concat(applyedArr)
+                console.log(this.applyed, 'applyed')
                 this.applydialog = true
             })
         },
@@ -421,26 +580,33 @@ export default {
         gethistory() {
             this.siteHistoryList = []
             applyHistory().then(res => {
-                res.data && res.data.forEach(item => {
+                res.data && res.data.list && res.data.list.forEach(item => {
                     let obj = {}
                     obj.agree = []
                     obj.reject = []
                     obj.cancel = []
-                    obj.applyTime = item.applyTime
-                    JSON.parse(item.content).forEach(elm => {
-                        if (elm.code === 2) {
-                            obj.agree.push(elm.desc)
-                        } else if (elm.code === 3) {
-                            obj.reject.push(elm.desc)
-                        } else if (elm.code === 4) {
-                            obj.cancel.push(elm.desc)
+                    obj.applyTime = item.updateTime
+                    item.authorityApplyReceivers.forEach(elm => {
+                        if (elm.status === 2) {
+                            obj.agree.push(elm.authorityInstitutions)
+                        } else if (elm.status === 3) {
+                            obj.reject.push(elm.authorityInstitutions)
+                        } else if (elm.status === 4) {
+                            obj.cancel.push(elm.authorityInstitutions)
                         }
                     })
                     this.siteHistoryList.push(obj)
                 })
             })
+        },
+        // 轮询定时器
+        setPollingTimer(cb, interval) {
+            clearInterval(this.chartTimer)
+            this.chartTimer = setInterval(cb, interval || 5000)
+        },
+        clearPollingTimer() {
+            clearInterval(this.chartTimer)
         }
-
     }
 }
 </script>
@@ -485,6 +651,22 @@ export default {
         display:inline-block;
         margin: 12px 0;
     }
-
 }
+.view-tip{
+    border: 1px solid #999 !important;
+    width: 250px;
+    .viewcontent{
+        .content-title{
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #999;
+        }
+        .sites-list{
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+    }
+}
+
 </style>

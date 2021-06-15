@@ -5,15 +5,27 @@
             <!-- <img src="@/assets/logo.png"> -->
             <span>FATE Cloud</span>
         </div>
-        <div class="right-bar">
+        <div class="name-bar">
             <el-popover v-if="loginName" placement="bottom" popper-class="bar-pop" :visible-arrow="false" trigger="click">
-                <div class="mane" @click="tologout">Sign out</div>
+                <div class="mane" @click="tologout">{{$t('Sign out')}}</div>
                 <div slot="reference" >
                     <span>{{loginName}}</span>
                     <i class="el-icon-caret-bottom" />
                 </div>
             </el-popover>
-            <span v-else @click="tologin">Sign in</span>
+            <span v-else @click="tologin">{{$t('Sign in')}}</span>
+        </div>
+        <div class="lang-bar">
+            <el-dropdown  trigger="click"  @command="handleCommand">
+                <span class="text-link">
+                    <span>{{language==='zh'?'中文':'English'}}</span>
+                    <i class="el-icon-caret-bottom"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown"  class="dropdown">
+                    <el-dropdown-item command='zh' :disabled="language==='zh'">中文</el-dropdown-item>
+                    <el-dropdown-item command='en' :disabled="language==='en'">English</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </div>
     </el-header>
     <el-main>
@@ -26,6 +38,17 @@
 <script>
 import { logout } from '@/api/welcomepage'
 import { mapGetters } from 'vuex'
+// 国际化
+const local = {
+    zh: {
+        'Sign in': '登录',
+        'Sign out': '退出'
+    },
+    en: {
+        'Sign in': 'Sign in',
+        'Sign out': 'Sign out'
+    }
+}
 export default {
     name: 'home',
     components: {},
@@ -41,9 +64,11 @@ export default {
         this.$store.dispatch('setloginname', localStorage.getItem('name')).then(r => {
             localStorage.setItem('name', r)
         })
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     computed: {
-        ...mapGetters(['loginName'])
+        ...mapGetters(['loginName', 'language'])
     },
     methods: {
         toHome() {
@@ -68,6 +93,10 @@ export default {
                     path: '/home/welcome'
                 })
             })
+        },
+        handleCommand(val) {
+            this.$i18n.locale = val
+            this.$store.dispatch('setLanguage', val)
         }
     }
 }

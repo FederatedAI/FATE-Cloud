@@ -65,3 +65,15 @@ html {
         border-top-color: #303133 !important;
       }
 }
+
+.el-tooltip__popper.is-light{
+    background: #fff !important;
+    color: #303133 !important;
+    .popper__arrow:after {
+        border-top-color: #fff !important;
+      }
+}
+
+.focusing:focus {
+    outline:none;
+}
