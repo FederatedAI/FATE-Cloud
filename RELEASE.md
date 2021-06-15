@@ -1,3 +1,34 @@
+# **Release 1.2.0** #
+
+# **Major Features and Improvements** #
+
+## Cloud Manager ##
+
+**Site manage**
+-Supports for specifying the proxy network access of  site before generating registration link.
+----------------------------------------------------------------------------------------------------
+**IP manage**
+-Supports for setting the true/false value for "is polling" field of each router .
+----------------------------------------------------------------------------------------------------
+**Certificate**
+- Add certificate function,supports for Cloud manager certificates publishment and revocation.
+----------------------------------------------------------------------------------------------------
+**System function switch**
+-Supports for setting the federated senario for Cloud manager.After setting the senario,FATE manager can only apply to view the specified sites of other FATE managers as follows:
+1）hetero federation only：appliers can  only view the host sites of other FATE managers.
+2）homo federation only：appliers can  only view the guest sites of other FATE managers.
+3）hetero federation and homo federation：appliers can view both the guest sites and host sites of other FATE managers.
+----------------------------------------------------------------------------------------------------
+**Admin access**
+-Supports for specifying the proxy network access of FATE manager before generating invitation link.
+----------------------------------------------------------------------------------------------------
+
+Improvement：
+**Site monitor**
+-Improvements for the arrangement of institutions and sites in each module.
+**Others**
+-Supports for switching  to the Chinese language.
+
 # **Release 1.1.0** #
 
 # **Major Features and Improvements** #
