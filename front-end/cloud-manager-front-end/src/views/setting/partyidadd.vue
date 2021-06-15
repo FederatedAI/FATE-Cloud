@@ -2,7 +2,7 @@
   <div class="partyid-add">
     <el-dialog
       class="add-groud"
-      :title="title"
+      :title="title!=='Edit'?$t('Add a new ID Group'):$t('Edit')"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
@@ -15,20 +15,20 @@
         label-position="left"
         label-width="128px"
       >
-        <el-form-item label="Name" prop="groupName">
+        <el-form-item :label="$t('Name')" prop="groupName">
           <el-input :class="{ 'edit-text': true, 'groupNamewarn': groupNamewarn }"
           @blur="toCheckGroupName"
           @focus="cancelValid('groupName')"
           v-model.trim="partidform.groupName">
           </el-input>
         </el-form-item>
-        <el-form-item label="Type" prop="role">
+        <el-form-item  :label="$t('Type')"  prop="role">
           <el-select
             v-if="title!=='Edit'"
             class="edit-text select"
             :popper-append-to-body="false"
             v-model="partidform.role"
-            placeholder="Type"
+            :placeholder="$t('Type')"
           >
             <el-option
               v-for="item in roleSelect"
@@ -37,21 +37,21 @@
               :value="item.value"
             ></el-option>
           </el-select>
-          <span v-if="title ==='Edit'" class="info-text" style="color:#B8BFCC">{{partidform.role===1?'Guest':'Host'}}</span>
+          <span v-if="title ==='Edit'" class="info-text" style="color:#B8BFCC">{{partidform.role===1? $t('m.common.guest') : $t('m.common.host')}}</span>
         </el-form-item>
         <el-form-item label="ID range" prop="rangeInfo">
           <span slot="label">
             <span>
-              <span>ID range</span>
+              <span>{{$t('ID range')}}</span>
               <el-tooltip effect="dark" placement="bottom" >
                 <div style="font-size:14px;" slot="content">
                     <span v-if="title !=='Edit'" >
-                        <div>PartyID's coding rules are limited to natural Numbers only,</div>
-                        <div>and a natural number uniquely represents a party.</div>
+                        <div>{{$t("PartyID's coding rules are limited to natural Numbers only,")}}</div>
+                        <div>{{$t("and a natural number uniquely represents a party.")}}</div>
                     </span>
                     <span v-if="title ==='Edit'" >
-                        <div>Support for adding new rules or modifying unused rules</div>
-                        <div>in addition to the used coding rules.</div>
+                        <div>{{$t("Support for adding new rules or modifying unused rules")}}</div>
+                        <div>{{$t("additionToUsedCodingRules")}}</div>
                     </span>
                 </div>
                 <i class="el-icon-info range-info"></i>
@@ -64,14 +64,14 @@
             class="textarea"
             @blur="toReset"
             @focus="cancelValid('rangeInfo')"
-            placeholder="Enter an ID range like:10000~19999;11111"
+            :placeholder="$t('m.partyId.enterIDRangeLike')+':10000~19999;11111'"
             v-model.trim="partidform.rangeInfo"
           ></el-input>
         </el-form-item>
       </el-form>
       <div class="dialog-footer">
-        <el-button type="primary" style="margin-right:14px" :disabled="submitbtn" @click="submitAction">Submit</el-button>
-        <el-button type="info" @click="cancelAction">Cancel</el-button>
+        <el-button type="primary" style="margin-right:14px" :disabled="submitbtn" @click="submitAction">{{$t('m.common.submit')}}</el-button>
+        <el-button type="info" @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -80,6 +80,34 @@
 <script>
 import { partyidUpdate, partyidAdd, checkRange, checkUpdateRange, checkGroupName } from '@/api/setting'
 import { requestRange } from '@/utils/idRangeRule'
+// 国际化
+const local = {
+    zh: {
+        'Add a new ID Group': '添加新ID组',
+        'Edit': '编辑ID组',
+        'Name': '分组名',
+        'Type': 'ID类型',
+        'ID range': 'ID范围',
+        "PartyID's coding rules are limited to natural Numbers only,": '站点ID的编码规则仅限于自然数，',
+        'and a natural number uniquely represents a party.': '且每个ID唯一对应一个站点。',
+        'ID range field is required': 'ID范围字段为必填项',
+        'Support for adding new rules or modifying unused rules': '支持添加新规则或修改未使用的规则',
+        'additionToUsedCodingRules': '除了使用的编码规则。'
+
+    },
+    en: {
+        'Add a new ID Group': 'Add a new ID Group',
+        'Edit': 'Edit',
+        'Name': 'Name',
+        'Type': 'Type',
+        'ID range': 'ID range',
+        "PartyID's coding rules are limited to natural Numbers only,": "PartyID's coding rules are limited to natural Numbers only,",
+        'and a natural number uniquely represents a party.': 'and a natural number uniquely represents a party.',
+        'ID range field is required': 'ID range field is required',
+        'Support for adding new rules or modifying unused rules': 'Support for adding new rules or modifying unused rules',
+        'additionToUsedCodingRules': 'in addition to the used coding rules.'
+    }
+}
 
 export default {
     name: 'partyadd',
@@ -111,11 +139,11 @@ export default {
             roleSelect: [
                 {
                     value: 1,
-                    label: 'Guest'
+                    label: this.$t('m.common.guest')
                 },
                 {
                     value: 2,
-                    label: 'Host'
+                    label: this.$t('m.common.host')
                 }
             ],
             rules: {
@@ -125,15 +153,15 @@ export default {
                     validator: (rule, value, callback) => {
                         if (!value) {
                             this.groupNamewarn = true
-                            callback(new Error('Name field is required.'))
+                            callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('Name') })))
                         } else if (this.groupNamewarn) {
                             this.groupNamewarn = true
-                            callback(new Error('Group name exist! '))
+                            callback(new Error(this.$t('m.partyId.groupNameExist')))
                         } else {
                             callback()
                         }
                     } }],
-                role: [{ required: true, trigger: 'change', message: 'Type field is required.' }],
+                role: [{ required: true, trigger: 'change', message: this.$t('m.common.requiredfieldWithType', { type: this.$t('Type') }) }],
                 rangeInfo: [
                     {
                         required: true,
@@ -143,7 +171,7 @@ export default {
                                 // 去空格
                                 value = value.replace(/\s+/g, '')
                             } else {
-                                callback(new Error('ID range field is required.'))
+                                callback(new Error(this.$t('ID range field is required')))
                                 return
                             }
                             // 匹配中文
@@ -179,21 +207,23 @@ export default {
                                 return aprev - bprev
                             }
                             if (!value) {
-                                callback(new Error('ID range field is required.'))
+                                callback(new Error(''))
                             } else if (pattern.test(value) || letter.test(value) || chinese.test(value) || !result) {
-                                callback(new Error('Invalid input.'))
-                            } else if (this.cannotEdit.intervalWithPartyIds.length > 0 || this.cannotEdit.sets.length > 0) {
+                                callback(new Error(this.$t('m.common.invalidInput')))
+                            // } else if (this.cannotEdit.intervalWithPartyIds.length > 0 || this.cannotEdit.sets.length > 0) {
+                            } else if (this.cannotEdit.length > 0 && this.cannotEdit[0].region && this.cannotEdit[0].usedPartyIds) {
                                 let str = ''
+                                console.log(this.cannotEdit, 'this.cannotEdit')
                                 this.cannotEdit.forEach(item => {
                                     if (item.region.leftRegion === item.region.rightRegion) {
-                                        str += `"${item.region.leftRegion}" cannot be edited,in which ${item.usedPartyIds}. it have been assigned to the sites. `
+                                        str += `"${item.region.leftRegion}" ${this.$t('m.partyId.cannotBeEdited')} ${item.usedPartyIds}. ${this.$t('m.partyId.itBeenAssigned')}`
                                     } else {
-                                        str += `"${item.region.leftRegion}-${item.region.rightRegion}" cannot be edited,in which ${item.usedPartyIds}. etc have been assigned to the sites.`
+                                        str += `"${item.region.leftRegion}-${item.region.rightRegion}" ${this.$t('m.partyId.cannotBeEdited')} ${item.usedPartyIds}. ${this.$t('m.partyId.etcBeenAssigned')}`
                                     }
                                 })
                                 callback(new Error(str))
                             } else if (this.beenUsed) {
-                                callback(new Error(`${this.beenUsed.leftRegion}-${this.beenUsed.rightRegion} ID range have been used, please edit again!`))
+                                callback(new Error(`${this.beenUsed.leftRegion}-${this.beenUsed.rightRegion} ${this.$t('m.partyId.beenUsed')}`))
                             } else {
                                 callback()
                             }
@@ -217,6 +247,10 @@ export default {
         }
     },
     computed: {},
+    created() {
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
+    },
     methods: {
         // 检验GroupName是否重复
         toCheckGroupName() {
@@ -245,19 +279,18 @@ export default {
                             partyidUpdate(data).then(res => {
                                 this.dialogVisible = false
                                 this.$parent.initList()// 刷新列表
-                                this.$message({
-                                    type: 'success',
-                                    message: 'success!',
-                                    duration: 3000
-                                })
+                                this.$message.success(this.$t('m.common.success'))
                                 this.$refs['groudform'].resetFields()// 取消表单验证
                             }).catch(res => {
+                                console.log(res, 'edit-res')
                                 // {leftRegion: 40, rightRegion: 45}
                                 this.beenUsed = res.data
                                 this.$refs['groudform'].validateField('rangeInfo', valid => {})
                             })
                         }).catch(res => {
+                            console.log(res, 'res')
                             this.cannotEdit = [...res.data]
+                            console.log(this.cannotEdit, 'cannotEdit')
                             this.$refs['groudform'].validateField('rangeInfo', valid => {})
                         })
                     } else {
@@ -266,11 +299,7 @@ export default {
                             partyidAdd(data).then(res => {
                                 this.dialogVisible = false
                                 this.$parent.initList()// 刷新列表
-                                this.$message({
-                                    type: 'success',
-                                    message: 'success!',
-                                    duration: 3000
-                                })
+                                this.$message.success(this.$t('m.common.success'))
                                 this.$refs['groudform'].resetFields()// 取消表单验证
                             })
                         }).catch(res => {

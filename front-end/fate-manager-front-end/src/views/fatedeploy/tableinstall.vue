@@ -1,29 +1,29 @@
 <template>
     <div>
         <div class="row-content">
-            <div  class="row-type">
-                <el-tabs v-model="activeName" @tab-click="handleClick">
-                    <el-tab-pane label="Install image" name="installimage"></el-tab-pane>
-                    <el-tab-pane label="Log" name="log"></el-tab-pane>
-                </el-tabs>
-                <div class="empty"></div>
-                <div class="row-activa">
-                    <el-button v-if='startStatus===1' :disabled="disabledStart"  @click="toStart" type="primary" >
-                        <img src="@/assets/start.png" alt="">
-                        <span>Start</span>
-                    </el-button>
-                    <el-button v-if='startStatus===2' :disabled="disabledStart" @click="toStart" type="primary" >
-                        <img src="@/assets/restart.png" alt="">
-                        <span>Retry</span>
-                    </el-button>
-                    <el-button v-if='startStatus===3' :disabled="disabledStart" @click="toStart" type="primary" >
-                        <img src="@/assets/restart.png" alt="">
-                        <span>Restart</span>
-                    </el-button>
-                </div>
-            </div>
+            <el-radio-group class="radio" v-model="activeName" @change="handleClick">
+                <el-radio-button label="Install image"></el-radio-button>
+                <el-radio-button label="Log"></el-radio-button>
+            </el-radio-group>
         </div>
-        <div v-show="activeName==='installimage'" class="deploying-body">
+        <div v-show="activeName==='Install image'" class="deploying-body">
+            <div class="row-activa">
+                <el-button v-if='startStatus===1' :disabled="disabledStart"  type="text"  @click="toStart"  >
+                    <img class="disable" v-if='disabledStart'  src="@/assets/start.png">
+                    <img class="activa" v-else src="@/assets/start.png">
+                    <span>Start</span>
+                </el-button>
+                <el-button v-if='startStatus===2' :disabled="disabledStart" @click="toStart" type="text" >
+                    <img class="disable" v-if='disabledStart'  src="@/assets/retry.png">
+                    <img class="activa" v-else src="@/assets/retry.png">
+                    <span>Retry</span>
+                </el-button>
+                <el-button v-if='startStatus===3' :disabled="disabledStart" @click="toStart" type="text" >
+                    <img class="disable" v-if='disabledStart' src="@/assets/restart.png">
+                    <img class="activa" v-else src="@/assets/restart.png">
+                    <span>Restart</span>
+                </el-button>
+            </div>
             <div class="table" >
                 <el-table
                 :data="tableData"
@@ -92,7 +92,7 @@
                 <el-button v-else type="info" disabled >Next</el-button>
             </div>
         </div>
-        <div  v-if="activeName==='log'" class="deploying-body">
+        <div  v-if="activeName==='Log'" class="deploying-body">
             <log  ref="log" />
         </div>
     </div>
@@ -144,7 +144,7 @@ export default {
         return {
             tableData: [],
             input: '',
-            activeName: 'installimage',
+            activeName: 'Install image',
             paramsData: {},
             btntype: 'info',
             startStatus: 1,
@@ -277,7 +277,7 @@ export default {
                 partyId: this.formInline.partyId,
                 productType: 1
             }
-            if (this.activeName === 'log') {
+            if (this.activeName === 'Log') {
                 this.disabledStart = true
                 window.clearTimeout(this.time)
                 toLog(data).then(res => {
@@ -310,6 +310,7 @@ export default {
                 } else if (res.length > 0 && res.every(item => item.deployStatus.code === 6 || item.deployStatus.code === 8)) { // 已经安装、成功
                     this.updataipstart = false
                     this.btntype = 'primary'
+                    this.startStatus = 3
                     this.disabledStart = true
                     this.currentSteps.instllFinish = true
                 } else if (res.length > 0 && res.every(item => item.deployStatus.code === 7)) { // 安装失败

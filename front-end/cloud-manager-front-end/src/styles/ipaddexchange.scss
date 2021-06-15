@@ -1,10 +1,10 @@
 .ipaddexchange-box{
-    margin: 24px 36px;
+    margin: 0px 12px;
     background-color: #fff;
     .add-exchange{
         position: absolute;
-        height: calc(100% - 56px);
-        width: calc(100% - 72px);
+        height: calc(100% - 40px);
+        width: calc(100% - 24px);
         background: #fff;
         overflow: auto;
         .exchange-title{
@@ -16,7 +16,7 @@
         }
         .edit-form{
             margin: 0 auto;
-            width: 800px;  
+            width: 860px;  
             .edit-text{
                 height: 42px;
                 line-height: 42px;
@@ -181,13 +181,13 @@
                border-color:#FF9D00 !important;
            }
            .el-form-item__error{
-               top:95%;
+               top:87%;
                color: #FF9D00;
                font-size: 14px;
            }
        }
        .el-form-item{
-           margin-bottom:1px;
+           margin-bottom:14px;
            font-size: 14px;
            color: #848C99;
            
@@ -196,8 +196,8 @@
            }
            .el-icon-star-on:before{
                content: '*';
-               color: #F56C6C;
-               top: -8px;
+               color: #FF9D00;
+               top: -10px;
                position: absolute;
            }
            .star-not-active:before{
@@ -206,6 +206,9 @@
            .el-form-item__label{
                font-size: 16px;
                color: #848c99;
+           }
+           .el-input__inner{
+               padding: 0 0;
            }
        }
        .el-form-item__label:before{

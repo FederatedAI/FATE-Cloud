@@ -8,6 +8,7 @@ const getters = {
     partyId: state => state.app.partyId,
     version: state => state.app.version,
     autoState: state => state.app.autoState,
-    siteState: state => state.app.siteState
+    siteState: state => state.app.siteState,
+    language: state => state.app.language
 }
 export default getters

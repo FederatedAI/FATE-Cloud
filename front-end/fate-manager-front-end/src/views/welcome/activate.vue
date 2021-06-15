@@ -118,6 +118,10 @@ export default {
                 this.confirmdialog = true
                 this.$store.dispatch('setSiteStatus', 'registered')
                 console.log('激活成功并注册')
+                this.$router.push({
+                    name: 'sitemanage',
+                    path: 'sitemanage'
+                })
             })
         },
         // OK

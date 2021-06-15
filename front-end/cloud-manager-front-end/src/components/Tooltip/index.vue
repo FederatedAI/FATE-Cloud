@@ -67,8 +67,8 @@ export default {
         overflow:hidden;
 
     }
-    // .el-tooltip__popper{
-    //         font-size: 14px
-    //     }
+    .el-tooltip__popper{
+        opacity: .8;
+    }
 
 </style>

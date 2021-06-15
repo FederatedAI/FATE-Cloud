@@ -160,3 +160,83 @@ export function updateSwitch(data) {
         data
     })
 }
+
+// 获取site状态
+export function siteUpdateStatus(data) {
+    return request({
+        url: '/cloud-manager/api/function/update/scenario',
+        method: 'post',
+        data
+    })
+}
+
+// 获取证书列表页
+export function getCertiCate(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/query',
+        method: 'post',
+        data
+    })
+}
+
+// 证书页publish按钮
+export function publishCert(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/publish',
+        method: 'post',
+        data
+    })
+}
+// 证书页invalidate按钮
+export function invalidateCert(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/revoke',
+        method: 'post',
+        data
+    })
+}
+// 获取证书类型
+export function certiType(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/type/query',
+        method: 'post',
+        data
+    })
+}
+
+// 添加证书列表
+export function addCertificate(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/save',
+        method: 'post',
+        data
+    })
+}
+
+// 更新证书列表
+export function updateCertificate(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/update',
+        method: 'post',
+        data
+    })
+}
+
+// 更新证书类型
+export function updateCertifiType(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/type/update',
+        method: 'post',
+        data
+    })
+}
+
+// 下载证书
+export function downloadCertificate(data) {
+    return request({
+        url: '/cloud-manager/api/certificate/download',
+        method: 'post',
+        data,
+        responseType: 'blob'
+    })
+}

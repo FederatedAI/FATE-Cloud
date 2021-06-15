@@ -1,0 +1,134 @@
+.certi-add-type{
+    .el-dialog {
+        display: flex;
+        flex-direction: column;
+        margin: 0 !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-height: calc(100% - 30px);
+        max-width: calc(100% - 30px);
+        .el-dialog__header {
+            display: none
+        }
+        .el-dialog__body{
+            padding: 10px 20px 20px 20px;
+        }
+
+        .add-dialog-head {
+            margin-bottom: 10px;
+            font-size: 18px;
+            .addUrl {
+
+                padding: 0;
+                font-size: 18px;
+            }
+        }
+
+        .add-dialog-body {
+            height: 320px;
+            overflow: auto;
+            // width: 490px;
+            position: relative;
+            color: #2D3642;
+            .line-box{
+                background-color: #FAFBFC;
+                // width: 96%;
+                height: 320px;
+                overflow:auto;
+                .line {
+                    font-size: 14px;
+                    height: 34px;
+                    line-height: 34px;
+                    position: relative;
+                    .network-text {
+                        margin-left: 10px;
+                        white-space: nowrap; //文本强制不换行；
+                        text-overflow: ellipsis; //文本溢出显示省略号；
+                        overflow: hidden; //溢出的部分隐藏；
+                        
+                    }
+                   
+                    .check,
+                    .del {
+                        font-size: 14px;
+                        vertical-align: middle;
+                        position: absolute;
+                        display: inline-block;
+                        cursor: pointer;
+                        color: #217AD9;
+                    }
+                    
+                    .del {
+                        right: 15px;
+                        top: 10px
+                    }
+                    .check{
+                        right: 50px;
+                        top: 10px
+                    }
+                    .disable{
+                        cursor:not-allowed;
+                        color: #B8BFCC;
+                    }
+                   
+                    .input-show {
+                        //改变placeholder颜色
+                        input::-webkit-input-placeholder {
+                            /* WebKit browsers 适配谷歌 */
+                            color: #B8BFCC;
+                            font-size: 14px;
+                        }
+    
+                        .el-input__inner {
+                            width: 100%;
+                            font-size: 14px;
+                            height: 34px;
+                            color: #2D3642;
+                            padding: 0 75px 0 10px;
+                            background-color: rgb(74, 162, 255, 0.1);
+                        }
+                        
+                        .el-input__suffix {
+                            cursor: pointer;
+                            font-size: 14px;
+                            right: 15px;
+                            color: #217AD9
+                        }
+                    }
+                }
+            }
+            
+            .message-add{
+                position: absolute;
+                bottom: 0;
+                background: #2D3642;
+                width: 100%;
+                height: 35px;
+                line-height: 35px;
+                color: #FFFFFF;
+                font-size: 18px;
+                .tips{
+                    img{
+                        vertical-align: middle;
+                        margin: 0 12px;
+                    }
+                }
+            }
+            .line:hover {
+                background-color: rgb(74, 162, 255, 0.1);
+                // visibility: 0.1
+            }
+        }
+
+        .add-dialog-footer {
+            .el-button {
+                width: 125px;
+                font-size: 16px
+            }
+            margin-top: 24px;
+            text-align: center
+        }
+    }
+}

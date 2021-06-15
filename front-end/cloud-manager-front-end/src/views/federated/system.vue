@@ -3,23 +3,31 @@
     <div class="system">
         <div class="system-header">
             <el-radio-group class="radio" v-model="radio">
-                <el-radio-button label="Site service info"></el-radio-button>
-                <el-radio-button label="Service version manage"></el-radio-button>
+                <el-radio-button label="Site service info">{{$t('m.system.siteServiceInfo')}}</el-radio-button>
+                <el-radio-button label="Service version manage">{{$t('m.system.serviceVersionManage')}}</el-radio-button>
             </el-radio-group>
         </div>
         <div class="system-body">
             <div v-if="radio==='Site service info'" class="table" >
                 <div class="table-head">
-                    <el-input class="input input-placeholder" clearable v-model.trim="data.condition" placeholder="Search for Site Name or Party ID"> </el-input>
-                    <el-select class="sel-role input-placeholder" v-model="data.role" placeholder="Role">
-                    <el-option
-                        v-for="item in typeSelect"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    ></el-option>
+                    <el-select class="sel-role input-placeholder" v-model="data.role" clearable :placeholder="$t('m.common.role')">
+                        <el-option
+                            v-for="item in typeSelect"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
                     </el-select>
-                    <el-button class="go" type="primary" @click="toSearch">GO</el-button>
+                    <el-select class="sel-institution input-placeholder" v-model="data.institutionsList" filterable multiple collapse-tags :placeholder="$t('m.common.institution')">
+                        <el-option
+                            v-for="item in institutionsSelectList"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        ></el-option>
+                    </el-select>
+                    <el-input class="input input-placeholder" clearable v-model.trim="data.condition"  :placeholder="$t('m.site.searchSiteOrParty')"> </el-input>
+                    <el-button class="go" type="primary" @click="toSearch">{{$t('m.common.go')}}</el-button>
                 </div>
                 <el-table
                     :data="tableData"
@@ -29,21 +37,21 @@
                     cell-class-name="tableCell"
                     height="100%"
                     tooltip-effect="light">
-                    <el-table-column type="index" label="Index" class-name="cell-td-td" width="70"></el-table-column>
-                    <el-table-column prop="siteName" label="Site Name" min-width="90" class-name="cell-td-td" show-overflow-tooltip>
+                    <el-table-column type="index" :label="$t('m.common.index')" class-name="cell-td-td" width="70"></el-table-column>
+                    <el-table-column prop="siteName" :label="$t('m.common.siteName')"  min-width="90" class-name="cell-td-td" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <!-- <el-button type="text">{{scope.row.siteName}}</el-button> -->
                             <span>{{scope.row.siteName}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="institutions" label="Institution" class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="partyId" label="Party ID" class-name="cell-td-td"></el-table-column>
-                    <el-table-column prop="federatedGroupSetDo" label="Role" class-name="cell-td-td" >
+                    <el-table-column prop="institutions" :label="$t('m.common.institution')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"  class-name="cell-td-td"></el-table-column>
+                    <el-table-column prop="federatedGroupSetDo" :label="$t('m.common.role')" class-name="cell-td-td" >
                         <template slot-scope="scope">
-                            <span>{{scope.row.federatedGroupSetDo.role===1?'Guest':'Host'}}</span>
+                            <span>{{scope.row.federatedGroupSetDo.role===1 ? $t('m.common.guest') : $t('m.common.host') }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="federatedSiteModelDos" label="Installed items" min-width="110" class-name="cell-td-td">
+                    <el-table-column prop="federatedSiteModelDos"  :label="$t('m.system.installedItems')" min-width="110" class-name="cell-td-td">
                         <template slot-scope="scope">
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -54,7 +62,7 @@
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="federatedSiteModelDos" label="Version" min-width="90" class-name="cell-td-td" >
+                    <el-table-column prop="federatedSiteModelDos" :label="$t('m.system.version')" min-width="90" class-name="cell-td-td" >
                         <template slot-scope="scope">
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -65,16 +73,16 @@
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="Service Status" min-width="110" show-overflow-tooltip>
+                    <el-table-column prop="" :label="$t('m.system.serviceStatus')" min-width="110" show-overflow-tooltip>
                             <template slot-scope="scope">
                                 <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
-                                    <span>{{item.detectiveStatus===1?'Unavailable':'Available'}}</span>
+                                    <span>{{item.detectiveStatus===1 ? $t('m.common.unavailable') : $t('m.common.Available') }}</span>
                                 </div>
                             </span>
                             </template>
                         </el-table-column>
-                    <el-table-column prop="federatedSiteModelDos" label="Installed time" min-width="160" class-name="cell-td-td">
+                    <el-table-column prop="federatedSiteModelDos" :label="$t('m.system.installedTime')" min-width="160" class-name="cell-td-td">
                         <template slot-scope="scope">
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
@@ -83,21 +91,16 @@
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="federatedSiteModelDos" label="Upgrade time" min-width="160" class-name="cell-td-td">
+                    <el-table-column prop="federatedSiteModelDos"  :label="$t('m.system.upgradeTime')" min-width="160" class-name="cell-td-td">
                         <template slot-scope="scope">
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
-                                <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
-                                    <span v-if="item.updateTime ===item.installTime">
-                                        <span style="opacity: 0">.</span>
-                                    </span>
-                                    <span v-else>
-                                        <span >{{item.updateTime | dateFormat}}</span>
-                                    </span>
-                                </div>
-                            </span>
+                            <div v-for="(item, index) in scope.row.federatedSiteModelDos" :key="index">
+                                <span>{{item.detectiveStatus===1 ? $t('m.common.unavailable') : $t('m.common.Available') }}</span>
+                            </div>
+                        </span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="History"  width="70" align="center" >
+                    <el-table-column prop="" :label="$t('m.common.history')"  width="100" align="center" >
                         <template slot-scope="scope">
                             <span v-if="scope.row.federatedSiteModelDos.length>0">
                                 <div v-for="(elm, ind) in scope.row.federatedSiteModelDos" :key="ind" >
@@ -111,34 +114,35 @@
                                         trigger="click">
                                         <div class="content">
                                             <div class="title">
-                                                <div class="title-time">Time</div>
-                                                <div class="title-history">History</div>
+                                                <div class="title-time">{{$t('m.common.time')}}</div>
+                                                <div class="title-history">{{$t('m.common.history')}}</div>
                                             </div>
                                             <div class="content-box">
                                                 <div v-for="(item, index) in historydata" :key="index">
                                                     <div class="title-time">{{item.updateTime | dateFormat}}</div>
                                                     <div v-if="index===0 " class="title-history">
-                                                        <span >Installed </span>
+                                                        <span >{{$t('m.system.installed')}}  </span>
                                                         <span class="version">{{item.version}}</span>
-                                                        <span v-if="item.updateStatus===1"> successfully</span>
-                                                        <span v-if="item.updateStatus===2"> failed</span>
+                                                        <span v-if="item.updateStatus===1"> {{$t('m.system.successfully')}}  </span>
+                                                        <span v-if="item.updateStatus===2"> {{$t('m.system.failed')}} </span>
                                                     </div>
                                                     <div v-if="index > 0 " class="title-history">
                                                         <span v-if="historydata[index-1].updateStatus===1">
-                                                            upgraded to
+                                                            {{$t('m.system.upgradedTo')}}
                                                             <span class="version">{{item.version}}</span>
-                                                            <span v-if="item.updateStatus===1"> successfully</span>
-                                                            <span v-if="item.updateStatus===2"> failed</span>
+                                                            <span v-if="item.updateStatus===1"> {{$t('m.system.successfully')}}</span>
+                                                            <span v-if="item.updateStatus===2"> {{$t('m.system.failed')}}</span>
                                                         </span>
                                                         <span v-if="historydata[index-1].updateStatus===2">
-                                                            Installed
+                                                            {{$t('m.system.installed')}}
                                                             <span class="version">{{item.version}}</span>
-                                                            <span v-if="item.updateStatus===1"> successfully</span>
-                                                            <span v-if="item.updateStatus===2"> failed</span>
+                                                            <span v-if="item.updateStatus===1"> {{$t('m.system.successfully')}}</span>
+                                                            <span v-if="item.updateStatus===2"> {{$t('m.system.failed')}}</span>
                                                         </span>
                                                     </div>
 
                                                 </div>
+
                                             </div>
                                         </div>
                                         <el-button @click="getHistory(elm)"  slot="reference" type="text">
@@ -166,17 +170,17 @@
                     ></el-pagination>
                 </div>
             </div>
-
-            <span v-else>
-               <systemmanage/>
-            </span>
+             <span v-else>
+            <systemmanage/>
+        </span>
         </div>
     </div>
+
   </div>
 </template>
 
 <script>
-import { getSystemManage, systemhistory } from '@/api/federated'
+import { getSystemManage, systemhistory, institutionsListDropdown } from '@/api/federated'
 import moment from 'moment'
 import tooltip from '@/components/Tooltip'
 import systemmanage from './systemmanage'
@@ -199,19 +203,15 @@ export default {
             total: 0, // 表格条数
             tableData: [],
             historydata: [], // 历史记录
-            typeSelect: [
-                {
-                    value: 0,
-                    label: 'Role'
-                },
-                {
-                    value: 1,
-                    label: 'Guest'
-                },
-                {
-                    value: 2,
-                    label: 'Host'
-                }
+            institutionsSelectList: [], // 机构名称
+            typeSelect: [{
+                value: 1,
+                label: this.$t('m.common.guest')
+            },
+            {
+                value: 2,
+                label: this.$t('m.common.host')
+            }
             ],
             data: {
                 pageNum: 1,
@@ -221,6 +221,7 @@ export default {
     },
     created() {
         this.initList()
+        this.getinsSelectList()
     },
     mounted() {
         // 获取需要绑定的table
@@ -262,6 +263,16 @@ export default {
                 })
                 this.tableData = res.data.list
                 this.total = res.data.totalRecord
+            })
+        },
+        // 机构下拉接口
+        async getinsSelectList() {
+            let res = await institutionsListDropdown()
+            res.data.institutionsSet.forEach((item, index) => {
+                let obj = {}
+                obj.value = item
+                obj.label = item
+                this.institutionsSelectList.push(obj)
             })
         },
         getHistory(item) {

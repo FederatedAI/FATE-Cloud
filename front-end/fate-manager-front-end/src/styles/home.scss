@@ -27,6 +27,9 @@
                 height: 65px;
                 margin-left: 5px;
             }
+            span{
+                margin-left: 30px
+            }
         }
         .right-bar{
             cursor: pointer;
@@ -34,8 +37,27 @@
             line-height: 65px;
             position: absolute;
             display: inline-block;
-            right: 60px;
+            right: 125px;
             top: 0px;
+            span{
+                font-size: 14px;
+            }
+        }
+        .lang-bar{
+            cursor: pointer;
+            height: 65px;
+            line-height: 65px;
+            position: absolute;
+            display: inline-block;
+            font-size: 16px;
+            right: 40px;
+            top: 0px;
+            .text-link{
+                color: #fff
+            }
+            .focusing:focus {
+                outline:none;
+            }
         }
     }
 
@@ -58,6 +80,9 @@
             .login-form{
                 width: 466px;
                 margin: 0 auto; 
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
                 .el-form-item__error{
                     width: 466px;
                     top:95%;
@@ -70,6 +95,7 @@
                     .el-input__inner{
                         width: 100%;
                     }
+                    border: 0;
                     box-shadow: inset 0 0 0 1000px #fff!important;
                     text-align: center;
                     border-bottom: 2px solid #E6EBF0;
@@ -151,6 +177,10 @@
                 .text-one{
                     margin-top: 35px;
                 }
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
+               
                 .el-form-item__error{
                     width: 800px;
                     top:95%;
@@ -162,6 +192,7 @@
                     .el-input__inner{
                         width: 100%;
                     }
+                    border: 0;
                     box-shadow: inset 0 0 0 1000px #fff!important;
                     text-align: center;
                     border-bottom: 2px solid #E6EBF0;

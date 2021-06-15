@@ -9,6 +9,15 @@ export function siteList(data) {
     })
 }
 
+// 获取site下拉
+export function siteListAll(data) {
+    return request({
+        url: '/cloud-manager/api/site/find/all',
+        method: 'post',
+        data
+    })
+}
+
 // // 下拉获取getParty范围
 // export function getPartyRang(data) {
 //     return request({
@@ -53,14 +62,15 @@ export function siteAdd(data) {
         data
     })
 }
-// // site更新
-// export function siteUpdate(data) {
-//     return request({
-//         url: '/cloud-manager/api/site/update',
-//         method: 'post',
-//         data
-//     })
-// }
+// 获取默认值
+
+export function resetNetwork(data) {
+    return request({
+        url: '/cloud-manager/api/site/cloudManager/network',
+        method: 'post',
+        data
+    })
+}
 
 // site更新
 export function siteUpdate(data) {
@@ -196,8 +206,16 @@ export function institutionsListDropdown(data) {
     })
 }
 
-// 取消权限
+// 添加站点新增查询全部institutions下拉枚举
+export function institutionsAll(data) {
+    return request({
+        url: '/cloud-manager/api/fate/user/institutions/all',
+        method: 'post',
+        data
+    })
+}
 
+// 取消权限
 export function cancelAuthority(data) {
     return request({
         url: '/cloud-manager/api/authority/cancel',
@@ -206,7 +224,16 @@ export function cancelAuthority(data) {
     })
 }
 
-// 获取site 获取历史记录
+// 获取取消权限列表
+export function cancelAuthorityList(data) {
+    return request({
+        url: '/cloud-manager/api/authority/cancelList',
+        method: 'post',
+        data
+    })
+}
+
+// 获取site 获取历史记录(abandoned)
 export function institutionsHistory(data) {
     return request({
         url: '/cloud-manager/api/authority/history',

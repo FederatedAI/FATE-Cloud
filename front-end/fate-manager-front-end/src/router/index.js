@@ -112,15 +112,44 @@ export const constantRouterMap = [
                 path: 'deploying',
                 name: 'deploying', //
                 component: () => import('@/views/fatedeploy/deploying')
+            },
+            {
+                path: 'ansible',
+                name: 'ansible', //
+                component: () => import('@/views/fatedeployAnsible/deployAnsible')
+            }
+        ]
+    }, {
+        path: '/monitor',
+        component: Layout,
+        name: 'monitor',
+        hidden: true,
+        children: [
+            {
+                path: 'cooperation',
+                name: 'cooperation', //
+                component: () => import('@/views/monitor/cooperation')
+            },
+            {
+                path: 'jobmonitor',
+                name: 'jobmonitor', //
+                component: () => import('@/views/monitor/jobMonitor')
             }
         ]
     }
 
 ]
 
+// 获取原型对象上的push函数
+const originalPush = Router.prototype.push
+// 修改原型对象中的push方法
+Router.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+}
+
 const router = new Router({
     // mode: 'history', // 后端支持可开
-    scrollBehavior: () => ({ y: 0 }),
+    scrollBehavior: () => ({ x: 0, y: 0 }),
     routes: constantRouterMap
 })
 

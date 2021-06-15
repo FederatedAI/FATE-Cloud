@@ -1,27 +1,31 @@
 .site-box {
     
     .site {
-        margin: 22px 36px;
-        margin-bottom: 0;
-        width: calc(100% - 72px);
-        height: calc(100% - 54px);
+        margin: 0px 12px;
+        width: calc(100% - 24px);
+        height: calc(100% - 42px);
         background: #fff;
         position: absolute;
         .site-header {
-            padding:24px 24px;
-            height: 36px;
+            padding:0px 24px;
+            height: 39px;
             text-align: right;
             background-color: #fff;
+            border-bottom: 2px solid #E6EBF0;
+            // line-height: 42px;
+            padding-top:3px ;
             .input {
                 display:inline-block;
                 margin-left: 16px;
                 max-width: 250px;
                 .search {
                     cursor: pointer;
+                    
                 }
             }
             .sel-role {
                 margin-left: 16px;
+                width: 250px;
             }
             .add{
                 width: initial;
@@ -45,12 +49,14 @@
             .el-collapse-item:last-child{
                 margin-bottom: -2px
             }
-           
+        }
+        .el-collapse:first-child {
+            border-top: 0px solid #EBEEF5;
         }
         .collapse{
             padding: 0 24px;
             background: #fff;
-            height: calc(100% - 164px);
+            height: calc(100% - 132px);
             width: calc(100% - 48px);
             overflow: auto;
             .el-collapse-item__header:hover{
@@ -95,28 +101,29 @@
     
             }
             .msg-warn{
+                height: 40px;
+                line-height: 42px;
                 color:#848C99;
                 font-size: 14px;
                 margin-left: 24px;
+                padding-left: 10px;
+                background-image: linear-gradient(#fff, #F5F7FA);
+                border-top: 1px solid #E7EBF0;
+                border-left: 1px solid #E7EBF0;
+                border-right: 1px solid #E7EBF0;
                 .btn{
                     margin-left: 10px
                 }
             }
             .site-body {
-                padding: 0 24px;
-                // height: calc(100% - 284px);
-                // max-height: 301px;
+                padding: 0 0px 0 24px;
                 .table {
                     width: 100%;
-                    // height: calc(100% - 57px);
-                    .el-table::before {
-                        background-color: #fff; 
-                    }
                     .el-table {
                         margin: 0px 0px ;
-                        // width: calc(100% - 72px);
-                        // background-color: pink;
-                        // max-height:255px;
+                        th{
+                            padding: 7px 0;
+                        }
                         .el-button{
                             padding:0;
                             height: initial;
@@ -215,7 +222,7 @@
         .line-text-one {
             font-size: 24px;
             color: #2D3642;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
             white-space: nowrap; //文本强制不换行；
             text-overflow:ellipsis; //文本溢出显示省略号；
             overflow:hidden; //溢出的部分隐藏；
@@ -224,7 +231,7 @@
         .line-text-two {
             font-size: 18px;
             color: #848C99;
-            margin-bottom: 48px
+            margin-bottom: 8px;
         }
         .dialog-main{
             text-align: left;
@@ -237,13 +244,13 @@
             .el-checkbox-group{
                 width: 100%;
                 div{
-                    line-height: 24px;
+                    // line-height: 24px;
                     display: inline-block;
                     width: 50%;
                     .el-checkbox__inner::after {
                         transition: none!important;
                     }
-        
+                  
                 }
             }
         }
@@ -266,12 +273,18 @@
             font-size: 24px;
             color: #2D3642;
             margin-bottom: 24px;
-            text-align: center
+            text-align: center;
+            white-space: nowrap; //文本强制不换行；
+            text-overflow:ellipsis; //文本溢出显示省略号；
+            overflow:hidden; //溢出的部分隐藏；
         }
-
+        .siteType{
+            margin:0 24px;
+        }
         .dialog-main{
             padding: 12px 24px;
-            margin: 24px;
+            margin:12px 24px;
+            margin-bottom: 24px;
             max-height: 248px;
             overflow:auto;
             background: #F5F8FA;
@@ -288,6 +301,20 @@
                     }
         
                 }
+            }
+        }
+        .no-data-line{
+            background: #F5F8FA;
+            padding: 12px 24px;
+            margin: 12px 24px;
+            align-items: center;
+            text-align: center;
+            color: #B8BFCC;
+            font-size: 12px;
+            font-family: 'OPPOSans';
+            font-weight: 400;
+            .no-data{
+                line-height: unset;
             }
         }
         .dialog-footer{

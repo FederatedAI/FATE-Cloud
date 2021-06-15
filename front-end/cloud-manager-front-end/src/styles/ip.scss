@@ -1,10 +1,8 @@
 .ip-box {
     .ip {
-        margin: 24px 36px;
-
+        margin: 0px 12px;
         .ip-header {
-            height: 34px;
-            margin-bottom: 24px;
+            height: 36px;
             text-align: left;
             .radio{
                 // float: left;
@@ -47,7 +45,7 @@
 
             .sel-role {
                 line-height: 34px;
-                width: 85px;
+                width: 150px;
                 margin-left: 16px;
             }
 
@@ -56,12 +54,11 @@
                 margin-left: 16px;
             }
         }
-
         .ip-body {
             background-color: #fff;
             position: absolute;
-            width: calc(100% - 72px);
-            height: calc(100% - 114px);
+            width: calc(100% - 24px);
+            height: calc(100% - 76px);
             .ip-manage {
                 width: 100%;
                 height: calc(100% - 128px);
@@ -69,25 +66,47 @@
                     width: 100%;
                     height: 42px;
                     border-bottom:2px #e6ebf0 solid;
-                    .route-add{
-                        color: #217AD9;
-                        height: 42px;
-                        vertical-align: middle;
-                        font-size: 14px;
-                        margin-left: 36px;
-                        img{
-                            margin-right: 2px;
-                            vertical-align: -7px
+                    text-align: right;
+                    .input {
+                        width: 250px;
+                        margin-left: 16px;
+                        margin-top: 3px;
+                        .search {
+                            cursor: pointer;
+                            margin-right: 0px
                         }
                     }
-                    .route-add:hover{
-                        opacity: 0.85;
+                    .go{
+                        margin-top: 3px;
+                        margin-right: 36px;
+                    }
+                    .sel-role {
+                        margin-top: 3px;
+                        width: 150px;
+                        margin-left: 16px;
+                    }
+                    .sel-institution {
+                        margin-top: 3px;
+                        width: 250px;
+                        margin-left: 16px;
+                    }
+                    .product{
+                        width: 165px;
+                        margin-right: 16px;
+                    }
+                    .version{
+                        margin-top: 3px;
+                        width: 165px;
+                    }
+                    .sel-version {
+                        width: 180px;
+                        margin-left: 16px;
                     }
                 }
                 .el-table {
-                    width: calc(100% - 72px);
+                    width: calc(100% - 48px);
                     height:100% !important;
-                    margin: 0px 36px;
+                    margin: 0px 24px;
                     .has-gutter {
                         color: #4E5766;
                     }
@@ -138,7 +157,6 @@
 
                 }
             }
-           
             .exchange-info {
                 width: 100%;
                 height: calc(100% - 86px);
@@ -169,7 +187,6 @@
                     }
                 }
                 .collapse{
-                    
                     .el-collapse-item__header:hover{
                         background-color: rgb(74, 162, 255, 0.1);
                     }
@@ -312,6 +329,13 @@
                         float: right;
                         margin:0 10px;
                     }
+                    
+                }
+                .el-icon-star-on:before{
+                    content: '*';
+                    color: #FF9D00;
+                    top: -10px;
+                    position: absolute;
                 }
                 .el-input__inner{
                     color: #848C99;
@@ -356,7 +380,7 @@
             }
             .el-icon-star-on:before{
                 content: '*';
-                color: #F56C6C;
+                color: #FF9D00;
                 top: -8px;
                 position: absolute;
             }
@@ -552,8 +576,8 @@
             }
             .el-icon-star-on:before{
                 content: '*';
-                color: #F56C6C;
-                top: -8px;
+                color: #FF9D00;
+                top: -10px;
                 position: absolute;
             }
             .star-not-active:before{
@@ -562,6 +586,9 @@
             .el-form-item__label{
                 font-size: 16px;
                 color: #848c99;
+            }
+            .el-input__inner{
+                padding: 0 0;
             }
         }
         .el-form-item__label:before{
