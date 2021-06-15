@@ -127,10 +127,11 @@ def group_by_institutions(site_job_list):
     institutions_dict = {}
     ret = {}
     for site_job in site_job_list:
-        if institutions_dict.get(site_job.institutions):
-            institutions_dict[site_job.institutions].append(site_job)
-        else:
-            institutions_dict[site_job.institutions] = [site_job]
+        for institutions in site_job.other_institutions:
+            if institutions_dict.get(institutions):
+                institutions_dict[institutions].append(site_job)
+            else:
+                institutions_dict[institutions] = [site_job]
     for institutions, _site_job_list in institutions_dict.items():
         ret[institutions] = group_by_status(_site_job_list)
     logger.info(f"return:{ret}")

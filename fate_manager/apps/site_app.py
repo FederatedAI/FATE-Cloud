@@ -23,7 +23,7 @@ def register_site():
                                                                        'partyId', 'registrationLink', 'role', 'siteName'])
     token = request.headers.get("token")
     data = site_service.register_fate_site(request_data, token)
-    return get_json_result(data)
+    return get_json_result(data=data)
 
 
 @manager.route('/checkUrl', methods=['post'])

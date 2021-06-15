@@ -11,6 +11,7 @@ def apply_result_task(account):
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
                                                                appSecret=account.app_secret).to_dict()
+    # all
     resp = request_cloud_manager(uri_key="ApprovedUri", data=institution_signature_item,
                                  body={"institutions": account.institutions,
                                        "pageNum": 1,
@@ -18,6 +19,14 @@ def apply_result_task(account):
                                  url=None
                                  )
     stat_logger.info(f"request cloud success, return {resp}")
+    # initiative
+    initiative_resp = request_cloud_manager(uri_key="MyApprovedUri", data=institution_signature_item,
+                                            body={"institutions": account.institutions},
+                                            url=None
+                                            )
+    initiative_approved_institutions = [approved_item.get("institutions") for approved_item in initiative_resp]
+    stat_logger.info(f"request initiative approved, return {initiative_approved_institutions}")
+
     # get all end status institutions
     update_institutions_models = []
     add_institutions_info = []
@@ -25,16 +34,20 @@ def apply_result_task(account):
     all_institutions_name = [model.institutions for model in all_institutions]
     stat_logger.info(f"all institutions name:{all_institutions_name}")
     for apply_item in resp.get("list"):
+        # deal new institutions
         if apply_item["institutions"] not in all_institutions_name:
-            add_institutions_info.append({"institutions": apply_item["institutions"],
-                                          "status": apply_item["status"],
-                                          "read_status": ApplyReadStatusType.NOT_READ})
+            institutions_item = {"institutions": apply_item["institutions"], "status": apply_item["status"]}
+            if apply_item["institutions"] in initiative_approved_institutions:
+                institutions_item["read_status"] = ApplyReadStatusType.NOT_READ
+            add_institutions_info.append(institutions_item)
             continue
+        # deal old institutions
         for apply_institutions_info in all_institutions:
             if apply_item["institutions"] == apply_institutions_info.institutions:
                 if apply_item["status"] != apply_institutions_info.status:
                     apply_institutions_info.status = apply_item["status"]
-                    apply_institutions_info.read_status = ApplyReadStatusType.NOT_READ
+                    if  apply_institutions_info.institutions in initiative_approved_institutions:
+                        apply_institutions_info.read_status = ApplyReadStatusType.NOT_READ
                     update_institutions_models.append(apply_institutions_info)
     stat_logger.info(f"update institutions models: {update_institutions_models}")
     stat_logger.info(f"add institutions info: {add_institutions_info}")
