@@ -102,8 +102,7 @@ def get_user_list(condition):
 
 @DB.connection_context()
 def check_user(user_name):
-    account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name, AccountInfo.status == 1,
-                                                   AccountInfo.role in [1, 2])
+    account_info_list = AccountInfo.select().where(AccountInfo.user_name == user_name)
     return [account_info for account_info in account_info_list]
 
 

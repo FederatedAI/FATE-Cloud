@@ -310,7 +310,7 @@ def get_apply_institutions():
                                  url=None
                                  )
     institutions_list = []
-    resp_institutions_list = resp.get("list")
+    resp_institutions_list = resp.get("list") if resp else []
     if not resp_institutions_list:
         resp_institutions_list = []
     for institutions in resp_institutions_list:

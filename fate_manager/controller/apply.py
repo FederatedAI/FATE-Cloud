@@ -74,4 +74,4 @@ def allow_apply_task(account):
             "status": IsValidType.YES,
             "fate_manager_id": account.fate_manager_id}
     db_operator.DBOperator.update_entity(AccountInfo, data)
-    return resp
+    return resp if resp else []

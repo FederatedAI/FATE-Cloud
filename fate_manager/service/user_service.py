@@ -89,7 +89,7 @@ def add_user(request_data, token):
                                                       f"{request_data.get('partyId')}")
     logger.info("start check user")
     account_info_list = federated_db_operator.check_user(user_name=request_data.get("userName"))
-    if account_info_list:
+    if account_info_list and account_info_list[0].status == IsValidType.YES:
         raise Exception(UserStatusCode.AddUserFailed, f'check user failed: user {request_data.get("userName")} '
                                                       f'already exists')
     logger.info("check user success")
@@ -106,7 +106,7 @@ def add_user(request_data, token):
         "app_key": request_account.app_key,
         "app_secret": request_account.app_secret
     }
-    DBOperator.create_entity(AccountInfo, account_info)
+    DBOperator.safe_save(AccountInfo, account_info)
     if request_data.get("partyId", 0):
         account_site_info = {
             "party_id": request_data.get("partyId", 0),
@@ -138,6 +138,10 @@ def delete_user(token, request_data):
         "expire_time": current_timestamp()
     }
     DBOperator.update_entity(TokenInfo, token_info)
+    try:
+        DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
+    except:
+        logger.info("account no found site")
 
 
 def edit_user(request_data):
@@ -166,7 +170,7 @@ def edit_user(request_data):
                              "party_id": request_data.get("partyId"),
                              "site_name": request_data.get("siteName")}
         logger.info(f"save account info: {account_site_info}")
-        DBOperator.safe_save(AccountSiteInfo, )
+        DBOperator.safe_save(AccountSiteInfo, account_site_info)
     else:
         try:
             DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
