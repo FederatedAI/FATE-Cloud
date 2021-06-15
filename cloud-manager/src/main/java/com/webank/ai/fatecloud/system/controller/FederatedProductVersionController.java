@@ -16,6 +16,7 @@
 package com.webank.ai.fatecloud.system.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
@@ -106,7 +107,7 @@ public class FederatedProductVersionController {
     //interfaces for fate manager
     @PostMapping(value = "/page/fatemanager")
     @ApiOperation(value = "find paged items for fate manager")
-    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(@RequestBody ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("RequestBody:{}", productVersionPageForFateManagerQo);
         return federatedProductVersionServiceFacade.pageForFateManager(productVersionPageForFateManagerQo, httpServletRequest);
     }

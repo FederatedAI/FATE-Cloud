@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -22,6 +23,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Set;
+@JsonPropertyOrder(alphabetic = true)
 
 @Data
 @NoArgsConstructor

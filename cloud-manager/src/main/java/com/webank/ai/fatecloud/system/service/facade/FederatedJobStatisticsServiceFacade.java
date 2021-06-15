@@ -17,6 +17,8 @@ package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
@@ -43,9 +45,16 @@ public class FederatedJobStatisticsServiceFacade {
     @Autowired
     CheckSignature checkSignature;
 
-    public CommonResponse pushJosStatistics(List<JobStatisticsQo> jobStatisticsQos, HttpServletRequest httpServletRequest) {
+    public CommonResponse pushJosStatistics(List<JobStatisticsQo> jobStatisticsQos, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         //check authority
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(jobStatisticsQos), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(jobStatisticsQos);
+        } else {
+            httpBody = JSON.toJSONString(jobStatisticsQos);
+        }
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }
@@ -57,13 +66,6 @@ public class FederatedJobStatisticsServiceFacade {
 
     }
 
-    public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryTodayInstitutionsAll(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
-
-        JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummary = federatedJobStatisticsService.getJobStatisticsSummaryTodayInstitutionsAll(jobStatisticsSummaryTodayQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummary);
-    }
-
     public CommonResponse<JobStatisticsSummaryTodayInstitutionsAllDto> getJobStatisticsSummaryInstitutionsAllForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
 
         JobStatisticsSummaryTodayInstitutionsAllDto jobStatisticsSummary = federatedJobStatisticsService.getJobStatisticsSummaryInstitutionsAllForPeriod(jobStatisticsSummaryForPeriodQo);
@@ -71,48 +73,16 @@ public class FederatedJobStatisticsServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummary);
     }
 
-    public CommonResponse<PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryTodayInstitutionsEach(JobStatisticsSummaryTodayQo jobStatisticsSummaryTodayQo) {
-        PageBean<JobStatisticsSummaryTodayInstitutionsEachDto> jobStatisticsSummaryTodayInstitutionsEachDtos = federatedJobStatisticsService.getJobStatisticsSummaryTodayInstitutionsEach(jobStatisticsSummaryTodayQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodayInstitutionsEachDtos);
-
-    }
-
-    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimension(jobOfSiteDimensionQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
-    }
-
-    //get institutions statistics today
-    public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimension(JobOfSiteDimensionQo jobOfSiteDimensionQo) {
-        PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimension(jobOfSiteDimensionQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
-
-    }
-
-    public CommonResponse<JobStatisticsSummaryTodaySiteAllDto> getJobStatisticsSummaryTodaySiteAll(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
-        JobStatisticsSummaryTodaySiteAllDto jobStatisticsSummaryTodaySiteAllDto = federatedJobStatisticsService.getJobStatisticsSummaryTodaySiteAll(jobStatisticsSummaryTodaySiteAllQo);
-
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodaySiteAllDto);
-    }
-
-    public CommonResponse<PageBean<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummaryTodaySiteEach(JobStatisticsSummaryTodaySiteAllQo jobStatisticsSummaryTodaySiteAllQo) {
-
-        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsService.getJobStatisticsSummaryTodaySiteEach(jobStatisticsSummaryTodaySiteAllQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodaySiteEachDtos);
-    }
-
-    public CommonResponse<JobStatisticsOfSiteDimensionDto> getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
-        JobStatisticsOfSiteDimensionDto jobStatisticsOfSiteDimensionDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimensionForPeriod(jobOfSiteDimensionPeriodQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsOfSiteDimensionDto);
+    public CommonResponse<MonitorSiteDto> getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+        MonitorSiteDto monitorSiteDto = federatedJobStatisticsService.getJobStatisticsOfSiteDimensionForPeriod(jobOfSiteDimensionPeriodQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, monitorSiteDto);
     }
 
     public CommonResponse<PageBean<JobStatisticOfInstitutionsDimensionDto>> getJobStatisticsODimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
         PageBean<JobStatisticOfInstitutionsDimensionDto> jobStatisticsODimensionList = federatedJobStatisticsService.getJobStatisticsODimensionForPeriod(jobOfSiteDimensionPeriodQo);
 
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);    }
-
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsODimensionList);
+    }
 
 
     public CommonResponse<PageBean<JobStatisticsSummaryTodayInstitutionsEachDto>> getJobStatisticsSummaryInstitutionsEachForPeriod(JobStatisticsSummaryForPeriodQo jobStatisticsSummaryForPeriodQo) {
@@ -130,7 +100,7 @@ public class FederatedJobStatisticsServiceFacade {
     }
 
     public CommonResponse<PageBean<JobStatisticsSummaryTodaySiteEachDto>> getJobStatisticsSummarySiteEachForPeriod(JobStatisticsSummarySiteAllForPeriodQo jobStatisticsSummarySiteAllForPeriodQo) {
-        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos=federatedJobStatisticsService.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
+        PageBean<JobStatisticsSummaryTodaySiteEachDto> jobStatisticsSummaryTodaySiteEachDtos = federatedJobStatisticsService.getJobStatisticsSummarySiteEachForPeriod(jobStatisticsSummarySiteAllForPeriodQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodaySiteEachDtos);
     }
 

@@ -9,6 +9,8 @@
         <result property="registrationLink" column="registration_link"></result>
         <result property="creator" column="creator"></result>
         <result property="status" column="status"></result>
+        <result property="protocol" column="protocol"></result>
+        <result property="network" column="network"></result>
         <result property="createTime" column="create_time"></result>
         <result property="updateTime" column="update_time"></result>
     </resultMap>

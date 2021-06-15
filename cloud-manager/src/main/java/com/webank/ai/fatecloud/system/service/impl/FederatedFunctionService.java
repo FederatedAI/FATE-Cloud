@@ -21,11 +21,14 @@ import com.webank.ai.fatecloud.system.dao.entity.FederatedFunctionDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedFunctionMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.FunctionStatusDto;
 import com.webank.ai.fatecloud.system.pojo.qo.FunctionUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.ScenarioQo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,16 +61,17 @@ public class FederatedFunctionService {
 
 
     public void initialingFunction() {
+        Date date = new Date();
         for (String function : Dict.FUNCTIONS) {
-            System.out.println(Dict.FUNCTIONS);
             QueryWrapper<FederatedFunctionDo> federatedFunctionDoQueryWrapper = new QueryWrapper<>();
             federatedFunctionDoQueryWrapper.eq("function_name", function);
             Integer count = federatedFunctionMapper.selectCount(federatedFunctionDoQueryWrapper);
             if (count == 0) {
                 FederatedFunctionDo federatedFunctionDo = new FederatedFunctionDo();
                 federatedFunctionDo.setFunctionName(function);
-                federatedFunctionDo.setCreateTime(new Date());
-                federatedFunctionDo.setUpdateTime(new Date());
+                federatedFunctionDo.setCreateTime(date);
+                federatedFunctionDo.setUpdateTime(date);
+                federatedFunctionDo.setStatus(2);
                 federatedFunctionMapper.insert(federatedFunctionDo);
             }
         }
@@ -78,12 +82,60 @@ public class FederatedFunctionService {
     public boolean checkFunctionStatus(String function) {
         QueryWrapper<FederatedFunctionDo> federatedFunctionDoQueryWrapper = new QueryWrapper<>();
         federatedFunctionDoQueryWrapper.eq("function_name", function).eq("status", 1);
-        Integer count = federatedFunctionMapper.selectCount(federatedFunctionDoQueryWrapper);
-        if (count == null) {
+        List<FederatedFunctionDo> federatedFunctionDos = federatedFunctionMapper.selectList(federatedFunctionDoQueryWrapper);
+        if (federatedFunctionDos.size() <= 0) {
             return false;
+        }
+        if (Dict.FUNCTIONS[1].equals(function)) {
+            String descriptions = federatedFunctionDos.get(0).getDescriptions();
+            return "1".equals(descriptions) || "2".equals(descriptions) || "3".equals(descriptions);
         }
         return true;
     }
 
+    public boolean checkParameters(FunctionUpdateQo functionUpdateQo) {
+        Long functionId = functionUpdateQo.getFunctionId();
+        Integer status = functionUpdateQo.getStatus();
 
+        //check function id
+        if (functionId == null) {
+            return false;
+        }
+        //check status
+        if (!statusList.contains(status)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private final List<Integer> statusList = Arrays.asList(1, 2);
+    private final List<String> scenarioList = Arrays.asList("1", "2", "3");
+
+    public boolean checkScenarioParameters(ScenarioQo scenarioQo) {
+        if (scenarioQo.getFunctionId() == null) {
+            return false;
+        }
+
+        FederatedFunctionDo federatedFunctionDo = federatedFunctionMapper.selectById(scenarioQo.getFunctionId());
+        //check function
+        if (!Dict.FUNCTIONS[1].equals(federatedFunctionDo.getFunctionName())) {
+            return false;
+        }
+        //check first update
+        if (!StringUtils.isBlank(federatedFunctionDo.getDescriptions())) {
+            return false;
+        }
+
+        //check input scenario type
+        return scenarioList.contains(scenarioQo.getScenarioType());
+    }
+
+    public void updateScenario(ScenarioQo scenarioQo) {
+        FederatedFunctionDo federatedFunctionDo = new FederatedFunctionDo();
+        federatedFunctionDo.setFunctionId(scenarioQo.getFunctionId());
+        federatedFunctionDo.setDescriptions(scenarioQo.getScenarioType());
+        federatedFunctionDo.setStatus(1);
+        federatedFunctionMapper.updateById(federatedFunctionDo);
+    }
 }

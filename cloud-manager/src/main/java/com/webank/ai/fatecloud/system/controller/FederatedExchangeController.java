@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
@@ -111,7 +112,7 @@ public class FederatedExchangeController {
 
     @PostMapping(value = "/exchange/page/fatemanager")
     @ApiOperation(value = "find exchange page for fate manager")
-    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageForFateManagerQo);
         return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageForFateManagerQo, httpServletRequest);
     }

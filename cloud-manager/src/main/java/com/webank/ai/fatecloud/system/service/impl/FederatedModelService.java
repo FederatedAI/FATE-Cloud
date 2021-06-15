@@ -184,6 +184,9 @@ public class FederatedModelService {
         List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ew);
         for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDos) {
             Date lastDetectiveTime = federatedSiteManagerDo.getLastDetectiveTime();
+            if (lastDetectiveTime == null) {
+                continue;
+            }
             if (time - lastDetectiveTime.getTime() > 3000) {
                 FederatedSiteManagerDo federatedSiteManagerDoToUpdate = new FederatedSiteManagerDo();
                 federatedSiteManagerDoToUpdate.setDetectiveStatus(1);

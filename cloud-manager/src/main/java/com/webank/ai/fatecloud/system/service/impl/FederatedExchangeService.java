@@ -35,6 +35,7 @@ import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,12 @@ public class FederatedExchangeService implements Serializable {
     @Autowired
     PartyMapper partyMapper;
 
+    @Value(value = "${exchange.key}")
+    String exchangeKey;
+
+    @Value(value = "${exchange.partyId}")
+    String exchangePartyId;
+
     public boolean findRollSite(String network) {
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         rollSiteDoQueryWrapper.eq("network_access", network);
@@ -65,7 +72,7 @@ public class FederatedExchangeService implements Serializable {
 
     @Transactional
     public FederatedExchangeDo addExchange(ExchangeAddQo exchangeAddQo) {
-
+        Date dateNow = new Date();
         //add exchange table
         FederatedExchangeDo federatedExchangeDo = new FederatedExchangeDo();
         federatedExchangeDo.setExchangeName(exchangeAddQo.getExchangeName());
@@ -84,11 +91,12 @@ public class FederatedExchangeService implements Serializable {
             List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
             for (PartyAddBean partyAddBean : partyAddBeanList) {
                 PartyDo partyDo = new PartyDo();
+                partyDo.setPartyId(partyAddBean.getPartyId());
                 partyDo.setNetworkAccess(partyAddBean.getNetworkAccess());
                 partyDo.setSecureStatus(partyAddBean.getSecureStatus());
+                partyDo.setStatus(partyAddBean.getStatus());
                 partyDo.setPollingStatus(partyAddBean.getPollingStatus());
-                partyDo.setPartyId(partyAddBean.getPartyId());
-                partyDo.setStatus(1);
+                partyDo.setValidTime(dateNow);
                 partyDo.setRollSiteId(rollSiteDo.getRollSiteId());
 
                 partyMapper.insert(partyDo);
@@ -171,18 +179,23 @@ public class FederatedExchangeService implements Serializable {
             partyDos.add(partyDo);
 
         }
+
+        // order by party id
+        partyDos.sort((o1, o2) -> o1.getPartyId().compareTo(o2.getPartyId()));
+
         return partyDos;
 
     }
 
     public List<PartyDo> queryExchange(ExchangeQueryQo exchangeQueryQo) {
 
-        //send grpc request
+        //send grpc request and get the data of route_table.json
         String[] network = exchangeQueryQo.getNetworkAccess().split(":");
         String routerTableString;
 
         try {
-            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
+            log.info("query request to exchange, ip:{},port:{}, key:{}, partyId:{}, operator:{}",network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
+            Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), exchangeKey, exchangePartyId, "get_route_table");
 
             Proxy.Data body = exchange.getBody();
             ByteString value = body.getValue();
@@ -193,26 +206,26 @@ public class FederatedExchangeService implements Serializable {
             return null;
         }
 
-
+        log.info("query response from exchange : {}",routerTableString);
         ArrayList<PartyDo> partyDos = buildPartyList(routerTableString);
 
 
-        //find roll site in roll site table
+        //find roll site info in roll site table
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         rollSiteDoQueryWrapper.eq("network_access", exchangeQueryQo.getNetworkAccess());
         List<RollSiteDo> rollSiteDos = rollSiteMapper.selectList(rollSiteDoQueryWrapper);
-        Date date = new Date();
-        if (rollSiteDos.size() > 0) {
-            //update party table
+        if (rollSiteDos.size() > 0) { // update database
+            Date date = new Date();
+
+            //get party info in database
             RollSiteDo rollSiteDo = rollSiteDos.get(0);
             Long rollSiteId = rollSiteDo.getRollSiteId();
 
-
             QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
-            partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
+            partyDoQueryWrapper.eq("roll_site_id", rollSiteId).orderByAsc("party_id");
             List<PartyDo> partyDosExisted = partyMapper.selectList(partyDoQueryWrapper);
 
-            for (PartyDo partyDo : partyDos) {
+            for (PartyDo partyDo : partyDos) { // update party table
                 String partyId = partyDo.getPartyId();
                 String networkAccess = partyDo.getNetworkAccess();
                 Integer secureStatus = partyDo.getSecureStatus();
@@ -226,27 +239,33 @@ public class FederatedExchangeService implements Serializable {
                     Integer existPollingStatus = existPartyDo.getPollingStatus();
                     if (partyId.equals(existPartyId)) {
                         exist = true;
-                        if (existPartyDo.getStatus() == 1 && (!existNetworkAccess.equals(networkAccess) || !existSecureStatus.equals(secureStatus) || !existPollingStatus.equals(pollingStatus))) {
-                            existPartyDo.setNetworkAccess(networkAccess);
-                            existPartyDo.setSecureStatus(secureStatus);
-                            existPartyDo.setSecureStatus(pollingStatus);
-                            existPartyDo.setUpdateTime(date);
+                        //whether there are changes in route_table.json or not
+                        if ( (!existNetworkAccess.equals(networkAccess)) || (!existSecureStatus.equals(secureStatus)) || (!existPollingStatus.equals(pollingStatus)) ) {
+
+                            if (existPartyDo.getStatus() == 1) {//status=1, is able to update basic info
+                                existPartyDo.setNetworkAccess(networkAccess);
+                                existPartyDo.setSecureStatus(secureStatus);
+                                existPartyDo.setSecureStatus(pollingStatus);
+                                existPartyDo.setUpdateTime(date);
+                            }
+                            existPartyDo.setValidTime(date);
                             partyMapper.updateById(existPartyDo);
                         }
-//                        break;
+
                     }
                 }
 
-                //party not exist insert
+                //if party doesn't exist in database, insert it into database
                 if (!exist) {
                     partyDo.setRollSiteId(rollSiteId);
                     partyDo.setCreateTime(date);
                     partyDo.setUpdateTime(date);
+                    partyDo.setValidTime(date);
                     partyMapper.insert(partyDo);
                 }
             }
 
-            //delete party
+            //if party has been deleted in route_table.json,delete it in database
             HashSet<String> partyIdsFromGRPC = new HashSet<>();
             for (PartyDo aDo : partyDos) {
                 partyIdsFromGRPC.add(aDo.getPartyId());
@@ -282,7 +301,7 @@ public class FederatedExchangeService implements Serializable {
             String[] network = rollSiteDo.getNetworkAccess().split(":");
             String grpcBody;
             try {
-                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
+                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), exchangeKey, exchangePartyId, "get_route_table");
 
                 Proxy.Data body = exchange.getBody();
                 ByteString value = body.getValue();
@@ -301,6 +320,7 @@ public class FederatedExchangeService implements Serializable {
             partyDoQueryWrapper.eq("roll_site_id", rollSiteId);
             List<PartyDo> partyDosExisted = partyMapper.selectList(partyDoQueryWrapper);
 
+            Date date = new Date();
             for (PartyDo partyDo : partyDos) {
                 String partyId = partyDo.getPartyId();
                 String networkAccess = partyDo.getNetworkAccess();
@@ -312,25 +332,27 @@ public class FederatedExchangeService implements Serializable {
                     String existPartyId = existPartyDo.getPartyId();
                     if (partyId.equals(existPartyId)) {
                         exist = true;
-                        if (existPartyDo.getStatus() == 1
-                                && ((!existPartyDo.getNetworkAccess().equals(networkAccess)) || (!existPartyDo.getSecureStatus().equals(secureStatus)) || (!existPartyDo.getPollingStatus().equals(pollingStatus)))
-                        ) {
-                            existPartyDo.setNetworkAccess(networkAccess);
-                            existPartyDo.setSecureStatus(secureStatus);
-                            existPartyDo.setPollingStatus(pollingStatus);
-                            existPartyDo.setUpdateTime(new Date());
+                        //whether there are changes in route_table.json or not
+                        if ( (!existPartyDo.getNetworkAccess().equals(networkAccess)) || (!existPartyDo.getSecureStatus().equals(secureStatus)) || (!existPartyDo.getPollingStatus().equals(pollingStatus)) ) {
+                            if (existPartyDo.getStatus() == 1) {//status=1, is able to update basic info
+                                existPartyDo.setNetworkAccess(networkAccess);
+                                existPartyDo.setSecureStatus(secureStatus);
+                                existPartyDo.setPollingStatus(pollingStatus);
+                                existPartyDo.setUpdateTime(date);
+                            }
+                            existPartyDo.setValidTime(date);
                             partyMapper.updateById(existPartyDo);
                         }
-//                        break;
+
                     }
                 }
 
                 //party not exist  insert
                 if (!exist) {
                     partyDo.setRollSiteId(rollSiteId);
-                    Date date = new Date();
                     partyDo.setCreateTime(date);
                     partyDo.setUpdateTime(date);
+                    partyDo.setValidTime(date);
                     partyMapper.insert(partyDo);
                 }
             }
@@ -499,6 +521,7 @@ public class FederatedExchangeService implements Serializable {
             if (partyDo.getStatus() == 2) {
                 partyDo.setStatus(1);
                 partyDo.setUpdateTime(date);
+                partyDo.setValidTime(date);
                 partyMapper.updateById(partyDo);
             }
             if (partyDo.getStatus() == 3) {
@@ -530,7 +553,7 @@ public class FederatedExchangeService implements Serializable {
     private void updateRouteTableJsonString(List<PartyDo> partyDos, String network) throws Exception {
 
         //build route table string
-        HashMap<String, Object> routeTableMap = new HashMap<>();
+        TreeMap<String, Object> routeTableMap = new TreeMap<>();
 
         for (PartyDo partyDo : partyDos) {
             String[] partIdNetwork = partyDo.getNetworkAccess().split(":");
@@ -569,13 +592,13 @@ public class FederatedExchangeService implements Serializable {
 
         //send grpc request
         String[] ipAndPort = network.split(":");
-        Proxy.Packet packet = ExchangeGrpcUtil.setExchange(ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
-
+        log.info("publish request to exchange, ip:{}, port:{}, key:{}, content:{}, partyId:{}, operator:{}",ipAndPort[0], Integer.parseInt(ipAndPort[1]), "eggroll", routeTableJsonString, "exchange", "set_route_table");
+        Proxy.Packet packet = ExchangeGrpcUtil.setExchange(ipAndPort[0], Integer.parseInt(ipAndPort[1]), exchangeKey, routeTableJsonString, exchangePartyId, "set_route_table");
 
         Proxy.Data body = packet.getBody();
         ByteString value = body.getValue();
         String information = value.toStringUtf8();
-        log.info("returned information when publish router information from roll site :{}", information);
+        log.info("publish response from exchange:{}", information);
         if (!"setRouteTable finished".equals(information)) {
             throw new Exception();
         }
@@ -596,7 +619,7 @@ public class FederatedExchangeService implements Serializable {
 
 
     public PageBean<RollSitePageDto> findRollSitePage(RollSitePageQo rollSitePageQo) {
-
+        //get roll site info in database of one exchange
         QueryWrapper<RollSiteDo> rollSiteDoQueryWrapper = new QueryWrapper<>();
         rollSiteDoQueryWrapper.eq("exchange_id", rollSitePageQo.getExchangeId());
         Integer count = rollSiteMapper.selectCount(rollSiteDoQueryWrapper);
@@ -605,8 +628,8 @@ public class FederatedExchangeService implements Serializable {
 
         List<RollSiteDo> rollSiteMapperRollSitePage = rollSiteMapper.findRollSitePage(startIndex, rollSitePageQo);
 
+        //build RollSitePageDto according to RollSiteDo
         LinkedList<RollSitePageDto> rollSitePageDtos = new LinkedList<>();
-
         for (RollSiteDo rollSiteDo : rollSiteMapperRollSitePage) {
             String status = "published";
 
@@ -615,14 +638,12 @@ public class FederatedExchangeService implements Serializable {
             while (iterator.hasNext()) {
                 PartyDo next = iterator.next();
                 if (next.getStatus() != 1) {
-                    iterator.remove();
+//                    iterator.remove();
                     status = "unpublished";
                 }
             }
-            int size = partyDos.size();
             RollSitePageDto rollSitePageDto = new RollSitePageDto(rollSiteDo);
             rollSitePageDto.setStatus(status);
-            rollSitePageDto.setCount(size);
             rollSitePageDtos.add(rollSitePageDto);
         }
 
@@ -632,13 +653,14 @@ public class FederatedExchangeService implements Serializable {
             //send grpc request
             String[] network = rollSitePageDto.getNetworkAccess().split(":");
             String routerTableString;
-
+            ArrayList<PartyDo> partyDos;
             try {
-                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), "eggroll", "exchange", "get_route_table");
+                Proxy.Packet exchange = ExchangeGrpcUtil.findExchange(network[0], Integer.parseInt(network[1]), exchangeKey, exchangePartyId, "get_route_table");
 
                 Proxy.Data body = exchange.getBody();
                 ByteString value = body.getValue();
                 routerTableString = value.toStringUtf8();
+                partyDos = buildPartyList(routerTableString);
 
             } catch (Exception e) {
                 log.error("update route table error by grpc ", e);
@@ -647,7 +669,27 @@ public class FederatedExchangeService implements Serializable {
                 continue;
             }
 
-            ArrayList<PartyDo> partyDos = buildPartyList(routerTableString);
+
+            //get valid time in database
+            QueryWrapper<PartyDo> partyDoQueryWrapper = new QueryWrapper<>();
+            partyDoQueryWrapper.eq("roll_site_id", rollSitePageDto.getRollSiteId());
+            List<PartyDo> partyDosFromDatabase = partyMapper.selectList(partyDoQueryWrapper);
+
+            //update valid time for party info from grpc
+            HashMap<String, PartyDo> stringPartyDoHashMap = new HashMap<>();
+            for (PartyDo partyDo : partyDosFromDatabase) {
+                stringPartyDoHashMap.put(partyDo.getPartyId(), partyDo);
+            }
+            Date date = new Date();
+            for (PartyDo partyDo : partyDos) {
+                PartyDo partyFromDatabase = stringPartyDoHashMap.get(partyDo.getPartyId());
+                if (partyFromDatabase == null || partyFromDatabase.getValidTime() == null) {
+                    partyDo.setValidTime(date);
+                } else {
+                    partyDo.setValidTime(partyFromDatabase.getValidTime());
+                }
+
+            }
             rollSitePageDto.setPartyDos(partyDos);
             rollSitePageDto.setCount(partyDos.size());
         }

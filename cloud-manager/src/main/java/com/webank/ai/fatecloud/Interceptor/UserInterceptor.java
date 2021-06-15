@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class UserInterceptor implements HandlerInterceptor {
     @Autowired
@@ -34,7 +35,12 @@ public class UserInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Object cloudUser = request.getSession().getAttribute(Dict.CLOUD_USER);
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
+            return false;
+        }
+        Object cloudUser = session.getAttribute(Dict.CLOUD_USER);
         if (cloudUser == null) {
             response.getWriter().write(JSON.toJSONString(new CommonResponse<>(ReturnCodeEnum.CLOUD_MANAGER_LOGIN_ERROR)));
             return false;
