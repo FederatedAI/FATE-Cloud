@@ -118,7 +118,7 @@ public class FederatedFateSiteMonitorController {
 
     @PostMapping(value = "/site/period")
     @ApiOperation(value = "find sites based statistics")
-    public CommonResponse<MonitorSiteDto> getJobStatisticsOfSiteDimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) {
+    public CommonResponse<MonitorSiteDto> getJobStatisticsOfSiteDimensionForPeriod(@Valid @RequestBody JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo, BindingResult bindingResult) throws ParseException {
         log.info("RequestBody:{}", jobOfSiteDimensionPeriodQo);
         if (bindingResult.hasErrors()) {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);

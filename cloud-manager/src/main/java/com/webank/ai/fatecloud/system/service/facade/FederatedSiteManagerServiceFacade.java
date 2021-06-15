@@ -138,13 +138,6 @@ public class FederatedSiteManagerServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
-//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
-//        if (!result) {
-//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
-//
-//        }
-
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
@@ -162,13 +155,13 @@ public class FederatedSiteManagerServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARTYID_UPDATE__ERROR);
         }
 
-        String registrationLink = site.getRegistrationLink();
-        String finalUrl;
-        if (StringUtils.isNotBlank(fateManagerUserId)) {
-            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
-        } else {
-            finalUrl = registrationLink;
-        }
+        String finalUrl = site.getRegistrationLink();
+//        String finalUrl;
+//        if (StringUtils.isNotBlank(fateManagerUserId)) {
+//            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+//        } else {
+//            finalUrl = registrationLink;
+//        }
         String registrationLinkFromRequest = siteActivateQo.getRegistrationLink();
 
         log.info("registrationLinkFromRequest:{}", registrationLinkFromRequest);

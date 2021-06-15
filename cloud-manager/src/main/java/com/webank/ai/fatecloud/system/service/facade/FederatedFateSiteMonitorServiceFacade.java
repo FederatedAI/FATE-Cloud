@@ -118,7 +118,7 @@ public class FederatedFateSiteMonitorServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobStatisticsSummaryTodaySiteEachDtos);
     }
 
-    public CommonResponse<MonitorSiteDto> getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) {
+    public CommonResponse<MonitorSiteDto> getJobStatisticsOfSiteDimensionForPeriod(JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo) throws ParseException {
         MonitorSiteDto monitorSiteDto = federatedFateSiteMonitorService.getJobStatisticsOfSiteDimensionForPeriod(jobOfSiteDimensionPeriodQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, monitorSiteDto);
     }
