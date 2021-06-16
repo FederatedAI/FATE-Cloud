@@ -817,8 +817,8 @@ public class FederatedAuthorityService {
 
                     //insert new item
                     FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
+                    federatedSiteAuthorityDo.setInstitutions(institutionsToCancel);
+                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutions);
                     federatedSiteAuthorityDo.setCreateTime(date);
                     federatedSiteAuthorityDo.setUpdateTime(date);
                     federatedSiteAuthorityDo.setStatus(4);
