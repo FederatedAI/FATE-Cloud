@@ -1,7 +1,7 @@
 from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.db.db_models import TokenInfo, AccountInfo, FateSiteInfo, FateUserInfo, AccountSiteInfo
 from fate_manager.entity import item
-from fate_manager.entity.status_code import UserStatusCode
+from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, PermissionType, IsValidType, RoleType, SiteStatusType
 from fate_manager.operation import federated_db_operator
 from fate_manager.operation.db_operator import DBOperator
@@ -243,13 +243,14 @@ def sublogin(request_data):
     account_info = account_info_list[0]
     site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": request_data.get("partyId"),
                                                               "status": SiteStatusType.JOINED})
+    if not site_info_list:
+        raise Exception(SiteStatusCode.NoFoundSite, 'no found site')
     resp = {
         "partyId": request_data.get("partyId"),
-        "siteName": site_info_list[0].site_name if site_info_list else ""
+        "siteName": site_info_list[0].site_name,
+        "roleId": site_info_list[0].role,
+        "roleName": RoleType.to_str(site_info_list[0].role)
     }
-    if site_info_list:
-        resp["roleId"] = site_info_list[0].role
-        resp["roleName"] = RoleType.to_str(site_info_list[0].role)
     return resp
 
 
@@ -262,13 +263,14 @@ def change_login(request_data):
     account_info = account_info_list[0]
     site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": request_data.get('partyId'),
                                                               "status": SiteStatusType.JOINED})
+    if not site_info_list:
+        raise Exception(SiteStatusCode.NoFoundSite, 'no found site')
     resp = {
         "partyId": request_data.get("partyId"),
-        "siteName": site_info_list[0].site_name if site_info_list else ""
+        "siteName": site_info_list[0].site_name,
+        "roleId": site_info_list[0].role,
+        "roleName": RoleType.to_str(site_info_list[0].role)
     }
-    if site_info_list:
-        resp["roleId"] = site_info_list[0].role
-        resp["roleName"] = RoleType.to_str(site_info_list[0].role)
     return resp
 
 

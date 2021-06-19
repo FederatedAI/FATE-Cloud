@@ -117,13 +117,17 @@ class CountJob:
             for role, party_id_list in job["f_roles"].items():
                 for _party_id in party_id_list:
                     other_party_id.add(_party_id)
-            site_job.other_party_id = list(other_party_id)
+            site_job.other_party_id = list(set(other_party_id))
+            if len(site_job.other_party_id) > 1 and party_id in site_job.other_party_id:
+                site_job.other_party_id.remove(site_job.party_id)
         # set other institutions by other party id
         institutions_list = []
         for _party_id in site_job.other_party_id:
             if str(_party_id) in other_institutions.keys():
                 institutions_list.append(other_institutions[str(_party_id)])
         site_job.other_institutions = list(set(institutions_list))
+        if len(site_job.other_institutions) > 1 and site_job.institutions in site_job.other_institutions:
+            site_job.other_institutions.remove(site_job.institutions)
         site_job.save(force_insert=True)
         return site_job
 
