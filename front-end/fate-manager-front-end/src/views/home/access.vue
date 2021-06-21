@@ -6,10 +6,10 @@
                 <img src="@/assets/add_user.png">
                 <span>{{$t('m.common.add')}}</span>
             </el-button>
-            <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('Name')">
+            <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('m.sitemanage.name')">
                 <i slot="prefix" @click="getList" class="el-icon-search search el-input__icon" />
             </el-input>
-            <el-select class="sel-institutions" v-model="data.partyId" :placeholder="$t('Site')">
+            <el-select class="sel-institutions" v-model="data.partyId" :placeholder="$t('m.common.site')">
                 <el-option
                     v-for="item in partyIdSiteList"
                     :key="item.value"
@@ -17,7 +17,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-select class="sel-institutions" v-model="data.roleId" :placeholder="$t('Role')">
+            <el-select class="sel-institutions" v-model="data.roleId" :placeholder="$t('m.common.role')">
                 <el-option
                     v-for="item in typeSelect"
                     :key="item.value"
@@ -35,21 +35,25 @@
                 cell-class-name="tableCell"
                 height="100%"
                 tooltip-effect="light">
-                <el-table-column prop="userName"  :label="$t('Name')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="site.siteName" :label="$t('Site')" ></el-table-column>
-                <el-table-column prop="role.roleName" :label="$t('Role')"  show-overflow-tooltip></el-table-column>
-                <el-table-column prop="permissionList" :label="$t('Permission')" show-overflow-tooltip>
+                <el-table-column prop="userName"  :label="$t('m.sitemanage.name')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="site.siteName" :label="$t('m.common.site')" ></el-table-column>
+                <el-table-column prop="role.roleName" :label="$t('m.common.role')"  show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <span v-for="(item, index) in scope.row.permissionList" :key="index">{{item.permissionName}};</span>
+                        <span>{{scope.row.role | getRoleType}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="creator" :label="$t('Creator')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="createTime" :label="$t('Create Time')" >
+                <el-table-column prop="permissionList" :label="$t('m.sitemanage.permission')" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-for="(item, index) in scope.row.permissionList" :key="index">{{$t(`m.sitemanage.${item.permissionName}`)}};</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="creator" :label="$t('m.sitemanage.creator')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="createTime" :label="$t('m.common.createTime')" >
                     <template slot-scope="scope">
                         <span >{{scope.row.createTime | dateFormat}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="Action" :label="$t('Action')" align="center">
+                <el-table-column prop="Action" :label="$t('m.common.action')" align="center">
                     <template slot-scope="scope" >
                         <!-- 由could生成不能编辑与删除 -->
                         <span v-if='scope.row.cloudUser'>
@@ -61,7 +65,7 @@
                             </el-button>
                         </span>
                          <!-- 不能删除自己 -->
-                        <span v-else-if="siteTemp.userName===scope.row.userName">
+                        <span v-else-if="userName===scope.row.userName">
                             <el-button type="text" >
                                 <i class="el-icon-edit edit" @click="handleEdit(scope.row)"></i>
                             </el-button>
@@ -84,7 +88,7 @@
     </div>
     <!-- 删除 -->
     <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
-        <div class="line-text-one">{{$t('Are you sure you want to delete this user?')}}</div>
+        <div class="line-text-one">{{$t('m.sitemanage.sureToDeleteUser')}}</div>
         <div class="dialog-footer">
         <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
         <el-button class="ok-btn" type="info" @click="deletedialog = false">{{$t('m.common.cancel')}}</el-button>
@@ -95,11 +99,11 @@
       <div class="dialog-box">
           <el-form :model="siteTemp" :rules="rules" ref="ruleForm">
             <div class="dialog-title">
-                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add') }}</span>{{$t('user')}}
+                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add') }}</span>{{$t('m.sitemanage.user')}}
             </div>
             <el-form-item class="add-input" prop="userName">
                 <span class="input-title">
-                    {{$t('User')}}
+                    {{$t('m.common.userName')}}
 
                 </span>
                 <el-select
@@ -108,7 +112,7 @@
                     filterable
                     remote
                     reserve-keyword
-                    :placeholder="$t('Please enter a name')"
+                    :placeholder="$t('m.sitemanage.pleaseEnterName')"
                     :remote-method="remoteMethod"
                     @change="userchange"
                     @focus="toclearValid('userName')">
@@ -123,7 +127,7 @@
                 <!-- <div v-if='userWarn' class="text-warn" >The User Name field is required.</div> -->
             </el-form-item>
              <el-form-item class="add-input"  prop="roleId">
-                <span class="input-title">{{$t('Role')}}</span>
+                <span class="input-title">{{$t('m.common.role')}}</span>
                 <el-radio-group v-model="siteTemp.roleId">
                     <el-radio
                         v-for="item in typeSelect"
@@ -134,11 +138,11 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item v-if="!sitedisable" class="add-input" prop="siteName">
-                 <span class="input-title">{{$t('Site')}}</span>
+                 <span class="input-title">{{$t('m.common.site')}}</span>
                 <el-select v-model="siteTemp.siteName"
                     :disabled="sitedisable"
                     @change="sitechange"
-                     @focus="toclearValid('siteName')"
+                    @focus="toclearValid('siteName')"
                     filterable remote
                     placeholder="">
                     <el-option
@@ -152,16 +156,16 @@
             </el-form-item>
          </el-form>
         <div  class="permission">
-            <span class="input-title">{{$t('Permission')}}</span>
+            <span class="input-title">{{$t('m.sitemanage.permission')}}</span>
             <span class="item" >
                 <span v-for="(item, index) in permissionList" :key="index">
                     <div v-if="item.show" class="show-item">
                         <i class="el-icon-check"></i>
-                        {{$t(`${item.item}`)}}
+                        {{$t(`m.sitemanage.${item.item}`)}}
 
                     </div>
                     <div v-else class="hide-item">
-                        <span>{{$t(`${item.item}`)}}</span>
+                        <span>{{$t(`m.sitemanage.${item.item}`)}}</span>
                     </div>
                 </span>
             </span>
@@ -178,62 +182,10 @@
 <script>
 import { accessList, userListDown, siteListDown, addUser, editUser, deleteUser } from '@/api/home'
 
-import moment from 'moment'
 import { mapGetters } from 'vuex'
-
-// 国际化
-const local = {
-    zh: {
-        'GO': '搜索',
-        'Name': '用户名',
-        'Site': '站点',
-        'Role': '站点角色',
-        'Permission': '权限',
-        'Creator': '创建者',
-        'Create Time': '创建时间',
-        'Action': '操作',
-        'user': '用户',
-        'User': '用户名',
-        'admin': '管理员',
-        'Developer or OP': '开发者',
-        'Business or Data Analyst': '商业组或数据分析师',
-        'FATE Cloud: Basic management': 'FATE Cloud: 基础管理',
-        'FATE Cloud: Auto-deploy': 'FATE Cloud: 自动部署',
-        'FATE Studio': 'FATE Studio',
-        'FATEBoard': 'FATEBoard',
-        'Please enter a name': '请输入用户名',
-        'Are you sure you want to delete this user?': '是否确认删除该用户'
-    },
-    en: {
-        'GO': 'GO',
-        'Name': 'Name',
-        'Site': 'Site',
-        'Role': 'Role',
-        'Permission': 'Permission',
-        'Creator': 'Creator',
-        'Create Time': 'Create Time',
-        'Action': 'Action',
-        'user': 'user',
-        'User': 'User',
-        'admin': 'admin',
-        'Developer or OP': 'Developer or OP',
-        'Business or Data Analyst': 'Business or Data Analyst',
-        'FATE Cloud: Basic management': 'FATE Cloud: Basic management',
-        'FATE Cloud: Auto-deploy': 'FATE Cloud: Auto-deploy',
-        'FATE Studio': 'FATE Studio',
-        'FATEBoard': 'FATEBoard',
-        'Please enter a name': 'Please enter a name',
-        'Are you sure you want to delete this user?': 'Are you sure you want to delete this user?'
-    }
-}
 
 export default {
     name: 'access',
-    filters: {
-        dateFormat(value) {
-            return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
-        }
-    },
     data() {
         return {
             typetitle: 'Edit',
@@ -264,10 +216,36 @@ export default {
             typeSelect: this.$Map.roleType,
             rules: {
                 userName: [
-                    { required: true, message: 'The User Name field is required !', trigger: 'blur' }
+                    {
+                        required: true,
+                        trigger: 'blur',
+                        validator: (rule, value, callback) => {
+                            if (!value) {
+                                callback(
+                                    new Error(
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.userName') })
+                                    )
+                                )
+                            }
+                            callback()
+                        }
+                    }
                 ],
                 siteName: [
-                    { required: true, message: 'The Site field is required !', trigger: 'blur' }
+                    {
+                        required: true,
+                        trigger: 'blur',
+                        validator: (rule, value, callback) => {
+                            if (!value) {
+                                callback(
+                                    new Error(
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.siteName') })
+                                    )
+                                )
+                            }
+                            callback()
+                        }
+                    }
                 ]
             },
             // 入参
@@ -315,8 +293,6 @@ export default {
         ...mapGetters(['userName'])
     },
     created() {
-        this.$i18n.mergeLocaleMessage('en', local.en)
-        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.getList()
         this.tositeListDown()
     },
@@ -366,6 +342,11 @@ export default {
                 userId: row.userId,
                 userName: row.userName
             }
+            this.$nextTick(() => {
+                if (this.$refs) {
+                    this.toclearValid()
+                }
+            })
         },
         // 添加用户
         addRoleUser() {
@@ -375,9 +356,14 @@ export default {
                 userId: '',
                 userName: '',
                 partyId: '',
-                siteName: '',
+                siteName: ' ',
                 roleId: '1'
             }
+            this.$nextTick(() => {
+                if (this.$refs) {
+                    this.toclearValid()
+                }
+            })
         },
         // 确定编辑、添加用户
         toSure() {
@@ -389,6 +375,7 @@ export default {
             } else if (this.siteTemp.roleId === '3') {
                 permissionList = [3, 4]
             }
+            console.log(this.siteTemp, 'siteTemp')
             let data = {
                 creator: this.userName,
                 permissionList,
@@ -398,15 +385,15 @@ export default {
                 userId: this.siteTemp.userId,
                 userName: this.siteTemp.userName
             }
-            // 删除空值
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    const element = data[key]
-                    if (element === '' && element !== 0) {
-                        delete data[key]
-                    }
-                }
-            }
+            // // 删除空值
+            // for (const key in data) {
+            //     if (data.hasOwnProperty(key)) {
+            //         const element = data[key]
+            //         if (element === '' && element !== 0) {
+            //             delete data[key]
+            //         }
+            //     }
+            // }
             this.$refs['ruleForm'].validate((valid) => {
                 if (valid) {
                     if (this.typetitle === 'Add') {
@@ -484,7 +471,7 @@ export default {
                 }
             }
         },
-        // 清楚验证
+        // 清除验证
         toclearValid(type) {
             this.$refs['ruleForm'].clearValidate(type)
         }

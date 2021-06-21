@@ -2,29 +2,29 @@
   <div class="sitemanage">
     <div class="site-item">
         <div class="site-item-text">
-            <span class="title">{{$t('Federated Organization')}}</span>
+            <span class="title">{{$t('m.sitemanage.federatedOrganization')}}</span>
             <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization}`" :placement="'top'"/>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('Institutio')}}</span>
+            <span class="title">{{$t('m.common.institution')}}</span>
             <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('Organization Size')}}</span>
+            <span class="title">{{$t('m.sitemanage.organizationSize')}}</span>
             <div class="text"> {{myInstitution.size}} </div>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('Creation Time')}}</span>
+            <span class="title">{{$t('m.sitemanage.creationTime')}}</span>
             <div style="color:#4E5766;">{{myInstitution.createTime | dateFormat}}</div>
         </div>
         <div class="site-title">
-            <span class="site-tiem-view" @click="togetexchangeList">{{$t('view exchange')}}</span>
+            <span class="site-tiem-view" @click="togetexchangeList">{{$t('m.sitemanage.viewExchange')}}</span>
         </div>
     </div>
     <div class="sitemanage-box">
         <div class="add-site">
             <span v-if="role.roleName==='Admin'">
-                <el-tooltip effect="dark" :content="$t('Add a new site to join a federated organization')" placement="top">
+                <el-tooltip effect="dark" :content="$t('m.sitemanage.addNewSiteJoinOrganization')" placement="top">
                     <div  class="add" @click="toAddSite">
                         <img src="@/assets/add_site.png">
                         <span>{{$t('m.common.add')}}</span>
@@ -43,9 +43,9 @@
                     </div>
                     <div class="apply"  v-if='applyStatus === 3' >
                         <span  class="apply-click" v-if='showapplyBtn' @click="showApply">
-                            {{$t('Apply to view other FATE Manager sites.')}}
+                            {{$t('m.sitemanage.applySites')}}
                         </span>
-                        <span v-else class="apply-click"  style="color: #848C99;cursor:not-allowed">{{$t('Apply to view other FATE Manager sites.')}}</span>
+                        <span v-else class="apply-click"  style="color: #848C99;cursor:not-allowed">{{$t('m.sitemanage.applySites')}}</span>
                         <el-popover
                             placement="bottom"
                             :visible-arrow="false"
@@ -63,29 +63,30 @@
                                         <div class="title-time">{{item.applyTime | dateFormat}}</div>
                                         <div class="title-history">
                                             <span v-if="item.agree.length>0">
-                                                Cloud Manager agreed your application to view the fate manager sites of
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}
                                                 <span v-for="(elm, ind) in item.agree" :key="ind">
                                                     <span v-if="ind===item.agree.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
+                                                {{$t('m.sitemanage.applications')}}
                                             </span>
                                             <span v-if="item.reject.length>0">
-                                                <span v-if="item.agree.length>0"> ,and cloud</span>
-                                                <span v-else> Cloud</span>
-                                                Manager reject your application to view the fate manager sites of
+                                                <span v-if="item.agree.length>0"> ,{{$t('m.common.and')}} </span>
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject')})}}
                                                 <span v-for="(elm, ind) in item.reject" :key="ind">
                                                     <span v-if="ind===item.reject.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
+                                                {{$t('m.sitemanage.applications')}}
                                             </span>
                                             <span v-if="item.cancel.length>0">
-                                                <span v-if="item.agree.length>0 || item.reject.length>0"> ,and cloud</span>
-                                                <span v-else> Cloud</span>
-                                                Manager cancel your application to view the fate manager sites of
+                                                <span v-if="item.agree.length>0 || item.reject.length>0"> ,{{$t('m.common.and')}} </span>
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
                                                 <span v-for="(elm, ind) in item.cancel" :key="ind">
                                                     <span v-if="ind===item.cancel.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
+                                                {{$t('m.sitemanage.applications')}}
                                             </span>
 
                                         </div>
@@ -103,7 +104,7 @@
                     <span>{{$t('m.common.add')}}</span>
                 </div>
                 <div v-if='siteState' class="apply" style="cursor:not-allowed;color:#c8c9cc" >
-                    <span >{{$t('Apply to view other FATE Manager sites.')}} </span>
+                    <span >{{$t('m.sitemanage.applySites')}} </span>
                     <img slot="reference" class="tickets" src="@/assets/history.png" style="cursor:not-allowed" alt="" >
                 </div>
             </span>
@@ -111,23 +112,23 @@
         <!-- 我的站点申请 -->
         <div class="site-name">
             <div class="name-left">
-                <span class="institution-title">{{$t('My Institution')}}</span>
+                <span class="institution-title">{{$t('m.sitemanage.myInstitution')}}</span>
                 <span class="institution-text">
                     <tooltip :width="'170px'" :content="myInstitution.fateManagerInstitutions" :placement="'top'"/>
                 </span>
-                <span class="size-title">{{$t('Size')}}</span>
+                <span class="size-title">{{$t('m.sitemanage.size')}}</span>
                 <span class="size-num">{{myInstitution.joinedSites }}</span>
             </div>
             <div class="name-right">
-                <span class="right-text">{{$t('My site has been applied to view by')}}</span>
+                <span class="right-text">{{$t('m.sitemanage.hasBeenApplied')}}</span>
                 <el-tooltip v-if="viewContent.totalLength>0" popper-class="view-tip" effect="light"  placement="bottom">
                     <span slot="content" >
                         <div class="viewcontent" v-if="viewContent.scenarioType !== '1'">
-                            <p class="content-title">{{$t('Host sites viewed by:')}}</p>
+                            <p class="content-title">{{$t('m.sitemanage.siteViewed',{type:$t('m.common.host',{type:'H'})})}}</p>
                             <div class="sites-list">{{hostListText}}</div>
                         </div>
                         <div class="viewcontent" style="margin-top:25px" v-if="viewContent.scenarioType !== '1'">
-                            <p class="content-title">{{$t('Guest sites viewed by:')}}</p>
+                            <p class="content-title">{{$t('m.sitemanage.siteViewed',{type:$t('m.common.guest',{type:'G'})})}}</p>
                             <div class="sites-list">{{guestListText}}</div>
                         </div>
                         <div class="viewcontent" v-if="viewContent.scenarioType === '1'">
@@ -141,7 +142,7 @@
                     <span class="right-num">{{viewContent.totalLength}}</span>
                 </el-tooltip>
                 <span v-else class="right-num">{{0}}</span>
-                <span class="right-title">{{$t('FATE Managers')}}</span>
+                <span class="right-title">{{$t('m.sitemanage.FATEManagers')}}</span>
                 <span class="refresh">
                     <i @click="getList" class="el-icon-refresh-right"></i>
                 </span>
@@ -155,17 +156,28 @@
             header-cell-class-name="tableHeadCell"
             cell-class-name="tableCell"
             tooltip-effect="light">
-            <el-table-column prop="siteName" :label="$t('Site Name')"  show-overflow-tooltip>
+            <el-table-column prop="siteName" :label="$t('m.sitemanage.siteName')"  show-overflow-tooltip>
                 <template slot-scope="scope">
                     <span @click="toSietInfo(scope.row)" style="color:#217AD9;cursor:pointer;">{{scope.row.siteName}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="status.desc" :label="$t('Status')" >
+            <el-table-column prop="status.desc" :label="$t('m.common.status')" >
+                <template slot-scope="scope">
+                    <span>{{scope.row.status | getSiteStatus}}</span>
+                </template>
             </el-table-column>
-            <el-table-column prop="serviceStatus.desc" :label="$t('Service Status')" ></el-table-column>
-            <el-table-column prop="role.desc" :label="$t('Role')" ></el-table-column>
-            <el-table-column prop="partyId" :label="$t('Party ID')" ></el-table-column>
-            <el-table-column prop="activationTime" :label="$t('Activation Time')">
+            <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')" >
+                <template slot-scope="scope">
+                    <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="role.desc" :label="$t('m.common.role')" >
+                <template slot-scope="scope">
+                    <span>{{scope.row.role | getSiteType}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column prop="partyId" :label="$t('m.common.partyID')" ></el-table-column>
+            <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
                 <template slot-scope="scope">
                     <span>{{scope.row.activationTime | dateFormat}}</span>
                 </template>
@@ -176,11 +188,11 @@
             <span v-for="(item, index) in otherSiteList" :key="index" >
                 <div class="site-name" style="margin-top: 12px;">
                     <div class="name-left">
-                        <span class="institution-title">{{$t('Other Institution')}}</span>
+                        <span class="institution-title">{{$t('m.sitemanage.otherInstitution')}}</span>
                         <span class="institution-text">
                             <tooltip :width="'170px'" :content="item.fateManagerInstitutions" :placement="'top'"/>
                         </span>
-                        <span class="size-title">{{$t('Size')}}</span>
+                        <span class="size-title">{{$t('m.sitemanage.size')}}</span>
                         <span class="size-num">{{item.size}}</span>
                     </div>
                 </div>
@@ -192,12 +204,24 @@
                     header-cell-class-name="tableHeadCell"
                     cell-class-name="tableCell"
                     tooltip-effect="light">
-                    <el-table-column prop="siteName" :label="$t('Site Name')" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="status.desc" :label="$t('Status')"></el-table-column>
-                    <el-table-column prop="serviceStatus.desc" :label="$t('Service Status')"></el-table-column>
-                    <el-table-column prop="role.desc" :label="$t('Role')"></el-table-column>
-                    <el-table-column prop="partyId" :label="$t('Party ID')"></el-table-column>
-                    <el-table-column prop="activationTime" :label="$t('Activation Time')">
+                    <el-table-column prop="siteName" :label="$t('m.sitemanage.siteName')" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="status.desc" :label="$t('m.common.status')">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.status | getSiteStatus}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="role.desc" :label="$t('m.common.role')">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.role | getSiteType}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"></el-table-column>
+                    <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
                         <template slot-scope="scope">
                             <span>{{scope.row.activationTime | dateFormat}}</span>
                         </template>
@@ -232,52 +256,51 @@
      <!-- 审批不通过查看弹框 -->
     <el-dialog :visible.sync="applynotpass" class="apply-not-pass" width="700px">
         <span v-if='agreedList.length>0'>
-            <div class="line-text-one">Cloud Manager agreed  your application</div>
-            <div class="line-text-one">to view the fate manager sites of </div>
+            <div class="line-text-one">{{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}</div>
             <div class="line-text-one" >
                 <span class="span" v-for="(item, index) in agreedList" :key="index">
                     <span v-if="index===agreedList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
             </div>
+            {{$t('m.sitemanage.applications')}}
         </span>
 
          <span v-if='rejectList.length>0'>
             <div class="line-text-one">
-                <span v-if='agreedList.length>0'>and cloud</span>
-                <span v-else >Cloud</span>
-                Manager reject  your application
+                <span v-if='agreedList.length>0'>{{$t('m.common.and')}}</span>
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject')})}}
             </div>
-            <div class="line-text-one">to view the fate manager sites of </div>
             <div class="line-text-one" >
                 <span class="span" v-for="(item, index) in rejectList" :key="index">
                     <span v-if="index===rejectList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
             </div>
+            {{$t('m.sitemanage.applications')}}
         </span>
         <span v-if='cancelList.length>0'>
             <div class="line-text-one">
-                <span v-if='rejectList.length>0'>and cloud</span>
+                <span v-if='rejectList.length>0'>{{$t('m.common.and')}}</span>
                 <span v-else >Cloud</span>
-                Manager cancel  your application
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
             </div>
-            <div class="line-text-one">to view the fate manager sites of </div>
             <div class="line-text-one" >
                 <span class="span" v-for="(item, index) in cancelList" :key="index">
                     <span v-if="index===cancelList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
             </div>
+            {{$t('m.sitemanage.applications')}}
         </span>
         <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="toapplynotpass">OK</el-button>
+            <el-button class="ok-btn" type="primary" @click="toapplynotpass">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
       <!-- Exchange弹框 -->
     <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
         <div class="vip-box">
-            <div class="dialog-title">{{$t('Exchange Info.')}}</div>
+            <div class="dialog-title">{{$t('m.sitemanage.exchangeInfo')}}</div>
             <el-table
                 :data="exchangeList.exchangeVip"
                 class="site-table"
@@ -299,72 +322,13 @@
 
 <script>
 
-import moment from 'moment'
 import { mapGetters } from 'vuex'
 import siteregister from './siteregister'
 import tooltip from '@/components/Tooltip'
 import { getInstitutions, applysite, mySiteList, otherSitList, applyState, readState, fatemanagerList, applyHistory, getexchangeList, getNoticeapplysite } from '@/api/home'
-// 国际化
-const local = {
-    zh: {
-        'Federated Organization': '联邦组织',
-        'Institutio': '机构',
-        'Other Institution': '其他联邦机构',
-        'Organization Size': '成员数',
-        'Creation Time': '创建时间',
-        'view exchange': 'exchange服务信息',
-        'Exchange Info.': 'Exchange服务信息',
-        'Apply to view other FATE Manager sites.': '申请查看成员联邦站点',
-        'Add a new site to join a federated organization': '新增站点到联邦组织',
-        'My site has been applied to view by': '我的站点已被',
-        'FATE Managers': '位联邦成员申请查看',
-        'My Institution': '我的站点机构',
-        'Size': '站点数',
-        'Site Name': '站点名',
-        'Status': '状态',
-        'Service Status': '服务状态',
-        'Role': '站点角色',
-        'Party ID': '站点ID',
-        'Activation Time': '激活时间',
-        'Host sites viewed by:': '数据源站点被以下机构查看：',
-        'Guest sites viewed by:': '应用方站点被以下机构查看：',
-        'History': '操作历史',
-        'Time': '时间'
-    },
-    en: {
-        'Federated Organization': 'Federated Organization',
-        'Institutio': 'Institutio',
-        'Other Institution': 'Institutio',
-        'Organization Size': 'Organization Size',
-        'Creation Time': 'Creation Time',
-        'view exchange': 'view exchange',
-        'Exchange Info.': 'Exchange Info.',
-        'Apply to view other FATE Manager sites.': 'Apply to view other FATE Manager sites.',
-        'Add a new site to join a federated organization': 'Add a new site to join a federated organization',
-        'My site has been applied to view by': 'My site has been applied to view by',
-        'FATE Managers': 'FATE Managers',
-        'My Institution': 'My Institution',
-        'Size': 'Size',
-        'Site Name': 'Site Name',
-        'Status': 'Status',
-        'Service Status': 'Service Status',
-        'Role': 'Role',
-        'Party ID': 'Party ID',
-        'Activation Time': 'Activation Time',
-        'Host sites viewed by:': 'Host sites viewed by:',
-        'Guest sites viewed by:': 'Guest sites viewed by:',
-        'History': 'History',
-        'Time': 'Time'
 
-    }
-}
 export default {
     name: 'homeview',
-    filters: {
-        dateFormat(vaule) {
-            return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '--'
-        }
-    },
     components: {
         tooltip,
         siteregister
@@ -410,8 +374,6 @@ export default {
         }
     },
     created() {
-        this.$i18n.mergeLocaleMessage('en', local.en)
-        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.$nextTick(() => {
             this.getList()
             this.getNoticeapplysite()

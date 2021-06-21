@@ -3,22 +3,22 @@
     <div class="site-detail">
         <div class="Basic">
             <div class="info">
-            <span>{{$t('Basic Info')}}</span>
+            <span>{{$t('m.sitemanage.basicInfo')}}</span>
             <div class="info-del">
-                <span class="info-sta">{{$t('Status')}}</span>
-                <span class="sta-action">{{form.status ? form.status.desc:''}}</span>
+                <span class="info-sta">{{$t('m.common.status')}}</span>
+                <span class="sta-action">{{(form.status ? form.status : '') | getSiteStatus}}</span>
             </div>
             </div>
             <el-form ref="form" :model="form" label-position="left" label-width="180px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                <el-form-item :label="$t('Site Name')">
+                <el-form-item :label="$t('m.common.siteName')">
                     <span class="info-text">{{form.siteName}}</span>
                 </el-form-item>
-                <el-form-item :label="$t('Institution')">
+                <el-form-item :label="$t('m.common.institution')">
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
-                <el-form-item  :label="$t('Role')" >
+                <el-form-item  :label="$t('m.common.role')" >
                     <span class="info-text">{{form.role?form.role.desc:form.role}}</span>
                 </el-form-item>
                 <el-form-item label="Federation key">
@@ -31,19 +31,19 @@
                 </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                <el-form-item :label="$t('Status')" >
+                <el-form-item :label="$t('m.common.status')" >
                     <span class="info-text">{{form.status?form.status.desc:form.status}}</span>
                 </el-form-item>
-                <el-form-item :label="$t('Party ID')" >
+                <el-form-item :label="$t('m.common.partyID')" >
                     <span class="info-text">{{form.partyId}}</span>
                 </el-form-item>
-                <el-form-item  :label="$t('Creation Time')">
+                <el-form-item  :label="$t('m.sitemanage.creationTime')">
                     <span class="info-text">{{form.createTime | dateFormat}}</span>
                 </el-form-item>
-                <el-form-item  :label="$t('Activation Time')" >
+                <el-form-item  :label="$t('m.sitemanage.activationTime')" >
                     <span class="info-text">{{form.acativationTime | dateFormat}}</span>
                 </el-form-item>
-                <el-form-item  :label="$t('Registration Link')">
+                <el-form-item  :label="$t('m.sitemanage.registrationLink')">
                     <el-popover
                     placement="top"
                     width="400"
@@ -59,15 +59,15 @@
         </div>
         <div class="Basic">
             <div class="info">
-                <span>{{$t('Network configuration')}}</span>
+                <span>{{$t('m.sitemanage.networkConfiguration')}}</span>
                 <span  v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                     <div class="info-del" v-if="form.status && form.status.code !== 3">
                         <img src="@/assets/edit_click.png" v-if="editSubmitted === 1" @click="toEdit" class="edit" alt />
-                        <el-button v-if="editSubmitted === 2" @click="submit" :disabled="tosubmit" type="primary">Submit</el-button>
-                        <el-button v-if="editSubmitted === 2" @click="cancel" type="info">Cancel</el-button>
+                        <el-button v-if="editSubmitted === 2" @click="submit" :disabled="tosubmit" type="primary">{{$t('m.common.submit')}}</el-button>
+                        <el-button v-if="editSubmitted === 2" @click="cancel" type="info">{{$t('m.common.cancel')}}</el-button>
                         <span v-if="editSubmitted === 3" class="under">
                             <img src="@/assets/under.png" style="margin-right:5px" alt />
-                            <span>Under Review</span>
+                            <span>{{$t('m.sitemanage.underReview')}}</span>
                         </span>
                     </div>
                 </span>
@@ -75,7 +75,7 @@
             <el-form ref="form" :model="form" label-position="left" :rules="rules" label-width="230px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                    <el-form-item :label="$t('Network Acess Entrances')" style="height:100%;" prop="networkAccessEntrances" >
+                    <el-form-item :label="$t('m.sitemanage.networkEntrances')" style="height:100%;" prop="networkAccessEntrances" >
                         <span class="info-text" v-if="editSubmitted!==2 &&  form.networkAccessEntrances">
                             <div v-for="(item,index) in form.networkAccessEntrances.split(';')" :key="index" >{{item}}</div>
                         </span>
@@ -91,7 +91,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item :label="$t('Network Acess Exits')" style="height:100%;" prop="networkAccessExits" >
+                    <el-form-item :label="$t('m.sitemanage.networkExits')" style="height:100%;" prop="networkAccessExits" >
                         <span class="info-text" v-if="editSubmitted!==2 && form.networkAccessExits">
                             <div v-for="(item,index) in form.networkAccessExits.split(';')" :key="index" >{{item}}</div>
                         </span>
@@ -111,28 +111,27 @@
         </div>
         <div class="Basic">
             <div class="info">
-                <span>{{$t('System version')}}</span>
+                <span>{{$t('m.sitemanage.systemVersion')}}</span>
                 <span v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                     <div class="info-del" v-if="form.status && form.status.code !== 3">
                         <span v-if="form.versionEditStatus.code===2">
                             <img src="@/assets/edit_click.png" v-if="editVersion === 1" @click="toEditVersion" class="edit" alt />
-                            <el-button v-if="editVersion === 2" @click="versiondialog=true"  type="primary">Submit</el-button>
-                            <el-button v-if="editVersion === 2" @click="toCanceleditVersion" type="info">Cancel</el-button>
+                            <el-button v-if="editVersion === 2" @click="versiondialog=true"  type="primary">{{$t('m.common.submit')}}</el-button>
+                            <el-button v-if="editVersion === 2" @click="toCanceleditVersion" type="info">{{$t('m.common.cancel')}}</el-button>
                         </span>
                         <span v-else>
                              <img src="@/assets/edit_disable.png" style="cursor:not-allowed" class="edit" alt />
                         </span>
-
                     </div>
                 </span>
             </div>
             <el-form ref="form" :model="form" label-position="left" :rules="rules" >
                  <!-- fateVersion版本下拉 -->
                 <div class="system-label" >
-                    <span class="system-title">{{$t('FATE version')}}</span>
+                    <span class="system-title">{{$t('m.sitemanage.FATEversion')}}</span>
                     <el-tooltip effect="dark" placement="bottom">
                         <div style="font-size:14px" slot="content">
-                            <div>including FATE-Board, FATE-Flow</div>
+                            <div>{{$t('m.sitemanage.including')}} FATE-Board, FATE-Flow</div>
                         </div>
                         <i class="el-icon-info icon-info"></i>
                     </el-tooltip>
@@ -149,8 +148,8 @@
                     </span>
                 </div>
                 <div class="label" >
-                    <span class="label-title" style="color:#4E5766;font-weight:bold">{{$t('FATE Component')}}</span>
-                    <span class="label-version" style="color:#4E5766;font-weight:bold" >{{$t('Version')}}</span>
+                    <span class="label-title" style="color:#4E5766;font-weight:bold">{{$t('m.sitemanage.FATEComponent')}}</span>
+                    <span class="label-version" style="color:#4E5766;font-weight:bold" >{{$t('m.sitemanage.version')}}</span>
                     <span class="label-ip" style="color:#4E5766;font-weight:bold">IP </span>
                 </div>
                 <el-form-item label="" style="height:100%;">
@@ -174,7 +173,7 @@
         </div>
         <div  class="Basic"  v-if="role.roleName==='Admin'">
             <div class="info">
-                <span>{{$t('User List')}}</span>
+                <span>{{$t('m.sitemanage.userList')}}</span>
             </div>
             <el-table
                 :data="siteList"
@@ -183,9 +182,9 @@
                 header-cell-class-name="tableHeadCell"
                 cell-class-name="tableCell"
                 tooltip-effect="light">
-                <el-table-column prop="userName" :label="$t('Name')" width="200" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="role" :label="$t('Role')"  width="200"></el-table-column>
-                <el-table-column prop="permission" :label="$t('Permission')" ></el-table-column>
+                <el-table-column prop="userName" :label="$t('m.sitemanage.name')" width="200" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="role" :label="$t('m.common.role')"  width="200"></el-table-column>
+                <el-table-column prop="permission" :label="$t('m.sitemanage.permission')" ></el-table-column>
             </el-table>
         </div>
 
@@ -194,16 +193,16 @@
     <el-dialog :visible.sync="noticedialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
       <div class="line-text-one">{{noticedesc}}</div>
       <div class="dialog-footer">
-        <el-button class="ok-btn" type="primary" @click="notice">OK</el-button>
+        <el-button class="ok-btn" type="primary" @click="notice">{{$t('m.common.OK')}}</el-button>
       </div>
     </el-dialog>
     <!-- 确定更改version版本弹框 -->
     <el-dialog :visible.sync="versiondialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
-        <div class="line-one">Are you sure you want to change system version?</div>
-        <div class="line-text-two">The results will be synchronized to cloud manager.</div>
+        <div class="line-one">{{$t('m.sitemanage.sureChangeVersion')}}</div>
+        <div class="line-text-two">{{$t('m.sitemanage.resultsSynchronized')}}</div>
         <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="sureVersion">Sure</el-button>
-            <el-button class="ok-btn" type="info" @click="versiondialog=false">cancel</el-button>
+            <el-button class="ok-btn" type="primary" @click="sureVersion">{{$t('m.common.sure')}}</el-button>
+            <el-button class="ok-btn" type="info" @click="versiondialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
     <!-- 确定更改ip弹框 -->
@@ -212,12 +211,12 @@
         v-if="networkAccessEntrancesOld && networkAccessExitsOld"
         class="ip-delete-dialog"
         width="700px">
-        <div class="line-text-one">Are you sure you want to</div>
-        <div class="line-text-one" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">change the Network Access Entrances</div>
+        <div class="line-text-one">{{$t('m.sitemanage.sureWantTo')}}</div>
+        <div class="line-text-one" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkEntrances')})}}</div>
         <div class="line-text" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">
             <div class="entrances">
             <div class="rigth-box" style="margin-right: 70px">
-                <div class="from">from</div>
+                <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
                 <span
                     v-for="(item, index) in networkAccessEntrancesOld.split(';')"
@@ -226,7 +225,7 @@
                 </div>
             </div>
             <div class="rigth-box" style="margin-left: 70px">
-                <div class="from">to</div>
+                <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span
                     v-for="(item, index) in form.networkAccessEntrances.split(';')"
@@ -236,17 +235,17 @@
             </div>
             </div>
         </div>
-        <div style="margin:36px 0;font-size:24px;color:#2D3642" v-if="form.networkAccessExits!==networkAccessExitsOld" >and change the Network Access Exits</div>
+        <div style="margin:36px 0;font-size:24px;color:#2D3642" v-if="form.networkAccessExits!==networkAccessExitsOld" >{{$t('m.sitemanage.and')}} {{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkExits')})}}</div>
         <div class="line-text" v-if="form.networkAccessExits!==networkAccessExitsOld">
             <div class="entrances">
             <div class="rigth-box" style="margin-right: 70px">
-                <div class="from">from</div>
+                <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
                 <span v-for="(item, index) in networkAccessExitsOld.split(';')" :key="index">{{item}}</span>
                 </div>
             </div>
             <div class="rigth-box" style="margin-left: 70px">
-                <div class="from">to</div>
+                <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span
                     v-for="(item, index) in form.networkAccessExits.split(';')"
@@ -256,10 +255,10 @@
             </div>
             </div>
         </div>
-        <div class="line-text-two">You will get the change results after cloud manager reviews.</div>
+        <div class="line-text-two">{{$t('m.sitemanage.afterReviews')}}</div>
         <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="okAction">Sure</el-button>
-            <el-button class="ok-btn" style="margin-left:20px" type="info" @click="changedialog=false" >Cancel</el-button>
+            <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.sure')}}</el-button>
+            <el-button class="ok-btn" style="margin-left:20px" type="info" @click="changedialog=false" >{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
 
@@ -284,67 +283,13 @@ import {
     getcomponentversion,
     updateVersion
 } from '@/api/home'
-import moment from 'moment'
 import sitedetailip from './sitedetailip'
 import { mapGetters } from 'vuex'
-// 国际化
-const local = {
-    zh: {
-        'Basic Info': '基本信息',
-        'Status': '状态',
-        'Joined': '已加入',
-        'Delete': '已删除',
-        'Site Name': '站点名称',
-        'Institution': '站点机构',
-        'Party ID': '站点ID',
-        'Role': '站点角色',
-        'Creation Time': '创建时间',
-        'Activation Time': '激活时间',
-        'Registration Link': '注册链接',
-        'Network configuration': '网关设置',
-        'Network Acess Entrances': '网关入口',
-        'Network Acess Exits': '网关出口',
-        'System version': '系统版本',
-        'FATE version': 'FATE版本',
-        'FATE Component': 'FATE服务组件',
-        'Version': '版本',
-        'User List': '站点用户列表',
-        'Name': '用户名称',
-        'Permission': '权限'
-    },
-    en: {
-        'Basic Info': 'Basic Info',
-        'Status': 'Status',
-        'Joined': 'Joined',
-        'Delete': 'Delete',
-        'Site Name': 'Site Name',
-        'Institution': 'Institution',
-        'Party ID': 'Party ID',
-        'Role': 'Role',
-        'Creation Time': 'Creation Time',
-        'Activation Time': 'Activation Time',
-        'Registration Link': 'Registration Link',
-        'Network configuration': 'Network configuration',
-        'Network Acess Entrances': 'Network Acess Entrances',
-        'Network Acess Exits': 'Network Acess Exits',
-        'System version': 'System version',
-        'FATE version': 'FATE version',
-        'FATE Component': 'FATE Component',
-        'Version': 'Version',
-        'User List': 'User List',
-        'Name': 'Name',
-        'Permission': 'Permission'
 
-    } }
 export default {
     name: 'sitedetail',
     components: {
         sitedetailip
-    },
-    filters: {
-        dateFormat(vaule) {
-            return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '- -'
-        }
     },
     data() {
         return {
@@ -382,7 +327,7 @@ export default {
                                 this.networkAccessEntranceswarnshow = true
                                 callback(
                                     new Error(
-                                        'Network Acess Entrances field is required.'
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.networkEntrances') })
                                     )
                                 )
                             } else {
@@ -401,7 +346,7 @@ export default {
                                 this.networkAccessExitswarnshow = true
                                 callback(
                                     new Error(
-                                        'Network Acess Exits field is required.'
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.networkExits') })
                                     )
                                 )
                             } else {
@@ -418,8 +363,6 @@ export default {
         ...mapGetters(['role', 'version'])
     },
     created() {
-        this.$i18n.mergeLocaleMessage('en', local.en)
-        this.$i18n.mergeLocaleMessage('zh', local.zh)
         this.initInfo()
         // this.togetMsg()
         this.$store.dispatch('selectEnum')
@@ -444,7 +387,7 @@ export default {
                 }
 
                 this.form.componentVersion = []
-                console.log('JSON==>>', JSON.parse(res.data.componentVersion))
+                // console.log('JSON==>>', JSON.parse(res.data.componentVersion))
 
                 // 版本号赋值
                 if (res.data.componentVersion) {
@@ -471,7 +414,7 @@ export default {
                 partyId: parseInt(this.$route.query.partyId)
             }
             siteInfoList(params).then(res => {
-                this.siteList = res.data
+                this.siteList = res.data || []
             })
         },
         // 点击编辑
@@ -609,31 +552,46 @@ export default {
             }
             this.form.componentVersion = object.map(item => {
                 let setl = []
-                if (item.label === 'clustermanager') {
-                    getClusterList().then(res => {
-                        getres(res, setl)
-                    })
-                } else if (item.label === 'fateboard') {
-                    getFateboardList().then(res => {
-                        getres(res, setl)
-                    })
-                } else if (item.label === 'mysql') {
-                    getMysqlList().then(res => {
-                        getres(res, setl)
-                    })
-                } else if (item.label === 'nodemanager') {
-                    getNodeList().then(res => {
-                        getres(res, setl)
-                    })
-                } else if (item.label === 'rollsite') {
-                    getrollsiteList().then(res => {
-                        getres(res, setl)
-                    })
-                } else if (item.label === 'fateflow') {
-                    getFateflowList().then(res => {
+                let api = {
+                    'clustermanager': 'getClusterList',
+                    'fateboard': 'getFateboardList',
+                    'mysql': 'getMysqlList',
+                    'nodemanager': 'getNodeList',
+                    'rollsite': 'getrollsiteList',
+                    'fateflow': 'getFateflowList'
+                }
+                let getList = () => {
+                    [api[item.label]]().then(res => {
+                        console.log(res, `get(${item.label})list-res`)
                         getres(res, setl)
                     })
                 }
+                getList()
+                // if (item.label === 'clustermanager') {
+                //     getClusterList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // } else if (item.label === 'fateboard') {
+                //     getFateboardList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // } else if (item.label === 'mysql') {
+                //     getMysqlList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // } else if (item.label === 'nodemanager') {
+                //     getNodeList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // } else if (item.label === 'rollsite') {
+                //     getrollsiteList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // } else if (item.label === 'fateflow') {
+                //     getFateflowList().then(res => {
+                //         getres(res, setl)
+                //     })
+                // }
 
                 item.setl = setl
                 return item

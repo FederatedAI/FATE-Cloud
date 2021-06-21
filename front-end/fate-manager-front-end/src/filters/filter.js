@@ -1,6 +1,8 @@
 
+import moment from 'moment'
+import map from '@/utils/map'
+console.log(map.roleType, 'map')
 let timeFormat = (timeStamp) => {
-    console.log(timeStamp, 'timeStamp')
     let secondTime = parseInt(timeStamp / 1000)
     let min = 0
     let h = 0
@@ -17,6 +19,35 @@ let timeFormat = (timeStamp) => {
     return result
 }
 
+let dateFormat = (value, formats) => {
+    return value ? moment(value).format(formats || 'YYYY-MM-DD HH:mm:ss') : '--'
+}
+
+let getRoleType = (value) => {
+    let maps = map['roleType'].filter(item => item.value === `${value.roleId}`)[0]
+    return maps ? maps.label : value.roleName
+}
+
+let getSiteStatus = (value) => {
+    let maps = map['siteStatus'].filter(item => item.value === `${value.code}`)[0]
+    return maps ? maps.label : value.desc
+}
+
+let getServiceStatus = (value) => {
+    let maps = map['serviceStatus'].filter(item => item.value === `${value.code}`)[0]
+    return maps ? maps.label : value.desc
+}
+
+let getSiteType = (value) => {
+    let maps = map['siteType'].filter(item => item.value === `${value.code}`)[0]
+    return maps ? maps.label : value.desc
+}
+
 export {
-    timeFormat
+    timeFormat,
+    dateFormat,
+    getRoleType,
+    getSiteStatus,
+    getServiceStatus,
+    getSiteType
 }
