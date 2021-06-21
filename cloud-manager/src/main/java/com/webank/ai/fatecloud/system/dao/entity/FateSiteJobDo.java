@@ -70,7 +70,7 @@ public class FateSiteJobDo implements Serializable {
     public FateSiteJobDo(FateSiteJobQo fateSiteJobQo) {
         this.jobId = fateSiteJobQo.getJob_id();
         this.institutions = fateSiteJobQo.getInstitutions();
-        this.siteName = fateSiteJobQo.getInstitutions();
+        this.siteName = fateSiteJobQo.getSite_name();
         this.partyId = fateSiteJobQo.getParty_id();
         this.role = fateSiteJobQo.getRole();
         this.roles = fateSiteJobQo.getRoles();

@@ -121,10 +121,10 @@
         FROM
         (
         SELECT a.institutions, b.job_id,b.`status` FROM
-        (    select institutions  from t_fate_site_job       WHERE  job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate} AND #{jobStatisticsSummaryForPeriodQo.endDate}     group by institutions      order by institutions asc LIMIT #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}  ) a,
+        (    select institutions  from t_fate_site_job       WHERE  job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} AND #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}     group by institutions      order by institutions asc LIMIT #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}  ) a,
         t_fate_site_job b
         WHERE a.institutions=b.institutions
-        AND  b.job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate} AND #{jobStatisticsSummaryForPeriodQo.endDate}
+        AND  b.job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} AND #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}
         group BY a.institutions, b.job_id, b.`status`
         ) c
         GROUP BY c.institutions
@@ -205,7 +205,7 @@
         FROM t_fate_site_job a, t_fate_site_job_detail b
         WHERE
         a.institutions= #{institutions}
-        AND a.job_create_day_date BETWEEN #{beginDate} AND #{endDate}
+        AND a.job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
         AND a.job_id=b.detail_job_id
         AND (b.detail_party_id &lt;&gt; a.party_id OR a.role='local')
         GROUP BY b.detail_institutions, b.detail_site_name
@@ -231,7 +231,7 @@
         FROM t_fate_site_job a, t_fate_site_job_detail b
         WHERE
         a.institutions= #{jobOfSiteDimensionPeriodQo.institutions}
-        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         AND a.job_id=b.detail_job_id
         AND (b.detail_party_id  &lt;&gt; a.party_id OR a.role= 'local' )
         GROUP BY b.detail_institutions, b.detail_site_name
@@ -241,19 +241,19 @@
         (
         SELECT detail_site_name AS site_name  FROM  t_fate_site_job_detail
         WHERE detail_institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
-        AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         GROUP BY detail_site_name
         ) d
         ORDER BY detail_institutions ASC, detail_site_name ASC, site_name ASC
         ) e,
         (
         SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
-        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         GROUP BY detail_job_id,detail_site_name
         ) f,
         (
         SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
-        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         GROUP BY detail_job_id,detail_site_name
         ) g,
         (
@@ -275,7 +275,7 @@
         SELECT detail_institutions
         FROM t_fate_site_job a, t_fate_site_job_detail b
         WHERE a.institutions= #{institutions}
-        AND a.job_create_day_date BETWEEN #{beginDate} AND #{endDate}
+        AND a.job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
         AND a.job_id = b.detail_job_id
         AND (b.detail_institutions  &lt;&gt;  a.institutions )
         GROUP BY b.detail_institutions
@@ -290,7 +290,7 @@
                 SELECT d.detail_job_id, d.detail_institutions
                 FROM t_fate_site_job c, t_fate_site_job_detail d
                 WHERE c.institutions= #{institutions}
-                AND c.job_create_day_date  BETWEEN #{beginDate} AND #{endDate}
+                AND c.job_create_day_date  BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
                 AND c.job_id = d.detail_job_id
                 GROUP BY d.detail_job_id,d.detail_institutions
                 ) e
@@ -318,7 +318,7 @@
         SELECT detail_institutions
         FROM t_fate_site_job a, t_fate_site_job_detail b
         WHERE a.institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
-        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         AND a.job_id = b.detail_job_id
         AND (b.detail_institutions  &lt;&gt;  a.institutions )
         GROUP BY b.detail_institutions
@@ -332,7 +332,7 @@
         SELECT d.detail_job_id, d.detail_institutions
         FROM t_fate_site_job c, t_fate_site_job_detail d
         WHERE c.institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
-        AND c.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        AND c.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         AND c.job_id = d.detail_job_id
         GROUP BY d.detail_job_id,d.detail_institutions
         ) e
@@ -346,9 +346,9 @@
         ) a,
         t_fate_site_job_detail b
         WHERE a.detail_institutions =b.detail_institutions
-        AND b.detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate}
+        AND b.detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         AND b.detail_job_id IN (SELECT detail_job_id FROM t_fate_site_job_detail WHERE detail_institutions= #{jobOfSiteDimensionPeriodQo.institutions}
-            AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate} AND #{jobOfSiteDimensionPeriodQo.endDate} )
+            AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE} )
         GROUP BY a.detail_institutions, b.detail_job_id,b.detail_status
         ) c
         GROUP BY c.detail_institutions
@@ -371,7 +371,7 @@
         (
         SELECT detail_job_id  FROM t_fate_site_job_detail
         WHERE detail_institutions=  #{institutions}
-        AND detail_job_create_day_date BETWEEN #{beginDate} AND #{endDate}
+        AND detail_job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
         )
         GROUP BY detail_job_id,detail_institutions,detail_status
         ) a GROUP BY detail_job_id, detail_status HAVING COUNT(1)  &lt; 2
