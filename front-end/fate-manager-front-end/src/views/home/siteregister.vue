@@ -1,22 +1,22 @@
 <template>
     <el-dialog  class="register" :visible.sync="registerVisible" width="700px" >
-        <div class="title">Register</div>
+        <div class="title">{{$t('m.sitemanage.register')}}</div>
         <div class="organization">
         <div class="name-tip">
-            <span>Please enter the registration link from Cloud Manager</span>
+            <span>{{$t('m.sitemanage.pleaseEnterRegistration')}}</span>
         </div>
         <el-form ref="inputform" :model="inputform" :rules="rules" @submit.native.prevent >
             <el-form-item :class="{ name:true,'name-warn': warnActive }" prop="inputUrl">
                 <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model="inputform.input"></el-input>
                 <div class="warn-text">
-                    <span v-show='warnActive'>The registration link is invalid. Please enter again.</span>
+                    <span v-show='warnActive'>{{$t('m.sitemanage.registrationInvalid')}}</span>
                 </div>
             </el-form-item>
         </el-form>
         </div>
         <div class="btn">
-            <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="okAction">OK</el-button>
-            <el-button class="Cancel-btn" type="info"  @click="cancelAction">Cancel</el-button>
+            <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="okAction">{{$t('m.common.OK')}}</el-button>
+            <el-button class="Cancel-btn" type="info"  @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
 </template>

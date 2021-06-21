@@ -15,14 +15,14 @@ const tipI18n = new Vue({ i18n })
 const map = {
     siteType: [
         {
-            value: 'host',
-            name: 'host',
-            label: tipI18n.$t('mp.host')
-        },
-        {
-            value: 'guest',
+            value: '1',
             name: 'guest',
             label: tipI18n.$t('mp.guest')
+        },
+        {
+            value: '2',
+            name: 'host',
+            label: tipI18n.$t('mp.host')
         }
     ],
     roleType: [
@@ -40,6 +40,45 @@ const map = {
             value: '3',
             name: 'businessOrDataAnalyst',
             label: tipI18n.$t('mp.businessOrDataAnalyst')
+        }
+    ],
+    siteStatus: [
+        {
+            value: '1',
+            name: 'deleted',
+            label: tipI18n.$t('mp.deleted')
+        },
+        {
+            value: '2',
+            name: 'joined',
+            label: tipI18n.$t('mp.joined')
+        },
+        {
+            value: '3',
+            name: 'published',
+            label: tipI18n.$t('mp.published')
+        },
+        {
+            value: '4',
+            name: 'published',
+            label: tipI18n.$t('mp.unpublished')
+        }
+    ],
+    serviceStatus: [
+        {
+            value: '-1',
+            name: 'unknown',
+            label: tipI18n.$t('mp.unknown')
+        },
+        {
+            value: '1',
+            name: 'unavaiable',
+            label: tipI18n.$t('mp.unavaiable')
+        },
+        {
+            value: '2',
+            name: 'avaiable',
+            label: tipI18n.$t('mp.avaiable')
         }
     ],
     setLanguage(val, selectType) {

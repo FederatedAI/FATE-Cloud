@@ -178,7 +178,7 @@
                         :cell-style="{background:'#FAFBFC'}"
                         border
                         height="100%">
-                        <el-table-column prop="institution" label="" align="center" :resizable="false">
+                       <el-table-column prop="institution" label="" align="center" :resizable="false">
                             <template slot-scope="scope">
                                 <span style="color:#4E5766;font-weight:bold">{{scope.row.institution}}</span>
                             </template>
@@ -212,8 +212,29 @@
                                     </div>
                                     <span >{{scope.row[item].total}}</span>
                                 </el-tooltip>
-                                <span v-else></span>
-
+                                <span v-else>
+                                    <el-tooltip  placement="top">
+                                        <div slot="content">
+                                            <div>
+                                                <span style="margin-right:5px;">{{$t('m.monitor.waiting',{type:'w'})}}：0  </span>
+                                                <span>(0%)</span>
+                                            </div>
+                                            <div>
+                                                <span style="margin-right:5px;">{{$t('m.monitor.running',{type:'r'})}}：0  </span>
+                                                <span >(0%)</span>
+                                            </div>
+                                            <div>
+                                                <span style="margin-right:5px;">{{$t('m.common.success')}}：0  </span>
+                                                <span >(0%)</span>
+                                            </div>
+                                            <div>
+                                                <span style="margin-right:5px;">{{$t('m.common.failed')}}：0  </span>
+                                                <span>(0%)</span>
+                                            </div>
+                                        </div>
+                                        <span >0</span>
+                                    </el-tooltip>
+                                </span>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -344,7 +365,7 @@ export default {
                 if (val === 'Today’s active data') {
                     this.timevalue = [moment(new Date()).format('YYYYMMDD'), moment(new Date()).format('YYYYMMDD')]
                 } else {
-                    this.timevalue = [moment(new Date() - 24 * 60 * 60 * 1000).format('YYYYMMDD'), moment(new Date()).format('YYYYMMDD')]
+                    this.timevalue = [moment(new Date() - 30 * 24 * 60 * 60 * 1000).format('YYYYMMDD'), moment(new Date()).format('YYYYMMDD')]
                 }
                 setTimeout(() => {
                     this.initi()
@@ -391,6 +412,7 @@ export default {
             this.toGetTotal()
             this.toGetInstitution()
             this.toGetSite()
+            // this.toGetSite2()
         },
         handleCurrentChange(val) {
             console.log('val==>>', val)
@@ -401,7 +423,6 @@ export default {
         },
         // 空格部分
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-            // console.log(row, column, rowIndex, columnIndex, 'row-column-rowIndex-columnIndex')
             if (columnIndex === 0) {
                 let row = this.lengthList[rowIndex]
                 let col = row > 0 ? 1 : 0
@@ -427,7 +448,6 @@ export default {
                     let items = listData[item].data
                     items.siteName = listData[item].site_name
                     items.partyId = item
-                    console.log(items)
                     return items
                 })
                 let maxlist = []
@@ -467,78 +487,84 @@ export default {
             }
             getSite(data).then(res => {
                 let tableData = res.data || []
-                tableData = JSON.parse(localStorage.getItem('siteData'))
+                this.siteTableList = []
+                // mock
+                // tableData = JSON.parse(localStorage.getItem('siteData'))
                 console.log(tableData, 'tableData')
 
-                this.siteNameList = Object.values(tableData).map((item) => {
-                    return item.site_name
-                })
-                // console.log(this.siteNameList, 'siteNameList')
+                this.siteNameList = Object.values(tableData).map(item => item.site_name) || []
+                console.log(this.siteNameList, 'siteNameList')
+
                 this.totalSitetitution = (tableData.total) || 0
                 let arr = []
-                Object.values(tableData).map(items => {
-                    if (items.institutions) {
-                        Object.keys(items.institutions).map(key => {
-                            items['institutionList'] = []
-                            items['institutionList'].push({
-                                institutions: key,
-                                siteList: Object.values(items.institutions[key]).map((k) => {
-                                    return {
-                                        siteName: k.site_name,
-                                        labelName: items.site_name,
-                                        ...k.data
-                                    }
-                                })
-                            })
-                            console.log(items, 'items1111')
-                            Object.values(items['institutionList']).map(j => {
-                                j.siteList.map((elm, index) => {
-                                    let obj = {}
-                                    obj.institutionSiteName = elm.siteName
-                                    obj.institution = j.institutions
-                                    obj[elm.labelName] = { ...elm }
-                                    arr.push(obj)
-                                })
+                // 数据转成数组
+                Object.values(tableData).map(item => {
+                    Object.keys(item.institutions).map(key => {
+                        Object.values(item.institutions[key]).map(val => {
+                            arr.push({
+                                institution: key,
+                                institutionSiteName: val.site_name,
+                                [item.site_name]: { ...val.data }
                             })
                         })
-                    }
-                })
-                // 合并同类站点数据
-                console.log(arr, 'arr')
-                let sortArr = this.sortArr
-                arr.map((i, k) => {
-                    sortArr[i.institution] = sortArr[i.institution] ? sortArr[i.institution] : {}
-                    sortArr[i.institution][i.institutionSiteName] = sortArr[i.institution][i.institutionSiteName] ? sortArr[i.institution][i.institutionSiteName] : []
-                    if (sortArr[i.institution][i.institutionSiteName].length > 0) {
-                        sortArr[i.institution][i.institutionSiteName][0][Object.keys(i)[2]] = Object.values(i)[2]
-                    } else {
-                        sortArr[i.institution][i.institutionSiteName].push(i)
-                    }
-                })
-                console.log(sortArr, 'sortArr')
-
-                this.lengthList = [] // 清空空格数据
-                let newArr = {}
-                Object.keys(sortArr).forEach(sort => {
-                    // console.log(sortArr[sort])
-                    newArr[sort] = []
-                    Object.keys(sortArr[sort]).forEach(key => {
-                        newArr[sort] = newArr[sort].concat(sortArr[sort][key])
                     })
-                    // 空格位置
-                    if (newArr[sort].length > 1) {
-                        this.lengthList.push(newArr[sort].length)
-                        for (let index = 0; index < newArr[sort].length - 1; index++) {
-                            this.lengthList.push(0)
+                })
+                // 按站点维度排序
+                let siteSortArr = []
+                this.sortBySame(arr, 'institutionSiteName')
+                // 按站点名合并
+                for (let k = arr.length - 1; k >= 0; k--) {
+                    for (let j = k - 1; j >= 0; j--) {
+                        if (arr[k].institutionSiteName === arr[j].institutionSiteName) {
+                            siteSortArr.push({
+                                ...arr[k],
+                                [Object.keys(arr[j])[2]]: Object.values(arr[j])[2]
+                            })
                         }
-                    } else {
-                        this.lengthList.push(sortArr[sort].length)
+                    }
+                }
+                siteSortArr.map(item => {
+                    arr.map((val, index) => {
+                        if (item.institutionSiteName === val.institutionSiteName) {
+                            delete arr[index]
+                        }
+                    })
+                })
+                arr = arr.filter(el => el != null).concat(siteSortArr)
+                // 按机构维度排序
+                this.sortBySame(arr, 'institution')
+                // 获取机构数组
+                let insNameArr = []
+                arr.map(item => !insNameArr.includes(item.institution) && insNameArr.push(item.institution))
+                this.lengthList = []
+                insNameArr.map((item, index) => {
+                    let len = this.getLength(arr, item)
+                    this.lengthList.push(len)
+                    for (let i = 1; i < len; i++) {
+                        this.lengthList.push(0)
                     }
                 })
-                Object.keys(newArr).forEach(items => {
-                    this.siteTableList = this.siteTableList.concat(newArr[items])
-                })
-                console.log(this.siteTableList, 'this.siteTableList')
+
+                console.log(arr, 'arr-after')
+                this.siteTableList = arr
+            })
+        },
+        getLength(arr, name) {
+            let lengthArr = []
+            arr.map(item => {
+                if (item.institution === name) {
+                    lengthArr.push(item)
+                }
+            })
+            return lengthArr.length
+        },
+        sortBySame(arr, name) {
+            return arr.sort((a, b) => {
+                var x = a[name].toLowerCase()
+                var y = b[name].toLowerCase()
+                if (x < y) { return -1 }
+                if (x > y) { return 1 }
+                return 0
             })
         },
         // 机构维度(第一个表格翻页)翻页

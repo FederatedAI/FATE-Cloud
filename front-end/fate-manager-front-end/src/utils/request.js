@@ -35,8 +35,21 @@ const setErrorMsgToI18n = (msg) => {
     }
     console.log(tipKey, 'tipKey')
     let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? tipKey : tipI18n.$t(`m.errorTips.${tipKey}`)
+    let message = msg
+    if (msg) {
+        message = tipText
+        if (tipText.indexOf('already exists') > -1) {
+            let name = tipText.split(': user')[1].split('already exists')[0]
+            message = tipI18n.$t('m.errorTips.checkUserFailedExists', { name: name })
+        } else if (tipText.indexOf('required parameters are missing') > -1) {
+            let parameters = tipText.split('required parameters are missing:')[1]
+            message = tipI18n.$t('m.errorTips.missingParameters', { parameters: parameters })
+        }
+    } else {
+        message = tipI18n.$t('m.errorTips.reqestFailed')
+    }
     Vue.prototype.$message.error({
-        message: `${msg ? tipText : tipI18n.$t('m.errorTips.reqestFailed')}`,
+        message: message,
         duration: 5 * 1000
     })
 }
