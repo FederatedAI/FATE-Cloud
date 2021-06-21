@@ -288,9 +288,10 @@ public class FederatedCloudCertificateServiceFacade {
             if ((site = site.trim()).split(",").length != 1) {
                 sb.append('*');
             } else {
-                sb.append(site.replace(",", "")).append('.');
+                sb.append(site.replace(",", ""));
             }
         }
+        sb.append('.');
 
         String tn = CharacterUtil.specialCharacters2Pinyin(typeName, '-');
         String ins = CharacterUtil.specialCharacters2Pinyin(institution, '-');

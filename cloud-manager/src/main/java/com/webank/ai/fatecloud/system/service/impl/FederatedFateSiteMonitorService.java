@@ -425,7 +425,8 @@ public class FederatedFateSiteMonitorService {
         QueryWrapper<FateSiteJobDetailDo> fateSiteJobDetailDoEw = new QueryWrapper<>();
         fateSiteJobDetailDoEw.select("detail_site_name").eq("detail_institutions", institutions).between("detail_job_create_day_date", bd, ed).groupBy("detail_site_name").orderByAsc("detail_site_name");
         List<FateSiteJobDetailDo> fateSiteJobDetailDos = fateSiteDetailMapper.selectList(fateSiteJobDetailDoEw);
-        HashSet<String> sites = new HashSet<>();
+        //HashSet<String> sites = new HashSet<>();
+        TreeSet<String> sites = new TreeSet<>();// sort 2021-06-21
         for (FateSiteJobDetailDo fateSiteJobDetailDo : fateSiteJobDetailDos) {
             String detailSiteName = fateSiteJobDetailDo.getDetailSiteName();
             sites.add(detailSiteName);
@@ -436,11 +437,11 @@ public class FederatedFateSiteMonitorService {
         PageBean<MonitorSiteItem> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionPeriodQo.getPageNum(), jobOfSiteDimensionPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
         List<MonitorSiteItem> siteItems = federatedFateSiteMonitorMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex, jobOfSiteDimensionPeriodQo);
-        for (MonitorSiteItem siteItem : siteItems) {
+        for (MonitorSiteItem siteItem : siteItems) { // institutional collection
             List<MonitorTwoSite> institutionSiteList = siteItem.getInstitutionSiteList();
-            for (MonitorTwoSite monitorTwoSite : institutionSiteList) {
+            for (MonitorTwoSite monitorTwoSite : institutionSiteList) { // collection of sites under the organization
                 List<SiteBase> mixSiteModeling = monitorTwoSite.getMixSiteModeling();
-                for (SiteBase siteBase : mixSiteModeling) {
+                for (SiteBase siteBase : mixSiteModeling) { // site details
                     Integer totalJobs = siteBase.getTotalJobs();
                     Integer successJobs = siteBase.getSuccessJobs();
                     Integer runningJobs = siteBase.getRunningJobs();
@@ -460,6 +461,32 @@ public class FederatedFateSiteMonitorService {
                 }
             }
         }
+
+        // modify your own site modeling display to be unique 2021-06-18
+        /*HashSet<String> match = Sets.newHashSet();
+        for (MonitorSiteItem siteItem : siteItems) {
+            if (institutions.equals(siteItem.getInstitution())) {
+                List<MonitorTwoSite> institutionSiteList = siteItem.getInstitutionSiteList();
+                for (MonitorTwoSite monitorTwoSite : institutionSiteList) {
+                    String institutionSiteName = monitorTwoSite.getInstitutionSiteName();
+                    List<SiteBase> mixSiteModeling = monitorTwoSite.getMixSiteModeling();
+                    for (SiteBase siteBase : mixSiteModeling) {
+                        String siteBaseName = siteBase.getSiteName();
+                        String combination = institutionSiteName + siteBaseName;
+                        if (match.contains(combination)) {
+                            siteBase.setSuccessPercent("0.00%");
+                            siteBase.setRunningPercent("0.00%");
+                            siteBase.setFailedPercent("0.00%");
+                            siteBase.setWaitingPercent("0.00%");
+                            siteBase.setTotalJobs(0);
+                        } else {
+                            match.add(institutionSiteName + siteBaseName);
+                            match.add(siteBaseName + institutionSiteName);
+                        }
+                    }
+                }
+            }
+        }*/
 
         MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
         monitorSiteDto.setSiteList(new ArrayList<>(sites));
