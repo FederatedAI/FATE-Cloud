@@ -106,6 +106,7 @@ class AccountSiteInfo(DataBaseModel):
 class ApplyInstitutionsInfo(DataBaseModel):
     institutions = CharField(max_length=50, help_text='institutions dict', primary_key=True)
     status = IntegerField(default=0)
+    party_status = IntegerField(default=0)
     read_status = IntegerField(default=1, help_text='user status 0 unvalid，1 valid')
 
     class Meta:
@@ -321,7 +322,7 @@ class FateSiteJobInfo(DataBaseModel):
     party_id = IntegerField(null=True, index=True, help_text='party id')
     site_name = CharField(max_length=50, null=True, help_text='site name')
     role = CharField(max_length=50, index=True)
-    job_id = CharField(max_length=64, null=True, help_text='job id')
+    job_id = CharField(max_length=64, null=True, help_text='job id', primary_key=True)
     job_elapsed = BigIntegerField(null=True)
     roles = JSONField()
     other_party_id = ListField()
@@ -337,7 +338,6 @@ class FateSiteJobInfo(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_site_job"
-        primary_key = CompositeKey('party_id', 'role', "job_id")
 
 
 class FateReportInstitution(DataBaseModel):

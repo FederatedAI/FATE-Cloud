@@ -24,7 +24,9 @@ def apply_result_task(account):
                                             body={"institutions": account.institutions},
                                             url=None
                                             )
-    initiative_approved_institutions = [approved_item.get("institutions") for approved_item in initiative_resp]
+    initiative_approved_institutions = {}
+    for approved_item in initiative_resp:
+        initiative_approved_institutions[approved_item.get("institutions")] = approved_item.get("status")
     stat_logger.info(f"request initiative approved, return {initiative_approved_institutions}")
 
     # get all end status institutions
@@ -36,18 +38,23 @@ def apply_result_task(account):
     for apply_item in resp.get("list"):
         # deal new institutions
         if apply_item["institutions"] not in all_institutions_name:
-            institutions_item = {"institutions": apply_item["institutions"], "status": apply_item["status"]}
-            if apply_item["institutions"] in initiative_approved_institutions:
+            institutions_item = {"institutions": apply_item["institutions"], "status": apply_item["status"], "party_status": apply_item["status"]}
+            if apply_item["institutions"] in initiative_approved_institutions.keys():
                 institutions_item["read_status"] = ApplyReadStatusType.NOT_READ
+                institutions_item["party_status"] = initiative_approved_institutions[apply_item["institutions"]]
             add_institutions_info.append(institutions_item)
             continue
         # deal old institutions
         for apply_institutions_info in all_institutions:
+            update = False
             if apply_item["institutions"] == apply_institutions_info.institutions:
-                if apply_item["status"] != apply_institutions_info.status:
-                    apply_institutions_info.status = apply_item["status"]
-                    if  apply_institutions_info.institutions in initiative_approved_institutions:
+                if apply_institutions_info.institutions in initiative_approved_institutions:
+                    if apply_institutions_info.party_status != initiative_approved_institutions[apply_institutions_info.institutions]:
                         apply_institutions_info.read_status = ApplyReadStatusType.NOT_READ
+                        apply_institutions_info.party_status = initiative_approved_institutions[apply_institutions_info.institutions]
+                        update = True
+                if apply_item["status"] != apply_institutions_info.status or update:
+                    apply_institutions_info.status = apply_item["status"]
                     update_institutions_models.append(apply_institutions_info)
     stat_logger.info(f"update institutions models: {update_institutions_models}")
     stat_logger.info(f"add institutions info: {add_institutions_info}")
@@ -74,4 +81,4 @@ def allow_apply_task(account):
             "status": IsValidType.YES,
             "fate_manager_id": account.fate_manager_id}
     db_operator.DBOperator.update_entity(AccountInfo, data)
-    return resp
+    return resp if resp else []

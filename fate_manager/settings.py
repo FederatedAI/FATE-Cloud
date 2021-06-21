@@ -30,7 +30,7 @@ STAT_LOGGER_NAME = "fate_manager_stat"
 log.LoggerFactory.set_directory(STAT_LOG_DIR)
 stat_logger = log.getLogger(STAT_LOGGER_NAME)
 request_cloud_logger = log.getLogger('request_cloud')
-request_flow_logger = log.getLogger('requet_fate_flow')
+request_flow_logger = log.getLogger('request_fate_flow')
 site_service_logger = log.getLogger('site_service')
 login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
@@ -95,4 +95,4 @@ CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri
 EXPIRE_TIME = 30 * 60 * 1000  # ms
 
 TASK_DETECTOR_INTERVAL = 30 * 1000  # ms
-JOB_DETECTOR_INTERVAL = 60 * 60 * 1000  # ms
+JOB_DETECTOR_INTERVAL = 30 * 60 * 1000  # ms

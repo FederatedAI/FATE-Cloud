@@ -1,7 +1,7 @@
 from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.db.db_models import TokenInfo, AccountInfo, FateSiteInfo, FateUserInfo, AccountSiteInfo
 from fate_manager.entity import item
-from fate_manager.entity.status_code import UserStatusCode
+from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, PermissionType, IsValidType, RoleType, SiteStatusType
 from fate_manager.operation import federated_db_operator
 from fate_manager.operation.db_operator import DBOperator
@@ -89,7 +89,7 @@ def add_user(request_data, token):
                                                       f"{request_data.get('partyId')}")
     logger.info("start check user")
     account_info_list = federated_db_operator.check_user(user_name=request_data.get("userName"))
-    if account_info_list:
+    if account_info_list and account_info_list[0].status == IsValidType.YES:
         raise Exception(UserStatusCode.AddUserFailed, f'check user failed: user {request_data.get("userName")} '
                                                       f'already exists')
     logger.info("check user success")
@@ -106,7 +106,7 @@ def add_user(request_data, token):
         "app_key": request_account.app_key,
         "app_secret": request_account.app_secret
     }
-    DBOperator.create_entity(AccountInfo, account_info)
+    DBOperator.safe_save(AccountInfo, account_info)
     if request_data.get("partyId", 0):
         account_site_info = {
             "party_id": request_data.get("partyId", 0),
@@ -138,6 +138,10 @@ def delete_user(token, request_data):
         "expire_time": current_timestamp()
     }
     DBOperator.update_entity(TokenInfo, token_info)
+    try:
+        DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
+    except:
+        logger.info("account no found site")
 
 
 def edit_user(request_data):
@@ -166,7 +170,7 @@ def edit_user(request_data):
                              "party_id": request_data.get("partyId"),
                              "site_name": request_data.get("siteName")}
         logger.info(f"save account info: {account_site_info}")
-        DBOperator.safe_save(AccountSiteInfo, )
+        DBOperator.safe_save(AccountSiteInfo, account_site_info)
     else:
         try:
             DBOperator.delete_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
@@ -239,13 +243,14 @@ def sublogin(request_data):
     account_info = account_info_list[0]
     site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": request_data.get("partyId"),
                                                               "status": SiteStatusType.JOINED})
+    if not site_info_list:
+        raise Exception(SiteStatusCode.NoFoundSite, 'no found site')
     resp = {
         "partyId": request_data.get("partyId"),
-        "siteName": site_info_list[0].site_name if site_info_list else ""
+        "siteName": site_info_list[0].site_name,
+        "roleId": site_info_list[0].role,
+        "roleName": RoleType.to_str(site_info_list[0].role)
     }
-    if site_info_list:
-        resp["roleId"] = site_info_list[0].role
-        resp["roleName"] = RoleType.to_str(site_info_list[0].role)
     return resp
 
 
@@ -258,13 +263,14 @@ def change_login(request_data):
     account_info = account_info_list[0]
     site_info_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": request_data.get('partyId'),
                                                               "status": SiteStatusType.JOINED})
+    if not site_info_list:
+        raise Exception(SiteStatusCode.NoFoundSite, 'no found site')
     resp = {
         "partyId": request_data.get("partyId"),
-        "siteName": site_info_list[0].site_name if site_info_list else ""
+        "siteName": site_info_list[0].site_name,
+        "roleId": site_info_list[0].role,
+        "roleName": RoleType.to_str(site_info_list[0].role)
     }
-    if site_info_list:
-        resp["roleId"] = site_info_list[0].role
-        resp["roleName"] = RoleType.to_str(site_info_list[0].role)
     return resp
 
 
