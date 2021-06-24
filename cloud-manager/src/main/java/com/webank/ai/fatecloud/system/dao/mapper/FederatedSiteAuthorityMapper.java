@@ -29,6 +29,8 @@ import java.util.List;
 public interface FederatedSiteAuthorityMapper extends BaseMapper<FederatedSiteAuthorityDo> {
     Long findMaxSequence();
 
+    int insertAllStatus(@Param("federatedSiteAuthorityDos") List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos);
+
     List<AuthorityApplyStatusDto> findAuthorityApplyStatus(AuthorityApplyStatusQo authorityApplyStatusQo);
 
     long findMaxAuthoritySequence(String institutions);

@@ -193,25 +193,46 @@ public class FederatedAuthorityService {
 
         //get all pending authority apply for this input institution
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForReview = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", institutions).eq("status", 1);
+        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", institutions).eq("status", 1).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapperForReview);
 
+        // update keep application records and add all records as new records
         Date date = new Date();
         if (approvedInstitutionsList == null) { //if null, set all applying status to 3(reject)
+            // update to the previous generation
             FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-            federatedSiteAuthorityDo.setStatus(3);
+            federatedSiteAuthorityDo.setGeneration(2);
             federatedSiteAuthorityDo.setUpdateTime(date);
             federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, federatedSiteAuthorityDoQueryWrapperForReview);
+
+            // insert all applying status to 3(reject) update to the new generation
+            for (FederatedSiteAuthorityDo authorityDo : federatedSiteAuthorityDos) {
+                authorityDo.setCreateTime(date);
+                authorityDo.setUpdateTime(date);
+                authorityDo.setStatus(3);
+                authorityDo.setGeneration(1);
+            }
+            federatedSiteAuthorityMapper.insertAllStatus(federatedSiteAuthorityDos);
         } else {
+            long currentSequence = federatedSiteAuthorityMapper.findMaxSequence() + 1;
             for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
+                // update to the previous generation
+                federatedSiteAuthorityDo.setUpdateTime(date);
+                federatedSiteAuthorityDo.setGeneration(2);
+                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
+
+                // insert new generation
                 if (approvedInstitutionsList.contains(federatedSiteAuthorityDo.getAuthorityInstitutions())) { // if contains,set status 2(approve) or set 3
                     federatedSiteAuthorityDo.setStatus(2);
                 } else {
                     federatedSiteAuthorityDo.setStatus(3);
                 }
-                federatedSiteAuthorityDo.setUpdateTime(date);
-                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
 
+                federatedSiteAuthorityDo.setGeneration(1);
+                federatedSiteAuthorityDo.setAuthorityId(null);
+                federatedSiteAuthorityDo.setCreateTime(date);
+                federatedSiteAuthorityDo.setSequence(currentSequence);
+                federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
             }
         }
     }
@@ -641,7 +662,7 @@ public class FederatedAuthorityService {
     public AuthorityApplyDetailsDto findAuthorityApplyDetails(AuthorityApplyDetailsQo authorityApplyDetailsQo, String scenarioType) {
         LinkedList<String> authorityInstitutionsList = new LinkedList<>();
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.select("authority_institutions").eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 1).groupBy("authority_institutions");
+        federatedSiteAuthorityDoQueryWrapper.select("authority_institutions").eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 1).eq("generation", 1).groupBy("authority_institutions");
         List<FederatedSiteAuthorityDo> authorityApplyDetails = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         for (FederatedSiteAuthorityDo authorityApplyDetail : authorityApplyDetails) {
             authorityInstitutionsList.add(authorityApplyDetail.getAuthorityInstitutions());
