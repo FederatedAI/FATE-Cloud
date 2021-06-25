@@ -94,5 +94,5 @@ CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms
 
-TASK_DETECTOR_INTERVAL = 5 * 1000  # ms
+TASK_DETECTOR_INTERVAL = 30 * 1000  # ms
 JOB_DETECTOR_INTERVAL = 30 * 60 * 1000  # ms
