@@ -63,12 +63,10 @@ def get_change_log_task():
 def heart_task():
     federated_site_list = federated_db_operator.get_home_site()
     for federated_site in federated_site_list:
+        if not hasattr(federated_site, "fatesiteinfo"):
+            continue
         fate_site_info = federated_site.fatesiteinfo
         if fate_site_info.status == SiteStatusType.JOINED:
-            deploy_site_list = DBOperator.query_entity(DeploySite, **{"party_id": fate_site_info.party_id,
-                                                                      "is_valid": IsValidType.YES})
-            if not deploy_site_list:
-                continue
             deploy_component_list = DBOperator.query_entity(DeployComponent, **{"party_id": fate_site_info.party_id,
                                                                                 "is_valid": IsValidType.YES})
             cloud_system_heart_list = []
@@ -79,7 +77,7 @@ def heart_task():
                     "installItems": deploy_component.component_name,
                     "version": deploy_component.component_version,
                 }
-                if deploy_component.status == SiteRunStatusType.RUNNING and deploy_site_list[0].deploy_status == DeployStatus.TEST_PASSED:
+                if deploy_component.status == SiteRunStatusType.RUNNING:
                     cloud_system_heart["detectiveStatus"] = 2
                 cloud_system_heart_list.append(cloud_system_heart)
             if cloud_system_heart_list:

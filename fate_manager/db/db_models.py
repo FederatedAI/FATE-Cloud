@@ -326,6 +326,7 @@ class FateSiteJobInfo(DataBaseModel):
     job_elapsed = BigIntegerField(null=True)
     roles = JSONField()
     other_party_id = ListField()
+    institutions_party_id = ListField()
     other_institutions = ListField()
     job_type = CharField(max_length=50, index=True)
     job_create_day = CharField(max_length=10, null=True, help_text='job day', index=True)
@@ -335,6 +336,8 @@ class FateSiteJobInfo(DataBaseModel):
     job_end_time = BigIntegerField(null=True)
     status = CharField(max_length=50, index=True)
     job_info = JSONField()
+    is_end = IntegerField(default=1, help_text='0 or 1')
+    is_report = IntegerField(default=1, help_text='0 or 1')
 
     class Meta:
         db_table = "t_fate_site_job"

@@ -13,11 +13,12 @@ def check_token(func):
     def _wrapper(*args, **kwargs):
         token = request.headers.get("token")
         if not token:
-            raise Exception(UserStatusCode.NoFoundToken, "no found token")
+            raise Exception(UserStatusCode.TokenExpired, "no found token")
         token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
         if token_info_list:
             now_time = current_timestamp()
             if token_info_list[0].expire_time < now_time:
+                DBOperator.delete_entity(TokenInfo, **{"token": token})
                 raise Exception(UserStatusCode.TokenExpired, "token expired")
             token_info = {
                 "user_name": token_info_list[0].user_name,

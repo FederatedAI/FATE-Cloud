@@ -135,4 +135,4 @@ def FateSiteJobInfoSelect():
                                   FateSiteJobInfo.job_create_day,
                                   FateSiteJobInfo.job_create_day_date, FateSiteJobInfo.job_start_time,
                                   FateSiteJobInfo.job_end_time,
-                                  FateSiteJobInfo.status)
+                                  FateSiteJobInfo.status, FateSiteJobInfo.institutions_party_id, FateSiteJobInfo.is_end)

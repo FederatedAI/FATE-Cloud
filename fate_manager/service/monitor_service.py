@@ -25,7 +25,8 @@ def get_total(request_data):
         site_total_dict[site.party_id] = {"data": [], "site_name": site.site_name}
     # site
     for site_job in site_job_list:
-        site_total_dict[site_job.party_id]["data"].append(site_job)
+        for _party_id in site_job.institutions_party_id:
+            site_total_dict[_party_id]["data"].append(site_job)
     for party_id, total_dict in site_total_dict.items():
         if total_dict["data"]:
             res[str(party_id)] = group_by_status(total_dict["data"])
@@ -148,6 +149,8 @@ def group_by_site(site_job_list):
         other_site_name_dict[site.party_id] = site.site_name
     for site_job in site_job_list:
         for other_party_id in site_job.other_party_id:
+            if other_party_id not in other_institutions_dict:
+                continue
             if not site_job_dict.get(site_job.party_id):
                 site_job_dict[site_job.party_id] = {"institutions": {other_institutions_dict[other_party_id]: {other_party_id: []}}}
             if not site_job_dict[site_job.party_id]["institutions"].get(other_institutions_dict[other_party_id]):
