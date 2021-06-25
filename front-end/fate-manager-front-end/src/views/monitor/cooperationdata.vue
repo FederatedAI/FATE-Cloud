@@ -47,7 +47,7 @@
                     <div v-if="totalList.length>0" class="jobs-box">
                         <span v-for="(item, index) in totalList" :key="index">
                             <div class="jobs-institution" ref='jobs' >
-                                <!-- <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/> -->
+                                <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/>
                                 <overflowtooltip class="jobs-text" :width="'60px'" :content="`${item.partyId}`" :placement="'top'"/>
                                 <el-tooltip placement="top">
                                     <div slot="content">
@@ -493,6 +493,15 @@ export default {
                 console.log(tableData, 'tableData')
 
                 this.siteNameList = Object.values(tableData).map(item => item.site_name) || []
+                if (this.siteNameList.length < 1) return
+                // 按字母顺序排序
+                this.siteNameList.sort((a, b) => {
+                    var x = a.toLowerCase()
+                    var y = b.toLowerCase()
+                    if (x < y) { return -1 }
+                    if (x > y) { return 1 }
+                    return 0
+                })
                 console.log(this.siteNameList, 'siteNameList')
 
                 this.totalSitetitution = (tableData.total) || 0

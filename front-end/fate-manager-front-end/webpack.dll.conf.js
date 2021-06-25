@@ -1,7 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 // dll文件存放的目录
 const dllPath = 'public/vendor'
 
@@ -35,6 +35,7 @@ module.exports = {
             // 保持与 output.library 中名称一致
             name: '[name]_[hash]',
             context: process.cwd()
-        })
+        }),
+        new VueLoaderPlugin()
     ]
 }

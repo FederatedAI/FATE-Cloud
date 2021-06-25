@@ -3,7 +3,7 @@
     <div class="site-item">
         <div class="site-item-text">
             <span class="title">{{$t('m.sitemanage.federatedOrganization')}}</span>
-            <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization}`" :placement="'top'"/>
+            <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization || ''}`" :placement="'top'"/>
         </div>
         <div class="site-item-text">
             <span class="title">{{$t('m.common.institution')}}</span>
@@ -49,7 +49,7 @@
                         <el-popover
                             placement="bottom"
                             :visible-arrow="false"
-                            width="700"
+                            width="500"
                             :offset="-340"
                             popper-class="site-history"
                             trigger="click">
@@ -68,7 +68,7 @@
                                                     <span v-if="ind===item.agree.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
-                                                {{$t('m.sitemanage.applications')}}
+                                                <span>{{$t('m.sitemanage.applications')}}</span>
                                             </span>
                                             <span v-if="item.reject.length>0">
                                                 <span v-if="item.agree.length>0"> ,{{$t('m.common.and')}} </span>
@@ -77,7 +77,7 @@
                                                     <span v-if="ind===item.reject.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
-                                                {{$t('m.sitemanage.applications')}}
+                                                <span>{{$t('m.sitemanage.applications')}}</span>
                                             </span>
                                             <span v-if="item.cancel.length>0">
                                                 <span v-if="item.agree.length>0 || item.reject.length>0"> ,{{$t('m.common.and')}} </span>
@@ -86,9 +86,17 @@
                                                     <span v-if="ind===item.cancel.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
-                                                {{$t('m.sitemanage.applications')}}
+                                                <span>{{$t('m.sitemanage.applications')}}</span>
                                             </span>
-
+                                            <span v-if="item.apply.length>0">
+                                                <span v-if="item.agree.length>0 || item.reject.length>0 || item.cancel.length>0"> ,{{$t('m.common.and')}} </span>
+                                                {{$t('m.sitemanage.applyApplication')}}
+                                                <span v-for="(elm, ind) in item.apply" :key="ind">
+                                                    <span v-if="ind===item.apply.length-1">{{elm}}</span>
+                                                    <span v-else>{{elm}},</span>
+                                                </span>
+                                                <span>{{$t('m.sitemanage.siteOf')}}</span>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -282,7 +290,6 @@
         <span v-if='cancelList.length>0'>
             <div class="line-text-one">
                 <span v-if='rejectList.length>0'>{{$t('m.common.and')}}</span>
-                <span v-else >Cloud</span>
                 {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
             </div>
             <div class="line-text-one" >
@@ -374,11 +381,9 @@ export default {
         }
     },
     created() {
-        this.$nextTick(() => {
-            this.getList()
-            this.getNoticeapplysite()
-            this.getapplyList()
-        })
+        this.getList()
+        this.getNoticeapplysite()
+        this.getapplyList()
     },
 
     mounted() {
@@ -547,6 +552,7 @@ export default {
                     obj.agree = []
                     obj.reject = []
                     obj.cancel = []
+                    obj.apply = []
                     obj.applyTime = item.updateTime
                     item.authorityApplyReceivers.forEach(elm => {
                         if (elm.status === 2) {
@@ -555,6 +561,8 @@ export default {
                             obj.reject.push(elm.authorityInstitutions)
                         } else if (elm.status === 4) {
                             obj.cancel.push(elm.authorityInstitutions)
+                        } else if (elm.status === 1) {
+                            obj.apply.push(elm.authorityInstitutions)
                         }
                     })
                     this.siteHistoryList.push(obj)
@@ -603,13 +611,14 @@ export default {
         }
     }
     .title-time{
-        width: 28%;
+        width: 31%;
         display:inline-block;
         margin: 12px 0;
+        margin-right: 10px;
     }
     .title-history{
         vertical-align: top;
-        width: 70%;
+        width: 65%;
         display:inline-block;
         margin: 12px 0;
     }

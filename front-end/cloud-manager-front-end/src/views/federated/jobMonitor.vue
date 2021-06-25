@@ -5,7 +5,6 @@
                 <span class="line-title">{{$t('Date')}} ：</span>
                 <el-date-picker
                     v-model="timevalue"
-                    @change="initi"
                     class="picker"
                     type="daterange"
                     range-separator="~"
@@ -25,7 +24,7 @@
                     </el-option>
                 </el-select>
                 <span class="site">{{$t('Site')}} : </span>
-                <el-select v-model="searchData.site" :disabled="searchData.institutions.length == 0" @change="getProgressData" class="select" placeholder="请选择">
+                <el-select v-model="searchData.site" filterable :disabled="searchData.institutions.length == 0" @change="getProgressData" class="select" placeholder="请选择">
                     <el-option key="" :label="$t('m.common.all')" value=""></el-option>
                     <el-option
                     v-for="(item,index) in sitesSelectList"
@@ -57,7 +56,7 @@
             </div>
             <div class="job-modeling">
                 <div class="echarts-line">
-                    <jobMonitorProgress :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
+                    <jobMonitorProgress ref="progress" :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
                 </div>
             </div>
         </div>
@@ -221,7 +220,7 @@ export default {
                 'upload': {},
                 'download': {}
             },
-            timevalue: [new Date('2021-03-01'), new Date('2021-03-31')],
+            timevalue: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()],
             typeTotalData: {
                 'failed': '',
                 'failed_percent': '',
@@ -270,6 +269,7 @@ export default {
             handler: function(val) {
                 this.$set(this.searchData, 'beginDate', val[0])
                 this.$set(this.searchData, 'endDate', val[1])
+                this.getProgressData()
             },
             deep: true,
             immediate: true
@@ -290,9 +290,6 @@ export default {
 
     },
     methods: {
-        initi() {
-            this.getProgressData(50, 10)
-        },
         getProgressData() {
             let success = []
             let failed = []
@@ -327,6 +324,8 @@ export default {
                 this.$set(this.chartData, 'success', success)
                 this.$set(this.chartData, 'failed', failed)
                 this.changeProgressType('intersect')
+
+                this.$refs['progress'].selectedProgressBarIndex = 0
             })
         },
         // 机构下拉接口
@@ -352,7 +351,7 @@ export default {
         },
         changeInstitution() {
             this.getSiteSelectList()
-            // this.getProgressData()
+            this.getProgressData()
         },
         changeSite() {
             this.getProgressData()

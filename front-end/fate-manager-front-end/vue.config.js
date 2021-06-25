@@ -119,6 +119,7 @@ module.exports = {
                 'http://172.16.153.235:9080/',
                 // 'http://172.16.153.224:8998',
                 // 'http://172.16.153.186:9080',
+                // 'http://172.16.153.243:9070/',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/fate-manager': '/fate-manager'

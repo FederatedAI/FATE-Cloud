@@ -57,7 +57,7 @@ export default {
             },
             chartExtend: {
                 tooltip: {
-                    trigger: 'axis',
+                    trigger: 'item',
                     triggerOn: 'mousemove|click',
                     axisPointer: { type: 'none' },
                     backgroundColor: 'rgba(45, 54, 66, .8)',
@@ -67,9 +67,18 @@ export default {
                         fontSize: 12
                     },
                     formatter: function (params, ticket, callback) {
-                        let total = params[1].value * 1 + params[2].value * 1
-                        let success = total === 0 ? 0 : (params[2].value / total).toFixed(1) * 100
-                        let failed = total === 0 ? 0 : (params[1].value / total).toFixed(1) * 100
+                        console.log(arguments, 'arg')
+                        console.log(self.chartData, 'chartData')
+                        // let total = params[1].value * 1 + params[2].value * 1
+                        // let success = total === 0 ? 0 : (params[2].value / total).toFixed(1) * 100
+                        // let failed = total === 0 ? 0 : (params[1].value / total).toFixed(1) * 100
+                        let data = self.chartData
+                        let index = params.dataIndex
+                        let success = data.success[index] * 1
+                        let failed = data.failed[index] * 1
+                        let total = success + failed
+                        let successPer = total === 0 ? 0 : (success / total).toFixed(1) * 100
+                        let failedPer = total === 0 ? 0 : (failed / total).toFixed(1) * 100
                         return `<div style="margin-bottom:10px">
                                     <span style="
                                     display:inline-block;
@@ -78,9 +87,9 @@ export default {
                                     border-radius:100%;
                                     background:#00C99E">
                                     </span> 
-                                    ${self.$t('m.common.success')} : ${params[2].value} (${success}%)
+                                    ${self.$t('m.common.success')} : ${success} (${successPer}%)
                                 </div>
-                                <div>
+                                <div style="text-align:left">
                                     <span style="
                                         display:inline-block;
                                         width:6px;
@@ -88,7 +97,7 @@ export default {
                                         border-radius:100%;
                                         background:#E6EBF0">
                                     </span> 
-                                    ${self.$t('m.common.failed')} : ${params[1].value} (${failed}%)
+                                    ${self.$t('m.common.failed')} : ${failed} (${failedPer}%)
                                 </div>`
                     }
                 },

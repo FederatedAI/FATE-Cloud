@@ -196,7 +196,7 @@ export default {
         return {
             lang: '',
             progressType: 0,
-            timevalue: [new Date(), new Date()],
+            timevalue: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()],
             siteOptions: [],
             party_id: 'ALL',
             modelList: [
@@ -337,10 +337,10 @@ export default {
             let chartdata = []
             let day = []
             Object.keys(data).map(key => {
-                chartdata.push((data[key].total.failed_percent*100).toFixed(2))
+                chartdata.push((data[key].total.failed_percent * 100).toFixed(2))
                 day.push(moment(key).format('YYYY-MM-DD'))
             })
-            console.log(chartdata,'chartdata')
+            console.log(chartdata, 'chartdata')
             this.$set(this.failedChartData, 'data', chartdata)
             this.$set(this.failedChartData, 'day', day)
         },

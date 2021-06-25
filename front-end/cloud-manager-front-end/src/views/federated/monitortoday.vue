@@ -115,14 +115,16 @@
                     {{$t('m.common.noData')}}
                 </div>
                 <div v-if="type!=='Today’s active data'" style="height:34px">
-                    <!-- <el-pagination
-                        small
-                        background
-                        @current-change="handleCurrentChange"
-                        layout="prev, pager, next"
-                        :page-size="80"
-                        :total="siteTotal">
-                    </el-pagination> -->
+                    <div  class="institutions-pagination">
+                        <el-pagination
+                            small
+                            background
+                            @current-change="handleCurrentChangeJob"
+                            layout="total, prev, pager, next"
+                            :page-size="pageSizeJob"
+                            :total="JobTotal">
+                        </el-pagination>
+                    </div>
                 </div>
             </div>
         </div>
@@ -347,9 +349,12 @@ export default {
             dateToday: new Date().getTime(),
             timevalue: [new Date() - 30 * 24 * 60 * 60 * 1000, new Date().getTime()],
             instTotal: 0,
+            JobTotal: 0,
             pageSizeInst: 80,
+            pageSizeJob: 80,
             instpageNum: 1,
             siteTotal: 0,
+            JobpageNum: 1,
             activejobs: {},
             activeSite: {},
             institutionsList: [],
@@ -378,7 +383,11 @@ export default {
             firstPageNum: 1, // 机构维度当前页
             secondPageNum: 1, // 站点维度当前页
             firstTempVal: '', // 机构维度当临时数据
-            secondTempVal: '' // 站点维度当临时数据
+            secondTempVal: '', // 站点维度当临时数据
+            nowInstitus: {
+                row: {},
+                index: ''
+            }
 
         }
     },
@@ -483,6 +492,15 @@ export default {
             this.instpageNum = val
             this.institutionsAll()
         },
+        // 任务翻页
+        handleCurrentChangeJob(val) {
+            this.JobpageNum = val
+            if (this.nowInstitus.index) {
+                this.getsite(this.nowInstitus.row, this.nowInstitus.index)
+            } else {
+                this.getsite(this.institutionsList[0], 0)
+            }
+        },
         // 机构维度翻页
         handleInstitutionCurrentChange(val) {
             this.firstPageNum = val
@@ -540,6 +558,11 @@ export default {
                 return item
             })
             this.institutionsList = [...tempArr]
+            // 缓存选中机构供job翻页使用
+            this.nowInstitus = {
+                row: row,
+                index: ind
+            }
             let data = {
                 beginDate: this.dateToday,
                 endDate: this.dateToday,
@@ -555,7 +578,7 @@ export default {
 
             let that = this
             let getData = function (res) {
-                that.siteTotal = res.data.totalRecord
+                that.JobTotal = res.data.totalRecord
                 that.getsiteAllToday(row ? row.institutions : '')
                 let maxlist = []
                 res.data.list.forEach(element => {
@@ -673,7 +696,7 @@ export default {
             res.data && res.data.data.forEach(item => {
                 console.log(item, 'item')
                 // 空格位置
-                if (item.institutionSiteList.length > 1) {
+                if (item.institutionSiteList.length > 0) {
                     this.lengthList.push(item.institutionSiteList.length)
                     for (let index = 0; index < item.institutionSiteList.length - 1; index++) {
                         this.lengthList.push(0)

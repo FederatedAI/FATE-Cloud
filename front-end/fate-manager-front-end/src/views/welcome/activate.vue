@@ -3,7 +3,7 @@
         <div class="site-add">
             <div class="add-info">
             <div class="title">
-                <span>Activate my site</span>
+                <span>{{$t('m.welcome.activateSite')}}</span>
             </div>
             <el-form ref="infoform" :model="form" label-position="left" label-width="250px" >
                 <!-- <el-form-item label="Federated Organization" prop="stiename">
@@ -16,7 +16,7 @@
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
                 <el-form-item label="Role" prop="role">
-                    <span class="info-text">{{form.role===1?'guest':'host'}}</span>
+                    <span class="info-text">{{form.role | getSiteType}}</span>
                 </el-form-item>
                 <el-form-item label="Party ID">
                     <span class="info-text">{{form.partyId}}</span>
@@ -50,16 +50,15 @@
                 </el-form-item>
             </el-form>
             <div class="Submit">
-                <el-button type="primary" @click="modifyAction">Confirm and Activate</el-button>
+                <el-button type="primary" @click="modifyAction">{{$t('m.welcome.confirmAndActivate')}}</el-button>
             </div>
             </div>
             <el-dialog :visible.sync="confirmdialog" class="site-toleave-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
                 <i class="el-icon-success"></i>
-                <div class="line-text-success">Activate successfully !</div>
-                <div class="line-text-one">Before using federated learning modeling,</div>
-                <div class="line-text-two">you must ensure that FATE is deployed correctly.</div>
+                <div class="line-text-success">{{$t('m.welcome.activateSuccessfully')}}</div>
+                <div class="line-text-one">{{$t('m.welcome.activateSuccessfully')}}</div>
                 <div class="dialog-footer">
-                    <el-button class="sure-btn" type="primary" @click="confirm">OK</el-button>
+                    <el-button class="sure-btn" type="primary" @click="confirm">{{$t('m.common.OK')}}</el-button>
                 </div>
             </el-dialog>
         </div>

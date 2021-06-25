@@ -129,12 +129,14 @@ export const m = {
         'authorization': '',
         'agreedAuthorze': 'Agreed to authorze',
         'rejectedAuthorize': 'Rejected to authorize',
+        'applyAuthorize': 'Applied to authorize',
         'viewAites': 'to view the sites of',
         'hostSites': 'Host sites',
         'guestSites': 'Guest sites',
         'searchSiteOrParty': 'Search for Site Name or Party ID',
         'sureDelete': 'Are you sure you want to delete',
-        'cantUndo': "You can't undo this action."
+        'cantUndo': "You can't undo this action.",
+        'including': 'including'
     },
     siteAdd: {
         'addSite': 'Add a site',

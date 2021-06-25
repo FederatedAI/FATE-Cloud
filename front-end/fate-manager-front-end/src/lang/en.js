@@ -56,6 +56,7 @@ export const m = {
         'history': 'History',
         'agree': 'Agree',
         'reject': 'Reject',
+        'apply': 'Apply',
         'unactivated': 'unactivated',
         'updateTime': 'Update Time',
         'activated': 'activated',
@@ -101,8 +102,42 @@ export const m = {
         'Some institutions has been applied!': 'Some institutions has been applied!',
         'Please login first!': 'Please login first!',
         'checkUserFailedExists': 'check user failed: user {name} already exists',
-        'missingParameters': 'required parameters are missing: {parameters}'
-
+        'missingParameters': 'required parameters are missing: {parameters}',
+        'activate failed: fate manager has been activated': 'activate failed: fate manager has been activated',
+        'The party id has been modified!': 'The party id has been modified!',
+        'noAccountByUsername': 'no found account by username: {username}',
+        'The scenario doesnt exist!': 'The scenario doesnt exist!'
+    },
+    welcome: {
+        'activateSite': 'Activate my site',
+        'confirmAndActivate': 'Confirm and Activate',
+        'activateSuccessfully': 'Activate successfully !',
+        'beforeUsingModeling': 'Before using federated learning modeling,you must ensure that FATE is deployed correctly.',
+        'welcome': 'Welcome to FATE Cloud!',
+        'introductions': 'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.',
+        'administratorNotActivated': 'Administrator account not activated yet?',
+        'activateIt': 'Activate it.',
+        'contactAdministratorTips': 'Please contact the administrator to add permission for you.',
+        'RememberMe': 'Remember me',
+        'SignIn': 'Sign in',
+        'register': 'Register',
+        'userNameTips': 'Please enter the Username/Email/Phone',
+        'passWordTips': 'Please enter the Password',
+        'correctAccountTips': 'Please enter the correct account!',
+        'notSupportChinese': 'Password does not support Chinese characters',
+        'startRegistering': 'Start registering and joining a federated organization.',
+        'afterJoining': 'After successfully joining the organization, you are ready for federated modeling.',
+        'adminActivation': 'Admin activation',
+        'enterLinkTip': 'Please enter the administrator invitation link from Cloud Manager',
+        'bindAccount': 'Please bind an administrator account',
+        'enterPasswordTip': 'Please enter your password',
+        'invitationLinkRequired': 'The invitation link is required',
+        'usernameRequired': 'The username is required',
+        'passwordRequired': 'The password is required',
+        'activatedSuccessfully': 'Activated Successfully !',
+        'canSignInWithAccount.': 'Now you can sign in FATE Cloud with your administrator account.',
+        'activatedFailed': 'Activated Failed!',
+        'pleaseRe-enter': 'Please re-enter'
     },
     sitemanage: {
         'apply': 'Apply',
@@ -127,6 +162,7 @@ export const m = {
         'activationTime': 'Activation Time',
         'siteViewed': '{type} sites viewed by:',
         'setStatusApplication': 'Cloud Manager {type} your application to view the fate manager sites of',
+        'applyApplication': 'Cloud Manager applied to view the fate manager sites of',
         'applications': '',
         'register': 'Register',
         'pleaseEnterRegistration': 'Please enter the registration link from Cloud Manager',
@@ -176,7 +212,7 @@ export const m = {
         'cumulativeActiveData': 'Cumulative active data',
         'activeInstitutionsToday': 'Active institutions today:',
         'activeSitesToday': 'Active sites today',
-        'jobs': 'jobs',
+        'jobs': 'Jobs',
         'totalJobs': 'Total jobs',
         'waiting': '{type}aiting',
         'running': '{type}unning',
@@ -186,4 +222,5 @@ export const m = {
         'checkInstitution': 'Institution',
         'sitesCooperation': 'Statistics of cooperation between sites'
     }
+
 }

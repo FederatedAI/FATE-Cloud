@@ -128,13 +128,14 @@ export const m = {
         'authorization': '的授权',
         'agreedAuthorze': '同意授权',
         'rejectedAuthorize': '拒绝授权',
+        'applyAuthorize': '申请授权',
         'viewAites': '查看',
         'hostSites': '数据源站点',
         'guestSites': '应用方站点',
         'searchSiteOrParty': '搜索站点名称或站点ID',
         'sureDelete': '您是否确定要删除站点',
-        'cantUndo': '您无法撤消此操作。'
-
+        'cantUndo': '您无法撤消此操作。',
+        'including': '包括'
     },
     siteAdd: {
         'addSite': '添加站点',

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
 // import router from '@/router'
 import store from '@/store'
 import { getToken, getCookie } from '@/utils/auth'
@@ -44,9 +43,22 @@ const setErrorMsgToI18n = (msg) => {
         } else if (tipText.indexOf('required parameters are missing') > -1) {
             let parameters = tipText.split('required parameters are missing:')[1]
             message = tipI18n.$t('m.errorTips.missingParameters', { parameters: parameters })
+        } else if (tipText.indexOf('no found account by username:') > -1) {
+            let username = tipText.split('no found account by username:')[1]
+            message = tipI18n.$t('m.errorTips.noAccountByUsername', { username: username })
         }
     } else {
         message = tipI18n.$t('m.errorTips.reqestFailed')
+    }
+    if (msg.indexOf('code') > -1) {
+        message += `错误码：${msg.split('code')[1].split('msg')[0].trim()}`
+    }
+    if (message === 'success') {
+        Vue.prototype.$message.success({
+            message: message,
+            duration: 5 * 1000
+        })
+        return
     }
     Vue.prototype.$message.error({
         message: message,

@@ -29,6 +29,7 @@
                 v-else
                 :popper-append-to-body="false"
                 v-model="form.institutions"
+                filterable
                 @focus="cancelValid('institutions')"
                 :placeholder="$t('m.siteAdd.chooseInstitutions')">
                 <el-option v-for="item in institutionsdownList" :key="item.value" :label="item.label" :value="item.value"></el-option>

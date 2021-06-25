@@ -78,6 +78,16 @@
                                                     </span>
                                                     {{$t('m.site.sitesOfPlaceHodler')}}
                                                 </span>
+                                                <span v-if="item.apply.length>0">
+                                                    {{$t('m.site.applyAuthorize')}}
+                                                    {{item.institutions}}
+                                                    {{$t('m.site.viewAites')}}
+                                                    <span v-for="(elm, ind) in item.apply" :key="ind">
+                                                        <span v-if="ind===item.apply.length-1">{{elm}}</span>
+                                                        <span v-else>{{elm}},</span>
+                                                    </span>
+                                                    {{$t('m.site.sitesOfPlaceHodler')}}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -174,9 +184,10 @@
                 <span style="color:#217AD9">{{canceltempData.institutions}}</span>
                 {{$t('m.site.authorizationTo')}}
             </div>
-            <span v-if="canceltempData.scenarioType==='3'">
+            <!-- 1.all | 2.横向(guest) | 3.纵向(guest,host) -->
+            <span v-if="canceltempData.scenarioType==='3' && canceltempData.hostboxList.length > 0">
                 <div class="siteType">{{$t('m.site.hostSites')}} :</div>
-                <div class="dialog-main" v-if="canceltempData.hostboxList.length > 0">
+                <div class="dialog-main">
                     <el-checkbox style="margin-bottom:10px" :indeterminate="canceltempData.hostisnate" v-model="canceltempData.hostAll" @change="hostChange">{{$t('m.common.all')}}</el-checkbox>
                     <el-checkbox-group v-model="canceltempData.hostList"  @change="hostStieChange">
                         <div v-for="(item, index) in canceltempData.hostboxList" :key="index">
@@ -190,7 +201,7 @@
                     <span class="no-data">{{$t('m.common.noData')}}</span>
                 </div> -->
             </span>
-            <span v-if="canceltempData.scenarioType==='2' || canceltempData.scenarioType==='3'">
+            <span v-if="(canceltempData.scenarioType==='2' || canceltempData.scenarioType==='3') && canceltempData.guestboxList.length > 0">
                 <div class="siteType">{{$t('m.site.guestSites')}} :</div>
                 <div class="dialog-main" v-if="canceltempData.guestboxList.length > 0">
                     <el-checkbox style="margin-bottom:10px" :indeterminate="canceltempData.guestisnate" v-model="canceltempData.guestAll" @change="guestChange">{{$t('m.common.all')}}</el-checkbox>
@@ -391,6 +402,7 @@ export default {
                         obj.agree = []
                         obj.reject = []
                         obj.cancel = []
+                        obj.apply = []
                         obj.updateTime = itr.updateTime
                         obj.institutions = itr.institutions
                         itr.authorityApplyReceivers.forEach((elm) => {
@@ -400,6 +412,8 @@ export default {
                                 obj.reject.push(elm.authorityInstitutions)
                             } else if (elm.status === 4) {
                                 obj.cancel.push(elm.authorityInstitutions)
+                            } else if (elm.status === 1) {
+                                obj.apply.push(elm.authorityInstitutions)
                             }
                         })
                         item.historyList.push(obj)

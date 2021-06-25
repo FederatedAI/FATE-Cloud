@@ -3,8 +3,8 @@
     <div class="cooperation-box">
         <div class="monitor-header">
             <el-radio-group class="radio" v-model="radio" @change="tohandle">
-                <el-radio-button label="Today’s active data">{{$t('Today’s active data')}}</el-radio-button>
-                <el-radio-button label="Cumulative active data">{{$t('Cumulative active data')}}</el-radio-button>
+                <el-radio-button label="Today’s active data">{{$t('m.monitor.todayActiveData')}}</el-radio-button>
+                <el-radio-button label="Cumulative active data">{{$t('m.monitor.cumulativeActiveData')}}</el-radio-button>
             </el-radio-group>
         </div>
         <div class="content">
@@ -18,28 +18,10 @@
 import { mapGetters } from 'vuex'
 import cooperationdata from './cooperationdata'
 
-import moment from 'moment'
-// 国际化
-const local = {
-    zh: {
-        'Today’s active data': '今日活跃数据',
-        'Cumulative active data': '累加活跃数据'
-    },
-    en: {
-        'Today’s active data': 'Today’s active data',
-        'Cumulative active data': 'Cumulative active data'
-
-    }
-}
 export default {
     name: 'cooperation',
     components: {
         cooperationdata
-    },
-    filters: {
-        dateFormat(vaule) {
-            return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '--'
-        }
     },
     data() {
         return {
@@ -60,8 +42,6 @@ export default {
 
     },
     created() {
-        this.$i18n.mergeLocaleMessage('en', local.en)
-        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     mounted() {
 
