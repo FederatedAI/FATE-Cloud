@@ -48,6 +48,10 @@ public class FederatedFunctionDo implements Serializable {
     @TableField(value = "status")
     private Integer status;
 
+    @ApiModelProperty(value = "descriptions")
+    @TableField(value = "descriptions")
+    private String descriptions;
+
     @ApiModelProperty(value = "create time")
     @TableField(value = "create_time")
     private Date createTime;

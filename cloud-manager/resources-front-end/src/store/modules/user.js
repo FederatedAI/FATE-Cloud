@@ -25,7 +25,7 @@ const user = {
 
     actions: {
         // siteName
-        SiteName: ({ commit }, data) => {
+        setSiteName: ({ commit }, data) => {
             commit('SITE_NAME', data)
         },
         getInfo: ({ commit }, data) => {

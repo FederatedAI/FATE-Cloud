@@ -51,6 +51,10 @@ public class PartyDo implements Serializable {
     @TableField(value = "secure_status")
     private Integer secureStatus;
 
+    @ApiModelProperty(value = "polling status")
+    @TableField(value = "polling_status")
+    private Integer pollingStatus;
+
     @ApiModelProperty(value = "status")
     @TableField(value = "status")
     private Integer status;
@@ -62,6 +66,10 @@ public class PartyDo implements Serializable {
     @ApiModelProperty(value = "update time")
     @TableField(value = "update_time")
     private Date updateTime;
+
+    @ApiModelProperty(value = "valid time")
+    @TableField(value = "valid_time")
+    private Date validTime;
 
     @ApiModelProperty(value = "roll site  id")
     @TableId(value = "roll_site_id")

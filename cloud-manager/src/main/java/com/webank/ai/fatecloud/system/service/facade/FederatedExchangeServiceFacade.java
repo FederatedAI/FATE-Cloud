@@ -160,6 +160,13 @@ public class FederatedExchangeServiceFacade implements Serializable {
             if (secureStatus == null || (secureStatus != 1 && secureStatus != 2)) {
                 return false;
             }
+
+            //check polling status
+            Integer pollingStatus = partyAddBean.getPollingStatus();
+            if (pollingStatus == null || (pollingStatus != 1 && pollingStatus != 2)) {
+                return false;
+            }
+
             String partyId = partyAddBean.getPartyId();
             if (StringUtils.isBlank(partyId)) {
                 return false;
@@ -288,7 +295,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse<PageBean<RollSitePageDto>> findRollSitePage(RollSitePageQo rollSitePageQo) {
-        if (StringUtils.isBlank(String.valueOf(rollSitePageQo.getExchangeId()))) {
+        if (rollSitePageQo.getExchangeId() == null) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }

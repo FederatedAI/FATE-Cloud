@@ -19,6 +19,7 @@ import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,6 +49,12 @@ public class GlobalExceptionHandle {
     public CommonResponse memoryError(HttpServletRequest req, OutOfMemoryError e) {
         log.error("memory error", e);
         return new CommonResponse<>(ReturnCodeEnum.MEMORY_ERROR);
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public CommonResponse memoryError(RestClientException e) {
+        log.error("invoke error", e);
+        return new CommonResponse<>(ReturnCodeEnum.INVOKE_CONNECT_ERROR);
     }
 
 }
