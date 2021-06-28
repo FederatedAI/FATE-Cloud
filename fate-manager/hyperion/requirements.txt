@@ -18,5 +18,5 @@ requests==2.24.0
 ruamel.yaml==0.16.12
 ruamel.yaml.clib==0.2.2
 six==1.15.0
-urllib3==1.25.10
+urllib3==1.26.5
 Werkzeug==0.16.0
