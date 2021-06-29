@@ -11,8 +11,8 @@
                 <result property="totalJobs" column="totalJobs"></result>
                 <result property="successJobs" column="successJobs"></result>
                 <result property="runningJobs" column="runningJobs"></result>
-                <result property="waitingJobs" column="failedJobs"></result>
-                <result property="failedJobs" column="waitingJobs"></result>
+                <result property="waitingJobs" column="waitingJobs"></result>
+                <result property="failedJobs" column="failedJobs"></result>
             </collection>
         </collection>
     </resultMap>
@@ -21,7 +21,7 @@
 
         select min(tmp.job_elapsed) minDuration, max(tmp.job_elapsed) maxDuration,avg(tmp.job_elapsed) avgDuration
         from
-        (select job_id,job_elapsed
+        (select job_id,avg(job_elapsed) as job_elapsed
         from t_fate_site_job
             <where>
                 <if test="institutions!=null and institutions!='' ">
@@ -33,15 +33,19 @@
                 and job_type = #{type}
                 and status in ("success","failed")
                 and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
-                group by job_id,job_elapsed
+                group by job_id
+                <!--,job_elapsed-->
             </where>
         ) tmp
     </select>
 
     <select id="findTypedTable" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobTypedTableDto">
-        select count(*) total,count(case when status='failed' then 1 end) failedCount, count(case when status='success' then 1 end) successCount, min(tmp.job_elapsed) minDuration, max(tmp.job_elapsed) maxDuration,avg(tmp.job_elapsed) avgDuration, job_create_day_date date
-        from
-        (select job_id, job_elapsed, job_create_day_date, status from t_fate_site_job
+        select count(*) total,
+        count(case when status='failed' then 1 end) failedCount,
+        count(case when status='success' then 1 end) successCount,
+        min(tmp.job_elapsed) minDuration, max(tmp.job_elapsed) maxDuration,avg(tmp.job_elapsed) avgDuration,
+        job_create_day_date date from
+        (select job_id, avg(job_elapsed) as job_elapsed, job_create_day_date, status from t_fate_site_job
             <where>
                 <if test="institutions!=null and institutions!='' ">
                     and institutions = #{institutions}
@@ -53,7 +57,8 @@
                 and job_type=#{type}
                 and status in ("success","failed")
                 and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
-                group by job_id, job_elapsed, job_create_day_date, status
+                group by job_id, job_create_day_date, status
+                <!--,job_elapsed todo here may be remaining problems. multiple records of a job are time-consuming and inconsistent, fm question put aside for now-->
             </where>
         )tmp group by job_create_day_date
 
@@ -216,56 +221,42 @@
     <select id="getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow"
             resultMap="jobMonitorMap">
 
-        SELECT e.* ,
-        COUNT(*) totalJobs,
-        count(case when status='failed' then 1 end) failedJobs,
-        count(case when status='success' then 1 end) successJobs,
-        count(case when status='running' then 1 end) runningJobs,
-        count(case when status='waiting' then 1 end) waitingJobs
-
-        FROM
-        (
-        SELECT *
+        SELECT e.detail_institutions,e.detail_site_name,e.site_name, COUNT(1) AS totalJobs,
+        count(CASE WHEN status = 'failed' THEN 1 END) AS failedJobs,
+        count(CASE WHEN status = 'success' THEN 1 END) AS successJobs,
+        count(CASE WHEN status = 'running' THEN 1 END) AS runningJobs,
+        count(CASE WHEN status = 'waiting' THEN 1 END) AS waitingJobs
         FROM (
-        SELECT b.detail_institutions, b.detail_site_name
+        SELECT c.detail_institutions,c.detail_site_name,d.site_name,case when c.p_pid > d.p_pid then CONCAT(d.p_pid,',',c.p_pid)
+        when c.p_pid &lt; d.p_pid then CONCAT(c.p_pid,',',d.p_pid)
+        ELSE CONCAT(c.p_pid,',',d.p_pid) END AS union_name
+        FROM
+        (SELECT b.detail_institutions, b.detail_site_name,b.detail_party_id AS p_pid
         FROM t_fate_site_job a, t_fate_site_job_detail b
-        WHERE
-        a.institutions= #{jobOfSiteDimensionPeriodQo.institutions}
+        WHERE a.institutions = #{jobOfSiteDimensionPeriodQo.institutions}
         AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        AND a.job_id=b.detail_job_id
-        AND (b.detail_party_id  &lt;&gt; a.party_id OR a.role= 'local' )
-        GROUP BY b.detail_institutions, b.detail_site_name
+        AND a.job_id = b.detail_job_id
+
+        GROUP BY b.detail_institutions, b.detail_site_name,b.detail_party_id
         ORDER BY b.detail_institutions ASC, b.detail_site_name DESC
         LIMIT #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
         ) c,
-        (
-        SELECT detail_site_name AS site_name  FROM  t_fate_site_job_detail
-        WHERE detail_institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
+        (SELECT detail_site_name AS site_name,detail_party_id AS p_pid
+        FROM t_fate_site_job_detail
+        WHERE detail_institutions = #{jobOfSiteDimensionPeriodQo.institutions}
         AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        GROUP BY detail_site_name
+        GROUP BY detail_site_name,detail_party_id
         ) d
         ORDER BY detail_institutions ASC, detail_site_name ASC, site_name ASC
         ) e,
-        (
-        SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
-        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        GROUP BY detail_job_id,detail_site_name
-        ) f,
-        (
-        SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
-        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
-        GROUP BY detail_job_id,detail_site_name
-        ) g,
-        (
-        SELECT job_id, `status`,roles FROM t_fate_site_job GROUP BY job_id, `status`,roles
-        ) h
+        (SELECT b.job_id,b.status,GROUP_CONCAT(b1.detail_party_id) AS union_name FROM t_fate_site_job b,t_fate_site_job_detail b1
+        WHERE b.institutions = #{jobOfSiteDimensionPeriodQo.institutions}
+        and b.job_id = b1.detail_job_id
+        AND b1.detail_role &lt;&gt; ('arbiter') AND b.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        GROUP  BY b.job_id,b.status) x
 
-        WHERE  e.detail_site_name = f.detail_site_name
-        AND e.site_name =g .detail_site_name
-        AND f.detail_job_id =g.detail_job_id
-        AND f.detail_job_id=h.job_id
-        AND (f.detail_site_name  &lt;&gt; g.detail_site_name OR JSON_EXTRACT (h.roles,'$.local') IS NOT NULL  )
-        GROUP BY e.detail_institutions,e.detail_site_name, e.site_name
+        WHERE e.union_name = x.union_name
+        GROUP BY e.detail_institutions, e.detail_site_name, e.site_name;
     </select>
 
     <select id="findInstitutionsCountPeriod" resultType="java.lang.Integer">

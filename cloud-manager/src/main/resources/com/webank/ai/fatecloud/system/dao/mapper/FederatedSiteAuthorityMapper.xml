@@ -51,7 +51,7 @@
             <if test="institutions != null">
                 and a.institutions = #{institutions}
             </if>
-            and status = 1
+            and status = 1 and a.generation = 1
         </where>
     </select>
 
@@ -66,7 +66,7 @@
     <resultMap id="authorityHistoryMap" type="com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto">
 
         <result property="institutions" column="institutions"></result>
-<!--        <result property="createTime" column="create_time"></result>-->
+        <result property="createTime" column="create_time"></result>
         <result property="updateTime" column="update_time"></result>
 
         <result property="sequence" column="sequence"></result>
@@ -102,7 +102,7 @@
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.AuthorityHistoryOfFateManagerQo" resultType="long">
         SELECT count(1) FROM (
         SELECT count(1) FROM t_federated_site_authority
-        where <!--status != 1 and [!need to apply for status]-->institutions = #{institutions}
+        where status != 1 and institutions = #{institutions}
         group by sequence) a
     </select>
 
@@ -110,10 +110,10 @@
         SELECT * FROM t_federated_site_authority a
         <where>
             a.sequence in (select * from
-            (select distinct sequence from t_federated_site_authority where<!-- status !=1 and [!need to apply for status]--> institutions =
+            (select distinct sequence from t_federated_site_authority where status !=1 and institutions =
             #{authorityHistoryOfFateManagerQo.institutions} order by sequence desc limit
             #{startIndex}, #{authorityHistoryOfFateManagerQo.pageSize}) tmp )
-            order by a.update_time desc
+            order by a.create_time desc
 
         </where>
 

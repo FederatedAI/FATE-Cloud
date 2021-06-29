@@ -16,12 +16,14 @@
 package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo;
 import com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyStatusDto;
 import com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto;
 import com.webank.ai.fatecloud.system.pojo.dto.InstitutionsForFateDto;
-import com.webank.ai.fatecloud.system.pojo.qo.*;
+import com.webank.ai.fatecloud.system.pojo.qo.AuthorityApplyStatusQo;
+import com.webank.ai.fatecloud.system.pojo.qo.AuthorityHistoryOfFateManagerQo;
+import com.webank.ai.fatecloud.system.pojo.qo.AuthorityInstitutionsQo;
+import com.webank.ai.fatecloud.system.pojo.qo.PartyIdCheckQo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
