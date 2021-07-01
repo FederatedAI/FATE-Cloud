@@ -25,9 +25,10 @@ def apply_result_task(account):
                                             url=None
                                             )
     initiative_approved_institutions = {}
-    for approved_item in initiative_resp:
-        initiative_approved_institutions[approved_item.get("institutions")] = approved_item.get("status")
-    stat_logger.info(f"request initiative approved, return {initiative_approved_institutions}")
+    if initiative_resp:
+        for approved_item in initiative_resp:
+            initiative_approved_institutions[approved_item.get("institutions")] = approved_item.get("status")
+        stat_logger.info(f"request initiative approved, return {initiative_approved_institutions}")
 
     # get all end status institutions
     update_institutions_models = []
@@ -35,7 +36,9 @@ def apply_result_task(account):
     all_institutions = federated_db_operator.get_apply_institutions_info()
     all_institutions_name = [model.institutions for model in all_institutions]
     stat_logger.info(f"all institutions name:{all_institutions_name}")
-    for apply_item in resp.get("list"):
+    if not resp:
+        resp = {}
+    for apply_item in resp.get("list", []):
         # deal new institutions
         if apply_item["institutions"] not in all_institutions_name:
             institutions_item = {"institutions": apply_item["institutions"], "status": apply_item["status"], "party_status": apply_item["status"]}

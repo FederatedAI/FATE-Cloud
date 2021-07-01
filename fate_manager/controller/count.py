@@ -59,7 +59,8 @@ class CountJob:
                 DBOperator.update_entity(FateSiteJobInfo, {"job_id": job.job_id, "status":update_status, "is_end": 1})
                 job.status = update_status
                 job = CountJob.job_adapter(job)
-                synchronization_job_list.append(job.to_json())
+                if job:
+                    synchronization_job_list.append(job.to_json())
         CountJob.job_synchronization(account, synchronization_job_list)
 
     @staticmethod
@@ -67,7 +68,9 @@ class CountJob:
         job_list = DBOperator.query_entity(FateSiteJobInfo, is_report=0)
         synchronization_job_list = []
         for job in job_list:
-            synchronization_job_list.append(job.to_json())
+            job = CountJob.job_adapter(job)
+            if job:
+                synchronization_job_list.append(job.to_json())
         CountJob.job_synchronization(account, synchronization_job_list, is_report=1)
 
 
@@ -75,17 +78,18 @@ class CountJob:
     def log_job_info(account, job_list, party_id, site_name):
         request_flow_logger.info(job_list)
         apply_site_list = DBOperator.query_entity(ApplySiteInfo)
-        other_institutions = {}
+        all_institutions = {}
         for site in apply_site_list:
-            other_institutions[str(site.party_id)] = site.institutions
+            all_institutions[str(site.party_id)] = site.institutions
         synchronization_job_list = []
         for job in job_list:
             try:
                 if not CountJob.check_roles(job.get("f_roles")):
                     continue
-                site_job = CountJob.save_site_job_item(job, party_id, other_institutions, site_name, account)
+                site_job = CountJob.save_site_job_item(job, party_id, all_institutions, site_name, account)
                 site_job = CountJob.job_adapter(site_job)
-                synchronization_job_list.append(site_job.to_json())
+                if site_job:
+                    synchronization_job_list.append(site_job.to_json())
             except Exception as e:
                 request_flow_logger.exception(e)
         CountJob.job_synchronization(account, synchronization_job_list)
@@ -96,7 +100,7 @@ class CountJob:
 
 
     @staticmethod
-    def save_site_job_item(job, party_id, other_institutions, site_name, account):
+    def save_site_job_item(job, party_id, all_institutions, site_name, account):
         site_job = FateSiteJobInfo()
         site_job.job_id = job.get("f_job_id")
         site_job.institutions = account.institutions
@@ -114,6 +118,7 @@ class CountJob:
         site_job.job_create_day_date = datetime.datetime.strptime(site_job.job_create_day, "%Y%m%d")
 
         site_job.job_info = job
+        site_job.need_report = 1
         other_party_id = set()
         site_job.role = job.get("f_role")
         institutions_party_id_list = []
@@ -124,8 +129,10 @@ class CountJob:
             for role, party_id_list in job["f_roles"].items():
                 for _party_id in party_id_list:
                     other_party_id.add(_party_id)
-                    if other_institutions[str(_party_id)] == other_institutions[str(party_id)]:
+                    if str(_party_id) in all_institutions and all_institutions[str(_party_id)] == all_institutions[str(party_id)]:
                         institutions_party_id_list.append(_party_id)
+                    if str(_party_id) not in all_institutions:
+                        site_job.need_report = 0
             site_job.other_party_id = list(set(other_party_id))
             if len(site_job.other_party_id) > 1 and party_id in site_job.other_party_id:
                 site_job.other_party_id.remove(site_job.party_id)
@@ -133,8 +140,8 @@ class CountJob:
         site_job.institutions_party_id = list(set(institutions_party_id_list))
         institutions_list = []
         for _party_id in site_job.other_party_id:
-            if str(_party_id) in other_institutions.keys():
-                institutions_list.append(other_institutions[str(_party_id)])
+            if str(_party_id) in all_institutions.keys():
+                institutions_list.append(all_institutions[str(_party_id)])
         site_job.other_institutions = list(set(institutions_list))
         if len(site_job.other_institutions) > 1 and site_job.institutions in site_job.other_institutions:
             site_job.other_institutions.remove(site_job.institutions)
@@ -162,9 +169,12 @@ class CountJob:
         else:
             job_type = 'modeling'
         return job_type
+
     @staticmethod
     def job_adapter(site_job):
         # for cloud job
+        if not site_job.need_report:
+            return None
         site_job.job_info = None
         site_job.create_date = None
         site_job.update_date = None
@@ -193,7 +203,7 @@ class CountJob:
                 piece += 1
         except Exception as e:
             request_cloud_logger.exception(e)
-        if piece*count_of_piece < len(synchronization_job_list):
+        if piece*count_of_piece >= len(synchronization_job_list):
             if is_report:
                 for job in synchronization_job_list[:piece*count_of_piece]:
                     DBOperator.update_entity(FateSiteJobInfo, {"job_id": job.get("job_id"), "is_report": is_report})

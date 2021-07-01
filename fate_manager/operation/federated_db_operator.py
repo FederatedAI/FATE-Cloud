@@ -14,6 +14,7 @@ def get_home_site():
     feature_store_infos = FederatedInfo.select(FederatedInfo.federated_id,
                                                FederatedInfo.federated_organization,
                                                FederatedInfo.institutions,
+                                               FederatedInfo.institution,
                                                FateSiteInfo.institutions.alias('fate_manager_institution'),
                                                FederatedInfo.federated_url,
                                                FederatedInfo.create_time,

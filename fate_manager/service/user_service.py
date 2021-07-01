@@ -150,7 +150,7 @@ def edit_user(request_data):
         raise Exception(UserStatusCode.CheckUserFailed, f'check user failed: request_data.get("userName")')
     is_admin = False
     for account in account_info_list:
-        if account.role == UserRole.ADMIN and account.fate_manager_id:
+        if account.cloud_user and account.fate_manager_id:
             is_admin = True
             break
     if is_admin:
