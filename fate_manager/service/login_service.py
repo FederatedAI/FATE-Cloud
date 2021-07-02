@@ -42,6 +42,7 @@ def fate_manager_activate(request_data):
     # save federated info
     request_info["status"] = 1
     logger.info(f'save federated info: {request_info}')
+    request_info["federated_organization_create_time"] = request_info["create_time"]
     DBOperator.safe_save(FederatedInfo, request_info)
 
 

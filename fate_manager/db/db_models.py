@@ -285,6 +285,7 @@ class FateVersion(DataBaseModel):
 class FederatedInfo(DataBaseModel):
     federated_id = IntegerField(default=0, help_text='cloud-manager id')
     federated_organization = CharField(max_length=128, null=True, help_text='Federated Organization')
+    federated_organization_create_time = BigIntegerField()
     institution = CharField(max_length=50, null=True, help_text='cloud institution')
     institutions = CharField(max_length=50, null=True, help_text='institutions')
     federated_url = CharField(null=True, help_text='federated host')
