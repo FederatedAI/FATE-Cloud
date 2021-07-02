@@ -238,7 +238,7 @@
         AND a.job_id = b.detail_job_id
 
         GROUP BY b.detail_institutions, b.detail_site_name,b.detail_party_id
-        ORDER BY b.detail_institutions ASC, b.detail_site_name DESC
+        ORDER BY b.detail_institutions ASC, b.detail_site_name ASC
         LIMIT #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
         ) c,
         (SELECT detail_site_name AS site_name,detail_party_id AS p_pid
