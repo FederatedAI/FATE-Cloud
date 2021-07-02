@@ -180,23 +180,23 @@
         count(case when status='running' then 1 end) runningJobCount,
         count(case when status='waiting' then 1 end) waitingJobCount
         FROM (
-        select site_name,party_id,job_id,status
-        from t_fate_site_job
-        where site_name in (
-        select site_name from (
-        SELECT site_name FROM t_fate_site_job
+        select detail_site_name as site_name,detail_party_id as party_id,detail_job_id as job_id,detail_status as status
+        from t_fate_site_job_detail
+        where detail_site_name in (
+        select detail_site_name from (
+        SELECT detail_site_name FROM t_fate_site_job_detail
         <where>
             <if test="jobStatisticsSummarySiteAllForPeriodQo.institutions!=null and jobStatisticsSummarySiteAllForPeriodQo.institutions!='' ">
-                and institutions = #{jobStatisticsSummarySiteAllForPeriodQo.institutions}
+                and detail_institutions = #{jobStatisticsSummarySiteAllForPeriodQo.institutions}
             </if>
-            and job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
+            and detail_job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
         </where>
-        GROUP BY site_name order by site_name asc limit #{startIndex},#{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
+        GROUP BY detail_site_name order by detail_site_name asc limit #{startIndex},#{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
         ) tmp
         )
-        and job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
+        and detail_job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
 
-        GROUP BY site_name,party_id,job_id,status
+        GROUP BY detail_site_name,detail_party_id,detail_job_id,detail_status
         ) tmp
         group by site_name, party_id
 
