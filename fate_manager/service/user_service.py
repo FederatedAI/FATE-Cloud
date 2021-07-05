@@ -127,8 +127,8 @@ def delete_user(token, request_data):
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundUser, "no found user")
     account = account_info_list[0]
-    if account.role == UserRole.ADMIN and account.fate_manager_id:
-        raise Exception(UserStatusCode.DeleteUserFailed, f"Admin {request_data.get('userName')} Could Not Be Delete")
+    if account.cloud_user:
+        raise Exception(UserStatusCode.DeleteUserFailed, f"Cloud User {request_data.get('userName')} Could Not Be Delete")
     if account.user_name == token_info.user_name:
         raise Exception(UserStatusCode.DeleteUserFailed, "Could Not Be Delete Self")
     account_info["status"] = IsValidType.NO
@@ -150,7 +150,7 @@ def edit_user(request_data):
         raise Exception(UserStatusCode.CheckUserFailed, f'check user failed: request_data.get("userName")')
     is_admin = False
     for account in account_info_list:
-        if account.role == UserRole.ADMIN and account.fate_manager_id:
+        if account.cloud_user and account.fate_manager_id:
             is_admin = True
             break
     if is_admin:

@@ -285,6 +285,8 @@ class FateVersion(DataBaseModel):
 class FederatedInfo(DataBaseModel):
     federated_id = IntegerField(default=0, help_text='cloud-manager id')
     federated_organization = CharField(max_length=128, null=True, help_text='Federated Organization')
+    federated_organization_create_time = BigIntegerField()
+    institution = CharField(max_length=50, null=True, help_text='cloud institution')
     institutions = CharField(max_length=50, null=True, help_text='institutions')
     federated_url = CharField(null=True, help_text='federated host')
     status = SmallIntegerField(default=0, help_text='0:unvalid,1valid')
@@ -326,6 +328,7 @@ class FateSiteJobInfo(DataBaseModel):
     job_elapsed = BigIntegerField(null=True)
     roles = JSONField()
     other_party_id = ListField()
+    institutions_party_id = ListField()
     other_institutions = ListField()
     job_type = CharField(max_length=50, index=True)
     job_create_day = CharField(max_length=10, null=True, help_text='job day', index=True)
@@ -335,6 +338,9 @@ class FateSiteJobInfo(DataBaseModel):
     job_end_time = BigIntegerField(null=True)
     status = CharField(max_length=50, index=True)
     job_info = JSONField()
+    is_end = IntegerField(default=1, help_text='0 or 1')
+    is_report = IntegerField(default=1, help_text='0 or 1')
+    need_report = IntegerField(default=1, help_text='0 or 1')
 
     class Meta:
         db_table = "t_fate_site_job"

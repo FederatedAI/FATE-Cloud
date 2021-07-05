@@ -22,7 +22,7 @@ def activate():
                                                   'federatedId',
                                                   'federatedOrganization', 'federatedUrl', 'institution',
                                                   'institutions',
-                                                  'passWord', 'userName', 'link'])
+                                                  'passWord', 'userName', 'link', 'createTime'])
     login_service.fate_manager_activate(request_data)
     return get_json_result()
 

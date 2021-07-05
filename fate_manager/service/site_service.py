@@ -129,11 +129,10 @@ def get_home_site_list():
     if len(federated_site_list) == 1 and not hasattr(federated_site_list[0], "fatesiteinfo"):
         federated_item = item.FederatedItem()
         federated_item.federatedOrganization = federated_site_list[0].federated_organization
-        federated_item.institutions = federated_site_list[0].institutions
+        federated_item.institutions = federated_site_list[0].institution
         federated_item.fateManagerInstitutions = account.institutions
         federated_item.federatedId = federated_site_list[0].federated_id
-        federated_item.fateManagerInstitutions = account.institutions
-        federated_item.createTime = federated_site_list[0].create_time
+        federated_item.createTime = federated_site_list[0].federated_organization_create_time
         federated_item_dict = {federated_item.federatedId: federated_item.to_dict(need_none=True)}
     else:
         for site in federated_site_list:

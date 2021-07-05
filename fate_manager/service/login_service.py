@@ -42,6 +42,7 @@ def fate_manager_activate(request_data):
     # save federated info
     request_info["status"] = 1
     logger.info(f'save federated info: {request_info}')
+    request_info["federated_organization_create_time"] = request_info["create_time"]
     DBOperator.safe_save(FederatedInfo, request_info)
 
 
@@ -76,13 +77,12 @@ def fate_manager_logout(request_data, token):
     logger.info(f'login out, user name: {user_name}, token :{token}')
     token_info = DBOperator.query_entity(TokenInfo, user_name=user_name, token=token)
     if not token_info:
-        raise Exception(UserStatusCode.NoFoundToken, "login failed: token no found")
+        return False
     token_info = {
         "user_name": user_name,
-        "token": token,
-        "expire_time": current_timestamp()
+        "token": token
     }
-    DBOperator.safe_save(TokenInfo, token_info)
+    DBOperator.delete_entity(TokenInfo, **token_info)
 
 
 def fate_manager_checkjwt(request_data):
@@ -107,6 +107,7 @@ def fate_manager_checkjwt(request_data):
 
 
 def generate_token(user_name, password):
-    sha1_key = hmac.new(user_name.encode("utf-8"), password.encode("utf-8"), 'sha1').hexdigest()
+    value = '\n'.join([password, str(current_timestamp())])
+    sha1_key = hmac.new(user_name.encode("utf-8"), value.encode("utf-8"), 'sha1').hexdigest()
     b64_token = base64.urlsafe_b64encode(sha1_key.encode("utf-8"))
     return b64_token.decode("utf-8")

@@ -14,6 +14,8 @@ def get_home_site():
     feature_store_infos = FederatedInfo.select(FederatedInfo.federated_id,
                                                FederatedInfo.federated_organization,
                                                FederatedInfo.institutions,
+                                               FederatedInfo.institution,
+                                               FederatedInfo.federated_organization_create_time,
                                                FateSiteInfo.institutions.alias('fate_manager_institution'),
                                                FederatedInfo.federated_url,
                                                FederatedInfo.create_time,
@@ -135,4 +137,4 @@ def FateSiteJobInfoSelect():
                                   FateSiteJobInfo.job_create_day,
                                   FateSiteJobInfo.job_create_day_date, FateSiteJobInfo.job_start_time,
                                   FateSiteJobInfo.job_end_time,
-                                  FateSiteJobInfo.status)
+                                  FateSiteJobInfo.status, FateSiteJobInfo.institutions_party_id, FateSiteJobInfo.is_end)

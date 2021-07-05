@@ -109,5 +109,7 @@ class MonitorDetector(cron.Cron):
     @classmethod
     @exception_catch
     def log_fate_flow_job(cls, account):
-        count.CountJob.count_fate_flow_job(account)
+        party_id_flow_url = count.CountJob.count_fate_flow_job(account)
+        count.CountJob.detector_no_end_job(account, party_id_flow_url)
+        count.CountJob.detector_no_report_job(account)
 
