@@ -65,7 +65,8 @@ export const m = {
         'fieldRequired': '必填字段不能为空',
         'requiredfieldWithType': '{type}为必填字段',
         'correctVersion': '请输入正确的版本!',
-        'notJoined': '未加入',
+        'unknown': '未知',
+        'notJoin': '未加入',
         'joined': '已加入',
         'deleted': '已删除',
         'published': '已发布',
@@ -104,9 +105,11 @@ export const m = {
         'checkUserFailedExists': '检查用户失败：用户 {name} 已存在 ',
         'missingParameters': '缺少必需的参数：{parameters}',
         'activate failed: fate manager has been activated': '激活失败：fate manager 已经激活',
-        'The party id has been modified!': '站点ID已被修改！',
+        'The party id has been modified!': '该站点已被激活！',
         'noAccountByUsername': '未找到{username}这个账号',
-        'The scenario doesnt exist!': '联邦授权这个功能未初始化!'
+        'The scenario doesnt exist!': '联邦授权这个功能未初始化!',
+        'login failed:user name or password error': '登录失败:用户名或密码错误',
+        'Authority failure!': '鉴权失败'
     },
     welcome: {
         'activateSite': '激活站点',
@@ -135,7 +138,7 @@ export const m = {
         'usernameRequired': '请输入管理员名称',
         'passwordRequired': '请输入密码',
         'activatedSuccessfully': '激活成功!',
-        'canSignInWithAccount.': '现在你可以使用该管理员账号登录FATE Cloud',
+        'canSignInWithAccount': '现在你可以使用该管理员账号登录FATE Cloud',
         'activatedFailed': '激活失败!',
         'pleaseRe-enter': '请重新填写激活信息'
     },
@@ -161,8 +164,8 @@ export const m = {
         'serviceStatus': '服务状态',
         'activationTime': '激活时间',
         'siteViewed': '{type}站点被以下机构查看：',
-        'setStatusApplication': '管理员{type}了你查看',
-        'applyApplication': '管理员申请查看了',
+        'setStatusApplication': 'Cloud Manager {type}了{who}查看',
+        'applyApplication': '{who}申请查看了',
         'applications': '站点的申请',
         'siteOf': '的站点',
         'register': '注册站点',

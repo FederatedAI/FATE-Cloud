@@ -63,7 +63,7 @@
                                         <div class="title-time">{{item.applyTime | dateFormat}}</div>
                                         <div class="title-history">
                                             <span v-if="item.agree.length>0">
-                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed'),who:item.institutions})}}
                                                 <span v-for="(elm, ind) in item.agree" :key="ind">
                                                     <span v-if="ind===item.agree.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
@@ -72,7 +72,7 @@
                                             </span>
                                             <span v-if="item.reject.length>0">
                                                 <span v-if="item.agree.length>0"> ,{{$t('m.common.and')}} </span>
-                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject')})}}
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject'),who:item.institutions})}}
                                                 <span v-for="(elm, ind) in item.reject" :key="ind">
                                                     <span v-if="ind===item.reject.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
@@ -81,22 +81,22 @@
                                             </span>
                                             <span v-if="item.cancel.length>0">
                                                 <span v-if="item.agree.length>0 || item.reject.length>0"> ,{{$t('m.common.and')}} </span>
-                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
+                                                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel'),who:item.institutions})}}
                                                 <span v-for="(elm, ind) in item.cancel" :key="ind">
                                                     <span v-if="ind===item.cancel.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
                                                 <span>{{$t('m.sitemanage.applications')}}</span>
                                             </span>
-                                            <span v-if="item.apply.length>0">
+                                            <!-- <span v-if="item.apply.length>0">
                                                 <span v-if="item.agree.length>0 || item.reject.length>0 || item.cancel.length>0"> ,{{$t('m.common.and')}} </span>
-                                                {{$t('m.sitemanage.applyApplication')}}
+                                                {{$t('m.sitemanage.applyApplication',{who:item.institutions})}}
                                                 <span v-for="(elm, ind) in item.apply" :key="ind">
                                                     <span v-if="ind===item.apply.length-1">{{elm}}</span>
                                                     <span v-else>{{elm}},</span>
                                                 </span>
                                                 <span>{{$t('m.sitemanage.siteOf')}}</span>
-                                            </span>
+                                            </span> -->
                                         </div>
                                     </div>
                                 </div>
@@ -371,13 +371,13 @@ export default {
     computed: {
         ...mapGetters(['role', 'siteState']),
         hostListText() {
-            return this.viewContent.hostInstuList.length > 0 ? this.viewContent.hostInstuList.join(',') : 'No Data'
+            return this.viewContent.hostInstuList.length > 0 ? this.viewContent.hostInstuList.join(',') : this.$t('m.common.noData')
         },
         guestListText() {
-            return this.viewContent.guestInstuList.length > 0 ? this.viewContent.guestInstuList.join(',') : 'No Data'
+            return this.viewContent.guestInstuList.length > 0 ? this.viewContent.guestInstuList.join(',') : this.$t('m.common.noData')
         },
         allListText() {
-            return this.viewContent.allInstuList.length > 0 ? this.viewContent.allInstuList.join(',') : 'No Data'
+            return this.viewContent.allInstuList.length > 0 ? this.viewContent.allInstuList.join(',') : this.$t('m.common.noData')
         }
     },
     created() {
@@ -548,12 +548,14 @@ export default {
             this.siteHistoryList = []
             applyHistory().then(res => {
                 res.data && res.data.list && res.data.list.forEach(item => {
+                    console.log(item, 'items')
                     let obj = {}
                     obj.agree = []
                     obj.reject = []
                     obj.cancel = []
                     obj.apply = []
-                    obj.applyTime = item.updateTime
+                    obj.applyTime = item.createTime
+                    obj.institutions = item.institutions
                     item.authorityApplyReceivers.forEach(elm => {
                         if (elm.status === 2) {
                             obj.agree.push(elm.authorityInstitutions)
@@ -561,9 +563,10 @@ export default {
                             obj.reject.push(elm.authorityInstitutions)
                         } else if (elm.status === 4) {
                             obj.cancel.push(elm.authorityInstitutions)
-                        } else if (elm.status === 1) {
-                            obj.apply.push(elm.authorityInstitutions)
                         }
+                        //  else if (elm.status === 1) {
+                        //     obj.apply.push(elm.authorityInstitutions)
+                        // }
                     })
                     this.siteHistoryList.push(obj)
                 })

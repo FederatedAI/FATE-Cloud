@@ -9,24 +9,24 @@
                 <!-- <el-form-item label="Federated Organization" prop="stiename">
                     <span class="info-text">{{form.federatedOrganization}}</span>
                 </el-form-item> -->
-                <el-form-item label="Site Name" prop="stiename">
+                <el-form-item :label="$t('m.common.siteName')" prop="stiename">
                     <span class="info-text">{{form.siteName}}</span>
                 </el-form-item>
-                <el-form-item label="Institution" prop="institution">
+                <el-form-item :label="$t('m.common.institution')" prop="institution">
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
-                <el-form-item label="Role" prop="role">
+                <el-form-item :label="$t('m.common.role')" prop="role">
                     <span class="info-text">{{form.role | getSiteType}}</span>
                 </el-form-item>
-                <el-form-item label="Party ID">
+                <el-form-item :label="$t('m.common.partyID')">
                     <span class="info-text">{{form.partyId}}</span>
                 </el-form-item>
-                <el-form-item label="Network Acess Entrances" prop="entrances">
+                <el-form-item :label="$t('m.sitemanage.networkEntrances')" prop="entrances">
                 <span v-if='form.networkAccessEntrances' class="info-text" style="margin-top: 5px;">
                     <div style="line-height: 30px" v-for="(item, index) in form.networkAccessEntrances.split(';')" :key="index">{{item}}</div>
                 </span>
                 </el-form-item>
-                <el-form-item label="Network Acess Exits" prop="exit">
+                <el-form-item :label="$t('m.sitemanage.networkExits')" prop="exit">
                     <span v-if='form.networkAccessExits' class="info-text" style="margin-top: 5px;">
                         <div style="line-height: 30px" v-for="(item, index) in form.networkAccessExits.split(';')" :key="index">{{item}}</div>
                     </span>
@@ -39,7 +39,7 @@
                     <span v-if="secretViewDefault" class="info-text">{{form.appSecret}} <img src="@/assets/view_show.png" @click="secretViewDefault = !secretViewDefault" class="view" ></span>
                     <span  v-if="!secretViewDefault" class="info-text">***********************<img src="@/assets/view_hide.png" @click="secretViewDefault = !secretViewDefault" class="view" ></span>
                 </el-form-item>
-                <el-form-item label="Registration Link">
+                <el-form-item :label="$t('m.sitemanage.registrationLink')">
                     <el-popover
                         placement="top"
                         width="400"

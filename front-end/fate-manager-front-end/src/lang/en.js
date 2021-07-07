@@ -65,7 +65,8 @@ export const m = {
         'fieldRequired': 'The field is required !',
         'requiredfieldWithType': '{type} field is required.',
         'correctVersion': 'Please enter the correct version!',
-        'notJoined': 'Not Joined',
+        'unknown': 'Unknown',
+        'notJoin': 'Not Join',
         'joined': 'Joined',
         'deleted': 'Deleted',
         'published': 'Published',
@@ -106,7 +107,9 @@ export const m = {
         'activate failed: fate manager has been activated': 'activate failed: fate manager has been activated',
         'The party id has been modified!': 'The party id has been modified!',
         'noAccountByUsername': 'no found account by username: {username}',
-        'The scenario doesnt exist!': 'The scenario doesnt exist!'
+        'The scenario doesnt exist!': 'The scenario doesnt exist!',
+        'login failed:user name or password error': 'login failed:user name or password error',
+        'Authority failure!': 'Authority failure!'
     },
     welcome: {
         'activateSite': 'Activate my site',

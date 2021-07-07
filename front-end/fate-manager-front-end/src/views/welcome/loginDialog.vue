@@ -63,17 +63,23 @@ export default {
             activDialog: false, // 激活弹框
             okdialog: false, // 激活是否成功弹框
             activate: false, // 是否激活成功
+            warnActive: false, // 链接格式校验
             activteRules: {
                 link: [
                     {
                         required: true,
                         trigger: 'change',
                         validator: (rule, value, callback) => {
-                            const name = value.trim()
-                            if (name.length === 0) {
-                                callback(new Error(this.$t('m.welcome.invitationLinkRequired')))
-                            } else {
-                                callback()
+                            try {
+                                if (value.length > 0) {
+                                    let urlStr = this.activteForm.link.split('\\n').join('')
+                                    let Url = utf8to16(decode64(urlStr))
+                                    let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+                                    console.log(newStr)
+                                    callback()
+                                }
+                            } catch {
+                                callback(new Error(this.$t('m.sitemanage.registrationInvalid')))
                             }
                         }
                     }
@@ -85,7 +91,7 @@ export default {
                         validator: (rule, value, callback) => {
                             const name = value.trim()
                             if (name.length === 0) {
-                                callback(new Error(this.$t('m.welcome.usernameRequired')))
+                                // callback(new Error(this.$t('m.welcome.usernameRequired')))
                             } else {
                                 callback()
                             }
@@ -99,7 +105,7 @@ export default {
                         validator: (rule, value, callback) => {
                             const password = value.trim()
                             if (password.length === 0) {
-                                callback(new Error(this.$t('m.welcome.passwordRequired')))
+                                // callback(new Error(this.$t('m.welcome.passwordRequired')))
                             } else {
                                 callback()
                             }
@@ -113,7 +119,7 @@ export default {
         activDialog: {
             handler: function(val) {
                 if (val) {
-
+                    this.initForm()
                 }
             }
         }
@@ -154,6 +160,7 @@ export default {
                     data.institutions = obj.fateManagerUser.institutions
                     data.userName = this.activteForm.userName
                     data.passWord = this.activteForm.passWord
+                    data.createTime = obj.federatedOrganization.createTime
                     console.log(data, 'data')
                     activateAct(data).then(res => {
                         this.okdialog = true
@@ -175,6 +182,7 @@ export default {
         },
         decodeLink(value) {
             if (this.activteForm.link) {
+                this.warnActive = false
                 // decode64 编码提取json对象
                 // let Url = utf8to16(decode64(this.activteForm.link))
                 // let obj = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
@@ -202,4 +210,12 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" >
+.warn-text{
+    position: absolute;
+    top:30px;
+    width: 100%;
+    color: #FF9D00;
+    text-align: center;
+    font-size: 1em;
+}
 </style>
