@@ -521,25 +521,28 @@ export default {
                 // 按站点维度排序
                 let siteSortArr = []
                 this.sortBySame(arr, 'institutionSiteName')
-                // 按站点名合并
-                for (let k = arr.length - 1; k >= 0; k--) {
-                    for (let j = k - 1; j >= 0; j--) {
-                        if (arr[k].institutionSiteName === arr[j].institutionSiteName) {
-                            siteSortArr.push({
-                                ...arr[k],
-                                [Object.keys(arr[j])[2]]: Object.values(arr[j])[2]
-                            })
-                        }
+                // 按站点名合并(递归)
+                let index = 0
+                findSame(arr, false)
+                function findSame(waitArr, hasSame) {
+                    if (waitArr.length < 1) return
+                    if (!hasSame) {
+                        siteSortArr.push(waitArr[0])
+                    }
+                    waitArr.shift()
+                    let same = waitArr.find(item => {
+                        return item.institutionSiteName === siteSortArr[index].institutionSiteName
+                    })
+                    if (same) {
+                        siteSortArr[index][Object.keys(same)[2]] = Object.values(same)[2]
+                        findSame(waitArr, true)
+                    } else {
+                        index++
+                        findSame(waitArr, false)
                     }
                 }
-                siteSortArr.map(item => {
-                    arr.map((val, index) => {
-                        if (item.institutionSiteName === val.institutionSiteName) {
-                            delete arr[index]
-                        }
-                    })
-                })
-                arr = arr.filter(el => el != null).concat(siteSortArr)
+                console.log(siteSortArr, 'siteSortArr')
+                arr = siteSortArr
                 // 按机构维度排序
                 this.sortBySame(arr, 'institution')
                 // 获取机构数组

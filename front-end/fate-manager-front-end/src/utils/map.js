@@ -44,9 +44,14 @@ const map = {
     ],
     siteStatus: [
         {
+            value: '-1',
+            name: 'unknown',
+            label: tipI18n.$t('mp.unknown')
+        },
+        {
             value: '1',
-            name: 'deleted',
-            label: tipI18n.$t('mp.deleted')
+            name: 'notJoin',
+            label: tipI18n.$t('mp.notJoin')
         },
         {
             value: '2',
@@ -55,13 +60,8 @@ const map = {
         },
         {
             value: '3',
-            name: 'published',
-            label: tipI18n.$t('mp.published')
-        },
-        {
-            value: '4',
-            name: 'published',
-            label: tipI18n.$t('mp.unpublished')
+            name: 'deleted',
+            label: tipI18n.$t('mp.deleted')
         }
     ],
     serviceStatus: [

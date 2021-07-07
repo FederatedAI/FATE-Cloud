@@ -46,7 +46,7 @@
                                     </div>
                                     <div class="content-box">
                                         <div style="display:flex" v-for="(item, index) in itm.historyList" :key="index" >
-                                            <div class="title-time">{{item.updateTime | dateFormat}}</div>
+                                            <div class="title-time">{{item.createTime | dateFormat}}</div>
                                             <div class="title-history">
                                                 <span v-if="item.cancel.length>0">
                                                     {{$t('m.site.canceledAuthorization')}}
@@ -78,7 +78,7 @@
                                                     </span>
                                                     {{$t('m.site.sitesOfPlaceHodler')}}
                                                 </span>
-                                                <span v-if="item.apply.length>0">
+                                                <!-- <span v-if="item.apply.length>0">
                                                     {{$t('m.site.applyAuthorize')}}
                                                     {{item.institutions}}
                                                     {{$t('m.site.viewAites')}}
@@ -87,7 +87,7 @@
                                                         <span v-else>{{elm}},</span>
                                                     </span>
                                                     {{$t('m.site.sitesOfPlaceHodler')}}
-                                                </span>
+                                                </span> -->
                                             </div>
                                         </div>
                                     </div>
@@ -403,7 +403,7 @@ export default {
                         obj.reject = []
                         obj.cancel = []
                         obj.apply = []
-                        obj.updateTime = itr.updateTime
+                        obj.createTime = itr.createTime
                         obj.institutions = itr.institutions
                         itr.authorityApplyReceivers.forEach((elm) => {
                             if (elm.status === 2) {
@@ -412,9 +412,10 @@ export default {
                                 obj.reject.push(elm.authorityInstitutions)
                             } else if (elm.status === 4) {
                                 obj.cancel.push(elm.authorityInstitutions)
-                            } else if (elm.status === 1) {
-                                obj.apply.push(elm.authorityInstitutions)
                             }
+                            // else if (elm.status === 1) {
+                            //     obj.apply.push(elm.authorityInstitutions)
+                            // }
                         })
                         item.historyList.push(obj)
                     })
@@ -446,6 +447,7 @@ export default {
         },
         // 点击显示机构历史记录
         gethistory(index) {
+            console.log(index, 'history-index')
             // 其他弹框隐藏
             this.institutionsItemList.forEach((item, idx) => {
                 if (idx !== index) {

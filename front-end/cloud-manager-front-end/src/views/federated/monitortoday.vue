@@ -235,6 +235,8 @@
                     :header-cell-style="{background:'#FAFBFC'}"
                     :cell-style="{background:'#FAFBFC'}"
                     border
+                    ref="singleTable"
+                    :key="cacheNum"
                     max-height="250">
                     <el-table-column prop="" align="center"  :resizable="false"  label="" >
                         <template slot-scope="scope">
@@ -387,7 +389,8 @@ export default {
             nowInstitus: {
                 row: {},
                 index: ''
-            }
+            },
+            cacheNum: 0 // 解决站点表格偶现的结构混乱问题
 
         }
     },
@@ -417,7 +420,10 @@ export default {
     },
     created() {
     },
-
+    // updated() {
+    //     console.log(this.$refs.singleTable, 'this.$refs.singleTable')
+    //     this.$refs.singleTable.doLayout()
+    // },
     mounted() {
         this.initi()
     },
@@ -656,16 +662,27 @@ export default {
             let that = this
             let getData = function (res) {
                 that.totalInstitution = res.data.totalRecord
-                that.tableIntSateData = res.data.list.map(item => {
-                    item.waiting = parseInt(item.waitingJobCountForInstitutions) || 0
-                    item.running = parseInt(item.runningJobCountForInstitutions) || 0
-                    item.failed = parseInt(item.failedJobCountForInstitutions) || 0
-                    item.success = parseInt(item.successJobCountForInstitutions) || 0
-                    item.total = item.failed + item.success + item.running + item.waiting
-                    return item
+                let arr = []
+                res.data.list.forEach(item => {
+                    console.log(item)
+                    let obj = {
+                        waiting: parseInt(item.waitingJobCountForInstitutions) || 0,
+                        running: parseInt(item.runningJobCountForInstitutions) || 0,
+                        failed: parseInt(item.failedJobCountForInstitutions) || 0,
+                        success: parseInt(item.successJobCountForInstitutions) || 0,
+                        ...item
+                    }
+                    obj.total = obj.failed + obj.success + obj.running + obj.waiting
+                    // 下拉项置顶
+                    if (item.institutions === val) {
+                        arr.unshift(obj)
+                    } else {
+                        arr.push(obj)
+                    }
                 })
-                // 下拉项置顶
-                that.tableIntSateData = that.setTopItem(that.tableIntSateData, val, 'institutions')
+                that.$nextTick(() => {
+                    that.tableIntSateData = [...arr]
+                })
             }
         },
         // 站点维度下拉选择
@@ -688,22 +705,34 @@ export default {
             })
         },
         // 站点表格返回方法
-        getsiteSataData(res, type) {
+        async getsiteSataData(res, type) {
             this.lengthList = [] // 清空空格数据
+            this.tableIntLabeList = []
+            this.tableIntSiteData = []
             this.totalSitetitution = (res.data && res.data.total) || 0
             this.tableIntLabeList = res.data && res.data.siteList
             let arr = []
+            let toparr = []
+            let topLength = []
             res.data && res.data.data.forEach(item => {
-                console.log(item, 'item')
                 // 空格位置
                 if (item.institutionSiteList.length > 0) {
-                    this.lengthList.push(item.institutionSiteList.length)
-                    for (let index = 0; index < item.institutionSiteList.length - 1; index++) {
-                        this.lengthList.push(0)
+                    // 需先配置置顶项的合并格
+                    if (item.institution === this.institutionSite) {
+                        topLength.push(item.institutionSiteList.length)
+                        for (let index = 0; index < item.institutionSiteList.length - 1; index++) {
+                            topLength.push(0)
+                        }
+                    } else {
+                        this.lengthList.push(item.institutionSiteList.length)
+                        for (let k = 0; k < item.institutionSiteList.length - 1; k++) {
+                            this.lengthList.push(0)
+                        }
                     }
                 } else {
                     this.lengthList.push(item.institutionSiteList.length)
                 }
+                this.lengthList = [...topLength, ...this.lengthList]
 
                 item.institutionSiteList.forEach((elm, index) => {
                     let obj = {}
@@ -712,31 +741,18 @@ export default {
                     elm.mixSiteModeling.forEach(i => {
                         obj[i.siteName] = { ...i }
                     })
-                    arr.push(obj)
+                    // 下拉项置顶
+                    if (obj.institution === this.institutionSite) {
+                        toparr.push(obj)
+                    } else {
+                        arr.push(obj)
+                    }
                 })
             })
-            // 下拉项置顶
+            arr = toparr.concat(arr)
             this.$nextTick(() => {
-                arr = this.setTopItem(arr, this.institutionSite, 'institution')
                 this.tableIntSiteData = [...arr]
             })
-        },
-        setTopItem(data, name, key) {
-            if (data.length < 1) return []
-            let signArr = []
-            let self = this
-            let lengthList = []
-            for (var i = 0; i < data.length; i++) {
-                if (data[i][key] === name) {
-                    signArr.push(data[i])
-                    data.splice(i, 1)
-                    lengthList.push(self.lengthList[i])
-                    self.lengthList.splice(i, 1)
-                }
-            }
-            // 同时还要处理rowspan
-            self.lengthList = lengthList.concat(self.lengthList)
-            return signArr.concat(data)
         }
     }
 }

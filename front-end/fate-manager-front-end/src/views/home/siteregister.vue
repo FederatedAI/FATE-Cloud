@@ -106,10 +106,10 @@ export default {
                         })
                     }
                 }).catch(res => {
-                    this.warnActive = true
+                    // this.warnActive = true
                 })
             } catch (err) {
-                this.warnActive = true
+                // this.warnActive = true
             }
         },
         cancelAction() {

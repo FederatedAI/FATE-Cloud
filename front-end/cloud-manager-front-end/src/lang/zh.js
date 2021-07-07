@@ -47,7 +47,7 @@ export const m = {
         'foldAll': '全部折叠',
         'institution': '机构',
         'siteInstitution': '站点机构',
-        'institutionName': '站点名称',
+        'institutionName': '机构',
         'time': '时间',
         'date': '日期',
         'history': '操作历史',

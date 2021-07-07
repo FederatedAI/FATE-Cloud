@@ -50,9 +50,9 @@ const setErrorMsgToI18n = (msg) => {
     } else {
         message = tipI18n.$t('m.errorTips.reqestFailed')
     }
-    if (msg.indexOf('code') > -1) {
-        message += `错误码：${msg.split('code')[1].split('msg')[0].trim()}`
-    }
+    // if (msg.indexOf('code') > -1) {
+    //     message += `错误码：${msg.split('code')[1].split('msg')[0].trim()}`
+    // }
     if (message === 'success') {
         Vue.prototype.$message.success({
             message: message,

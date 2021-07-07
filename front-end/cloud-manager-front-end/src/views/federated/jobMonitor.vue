@@ -220,7 +220,7 @@ export default {
                 'upload': {},
                 'download': {}
             },
-            timevalue: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()],
+            timevalue: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date().getTime()],
             typeTotalData: {
                 'failed': '',
                 'failed_percent': '',
@@ -360,10 +360,14 @@ export default {
             this.selectData = this.allChartData[name]
             loading.style.display = 'block'
             setTimeout(() => {
-                this.setDayChartData(this.selectData.typeTableList)
-                this.setFailedData(this.selectData.typeTableList)
-                this.setDurData(this.selectData.durationList)
-                loading.style.display = 'none'
+                try {
+                    this.setDayChartData(this.selectData.typeTableList)
+                    this.setFailedData(this.selectData.typeTableList)
+                    this.setDurData(this.selectData.durationList)
+                    loading.style.display = 'none'
+                } catch {
+                    loading.style.display = 'none'
+                }
             }, 300)
         },
         setDayChartData(data) {
@@ -386,7 +390,7 @@ export default {
         setFailedData(data) {
             let chartdata = []
             let day = []
-            data.map(item => {
+            data && data.map(item => {
                 chartdata.push(item.failedCount)
                 day.push(moment(item.date).format('YYYY-MM-DD'))
             })
@@ -395,7 +399,7 @@ export default {
         },
         setDurData(data) {
             this.durChartData = []
-            this.durChartData = data
+            data && (this.durChartData = data)
         }
     }
 }
