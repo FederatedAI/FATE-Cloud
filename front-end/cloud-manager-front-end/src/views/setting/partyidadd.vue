@@ -213,7 +213,6 @@ export default {
                             // } else if (this.cannotEdit.intervalWithPartyIds.length > 0 || this.cannotEdit.sets.length > 0) {
                             } else if (this.cannotEdit.length > 0 && this.cannotEdit[0].region && this.cannotEdit[0].usedPartyIds) {
                                 let str = ''
-                                console.log(this.cannotEdit, 'this.cannotEdit')
                                 this.cannotEdit.forEach(item => {
                                     if (item.region.leftRegion === item.region.rightRegion) {
                                         str += `"${item.region.leftRegion}" ${this.$t('m.partyId.cannotBeEdited')} ${item.usedPartyIds}. ${this.$t('m.partyId.itBeenAssigned')}`
@@ -282,15 +281,12 @@ export default {
                                 this.$message.success(this.$t('m.common.success'))
                                 this.$refs['groudform'].resetFields()// 取消表单验证
                             }).catch(res => {
-                                console.log(res, 'edit-res')
                                 // {leftRegion: 40, rightRegion: 45}
                                 this.beenUsed = res.data
                                 this.$refs['groudform'].validateField('rangeInfo', valid => {})
                             })
                         }).catch(res => {
-                            console.log(res, 'res')
                             this.cannotEdit = [...res.data]
-                            console.log(this.cannotEdit, 'cannotEdit')
                             this.$refs['groudform'].validateField('rangeInfo', valid => {})
                         })
                     } else {
@@ -305,7 +301,6 @@ export default {
                         }).catch(res => {
                             this.beenUsed = res.data
                             this.$refs['groudform'].validateField('rangeInfo', valid => {})
-                            // console.log('Addres==>>', res)
                         })
                     }
                 }

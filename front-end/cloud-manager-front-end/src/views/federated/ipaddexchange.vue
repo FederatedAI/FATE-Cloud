@@ -357,8 +357,6 @@ export default {
             this.tempSiteNet.secureStatus = this.isSecure === true ? 1 : 2
             this.tempSiteNet.pollingStatus = this.isPolling === true ? 1 : 2
             let tempArr = this.tempExchangeDataList[index][this.siteNetIndex] // 获取点击编辑行临时数据
-            console.log('tempExchangeDataList==>>', this.tempExchangeDataList)
-            console.log('tempExchangeDataList==>>[index]', this.tempExchangeDataList[index][this.siteNetIndex])
 
             this.partyIdList = this.tempExchangeDataList[index].map(item => {
                 return item.partyId

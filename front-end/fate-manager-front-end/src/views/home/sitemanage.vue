@@ -426,13 +426,11 @@ export default {
                 this.applyStatusList = res.data || []
                 // mock
                 // this.applyStatusList = ['test_wzh', 'stu1']
-                console.log(this.applyStatusList, 'applyStatusList')
                 if (this.applyStatusList.length > 0) {
                     this.applyStatus = 1 // 审批中
                 } else {
                     this.applyStatus = 3 // 无申请记录
                 }
-                console.log(this.applyStatus, 'applyStatus')
             })
         },
         otherApplys() {
@@ -452,7 +450,6 @@ export default {
                     this.viewContent.hostInstuList = (data.hostList && data.hostList.map(item => item)) || []
                 }
                 this.viewContent.totalLength = this.viewContent.allInstuList.length + this.viewContent.guestInstuList.length + this.viewContent.hostInstuList.length
-                console.log(this.viewContent)
             })
         },
         // 机构审批状态查询
@@ -518,7 +515,6 @@ export default {
                     return item
                 })
                 this.applyed = this.applyed.concat(applyedArr)
-                console.log(this.applyed, 'applyed')
                 this.applydialog = true
             })
         },

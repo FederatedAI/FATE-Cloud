@@ -67,8 +67,6 @@ export default {
                         fontSize: 12
                     },
                     formatter: function (params, ticket, callback) {
-                        console.log(arguments, 'arg')
-                        console.log(self.chartData, 'chartData')
                         // let total = params[1].value * 1 + params[2].value * 1
                         // let success = total === 0 ? 0 : (params[2].value / total).toFixed(1) * 100
                         // let failed = total === 0 ? 0 : (params[1].value / total).toFixed(1) * 100
@@ -249,7 +247,6 @@ export default {
             var series = this.chartExtend.series
             this.chartExtend.series = []
             this.chartExtend.series = series
-            console.log(this.chartExtend, 'chartExtend')
         },
         getEnglish(name) {
             let xAxisTranslate = {
@@ -265,7 +262,6 @@ export default {
         chartData: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal')
                     this.chartExtend.series[1].data = newVal.failed
                     this.chartExtend.series[2].data = newVal.success
                 }
@@ -275,7 +271,6 @@ export default {
         lang: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal')
                     this.chartExtend.xAxis.data = newVal
                 }
             }

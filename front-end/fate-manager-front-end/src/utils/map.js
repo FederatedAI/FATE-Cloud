@@ -82,7 +82,6 @@ const map = {
         }
     ],
     setLanguage(val, selectType) {
-        console.log(val)
         let _self = this
         i18n.locale = val
         if (selectType) {

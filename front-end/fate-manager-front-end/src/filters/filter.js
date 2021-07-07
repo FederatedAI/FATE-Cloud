@@ -1,7 +1,6 @@
 
 import moment from 'moment'
 import map from '@/utils/map'
-console.log(map.roleType, 'map')
 let timeFormat = (timeStamp) => {
     let secondTime = parseInt(timeStamp / 1000)
     let min = 0

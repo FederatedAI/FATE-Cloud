@@ -375,7 +375,6 @@ export default {
             } else if (this.siteTemp.roleId === '3') {
                 permissionList = [3, 4]
             }
-            console.log(this.siteTemp, 'siteTemp')
             let data = {
                 creator: this.userName,
                 permissionList,

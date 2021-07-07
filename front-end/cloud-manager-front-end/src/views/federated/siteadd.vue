@@ -395,7 +395,6 @@ export default {
         // 检查partyid是否被占用
         tocheckPartyid() {
             this.$refs['infoform'].validateField('partyId', valid => {
-                console.log(valid, 'valid')
                 if (valid !== this.$t('m.siteAdd.partyIDRequired') && valid !== this.$t('m.siteAdd.invalidPartyID')) {
                     let data = {
                         id: this.$route.query.id,
@@ -481,7 +480,6 @@ export default {
         cancelLeave() {
             // this.$router.go(0)
             this.$store.dispatch('SetMune', 'Site Manage')
-            console.log(this.$store, 'this.$store')
             this.isleavedialog = false
         },
         // 添加/编辑出入口
@@ -593,7 +591,6 @@ export default {
             if (type === 'tooltip') {
                 let dialogClipboard = new Clipboard('.dialogcopy')
                 dialogClipboard.on('success', e => {
-                    console.log(e, 'copy-e')
                     this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     dialogClipboard.destroy()

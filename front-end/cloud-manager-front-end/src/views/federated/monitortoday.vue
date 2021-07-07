@@ -665,7 +665,6 @@ export default {
                 let arr = []
                 let toparr = []
                 res.data.list.forEach(item => {
-                    console.log(item)
                     let obj = {
                         waiting: parseInt(item.waitingJobCountForInstitutions) || 0,
                         running: parseInt(item.runningJobCountForInstitutions) || 0,

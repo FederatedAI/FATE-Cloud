@@ -415,7 +415,7 @@ export default {
             // this.toGetSite2()
         },
         handleCurrentChange(val) {
-            console.log('val==>>', val)
+            // console.log('val==>>', val)
         },
         // 改变时间
         handeldeDate(val) {
@@ -490,7 +490,6 @@ export default {
                 this.siteTableList = []
                 // mock
                 // tableData = JSON.parse(localStorage.getItem('siteData'))
-                console.log(tableData, 'tableData')
 
                 this.siteNameList = Object.values(tableData).map(item => item.site_name) || []
                 if (this.siteNameList.length < 1) return
@@ -502,7 +501,6 @@ export default {
                     if (x > y) { return 1 }
                     return 0
                 })
-                console.log(this.siteNameList, 'siteNameList')
 
                 this.totalSitetitution = (tableData.total) || 0
                 let arr = []
@@ -541,7 +539,6 @@ export default {
                         findSame(waitArr, false)
                     }
                 }
-                console.log(siteSortArr, 'siteSortArr')
                 arr = siteSortArr
                 // 按机构维度排序
                 this.sortBySame(arr, 'institution')
@@ -557,7 +554,6 @@ export default {
                     }
                 })
 
-                console.log(arr, 'arr-after')
                 this.siteTableList = arr
             })
         },
