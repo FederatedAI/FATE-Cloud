@@ -663,6 +663,7 @@ export default {
             let getData = function (res) {
                 that.totalInstitution = res.data.totalRecord
                 let arr = []
+                let toparr = []
                 res.data.list.forEach(item => {
                     console.log(item)
                     let obj = {
@@ -675,11 +676,12 @@ export default {
                     obj.total = obj.failed + obj.success + obj.running + obj.waiting
                     // 下拉项置顶
                     if (item.institutions === val) {
-                        arr.unshift(obj)
+                        toparr.push(obj)
                     } else {
                         arr.push(obj)
                     }
                 })
+                arr = toparr.concat(arr)
                 that.$nextTick(() => {
                     that.tableIntSateData = [...arr]
                 })
