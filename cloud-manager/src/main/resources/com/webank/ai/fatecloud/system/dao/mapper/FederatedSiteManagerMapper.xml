@@ -20,6 +20,9 @@
         <result property="updateTime" column="update_time"></result>
         <result property="detectiveStatus" column="detective_status"></result>
         <result property="lastDetectiveTime" column="last_detective_time"></result>
+        <result property="protocol" column="protocol"></result>
+        <result property="network" column="network"></result>
+        <result property="encryptType" column="encrypt_type"></result>
         <result property="groupId" column="group_id"></result>
         <association property="federatedGroupSetDo"
                      javaType="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo">
@@ -357,4 +360,107 @@
 
     </select>
 
+    <select id="findSitesCountForIp" parameterType="com.webank.ai.fatecloud.system.pojo.qo.IpManagerListQo" resultType="long">
+        SELECT count(1) FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+            and s.status=2
+
+            <if test="condition != null and condition != ''">
+                and (s.party_id like #{condition} or s.site_name like #{condition})
+            </if>
+
+            <if test="institutionsList != null and institutionsList.size > 0">
+                <foreach collection="institutionsList" open=" and s.institutions  in (" close=")" item="institutionsItem" separator=",">
+                    #{institutionsItem}
+                </foreach>
+            </if>
+
+            <if test="role != null">
+                and g.role=#{role}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="findPagedSitesForIp"  resultMap="siteMap">
+        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+            and s.status=2
+
+            <if test="ipManagerListQo.condition != null and ipManagerListQo.condition != ''">
+                and (s.party_id like #{ipManagerListQo.condition} or s.site_name like #{ipManagerListQo.condition})
+            </if>
+
+            <if test="ipManagerListQo.institutionsList != null and ipManagerListQo.institutionsList.size > 0">
+                <foreach collection="ipManagerListQo.institutionsList" open=" and s.institutions  in (" close=")" item="institutionsItem" separator=",">
+                    #{institutionsItem}
+                </foreach>
+            </if>
+
+            <if test="ipManagerListQo.role != null">
+                and g.role=#{ipManagerListQo.role}
+            </if>
+            <if test="ipManagerListQo.updateTimeOrder==1">
+                order by s.update_time asc
+            </if>
+            <if test="ipManagerListQo.updateTimeOrder==2">
+                order by s.update_time desc
+            </if>
+
+            limit #{startIndex}, #{ipManagerListQo.pageSize}
+
+        </where>
+    </select>
+
+    <select id="getInstitutionsType" parameterType="string" resultType="int">
+        SELECT g.role FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+            and s.status=2
+            and s.institutions =#{institutions}
+        </where>
+        group by g.role
+    </select>
+
+    <select id="selectCountByScenario"  resultType="long">
+        SELECT count(1) FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+            and s.status = 2
+            <if test= "institutions != null">
+                 and s.institutions=#{institutions}
+            </if>
+            <if test= 'type == "2"'>
+                and g.role=1
+            </if>
+            <if test= 'type == "3"'>
+                and g.role=2
+            </if>
+        </where>
+    </select>
+
+    <select id="findSitesByScenario"  resultMap="siteMap">
+        SELECT s.*,g.role FROM t_federated_site_manager s,t_federated_group_set g
+        <where>
+            and s.group_id=g.group_id
+            and s.status = 2
+            <if test= "siteListForFateManagerQo.institutions != null">
+                and s.institutions=#{siteListForFateManagerQo.institutions}
+            </if>
+            <if test= 'type == "2"'>
+                and g.role=1
+            </if>
+            <if test= 'type == "3"'>
+                and g.role=2
+            </if>
+
+            order by s.id desc limit #{startIndex}, #{siteListForFateManagerQo.pageSize}
+        </where>
+    </select>
+
+
 </mapper>
+
+

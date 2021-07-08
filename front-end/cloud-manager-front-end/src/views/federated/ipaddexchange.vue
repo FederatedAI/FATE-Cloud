@@ -1,7 +1,7 @@
 <template>
   <div class="ipaddexchange-box">
         <div class="add-exchange">
-            <div class="exchange-title">Add  an  Exchange</div>
+            <div class="exchange-title">{{$t('m.ip.addExchange')}}</div>
             <el-form ref="editform" class="edit-form" :rules="editRules"  label-width="100px" label-position="left" :model="exchangeData">
                 <el-form-item label="Exchange" prop="exchangeName" >
                     <span slot="label">
@@ -18,13 +18,13 @@
                     <el-input @blur="cancelValid('vip')" @focus="cancelValid('vip')" v-model.trim="exchangeData.vip"></el-input>
                 </el-form-item>
                 <div class="edit-text">
-                    <span>{{`Rollsite & Router Info`}}</span>
+                    <span>{{$t('m.ip.rollsiteAndRouterInfo')}}</span>
                     <el-button type="text" @click="addRollsite" icon="el-icon-circle-plus"></el-button>
                 </div>
                 <span class="rollsite-text" v-for="(item, index) in rollsiteList" :key="index">
-                    <el-form-item label="Rollsite Network Access" prop="networkAccess" >
+                    <el-form-item :label="$t('m.ip.rollsiteNetworkAccess')" prop="networkAccess" >
                         <span slot="label">
-                            <span>Rollsite Network Access</span>
+                            <span>{{$t('m.ip.rollsiteNetworkAccess')}}</span>
                             <i style="margin-left: 3px;" class="el-icon-star-on"></i>
                         </span>
                         <el-input :class="{inputwarn: item.warnshow }"
@@ -35,65 +35,66 @@
                         <el-button type="text"  :class="{remove:rollsiteList.length!==1}" :disabled="rollsiteList.length===1" @click="removeRollsite(index)"  icon="el-icon-remove"></el-button>
                     </el-form-item>
                     <div class="router-info">
-                        <span style="color:#217AD9">Router Info
+                        <span style="color:#217AD9">
+                            {{$t('m.ip.routerInfo')}}
                             <i  class="el-icon-star-on"></i>
                         </span>
-                        <el-button type="text" disabled  @click="showAddSiteNet(index)" icon="el-icon-circle-plus"></el-button>
+                        <el-button type="text"  :disabled="!item.networkAccess" @click="showAddSiteNet(index)" icon="el-icon-circle-plus"></el-button>
                         <el-button type="text"  :disabled="!item.networkAccess"  @click="toAcquire(index)" icon="el-icon-refresh-right"></el-button>
                     </div>
                     <div class="edit-table">
                         <el-table :data="rollsiteList[index].partyAddBeanList" max-height="250" >
-                            <el-table-column type="index" label="Index" width="65"  >
+                            <el-table-column type="index" :label="$t('m.common.index')" width="65"  >
                             </el-table-column>
-                            <el-table-column prop="partyId"  label="Party ID" width="70" show-overflow-tooltip>
+                            <el-table-column prop="partyId" :label="$t('m.common.partyID')"  width="75" show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="networkAccess"  label="Site Network Access" width="150">
+                            <el-table-column prop="networkAccess"  :label="$t('m.ip.siteNetworkAccess')"  width="160" show-overflow-tooltip>
                             </el-table-column>
-                            <el-table-column prop="secureStatus"  label="Is Secure" width="75">
+                            <el-table-column prop="secureStatus" :label="$t('m.ip.isSecure')" width="85">
                                 <template slot-scope="scope">
-                                    <span>{{scope.row.secureStatus===1?'true':"false"}}</span>
+                                    <span>{{scope.row.secureStatus===1 ? $t('m.common.true') : $t('m.common.false') }}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="secureStatus"  label="Is Polling" width="75">
+                             <el-table-column prop="pollingStatus"  :label="$t('m.ip.isPolling')" width="85">
                                 <template slot-scope="scope">
-                                    <span>{{scope.row.pollingStatus===1?'true':"false"}}</span>
+                                    <span>{{scope.row.pollingStatus===1 ? $t('m.common.true') : $t('m.common.false') }}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="Update Time"  label="Update Time" width="150">
+                            <el-table-column prop="Update Time" :label="$t('m.common.updateTime')"  width="155" show-overflow-tooltip>
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
                                 </template>
                             </el-table-column>
-                             <el-table-column prop="status" align="center"  label="Status" show-overflow-tooltip>
+                             <el-table-column prop="status" align="center" :label="$t('m.ip.status')" show-overflow-tooltip>
                                  <template slot-scope="scope">
-                                    <span v-if="scope.row.status===1">Published</span>
-                                    <span v-if="scope.row.status===2">Unpublished</span>
-                                    <span v-if="scope.row.status===3">To be deleted</span>
+                                    <span v-if="scope.row.status===1">{{$t('m.common.published')}}</span>
+                                    <span v-if="scope.row.status===2">{{$t('m.common.unpublished')}}</span>
+                                    <span v-if="scope.row.status===3">{{$t('m.common.toDeleted')}}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="" align="right" label="Action">
+                            <el-table-column prop="" align="right" :label="$t('m.common.action')" >
                                 <template slot-scope="scope">
                                     <span v-if="scope.row.partyId==='default'">
-                                            <el-button disabled type="text" >
-                                                <i  class="el-icon-edit"></i>
+                                        <el-button type="text" >
+                                            <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
+                                        </el-button>
+                                        <el-button disabled type="text" >
+                                            <i  class="el-icon-close"></i>
+                                        </el-button>
+                                    </span>
+                                   <span v-else>
+                                        <span v-if="scope.row.status===1 || scope.row.status===2">
+                                            <el-button type="text" >
+                                                <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
                                             </el-button>
-                                            <el-button disabled type="text" >
-                                                <i  class="el-icon-close"></i>
-                                            </el-button>
-                                        </span>
-                                        <span v-else>
-                                            <span v-if="scope.row.status===1 || scope.row.status===2">
-                                                <el-button disabled type="text" >
-                                                    <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
-                                                </el-button>
-                                                <el-button disabled type="text" >
-                                                    <i @click="scope.row.status=3" class="el-icon-close"></i>
-                                                </el-button>
-                                            </span>
-                                            <el-button disabled @click="scope.row.status=2" v-if="scope.row.status===3" type="text" >
-                                                recover
+                                            <el-button type="text" >
+                                                <i @click="siteNetIndex = scope.$index;scope.row.status=3"  class="el-icon-close"></i>
                                             </el-button>
                                         </span>
+                                        <el-button v-if="scope.row.status===3" @click="toRecover(scope)" type="text">
+                                            {{$t('m.common.recover')}}
+                                        </el-button>
+                                    </span>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -102,45 +103,72 @@
 
             </el-form>
             <div class="exchange-footer">
-                <el-button class="ok-btn" type="primary" @click="toaction">OK</el-button>
-                <el-button class="ok-btn" type="info" @click="tocancel">Cancel</el-button>
+                <el-button class="ok-btn" type="primary" @click="toaction">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="tocancel">{{$t('m.common.cancel')}}</el-button>
             </div>
         </div>
-        <!-- 添加site NetWork -->
-        <el-dialog :visible.sync="addSiteNet" class="add-site-dialog" width="500px" :close-on-click-modal="false" :close-on-press-escape="false">
+
+         <!-- 添加site NetWork -->
+        <el-dialog :visible.sync="addSiteNet" class="add-site-dialog" width="560px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="site-net-title">
-                Site Network Access
+                {{$t('m.ip.siteNetworkAccess')}}
             </div>
             <div class="site-net-table">
-                <el-form ref="siteNetform" class="edit-form" :rules="siteEditRules"  label-width="180px" label-position="left" :model="tempSiteNet">
+                <el-form ref="siteNetform" class="edit-form" :rules="siteEditRules"  label-width="210px" label-position="left" :model="tempSiteNet">
                     <el-form-item label="" prop="partyId">
                         <span slot="label">
-                            <span>Praty ID :</span>
-                            <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                            <span>{{$t('m.common.partyID')}} :</span>
+                            <i v-if="siteNetType === 'add'" style="margin-left: 3px;" class="el-icon-star-on"></i>
                         </span>
-                        <el-input @blur="$refs['siteNetform'].clearValidate('partyId')" @focus="$refs['siteNetform'].clearValidate('partyId')" v-model="tempSiteNet.partyId" ></el-input>
+                         <span v-if="siteNetType === 'edit'  && tempSiteNet.status===1" >
+                            {{tempSiteNet.partyId}}
+                        </span>
+                        <el-input v-else
+                            @blur="$refs['siteNetform'].clearValidate('partyId')"
+                            @focus="$refs['siteNetform'].clearValidate('partyId')"
+                            v-model.trim="tempSiteNet.partyId" ></el-input>
                     </el-form-item>
                     <el-form-item label="" prop="networkAccess" >
                         <span slot="label">
-                            <span>Site Network Access :</span>
+                            <span>{{$t('m.ip.routerNetworkAccess')}}:</span>
                             <i style="margin-left: 3px;" class="el-icon-star-on"></i>
                         </span>
-                        <el-input @blur="$refs['siteNetform'].clearValidate('networkAccess')" @focus="$refs['siteNetform'].clearValidate('networkAccess')" v-model="tempSiteNet.networkAccess"></el-input>
+                        <span v-if="tempSiteNet.partyId==='default'">
+                            {{tempSiteNet.networkAccess}}
+                        </span>
+                        <el-input v-else
+                            @blur="$refs['siteNetform'].clearValidate('networkAccess')"
+                            @focus="$refs['siteNetform'].clearValidate('networkAccess')"
+                            v-model.trim="tempSiteNet.networkAccess"></el-input>
+                    </el-form-item>
+                    <el-form-item :label="$t('m.ip.isSecure')" prop="isSecure" >
+                        <span slot="label">
+                            <span>{{$t('m.ip.isSecure')}}:</span>
+                        </span>
+                        <el-switch v-model="isSecure">
+                        </el-switch>
+                    </el-form-item>
+                    <el-form-item :label="$t('m.ip.isPolling')" prop="isPolling" >
+                        <span slot="label">
+                            <span>{{$t('m.ip.isPolling')}}:</span>
+                        </span>
+                        <el-switch v-model="isPolling">
+                        </el-switch>
                     </el-form-item>
                 </el-form>
                 <div class="dialog-footer">
-                    <el-button class="ok-btn" type="primary" @click="toAddSiteNet">OK</el-button>
-                    <el-button class="ok-btn" type="info" @click="cancelAddSiteNet">Cancel</el-button>
+                    <el-button class="ok-btn" type="primary" @click="toAddSiteNet">{{$t('m.common.OK')}}</el-button>
+                    <el-button class="ok-btn" type="info" @click="cancelAddSiteNet">{{$t('m.common.cancel')}}</el-button>
                 </div>
             </div>
         </el-dialog>
         <!-- 弹框离开 -->
         <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="700px">
-            <div class="line-text-one">Are you sure you want to leave this page ?</div>
-            <div class="line-text-two">Your information will not be saved.</div>
+            <div class="line-text-one">{{$t('m.siteAdd.sureLeavePage')}}</div>
+            <div class="line-text-two">{{$t('m.siteAdd.notSavedTips')}}</div>
             <div class="dialog-footer">
-                <el-button class="sure-btn" type="primary" @click="sureLeave">Sure</el-button>
-                <el-button class="sure-btn" type="info" @click="cancelLeave">Cancel</el-button>
+                <el-button class="sure-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
+                <el-button class="sure-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
   </div>
@@ -150,6 +178,7 @@
 import { addIpchange, getNetworkAccessList } from '@/api/federated'
 import moment from 'moment'
 // import checkip from '@/utils/checkip'
+
 export default {
     name: 'ipaddexchange',
     components: {
@@ -165,17 +194,41 @@ export default {
             addSiteNet: false, // 弹框
             isleave: false, // 是否可以离开路由
             isleavedialog: false, // 离开弹框
-            siteNetIndex: 0,
+            siteNetIndex: 0, // 编辑框内第几行
             rollsiteIndex: 0,
             rollsiteList: [{
                 warnshow: false,
                 networkAccess: '',
                 partyAddBeanList: []
             } ],
-            tempSiteNet: {}, // sitenet数据
+            tempExchangeDataList: [], // 临时保存数据做对比用
+            tempSiteNet: {}, // 弹框SiteNet数据
             exchangeData: {},
+            isSecure: false,
+            isPolling: true,
+            siteNetType: 'add',
+            partyIdList: [], // 临时的partyIdList列表
+            tempPartyId: '', // 临时PartyId比较
             siteEditRules: {
-                partyId: [{ required: true, message: ' ', trigger: 'bulr' }],
+                partyId: [{
+                    required: true,
+                    trigger: 'bulr',
+                    validator: (rule, value, callback) => {
+                        value = value || ''
+                        let val = value.trim()
+                        if (!val) {
+                            callback(new Error(this.$t('m.ip.partIDRequired')))
+                        } else if (this.partyIdList.includes(val) && val !== this.tempPartyId) {
+                            callback(new Error(this.$t('m.ip.partyIDAssigned')))
+                        } else {
+                            callback()
+                        }
+                        // 取消只能输入数字校验
+                        // else if (val !== 'default' && !(/(^[1-9]\d*$)/).test(val)) {
+                        //     callback(new Error('The party ID invalid input'))
+                        // }
+                    }
+                }],
                 networkAccess: [{ required: true, message: ' ', trigger: 'bulr' }]
             },
             editRules: {
@@ -187,10 +240,11 @@ export default {
                         value = value || ''
                         let val = value.trim()
                         if (!val) {
-                            callback(new Error(' '))
+                            callback(new Error(this.$t('m.ip.vipRequired')))
                         } else {
                             callback()
                         }
+                        // 取消检验ip
                         // if (!val || !checkip(val)) {
                         //     callback(new Error(' '))
                         // }
@@ -201,9 +255,7 @@ export default {
     },
     created() {
         // this.getInstitutionsToday()
-
         // this.getSiteToday()
-
     },
 
     mounted() {
@@ -223,9 +275,11 @@ export default {
         addRollsite() {
             this.rollsiteList.unshift({ warnshow: false, networkAccess: '', partyAddBeanList: [] })
         },
+        // 显示添加siteNet弹框
         showAddSiteNet(index) {
             this.rollsiteIndex = index
             this.siteNetType = 'add'
+            this.isSecure = true
             this.tempSiteNet = { status: 2 }
             this.addSiteNet = true
             if (this.$refs['siteNetform']) {
@@ -262,11 +316,11 @@ export default {
             })
 
             if (!passAdd) {
-                this.$message.error('The Router Info is required')
+                this.$message.error(this.$t('m.ip.routerInfoRequired'))
                 return
             }
             if (!msgshow) {
-                this.$message.error('The rollsite network already exists')
+                this.$message.error(this.$t('m.ip.rollsiteNetworkExists'))
                 return
             }
             this.$refs['editform'].validate((valid) => {
@@ -299,15 +353,33 @@ export default {
         },
         // 确定添加siteNet
         toAddSiteNet() {
+            let index = this.rollsiteIndex
+            this.tempSiteNet.secureStatus = this.isSecure === true ? 1 : 2
+            this.tempSiteNet.pollingStatus = this.isPolling === true ? 1 : 2
+            let tempArr = this.tempExchangeDataList[index][this.siteNetIndex] // 获取点击编辑行临时数据
+            console.log('tempExchangeDataList==>>', this.tempExchangeDataList)
+            console.log('tempExchangeDataList==>>[index]', this.tempExchangeDataList[index][this.siteNetIndex])
+
+            this.partyIdList = this.tempExchangeDataList[index].map(item => {
+                return item.partyId
+            })
             this.$refs['siteNetform'].validate((valid) => {
                 if (valid) {
                     if (this.siteNetType === 'edit') {
-                        this.rollsiteList[this.rollsiteIndex].partyAddBeanList[this.siteNetIndex] = { ...this.tempSiteNet }
-                        this.rollsiteList[this.rollsiteIndex].partyAddBeanList = [...this.rollsiteList[this.rollsiteIndex].partyAddBeanList]
+                        if (tempArr.networkAccess !== this.tempSiteNet.networkAccess ||
+                        tempArr.secureStatus !== this.tempSiteNet.secureStatus ||
+                        tempArr.pollingStatus !== this.tempSiteNet.pollingStatus) {
+                            this.tempSiteNet.status = 2
+                        } else {
+                            this.tempSiteNet.status = tempArr.status
+                        }
+                        this.rollsiteList[index].partyAddBeanList[this.siteNetIndex] = { ...this.tempSiteNet }
+                        this.rollsiteList[index].partyAddBeanList = [...this.rollsiteList[index].partyAddBeanList]
                         this.addSiteNet = false
                     } else if (this.siteNetType === 'add') {
-                        this.rollsiteList[this.rollsiteIndex].partyAddBeanList.push({ ...this.tempSiteNet })
-                        this.rollsiteList[this.rollsiteIndex].partyAddBeanList = [...this.rollsiteList[this.rollsiteIndex].partyAddBeanList]
+                        this.rollsiteList[index].partyAddBeanList.push({ ...this.tempSiteNet })
+                        this.rollsiteList[index].partyAddBeanList = [...this.rollsiteList[index].partyAddBeanList]
+                        this.tempExchangeDataList[index] = JSON.parse(JSON.stringify(this.rollsiteList[index].partyAddBeanList)) // 临时数据
                         this.addSiteNet = false
                     }
                 }
@@ -320,12 +392,14 @@ export default {
             this.$refs['siteNetform'].resetFields()
         },
         // 编辑siteNet
-        toEditSiteNet(index, scope) {
-            this.rollsiteIndex = index
+        toEditSiteNet(scope) {
             this.siteNetType = 'edit'
             this.addSiteNet = true
             this.tempSiteNet = { ...scope.row }
+            this.isSecure = this.tempSiteNet.secureStatus === 1
+            this.isPolling = this.tempSiteNet.pollingStatus === 1
             this.siteNetIndex = scope.$index
+            this.tempPartyId = scope.row.partyId
         },
         // 删除siteNet行
         todelSiteNet(index, scope) {
@@ -333,13 +407,18 @@ export default {
         },
         // 获取列表
         toAcquire(index) {
+            this.rollsiteIndex = index
             let data = {
                 networkAccess: this.rollsiteList[index].networkAccess
             }
             getNetworkAccessList(data).then(res => {
                 this.rollsiteList[index].partyAddBeanList = res.data
+                this.tempExchangeDataList[index] = JSON.parse(JSON.stringify(res.data)) // 临时数据
             }).catch(res => {
-                this.$message.error(res.msg)
+                let nowMessage = document.querySelector('.el-message')
+                if (!nowMessage) {
+                    this.$message.error(res.msg)
+                }
             })
         },
         // 确定离开
@@ -354,7 +433,26 @@ export default {
         },
         // 取消离开
         cancelLeave() {
+            this.$router.push({
+                name: 'IP Manage',
+                type: 'exchange'
+            })
+            this.$store.dispatch('SetMune', 'IP Manage')
             this.isleavedialog = false
+        },
+        // 点击恢复
+        toRecover(scope) {
+            let index = this.rollsiteIndex
+            let arr = this.tempExchangeDataList[this.rollsiteIndex][this.siteNetIndex] // 获取点击行临时数据
+            let Arr = scope.row // 获取点击行临时数据
+            if (arr.networkAccess !== Arr.networkAccess ||
+                        arr.secureStatus !== Arr.secureStatus ||
+                        arr.pollingStatus !== Arr.pollingStatus) {
+                Arr.status = 2
+            } else {
+                Arr.status = arr.status
+            }
+            this.rollsiteList[index].partyAddBeanList = [...this.rollsiteList[index].partyAddBeanList]
         }
     }
 

@@ -57,5 +57,15 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
     List<InstitutionsWithSites> findInstitutionsWithSitesPaged(@Param("startIndex") long startIndex, @Param("jobOfSiteDimensionQo") JobOfSiteDimensionQo jobOfSiteDimensionQo);
 
     List<InstitutionsWithSites> findInstitutionsWithSitesPagedPeriod(@Param("startIndex") long startIndex, @Param("jobOfSiteDimensionPeriodQo") JobOfSiteDimensionPeriodQo jobOfSiteDimensionPeriodQo);
+
+    long findSitesCountForIp(IpManagerListQo ipManagerListQo);
+
+    List<FederatedSiteManagerDo> findPagedSitesForIp(@Param("ipManagerListQo") IpManagerListQo ipManagerListQo, @Param("startIndex") long startIndex);
+
+    List<Integer> getInstitutionsType(String institutions);
+
+    long selectCountByScenario(String institutions, String type);
+
+    List<FederatedSiteManagerDo> findSitesByScenario(@Param("siteListForFateManagerQo") SiteListForFateManagerQo siteListForFateManagerQo,@Param("startIndex") long startIndex,@Param("type") String type);
 }
 

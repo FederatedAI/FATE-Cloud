@@ -140,3 +140,12 @@ export function getTestLog(data) {
         data
     })
 }
+
+// ansible连接
+export function connectansible(data) {
+    return request({
+        url: `/${urlType}/api/ansible/connectansible`,
+        method: 'post',
+        data
+    })
+}

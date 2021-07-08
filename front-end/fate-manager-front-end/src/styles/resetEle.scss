@@ -10,9 +10,9 @@ button, input {
     color: #848C99;
 }
 .el-input__inner {
-    background-color: #E6EBF0;
+    // background-color: #E6EBF0;
     color: #848C99;
-    border: 0px;
+    // border: 0px;
     outline: none;
     border-radius: 0;
 }
@@ -35,14 +35,13 @@ button, input {
 .tableHead {
     color: #4E5766;
 }
-// .tableHeadCell {
-//     border: 0!important;
-// }
 
 .tableHeadCell,.tableCell {
-    border-bottom: 2px solid #E6EBF0!important;
+    border-bottom: 2px solid #F5F7FA!important;
 }
-
+// .tableHeadCell {
+//     border-bottom: 2px solid #4E5766!important;
+// }
 .pagination {
     position: absolute;
     bottom: 26px;

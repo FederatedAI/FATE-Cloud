@@ -4,24 +4,24 @@
       <div class="add-dialog-head">
           <el-button class="addUrl" :disabled="addDisabled" @click="addentrancesSelect" type="text">
               <i class="el-icon-circle-plus"></i>
-                <span>add</span>
+                <span>{{$t('m.common.add')}}</span>
           </el-button>
-          <el-button class="deleteAll"  type="text" @click="deleteAll" >
+          <!-- <el-button class="deleteAll"  type="text" @click="deleteAll" >
               <i class="el-icon-delete-solid" ></i>
-                <span>delete</span>
-          </el-button>
-        <span class="total">total:{{addtotal}}</span>
+                <span>{{$t('m.common.delete')}}</span>
+          </el-button> -->
+        <span class="total">{{$t('m.common.total')}}:{{addtotal}}</span>
       </div>
       <div class="add-dialog-body">
             <div class="line-box">
                 <div class="line" @dblclick="getEdit(index)" v-for="(item, index) in entrancesSelect" :key="index">
                     <span v-if="!item.show">
-                        <el-checkbox v-model="item.checked"></el-checkbox>
+                        <!-- <el-checkbox v-model="item.checked"></el-checkbox> -->
                         <span class="network-text">{{item.ip}}</span>
-                        <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent">telnet</span>
+                        <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent">{{$t('m.siteAdd.telnet')}}</span>
                         <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
                     </span>
-                    <el-input v-if="item.show"  autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" placeholder="The type like : 192.168.8.1:8080" >
+                    <el-input v-if="item.show"  autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" :placeholder="`${$t('m.siteAdd.typeLike')}: 127.0.0.1:8080` " >
                         <i slot="suffix" @blur="closeEntrances(index)"  class="el-icon-check check" />
                         <i slot="suffix" @click="deleteEntrances(index)" @mousedown="mouseDown" style="right: 2px;" class="el-icon-close del" />
                     </el-input>
@@ -30,25 +30,25 @@
             <div class="message-add" :style="{ opacity: showMes,transition:'all 0.2s ease' }">
                 <span v-if="telnetsuccess" class="tips" >
                     <img src="@/assets/success.png">
-                    <span>Telnet success !
+                    <span>{{$t('m.siteAdd.telnetSuccess')}}!
                         <span style="color:#4AA2FF">{{ipPost}}</span>
                     </span>
                 </span>
                 <span v-if="invalidsuccess" class="tips" >
                     <img src="@/assets/failed.png">
-                    <span>Invalid input !</span>
+                    <span>{{$t('m.siteAdd.invalidInput')}}!</span>
                 </span>
                 <span v-if="telnetfail" class="tips" >
                     <img src="@/assets/failed.png">
-                    <span>Unable to connect
+                    <span>{{$t('m.siteAdd.unableConnect')}}!
                         <span style="color:#4AA2FF">{{ipPost}}</span>
                     </span>
                 </span>
             </div>
       </div>
       <div class="add-dialog-footer">
-        <el-button class="save-btn" :disabled="saveDisabled" type="primary" @click="saveAction">Save</el-button>
-        <el-button class="cancel-btn" type="primary"  @click="cancelAction" > Cancel </el-button>
+        <el-button class="save-btn" :disabled="saveDisabled" type="primary" @click="saveAction">{{$t('m.common.save')}}</el-button>
+        <el-button class="cancel-btn" type="info"  @click="cancelAction" >{{$t('m.common.cancel')}}</el-button>
         <!-- <span  @mousedown="mouseDownAA"> Cancel</span> -->
       </div>
     </el-dialog>
@@ -69,11 +69,7 @@ export default {
             showMes: 0, // 是否模态弹框
             timeLess: null, // 定时器
             // 新加ip数组
-            entrancesSelect: [
-                // { ip: '192.168.8.1:8081;', show: false },
-                // { ip: '192.168.8.1:8082;', show: false },
-                // { ip: '192.168.8.1:8083;', show: false }
-            ],
+            entrancesSelect: [],
             addtotal: '', //
             telnetsuccess: false, // 测试成功后提示
             telnetfail: false, // 测试成功后提示
@@ -94,10 +90,17 @@ export default {
                 } else if (!this.saveDisabled) {
                     this.addDisabled = false
                 }
+                if (val.length >= 20) {
+                    this.saveDisabled = true
+                } else {
+                    this.saveDisabled = false
+                }
             },
             deep: true,
             immediate: true
         }
+    },
+    created() {
     },
     methods: {
 
@@ -232,7 +235,7 @@ export default {
         }
 
     }
-}
+} 
 </script>
 
 <style rel="stylesheet/scss" lang="scss" >

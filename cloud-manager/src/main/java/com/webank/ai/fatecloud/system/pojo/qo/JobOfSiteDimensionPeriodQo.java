@@ -31,8 +31,8 @@ import java.util.Date;
 @ApiModel(value = "the institutions for getting the job statistics for a period")
 public class JobOfSiteDimensionPeriodQo implements Serializable {
 
-    @NotNull(message = "institutions can't be null!")
-    @ApiModelProperty("institutions name")
+    @NotNull(message = "institution can't be null!")
+    @ApiModelProperty("institution name")
     private String institutions;
 
     @NotNull(message = "date can't be null!")

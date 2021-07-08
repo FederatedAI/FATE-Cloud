@@ -2,11 +2,14 @@
   <div class="access">
     <div class="access-box">
         <div class="partyid-header">
-            <el-button class="add" type="primary" @click="addRoleUser">Add</el-button>
-            <el-input class="input input-placeholder" clearable v-model.trim="data.userName" placeholder="Name">
+            <el-button class="add" type="text" @click="addRoleUser">
+                <img src="@/assets/add_user.png">
+                <span>{{$t('m.common.add')}}</span>
+            </el-button>
+            <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('m.sitemanage.name')">
                 <i slot="prefix" @click="getList" class="el-icon-search search el-input__icon" />
             </el-input>
-            <el-select class="sel-institutions input-placeholder" v-model="data.partyId" placeholder="Site">
+            <el-select class="sel-institutions" v-model="data.partyId" :placeholder="$t('m.common.site')">
                 <el-option
                     v-for="item in partyIdSiteList"
                     :key="item.value"
@@ -14,7 +17,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-select class="sel-institutions input-placeholder" v-model="data.roleId" placeholder="Role">
+            <el-select class="sel-institutions" v-model="data.roleId" :placeholder="$t('m.common.role')">
                 <el-option
                     v-for="item in typeSelect"
                     :key="item.value"
@@ -22,7 +25,7 @@
                     :value="item.value"
                 ></el-option>
             </el-select>
-            <el-button class="go" type="primary" @click="getList">GO</el-button>
+            <el-button class="go" type="primary" @click="getList">{{$t('m.common.go')}}</el-button>
         </div>
         <div class="table">
             <el-table
@@ -30,22 +33,27 @@
                 header-row-class-name="tableHead"
                 header-cell-class-name="tableHeadCell"
                 cell-class-name="tableCell"
+                height="100%"
                 tooltip-effect="light">
-                <el-table-column prop="userName"  label="Name" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="site.siteName" label="Site"></el-table-column>
-                <el-table-column prop="role.roleName" label="Role" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="permissionList" label="Permission" show-overflow-tooltip>
+                <el-table-column prop="userName"  :label="$t('m.sitemanage.name')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="site.siteName" :label="$t('m.common.site')" ></el-table-column>
+                <el-table-column prop="role.roleName" :label="$t('m.common.role')"  show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <span v-for="(item, index) in scope.row.permissionList" :key="index">{{item.permissionName}};</span>
+                        <span>{{scope.row.role | getRoleType}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="creator" label="Creator" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="createTime" label="Create Time">
+                <el-table-column prop="permissionList" :label="$t('m.sitemanage.permission')" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-for="(item, index) in scope.row.permissionList" :key="index">{{$t(`m.sitemanage.${item.permissionName}`)}};</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="creator" :label="$t('m.sitemanage.creator')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="createTime" :label="$t('m.common.createTime')" >
                     <template slot-scope="scope">
                         <span >{{scope.row.createTime | dateFormat}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="Action" label="Action" align="center">
+                <el-table-column prop="Action" :label="$t('m.common.action')" align="center">
                     <template slot-scope="scope" >
                         <!-- 由could生成不能编辑与删除 -->
                         <span v-if='scope.row.cloudUser'>
@@ -80,10 +88,10 @@
     </div>
     <!-- 删除 -->
     <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
-        <div class="line-text-one">Are you sure you want to delete this user?</div>
+        <div class="line-text-one">{{$t('m.sitemanage.sureToDeleteUser')}}</div>
         <div class="dialog-footer">
-        <el-button class="ok-btn" type="primary" @click="toDelet">Sure</el-button>
-        <el-button class="ok-btn" type="info" @click="deletedialog = false">Cancel</el-button>
+        <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="deletedialog = false">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
     <!-- 添加弹框 -->
@@ -91,12 +99,12 @@
       <div class="dialog-box">
           <el-form :model="siteTemp" :rules="rules" ref="ruleForm">
             <div class="dialog-title">
-                <span>{{typetitle}}</span>
-            user
+                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add') }}</span>{{$t('m.sitemanage.user')}}
             </div>
             <el-form-item class="add-input" prop="userName">
                 <span class="input-title">
-                    User
+                    {{$t('m.common.userName')}}
+
                 </span>
                 <el-select
                     v-if="typetitle!=='Edit'"
@@ -104,11 +112,10 @@
                     filterable
                     remote
                     reserve-keyword
-                    placeholder="Please enter a name"
+                    :placeholder="$t('m.sitemanage.pleaseEnterName')"
                     :remote-method="remoteMethod"
                     @change="userchange"
-                    @focus="toclearValid('userName')"
-                    :loading="loading">
+                    @focus="toclearValid('userName')">
                     <el-option
                         v-for="item in userList"
                         :key="item.value"
@@ -120,19 +127,22 @@
                 <!-- <div v-if='userWarn' class="text-warn" >The User Name field is required.</div> -->
             </el-form-item>
              <el-form-item class="add-input"  prop="roleId">
-                <span class="input-title">Role</span>
+                <span class="input-title">{{$t('m.common.role')}}</span>
                 <el-radio-group v-model="siteTemp.roleId">
-                    <el-radio label="1">admin</el-radio>
-                    <el-radio label="2">Developer or OP</el-radio>
-                    <el-radio label="3">Business or Data Analyst</el-radio>
+                    <el-radio
+                        v-for="item in typeSelect"
+                        :key="item.value"
+                        :label="item.value"
+                        :value="item.label">{{item.label}}
+                    </el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item v-if="!sitedisable" class="add-input" prop="siteName">
-                 <span class="input-title">Site</span>
+                 <span class="input-title">{{$t('m.common.site')}}</span>
                 <el-select v-model="siteTemp.siteName"
                     :disabled="sitedisable"
                     @change="sitechange"
-                     @focus="toclearValid('siteName')"
+                    @focus="toclearValid('siteName')"
                     filterable remote
                     placeholder="">
                     <el-option
@@ -146,22 +156,23 @@
             </el-form-item>
          </el-form>
         <div  class="permission">
-            <span class="input-title">Permission</span>
+            <span class="input-title">{{$t('m.sitemanage.permission')}}</span>
             <span class="item" >
                 <span v-for="(item, index) in permissionList" :key="index">
                     <div v-if="item.show" class="show-item">
                         <i class="el-icon-check"></i>
-                        {{item.item}}
+                        {{$t(`m.sitemanage.${item.item}`)}}
+
                     </div>
                     <div v-else class="hide-item">
-                        <span>{{item.item}}</span>
+                        <span>{{$t(`m.sitemanage.${item.item}`)}}</span>
                     </div>
                 </span>
             </span>
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">Sure</el-button>
-          <el-button type="info" @click="adddialog=false">Cancel</el-button>
+          <el-button type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
+          <el-button type="info" @click="adddialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>
@@ -171,16 +182,10 @@
 <script>
 import { accessList, userListDown, siteListDown, addUser, editUser, deleteUser } from '@/api/home'
 
-import moment from 'moment'
 import { mapGetters } from 'vuex'
 
 export default {
     name: 'access',
-    filters: {
-        dateFormat(value) {
-            return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
-        }
-    },
     data() {
         return {
             typetitle: 'Edit',
@@ -190,13 +195,7 @@ export default {
             siteWarn: false, // 显示警告
             userList: [], // 用户下拉
             siteList: [], // 站点下拉
-            partyIdSiteList: [
-                {
-                    value: 0,
-                    label: 'Site'
-                }
-            ], // 头部站点下拉
-            loading: true, // list加载
+            partyIdSiteList: [], // 头部站点下拉
             sitedisable: true, // 是否可选site
             deletesite: {}, // 将要删除site
             siteTemp: {
@@ -214,30 +213,39 @@ export default {
                 { item: 'FATEBoard', show: true }
                 // { item: 'FDN', show: true }
             ],
-            typeSelect: [
-                {
-                    value: 0,
-                    label: 'Role'
-                },
-                {
-                    value: 1,
-                    label: 'Admin'
-                },
-                {
-                    value: 2,
-                    label: 'Developer or OP'
-                },
-                {
-                    value: 3,
-                    label: 'Business or Data Analyst'
-                }
-            ],
+            typeSelect: this.$Map.roleType,
             rules: {
                 userName: [
-                    { required: true, message: 'The User Name field is required !', trigger: 'blur' }
+                    {
+                        required: true,
+                        trigger: 'blur',
+                        validator: (rule, value, callback) => {
+                            if (!value) {
+                                callback(
+                                    new Error(
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.userName') })
+                                    )
+                                )
+                            }
+                            callback()
+                        }
+                    }
                 ],
                 siteName: [
-                    { required: true, message: 'The Site field is required !', trigger: 'blur' }
+                    {
+                        required: true,
+                        trigger: 'blur',
+                        validator: (rule, value, callback) => {
+                            if (!value) {
+                                callback(
+                                    new Error(
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.siteName') })
+                                    )
+                                )
+                            }
+                            callback()
+                        }
+                    }
                 ]
             },
             // 入参
@@ -334,6 +342,11 @@ export default {
                 userId: row.userId,
                 userName: row.userName
             }
+            this.$nextTick(() => {
+                if (this.$refs) {
+                    this.toclearValid()
+                }
+            })
         },
         // 添加用户
         addRoleUser() {
@@ -343,20 +356,26 @@ export default {
                 userId: '',
                 userName: '',
                 partyId: '',
-                siteName: '',
+                siteName: ' ',
                 roleId: '1'
             }
+            this.$nextTick(() => {
+                if (this.$refs) {
+                    this.toclearValid()
+                }
+            })
         },
         // 确定编辑、添加用户
         toSure() {
             let permissionList
             if (this.siteTemp.roleId === '1') {
-                permissionList = [1, 2, 3, 4, 5]
+                permissionList = [1, 2, 3, 4]
             } else if (this.siteTemp.roleId === '2') {
                 permissionList = [1, 2]
             } else if (this.siteTemp.roleId === '3') {
-                permissionList = [3, 4, 5]
+                permissionList = [3, 4]
             }
+            console.log(this.siteTemp, 'siteTemp')
             let data = {
                 creator: this.userName,
                 permissionList,
@@ -366,15 +385,15 @@ export default {
                 userId: this.siteTemp.userId,
                 userName: this.siteTemp.userName
             }
-            // 删除空值
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    const element = data[key]
-                    if (element === '' && element !== 0) {
-                        delete data[key]
-                    }
-                }
-            }
+            // // 删除空值
+            // for (const key in data) {
+            //     if (data.hasOwnProperty(key)) {
+            //         const element = data[key]
+            //         if (element === '' && element !== 0) {
+            //             delete data[key]
+            //         }
+            //     }
+            // }
             this.$refs['ruleForm'].validate((valid) => {
                 if (valid) {
                     if (this.typetitle === 'Add') {
@@ -419,7 +438,6 @@ export default {
             })
         },
         remoteMethod(query) {
-            this.loading = true
             this.userList = []
             if (query !== '') {
                 let data = {
@@ -433,7 +451,6 @@ export default {
                         this.userList.push(obj)
                     })
                 })
-                this.loading = false
             }
         },
         userchange(val) {
@@ -454,7 +471,7 @@ export default {
                 }
             }
         },
-        // 清楚验证
+        // 清除验证
         toclearValid(type) {
             this.$refs['ruleForm'].clearValidate(type)
         }

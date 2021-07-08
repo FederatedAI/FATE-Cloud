@@ -61,18 +61,19 @@ public class FederatedIpManagerService {
             condition = "%" + condition + "%";
         }
         ipManagerListQo.setCondition(condition);
-        SiteListQo siteListQo = new SiteListQo();
-        siteListQo.setCondition(ipManagerListQo.getCondition());
-        siteListQo.setRole(ipManagerListQo.getRole());
-        siteListQo.setOrderRule(ipManagerListQo.getUpdateTimeOrder());
-        siteListQo.setStatus(2);
-        siteListQo.setPageNum(ipManagerListQo.getPageNum());
-        siteListQo.setPageSize(ipManagerListQo.getPageSize());
-        long sitesCount = federatedSiteManagerMapper.findSitesCount(siteListQo);
+//        SiteListQo siteListQo = new SiteListQo();
+//        siteListQo.setCondition(ipManagerListQo.getCondition());
+//        siteListQo.setRole(ipManagerListQo.getRole());
+//        siteListQo.setOrderRule(ipManagerListQo.getUpdateTimeOrder());
+//        siteListQo.setStatus(2);
+//        siteListQo.setPageNum(ipManagerListQo.getPageNum());
+//        siteListQo.setPageSize(ipManagerListQo.getPageSize());
+//        long sitesCount = federatedSiteManagerMapper.findSitesCount(siteListQo);
+        long sitesCount = federatedSiteManagerMapper.findSitesCountForIp(ipManagerListQo);
 
-        PageBean<IpManagerListDto> ipManagerListDtoPageBean = new PageBean<>(siteListQo.getPageNum(), siteListQo.getPageSize(), sitesCount);
+        PageBean<IpManagerListDto> ipManagerListDtoPageBean = new PageBean<>(ipManagerListQo.getPageNum(), ipManagerListQo.getPageSize(), sitesCount);
         long startIndex = ipManagerListDtoPageBean.getStartIndex();
-        List<FederatedSiteManagerDo> pagedSites = federatedSiteManagerMapper.findPagedSites(siteListQo, startIndex);
+        List<FederatedSiteManagerDo> pagedSites = federatedSiteManagerMapper.findPagedSitesForIp(ipManagerListQo, startIndex);
         ArrayList<IpManagerListDto> ipManagerListDtos = new ArrayList<>();
         for (int i = 0; i < pagedSites.size(); i++) {
             IpManagerListDto ipManagerListDto = new IpManagerListDto(pagedSites.get(i));

@@ -16,6 +16,8 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
@@ -95,8 +97,15 @@ public class FederatedProductVersionServiceFacade implements Serializable {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, productNames);
     }
 
-    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) {
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(productVersionPageForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+    public CommonResponse<PageBean<FederatedProductVersionDo>> pageForFateManager(ProductVersionPageForFateManagerQo productVersionPageForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(productVersionPageForFateManagerQo);
+        } else {
+            httpBody = JSON.toJSONString(productVersionPageForFateManagerQo);
+        }
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
         }

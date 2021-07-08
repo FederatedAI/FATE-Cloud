@@ -313,7 +313,6 @@ public class FederatedGroupSetService {
         List<Map<String, Object>> rangeInfoMaps = federatedGroupSetMapper.selectMaps(federatedGroupSetDoQueryWrapper);
         for (Map<String, Object> rangeInfoMap : rangeInfoMaps) {
             Object rangeInfoObject = rangeInfoMap.get("range_info");
-            String s = String.valueOf(rangeInfoObject);
             JSONObject comparedRangeInfoJsonObject = JSON.parseObject(String.valueOf(rangeInfoObject));
             JSONArray comparedIntervals = comparedRangeInfoJsonObject.getJSONArray("intervals");
             JSONArray comparedSets = comparedRangeInfoJsonObject.getJSONArray("sets");
@@ -355,7 +354,6 @@ public class FederatedGroupSetService {
                     Long partyId = Long.valueOf(set.toString());
                     if (comparedIntervals != null) {
                         for (Object comparedInterval : comparedIntervals) {
-                            String s1 = String.valueOf(comparedInterval);
                             JSONObject comparedIntervalJsonObject = JSON.parseObject(String.valueOf(comparedInterval));
                             Long comparedStart = comparedIntervalJsonObject.getLong("start");
                             Long comparedEnd = comparedIntervalJsonObject.getLong("end");

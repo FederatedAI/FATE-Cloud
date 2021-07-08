@@ -2,7 +2,7 @@
     <div class="log">
         <div class="log-box">
             <div class="log-title">
-                <span class="text">
+                <span v-if='data.all' style=" margin-left: 48px;"  class="text">
                     all
                     <span @click="toScreen('all')" style="color:#FC6A16;cursor: pointer;">
                         {{ data.all && data.all.length }}
@@ -98,8 +98,9 @@ export default {
     .log-box{
 
         .log-title{
-            height: 54px;
-            line-height: 54px;
+            height: 42px;
+            line-height: 42px;
+            border-bottom: 2px solid #E6EBF0;
             .text{
                 margin-right: 36px;
                 color: #2D3642;
@@ -122,12 +123,12 @@ export default {
         }
         .log-content{
             position: absolute;
-            height: calc(100% - 125px);
-            width: calc(100% - 72px);
+            height: calc(100% - 10px);
+            width: 100%;
             overflow: auto;
-            border-top: 2px solid #E6EBF0;
             border-bottom: 1px solid #E6EBF0;
-            word-wrap: break-word;
+            // height: 560px;
+            overflow: auto;
             padding: 24px 0;
             .log-li{
                 font-size: 14px;

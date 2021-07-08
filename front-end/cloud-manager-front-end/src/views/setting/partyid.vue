@@ -1,50 +1,50 @@
 <template>
   <div class="partyid-box">
-    <div class="partyid">
-      <div class="partyid-header">
+
+    <div class="partyid-header">
         <el-button class="add" type="text" @click="addPartyid">
-             <img src="@/assets/add_ip.png">
-            <span>add</span>
+                <img src="@/assets/add_ip.png">
+            <span>{{$t('add')}}</span>
         </el-button>
-        <el-input class="input input-placeholder" clearable v-model.trim="data.groupName" placeholder="Search ID Group">
-          <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
+        <el-input class="input input-placeholder" clearable v-model.trim="data.groupName" :placeholder="$t('Search ID Group')">
+            <!-- <i slot="suffix" @click="toSearch" class="el-icon-search search el-input__icon" /> -->
         </el-input>
-        <el-select class="sel-institutions input-placeholder" v-model="data.role" placeholder="Type">
-          <el-option
+        <el-select class="sel-institutions input-placeholder" v-model="data.role" clearable :placeholder="$t('Type')">
+            <el-option
             v-for="item in typeSelect"
             :key="item.value"
             :label="item.label"
             :value="item.value"
-          ></el-option>
+            ></el-option>
         </el-select>
-        <el-button class="go" type="primary" @click="toSearch">GO</el-button>
-      </div>
-      <div class="partyid-body">
+        <el-button class="go" type="primary" @click="toSearch">{{$t('m.common.go')}}</el-button>
+    </div>
+    <div class="partyid-body">
         <div class="table">
-          <el-table
+            <el-table
             :data="tableData"
             header-row-class-name="tableHead"
             header-cell-class-name="tableHeadCell"
             cell-class-name="tableCell"
             height="100%"
             tooltip-effect="light"
-          >
-            <el-table-column type="index" label="Index" width="70"></el-table-column>
-            <el-table-column prop="groupName" label="ID Group"></el-table-column>
-            <el-table-column prop="role" label="Type">
+            >
+            <el-table-column type="index" :label="$t('Index')" width="170"></el-table-column>
+            <el-table-column prop="groupName" :label="$t('ID Group')" ></el-table-column>
+            <el-table-column prop="role" :label="$t('Type')">
                 <template slot-scope="scope">
-                    <span>{{scope.row.role===1?'Guest':'Host'}}</span>
+                    <span>{{scope.row.role===1 ? $t('m.common.guest') : $t('m.common.host') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="rangeInfo" label="ID range" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="total" label="Total"></el-table-column>
-            <el-table-column prop="used" label="Used">
-              <template slot-scope="scope">
+            <el-table-column prop="rangeInfo" :label="$t('ID range')" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="total" :label="$t('Total')" ></el-table-column>
+            <el-table-column prop="used" :label="$t('Used')" >
+                <template slot-scope="scope">
                 <span class="delete" @click="toUser(scope.row)">{{scope.row.used}}</span>
-              </template>
+                </template>
             </el-table-column>
-            <el-table-column prop="name" label="Action" width="120" align="center">
-              <template slot-scope="scope">
+            <el-table-column prop="name" :label="$t('Action')" width="120" align="center">
+                <template slot-scope="scope">
                     <el-button type="text">
                         <i class="el-icon-edit edit" @click="handleEdit(scope.row)"></i>
                     </el-button>
@@ -54,30 +54,29 @@
                     <el-button type="text" v-else>
                         <i class="el-icon-delete-solid delete" @click="handleDelete(scope.row)"></i>
                     </el-button>
-              </template>
+                </template>
             </el-table-column>
-          </el-table>
+            </el-table>
         </div>
         <div class="pagination">
-          <el-pagination
+            <el-pagination
             background
             @current-change="handleCurrentChange"
             :current-page.sync="currentPage"
             :page-size="data.pageSize"
             layout="total, prev, pager, next, jumper"
             :total="total"
-          ></el-pagination>
+            ></el-pagination>
         </div>
-      </div>
-      <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" width="700px">
-        <div class="line-text-one">Are you sure you want to delete "{{groupName}}"?</div>
-        <div class="line-text-two">You can't undo this action.</div>
-        <div class="dialog-footer">
-          <el-button class="ok-btn" type="primary" @click="okAction">Ok</el-button>
-        </div>
-      </el-dialog>
-      <partyid-add ref="partyidadd" :title='title' />
     </div>
+    <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" width="700px">
+        <div class="line-text-one">{{$t('Are you sure you want to delete')}} "{{groupName}}"?</div>
+        <div class="line-text-two">{{$t(`You can't undo this action`)}} </div>
+        <div class="dialog-footer">
+            <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.OK')}}</el-button>
+        </div>
+    </el-dialog>
+    <partyid-add ref="partyidadd" :title='title' />
   </div>
 </template>
 
@@ -85,6 +84,37 @@
 import partyidAdd from '../setting/partyidadd'
 import { responseRange } from '@/utils/idRangeRule'
 import { deleteGroup, partyidList } from '@/api/setting'
+// 国际化
+const local = {
+    zh: {
+        'add': '添加',
+        'Index': '序号',
+        'ID Group': 'ID组',
+        'Type': 'ID类型',
+        'ID range': 'ID范围',
+        'Total': 'ID总数',
+        'Used': '已使用',
+        'Action': '操作',
+        'Are you sure you want to delete': '确认删除',
+        "You can't undo this action": '删除操作不可撤回',
+        'Search ID Group': '搜索ID组'
+
+    },
+    en: {
+        'add': 'add',
+        'Index': 'Index',
+        'ID Group': 'ID Group',
+        'Type': 'Type',
+        'ID range': 'ID range',
+        'Total': 'Total',
+        'Used': 'Used',
+        'Action': 'Action',
+        'Are you sure you want to delete': 'Are you sure you want to delete',
+        "You can't undo this action": "You can't undo this action",
+        'Search ID Group': 'Search ID Group'
+
+    }
+}
 
 export default {
     name: 'PartyId',
@@ -103,16 +133,12 @@ export default {
             groupName: '', // 待删除项
             typeSelect: [
                 {
-                    value: 0,
-                    label: 'Type'
-                },
-                {
                     value: 1,
-                    label: 'Guest'
+                    label: this.$t('m.common.guest')
                 },
                 {
                     value: 2,
-                    label: 'Host'
+                    label: this.$t('m.common.host')
                 }
             ],
             data: {
@@ -123,6 +149,8 @@ export default {
     },
     created() {
         this.initList()
+        this.$i18n.mergeLocaleMessage('en', local.en)
+        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     methods: {
         // 初始化表格
@@ -174,16 +202,14 @@ export default {
             deleteGroup(data).then(res => {
                 this.dialogVisible = false
                 this.initList()
-                this.$message({
-                    type: 'success',
-                    message: 'Delete successful!',
+                this.$message.success({
+                    message: this.$t('m.partyId.deleteSuccessful'),
                     duration: 5000
                 })
             })
         },
         // 跳转user
         toUser(row) {
-            this.$store.dispatch('SiteName', row.groupName)
             this.$router.push({
                 name: 'partyuser',
                 path: '/setting/partyuser',

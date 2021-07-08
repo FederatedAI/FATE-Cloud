@@ -88,8 +88,12 @@ export const constantRouterMap = [
                 component: () => import('@/views/federated/system')
             }, {
                 name: 'Site Monitor', //
-                path: 'monitor',
+                path: 'sitemonitor',
                 component: () => import('@/views/federated/monitor')
+            }, {
+                name: 'Job Monitor', //
+                path: 'jobmonitor',
+                component: () => import('@/views/federated/jobMonitor')
             }
 
         ]
@@ -121,6 +125,10 @@ export const constantRouterMap = [
                 name: 'System Function Switch', //
                 path: 'switch',
                 component: () => import('@/views/setting/switch')
+            }, {
+                name: 'Certificate', //
+                path: 'certificate',
+                component: () => import('@/views/setting/certificate')
             }
 
         ]

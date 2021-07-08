@@ -19,6 +19,7 @@ package com.webank.ai.fatecloud.system.controller;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.system.pojo.dto.FunctionStatusDto;
 import com.webank.ai.fatecloud.system.pojo.qo.FunctionUpdateQo;
+import com.webank.ai.fatecloud.system.pojo.qo.ScenarioQo;
 import com.webank.ai.fatecloud.system.service.facade.FederatedFunctionServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +55,13 @@ public class FederatedFunctionController implements InitializingBean {
     @ApiOperation(value = "find all function information")
     public CommonResponse updateFunctionStatus(@RequestBody FunctionUpdateQo functionUpdateQo) {
         return federatedFunctionServiceFacade.updateFunctionStatus(functionUpdateQo);
+
+    }
+
+    @PostMapping(value = "/update/scenario")
+    @ApiOperation(value = "choose the scenario for function site-authority")
+    public CommonResponse updateScenario(@RequestBody ScenarioQo scenarioQo) {
+        return federatedFunctionServiceFacade.updateScenario(scenarioQo);
 
     }
 

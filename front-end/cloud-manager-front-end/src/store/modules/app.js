@@ -1,9 +1,11 @@
-
+import { getCookie, setCookie } from '@/utils/auth'
 const app = {
     state: {
+        language: getCookie('language') || 'zh',
         sidebar: [],
-        sitestatus: true, // 是否打开，默认打开
-        autostatus: true // 是否打开，默认打开
+        active: 'Site Manage',
+        sitestatus: false, // 是否打开，默认关闭
+        autostatus: false // 是否打开，默认关闭
     },
     mutations: {
         TOGGLE_SIDEBAR: (state, sidebarArr) => {
@@ -14,6 +16,13 @@ const app = {
         },
         AUTO_STATUS: (state, data) => {
             state.autostatus = data
+        }, // 中英文
+        SET_LANGUAGE: (state, language) => {
+            state.language = language
+            setCookie('language', language)
+        },
+        SET_ACTIVE: (state, active) => {
+            state.active = active
         }
     },
     actions: {
@@ -25,6 +34,13 @@ const app = {
         },
         Getautostatus: ({ commit }, data) => {
             commit('AUTO_STATUS', data)
+        },
+        // 设中英文
+        setLanguage({ commit }, language) {
+            commit('SET_LANGUAGE', language)
+        },
+        SetMune({ commit }, active) {
+            commit('SET_ACTIVE', active)
         }
     }
 }

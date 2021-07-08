@@ -1,22 +1,46 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
 import store from '@/store'
 import router from '@/router'
+import Vue from 'vue'
+import VueI18n from 'vue-i18n'
+import { getCookie } from '@/utils/auth'
+
+Vue.use(VueI18n)
+const messages = {
+    en: { ...require('../lang/en.js') },
+    zh: { ...require('../lang/zh.js') }
+}
+const i18n = new VueI18n({
+    locale: getCookie('language') || store.getters.language,
+    messages
+})
+const tipI18n = new Vue({ i18n })
 
 // axios.defaults.headers.common['Authorization'] = getToken()
 // create an axios instance
 const service = axios.create({
     baseURL: process.env.NODE_ENV === 'mock' ? process.env.VUE_APP_BASE_API : process.env.BASE_API,
     withCredentials: true, // 跨域请求时发送 cookies
-    timeout: 40000 // request timeout
+    timeout: 15000 // request timeout
 })
+
+const setErrorMsgToI18n = (msg) => {
+    i18n.locale = getCookie('language') || store.getters.language
+    let tipKey = msg.replace("'", '')
+    let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? msg : tipI18n.$t(`m.errorTips.${tipKey}`)
+    Vue.prototype.$message.error({
+        message: `${msg ? tipText : tipI18n.$t('m.errorTips.reqestFailed')}`,
+        duration: 5 * 1000
+    })
+}
+
+const loading = document.getElementById('ajaxLoading')
 
 // request interceptor
 // 请求拦截
 service.interceptors.request.use(
     config => {
         // 开启全局loading
-        let loading = document.getElementById('ajaxLoading')
         loading.style.display = 'block'
         // Do something before request is sent
         return config
@@ -42,14 +66,13 @@ service.interceptors.response.use(
    */
     response => {
         // 关闭全局loading
-        let loading = document.getElementById('ajaxLoading')
         loading.style.display = 'none'
         const res = response.data
         if (res.code === 0) {
             return res
-        } else if (msgCode(res.code)) {
-            return Promise.reject(res)
-        } else if (res.code === 110 || res.code === 130) {
+        } else if (response.config.responseType === 'blob') { // 流下载设置
+            return response
+        } else if (res.code === 130) {
             // code=110 系统错误 130 请先登录
             // 退出登录
             store.dispatch('setloginname', '').then(r => {
@@ -58,12 +81,10 @@ service.interceptors.response.use(
                     path: '/home/welcome'
                 })
             })
+        } else if (msgCode(res.code)) {
+            return Promise.reject(res)
         } else {
-            Message({
-                message: `${res.msg ? res.msg : 'http reqest failed!'}`,
-                type: 'error',
-                duration: 5 * 1000
-            })
+            setErrorMsgToI18n(res.msg)
             return Promise.reject(res)
         }
 
@@ -75,13 +96,12 @@ service.interceptors.response.use(
     },
     error => {
         // 关闭全局loading
-        let loading = document.getElementById('ajaxLoading')
         loading.style.display = 'none'
-        Message({
-            message: `${error}`,
-            type: 'error',
-            duration: 5 * 1000
-        })
+        setErrorMsgToI18n(error)
+        // Vue.prototype.$message.error({
+        //     message: `${error}`,
+        //     duration: 5 * 1000
+        // })
         // 服务端发生错误退出
         store.dispatch('setloginname', '').then(r => {
             localStorage.setItem('name', r)

@@ -16,6 +16,8 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
@@ -62,13 +64,20 @@ public class FederatedIpManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, aBoolean);
     }
 
-    public CommonResponse<IpManagerAcceptDto> acceptIpModify(IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<IpManagerAcceptDto> acceptIpModify(IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(ipManagerAcceptQo);
+        } else {
+            httpBody = JSON.toJSONString(ipManagerAcceptQo);
+        }
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+            result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
         } else {
-            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerAcceptQo), 2);
+            result = checkSignature.checkSignature(httpServletRequest, httpBody, 2);
         }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
@@ -77,14 +86,20 @@ public class FederatedIpManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, ipManagerAcceptDto);
     }
 
-    public CommonResponse<IpManagerQueryDto> queryIpModify(IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) {
-
+    public CommonResponse<IpManagerQueryDto> queryIpModify(IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(ipManagerQueryQo);
+        } else {
+            httpBody = JSON.toJSONString(ipManagerQueryQo);
+        }
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+            result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
         } else {
-            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(ipManagerQueryQo), 2);
+            result = checkSignature.checkSignature(httpServletRequest, httpBody, 2);
         }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);

@@ -9,7 +9,7 @@
             </div>
             <el-form ref="inputform" :model="inputform" :rules="rules" @submit.native.prevent >
                 <el-form-item :class="{ name:true,'name-warn': warnActive }" prop="inputUrl">
-                    <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model.trim="inputform.input"></el-input>
+                    <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model="inputform.input"></el-input>
                     <div class="warn-text">
                         <span v-show='warnActive'>The registration link is invalid. Please enter again.</span>
                     </div>
@@ -51,7 +51,9 @@ export default {
                 // this.showBtn()
                 if (val) {
                     this.inputClass = true
+                    console.log(this.inputform.input, 'this.inputform.input')
                     this.inputform.inputUrl = this.inputform.input ? utf8to16(decode64(this.inputform.input)).split('?st')[0] : ''
+                    console.log(this.inputform.inputUrl, 'this.inputform.inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true
@@ -86,7 +88,7 @@ export default {
                 data.appKey = obj.secretInfo.key
                 data.appSecret = obj.secretInfo.secret
                 data.federatedUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
-                data.registrationLink = this.inputform.input
+                data.registrationLink = JSON.stringify(this.inputform.input).replace()
                 data.federatedOrganization = obj.federatedOrganization
                 data.id = obj.id
                 data.institutions = obj.institutions

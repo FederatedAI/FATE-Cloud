@@ -1,16 +1,14 @@
 .switch-box {
-    margin: 0px 36px;
-
+    margin: 0px 12px;
     .card {
-        margin-top: 25px;
         vertical-align: top;
         display: inline-block;
-        width: 480px;
+        width: 485px;
         height: 150px;
         background-color: #fff;
         margin-right: 25px;
         padding: 30px;
-
+        position: relative;
         .card-switch,
         .card-title {
 
@@ -35,6 +33,13 @@
             font-size: 18px;
             color: #848c99;
             line-height: 35px;
+        }
+        .desc{
+           position: absolute;
+            top:165px;
+            // color: #217AD9;
+            color: #333;
+            font-weight: bold;
         }
 
     }
@@ -67,6 +72,46 @@
             width: 180px;
             font-size: 18px;
         }
+
+    }
+    .select-dialog {
+        .el-dialog__body {
+            padding: 48px 64px 48px 64px;
+        }
+        .el-dialog__header {
+            display: none;
+        }
+        
+        .el-radio__inner::after {
+            transition: none!important;
+        }
+        .select-title{
+            font-size: 24px;
+        }
+        .select-item{
+            height: 36px;
+            line-height: 36px;
+            .el-radio__label{
+
+                font-size: 18px;
+            }
+        }
+        .el-radio-group{
+            margin: 24px 0;
+        }
+        .dialog-footer{
+            
+            text-align: center;
+            .ok-btn {
+                width: 180px;
+                font-size: 18px;
+            }
+            .cancel-btn{
+                width: 180px;
+                font-size: 18px;
+            }
+        }
+        
 
     }
 

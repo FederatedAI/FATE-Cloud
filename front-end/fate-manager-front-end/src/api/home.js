@@ -278,3 +278,21 @@ export function getcomponentversion(data) {
         data
     })
 }
+
+// 获取Exchange列表
+export function getexchangeList(data) {
+    return request({
+        url: `/${urlType}/api/site/exchange`,
+        method: 'post',
+        data
+    })
+}
+
+// 查询机构审批状态
+export function getNoticeapplysite(data) {
+    return request({
+        url: `/${urlType}/api/site/noticeapplysite`,
+        method: 'post',
+        data
+    })
+}

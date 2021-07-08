@@ -3,49 +3,50 @@
         <div class="table">
             <el-table
                 :data="tableData"
-                header-row-class-name="tableHead"
-                header-cell-class-name="tableHeadCell"
-                cell-class-name="tableCell"
+                header-row-class-name=""
+                header-cell-class-name=""
+                border
+                cell-class-name=""
                 @filter-change="tofilter"
                 max-height="255">
-                <el-table-column prop type="index" label="Index" width="70"></el-table-column>
-                <el-table-column prop="siteName" label="Site Name" show-overflow-tooltip min-width="85">
-                <template slot-scope="scope">
-                    <!-- 1 not joined,2 joined,3 removed -->
-                    <span
-                    v-if="scope.row.status ===2 || scope.row.status ===3"
-                    class="todetail"
-                    @click="sitedetail(scope.row)"
-                    >{{scope.row.siteName}}</span>
-                    <span
-                    v-else-if="scope.row.status ===1"
-                    class="todetail"
-                    @click="siteInfo(scope.row)"
-                    >{{scope.row.siteName}}</span>
-                    <span v-else class="todetail">{{scope.row.siteName}}</span>
-                </template>
+                <el-table-column prop type="index" :label="$t('m.common.index')" width="70"></el-table-column>
+                <el-table-column prop="siteName" :label="$t('m.common.siteName')" show-overflow-tooltip min-width="85">
+                    <template slot-scope="scope">
+                        <!-- 1 not joined,2 joined,3 removed -->
+                        <span
+                        v-if="scope.row.status ===2 || scope.row.status ===3"
+                        class="todetail"
+                        @click="sitedetail(scope.row)"
+                        >{{scope.row.siteName}}</span>
+                        <span
+                        v-else-if="scope.row.status ===1"
+                        class="todetail"
+                        @click="siteInfo(scope.row)"
+                        >{{scope.row.siteName}}</span>
+                        <span v-else class="todetail">{{scope.row.siteName}}</span>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="partyId" label="Party ID"></el-table-column>
-                <el-table-column prop="networkAccessEntrances" label="Network Acess Entrances" width="220">
-                <template slot-scope="scope">
-                    <div v-if="scope.row.networkAccessEntrancesArr.length>2">
-                        <el-popover
-                            placement="bottom"
-                            popper-class="scope"
-                            :visible-arrow="false"
-                            :offset="-40"
-                            trigger="hover">
-                            <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessEntrancesArr" :key="index" >{{item}}</div>
-                            <div slot="reference" class="icon-caret">
-                            <span>{{`${scope.row.networkAccessEntrancesArr[0]}...`}}</span>
-                            <i class="el-icon-caret-bottom icon-caret" />
-                            </div>
-                        </el-popover>
-                    </div>
-                    <div  v-else>{{scope.row.networkAccessEntrances.split(';')[0]}}</div>
-                </template>
+                <el-table-column prop="partyId" :label="$t('m.common.partyID')"></el-table-column>
+                <el-table-column prop="networkAccessEntrances" :label="$t('m.site.networkEntrances')"  width="220">
+                    <template slot-scope="scope">
+                        <div v-if="scope.row.networkAccessEntrancesArr.length>2">
+                            <el-popover
+                                placement="bottom"
+                                popper-class="scope"
+                                :visible-arrow="false"
+                                :offset="-40"
+                                trigger="hover">
+                                <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessEntrancesArr" :key="index" >{{item}}</div>
+                                <div slot="reference" class="icon-caret">
+                                <span>{{`${scope.row.networkAccessEntrancesArr[0]}...`}}</span>
+                                <i class="el-icon-caret-bottom icon-caret" />
+                                </div>
+                            </el-popover>
+                        </div>
+                        <div  v-else>{{scope.row.networkAccessEntrances.split(';')[0]}}</div>
+                    </template>
                 </el-table-column>
-                <el-table-column prop="networkAccessExits" label="Network Access Exits" width="200">
+                <el-table-column prop="networkAccessExits" :label="$t('m.site.networkExits')"  width="200">
                 <template slot-scope="scope">
                     <div v-if="scope.row.networkAccessExitsArr.length>2">
                         <el-popover
@@ -70,10 +71,10 @@
                     column-key="role"
                     filter-placement="bottom"
                     prop="role"
-                    label="Role"
-                    min-width="65" >
+                    :label="$t('m.common.role')"
+                    min-width="70" >
                     <template slot-scope="scope">
-                        <span>{{scope.row.role===1?'Guest':'Host'}}</span>
+                        <span>{{scope.row.role===1?$t('m.common.guest'):$t('m.common.host')}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -97,7 +98,7 @@
                     prop="fateServingVersion"
                     label="FATE Serving"
                     min-width="110" show-overflow-tooltip></el-table-column> -->
-                <el-table-column prop="activationTime" label="Activation Time" min-width="125" show-overflow-tooltip>
+                <el-table-column prop="activationTime" :label="$t('m.site.activationTime')" min-width="125" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span>{{scope.row.activationTime | dateFormat}}</span>
                     </template>
@@ -108,20 +109,20 @@
                     column-key="status"
                     filter-placement="bottom"
                     prop="status"
-                    label="Status"
+                    :label="$t('m.site.status')"
                     min-width="90">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.status===1">Not Joined</span>
-                        <span v-if="scope.row.status===2">Joined</span>
-                        <span v-if="scope.row.status===3">Deleted</span>
+                        <span v-if="scope.row.status===1">{{$t('m.common.notJoined')}}</span>
+                        <span v-if="scope.row.status===2">{{$t('m.common.joined')}}</span>
+                        <span v-if="scope.row.status===3">{{$t('m.common.deleted')}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="" label="Service Status" min-width="110" show-overflow-tooltip>
+                <el-table-column prop="" :label="$t('m.site.serviceStatus')" min-width="110" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <span>{{scope.row.detectiveStatus===1?'Unavailable':'Available'}}</span>
+                        <span>{{scope.row.detectiveStatus===1 ? $t('m.common.unavailable') : $t('m.common.available') }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop label="Action" min-width="70" align="center">
+                <el-table-column prop :label="$t('m.common.action')"  min-width="70" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" class="btn" disabled v-if="scope.row.status ===3">
                             <i class="el-icon-delete-solid "></i>
@@ -146,10 +147,11 @@
         </div>
          <!-- 删除弹框 -->
         <el-dialog :visible.sync="dialogVisible" class="site-delete-dialog" width="700px">
-            <div class="line-text-one">Are you sure you want to delete "{{ delSitename }}"?</div>
-            <div class="line-text-two">You can't undo this action.</div>
+            <div class="line-text-one">{{$t('m.site.sureDelete')}}"{{ delSitename }}"?</div>
+            <div class="line-text-two">{{$t('m.site.cantUndo')}}</div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="okAction">OK</el-button>
+                <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="dialogVisible = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
     </div>
@@ -158,7 +160,6 @@
 <script>
 
 import { siteDelete, siteList, getversion } from '@/api/federated'
-import moment from 'moment'
 
 export default {
     name: 'Siteatble',
@@ -177,11 +178,11 @@ export default {
             }
         }
     },
-    filters: {
-        dateFormat(value) {
-            return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
-        }
-    },
+    // filters: {
+    //     dateFormat(value) {
+    //         return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
+    //     }
+    // },
     data() {
         return {
             total: 0, // 总共多少页
@@ -196,25 +197,25 @@ export default {
                 //  1 not joined,2 joined,3 removed
                 {
                     value: 1,
-                    text: 'Not Joined'
+                    text: this.$t('m.common.notJoined')
                 },
                 {
                     value: 2,
-                    text: 'Joined'
+                    text: this.$t('m.common.joined')
                 },
                 {
                     value: 3,
-                    text: 'Delete'
+                    text: this.$t('m.common.deleted')
                 }
             ],
             roleTypeSelect: [// role下拉
                 {
                     value: 1,
-                    text: 'Guest'
+                    text: this.$t('m.common.guest')
                 },
                 {
                     value: 2,
-                    text: 'Host'
+                    text: this.$t('m.common.host')
                 }
             ],
             data: {
@@ -305,7 +306,7 @@ export default {
         },
         // 跳转详情
         sitedetail(row) {
-            this.$store.dispatch('SiteName', row.siteName)
+            this.$store.dispatch('setSiteName', row.siteName)
             this.$router.push({
                 name: 'detail',
                 path: '/federated/detail',
@@ -316,7 +317,7 @@ export default {
         },
         // 查看详情
         siteInfo(row) {
-            this.$store.dispatch('SiteName', row.siteName)
+            this.$store.dispatch('setSiteName', row.siteName)
             this.$router.push({
                 name: 'siteadd',
                 path: '/federated/siteadd',

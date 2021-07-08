@@ -14,13 +14,16 @@
     "dll": "webpack -p --progress --config ./webpack.dll.conf.js"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "core-js": "^2.6.5",
+    "echarts": "^4.2.1",
     "element-ui": "^2.12.0",
     "js-cookie": "^2.2.1",
     "moment": "^2.24.0",
     "nprogress": "^0.2.0",
     "vue": "^2.6.10",
+    "vue-echarts": "^4.0.3",
+    "vue-i18n": "^8.22.2",
     "vue-router": "^3.0.3",
     "vue-waterfall2": "^1.9.6",
     "vuex": "^3.0.1"

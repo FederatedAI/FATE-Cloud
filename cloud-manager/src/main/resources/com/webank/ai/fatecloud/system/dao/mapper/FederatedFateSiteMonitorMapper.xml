@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedFateSiteMonitorMapper">
+
+    <resultMap id="jobMonitorMap" type="com.webank.ai.fatecloud.system.pojo.monitor.MonitorSiteItem">
+        <result property="institution" column="detail_institutions"></result>
+        <collection property="institutionSiteList" ofType="com.webank.ai.fatecloud.system.pojo.monitor.MonitorTwoSite">
+            <result property="institutionSiteName" column="detail_site_name"></result>
+            <collection property="mixSiteModeling" ofType="com.webank.ai.fatecloud.system.pojo.monitor.SiteBase">
+                <result property="siteName" column="site_name"></result>
+                <result property="totalJobs" column="totalJobs"></result>
+                <result property="successJobs" column="successJobs"></result>
+                <result property="runningJobs" column="runningJobs"></result>
+                <result property="waitingJobs" column="failedJobs"></result>
+                <result property="failedJobs" column="waitingJobs"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findTimeStatistics" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobCostTimeDto">
+
+        select min(tmp.job_elapsed) minDuration, max(tmp.job_elapsed) maxDuration,avg(tmp.job_elapsed) avgDuration
+        from
+        (select job_id,job_elapsed
+        from t_fate_site_job
+            <where>
+                <if test="institutions!=null and institutions!='' ">
+                    and institutions = #{institutions}
+                </if>
+                <if test="siteName!=null and siteName!='' ">
+                    and site_name = #{siteName}
+                </if>
+                and job_type = #{type}
+                and status in ("success","failed")
+                and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+                group by job_id,job_elapsed
+            </where>
+        ) tmp
+    </select>
+
+    <select id="findTypedTable" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobTypedTableDto">
+        select count(*) total,count(case when status='failed' then 1 end) failedCount, count(case when status='success' then 1 end) successCount, min(tmp.job_elapsed) minDuration, max(tmp.job_elapsed) maxDuration,avg(tmp.job_elapsed) avgDuration, job_create_day_date date
+        from
+        (select job_id, job_elapsed, job_create_day_date, status from t_fate_site_job
+            <where>
+                <if test="institutions!=null and institutions!='' ">
+                    and institutions = #{institutions}
+                </if>
+                <if test="siteName!=null and siteName!='' ">
+                    and site_name = #{siteName}
+                </if>
+
+                and job_type=#{type}
+                and status in ("success","failed")
+                and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+                group by job_id, job_elapsed, job_create_day_date, status
+            </where>
+        )tmp group by job_create_day_date
+
+    </select>
+
+    <select id="findTypedDuration" resultType="com.webank.ai.fatecloud.system.pojo.dto.JobTypedDurationDto">
+
+        select count(*) count from
+        (select job_id  from t_fate_site_job
+        <where>
+            <if test="institutions!=null and institutions!='' ">
+                and institutions = #{institutions}
+            </if>
+            <if test="siteName!=null and siteName!='' ">
+                and site_name = #{siteName}
+            </if>
+
+            and job_type = #{type}
+            and status in ("success","failed")
+            and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+            <if test="min!=null">
+                and job_elapsed > #{min}
+            </if>
+
+            <if test="max!=null">
+                and job_elapsed &lt;= #{max}
+            </if>
+
+            group by job_id
+        </where>
+        ) tmp
+
+    </select>
+
+    <select id="getJobStatisticsSummaryInstitutionsAllForPeriod"
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.JobStatisticsSummaryForPeriodQo"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobTypeBean">
+        select count(*) count, status from
+        (select job_id,status from t_fate_site_job
+        <where>
+            and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+            group by job_id, status
+        </where>
+        ) tmp
+        group by status
+
+    </select>
+
+    <select id="getActivatedInstitutionsPeriod" resultType="java.lang.String">
+        select institutions  from t_fate_site_job
+        <where>
+            and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+            group by institutions
+        </where>
+
+    </select>
+    <select id="getInstitutionPeriod"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodayInstitutionsEachDto">
+
+        SELECT c.institutions,
+        count(case when c.status='failed' then 1 end) failedJobCount,
+        count(case when c.status='success' then 1 end) successJobCount,
+        count(case when c.status='running' then 1 end) runningJobCount,
+        count(case when c.status='waiting' then 1 end) waitingJobCount
+        FROM
+        (
+        SELECT a.institutions, b.job_id,b.`status` FROM
+        (    select institutions  from t_fate_site_job       WHERE  job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} AND #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}     group by institutions      order by institutions asc LIMIT #{startIndex}, #{jobStatisticsSummaryForPeriodQo.pageSize}  ) a,
+        t_fate_site_job b
+        WHERE a.institutions=b.institutions
+        AND  b.job_create_day_date  BETWEEN #{jobStatisticsSummaryForPeriodQo.beginDate,jdbcType=DATE} AND #{jobStatisticsSummaryForPeriodQo.endDate,jdbcType=DATE}
+        group BY a.institutions, b.job_id, b.`status`
+        ) c
+        GROUP BY c.institutions
+
+    </select>
+
+    <select id="getJobStatisticsSummarySiteAllForPeriod"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteAllDto">
+
+        select
+        COUNT(*) siteCount,
+        count(case when status='failed' then 1 end) failedJobCount,
+        count(case when status='success' then 1 end) successJobCount,
+        count(case when status='running' then 1 end) runningJobCount,
+        count(case when status='waiting' then 1 end) waitingJobCount
+        from
+        (select job_id, status from t_fate_site_job
+        <where>
+            <if test="institutions!=null and institutions!='' ">
+                and institutions = #{institutions}
+            </if>
+            and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+            group by job_id, status
+        </where>
+        )tmp
+
+    </select>
+
+    <select id="getJobStatisticsSummarySiteEachForPeriodCount" resultType="java.lang.Long">
+        SELECT COUNT(*) from (
+        SELECT site_name
+        FROM t_fate_site_job
+       <where>
+           <if test="institutions!=null and institutions!='' ">
+               and institutions = #{institutions}
+           </if>
+           and job_create_day_date between #{beginDate,jdbcType=DATE} and #{endDate,jdbcType=DATE}
+       </where>
+        GROUP BY site_name
+        ) tmp
+    </select>
+
+    <select id="getJobStatisticsSummarySiteEachForPeriod"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticsSummaryTodaySiteEachDto">
+        SELECT site_name site,party_id partyId,
+        count(case when status='failed' then 1 end) failedJobCount,
+        count(case when status='success' then 1 end) successJobCount,
+        count(case when status='running' then 1 end) runningJobCount,
+        count(case when status='waiting' then 1 end) waitingJobCount
+        FROM (
+        select site_name,party_id,job_id,status
+        from t_fate_site_job
+        where site_name in (
+        select site_name from (
+        SELECT site_name FROM t_fate_site_job
+        <where>
+            <if test="jobStatisticsSummarySiteAllForPeriodQo.institutions!=null and jobStatisticsSummarySiteAllForPeriodQo.institutions!='' ">
+                and institutions = #{jobStatisticsSummarySiteAllForPeriodQo.institutions}
+            </if>
+            and job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
+        </where>
+        GROUP BY site_name order by site_name asc limit #{startIndex},#{jobStatisticsSummarySiteAllForPeriodQo.pageSize}
+        ) tmp
+        )
+        and job_create_day_date between #{jobStatisticsSummarySiteAllForPeriodQo.beginDate,jdbcType=DATE} and #{jobStatisticsSummarySiteAllForPeriodQo.endDate,jdbcType=DATE}
+
+        GROUP BY site_name,party_id,job_id,status
+        ) tmp
+        group by site_name, party_id
+
+    </select>
+
+    <select id="findCountOfSitePeriod" resultType="java.lang.Integer">
+
+        SELECT count(1) from
+        (
+        select b.detail_institutions, b.detail_site_name
+        FROM t_fate_site_job a, t_fate_site_job_detail b
+        WHERE
+        a.institutions= #{institutions}
+        AND a.job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
+        AND a.job_id=b.detail_job_id
+        AND (b.detail_party_id &lt;&gt; a.party_id OR a.role='local')
+        GROUP BY b.detail_institutions, b.detail_site_name
+        ) tmp
+
+    </select>
+
+    <select id="getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow"
+            resultMap="jobMonitorMap">
+
+        SELECT e.* ,
+        COUNT(*) totalJobs,
+        count(case when status='failed' then 1 end) failedJobs,
+        count(case when status='success' then 1 end) successJobs,
+        count(case when status='running' then 1 end) runningJobs,
+        count(case when status='waiting' then 1 end) waitingJobs
+
+        FROM
+        (
+        SELECT *
+        FROM (
+        SELECT b.detail_institutions, b.detail_site_name
+        FROM t_fate_site_job a, t_fate_site_job_detail b
+        WHERE
+        a.institutions= #{jobOfSiteDimensionPeriodQo.institutions}
+        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        AND a.job_id=b.detail_job_id
+        AND (b.detail_party_id  &lt;&gt; a.party_id OR a.role= 'local' )
+        GROUP BY b.detail_institutions, b.detail_site_name
+        ORDER BY b.detail_institutions ASC, b.detail_site_name DESC
+        LIMIT #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
+        ) c,
+        (
+        SELECT detail_site_name AS site_name  FROM  t_fate_site_job_detail
+        WHERE detail_institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
+        AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        GROUP BY detail_site_name
+        ) d
+        ORDER BY detail_institutions ASC, detail_site_name ASC, site_name ASC
+        ) e,
+        (
+        SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
+        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        GROUP BY detail_job_id,detail_site_name
+        ) f,
+        (
+        SELECT detail_job_id,detail_site_name  FROM t_fate_site_job_detail
+        where detail_job_create_day_date BETWEEN  #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        GROUP BY detail_job_id,detail_site_name
+        ) g,
+        (
+        SELECT job_id, `status`,roles FROM t_fate_site_job GROUP BY job_id, `status`,roles
+        ) h
+
+        WHERE  e.detail_site_name = f.detail_site_name
+        AND e.site_name =g .detail_site_name
+        AND f.detail_job_id =g.detail_job_id
+        AND f.detail_job_id=h.job_id
+        AND (f.detail_site_name  &lt;&gt; g.detail_site_name OR JSON_EXTRACT (h.roles,'$.local') IS NOT NULL  )
+        GROUP BY e.detail_institutions,e.detail_site_name, e.site_name
+    </select>
+
+    <select id="findInstitutionsCountPeriod" resultType="java.lang.Integer">
+        select count(1) from
+        (
+        (
+        SELECT detail_institutions
+        FROM t_fate_site_job a, t_fate_site_job_detail b
+        WHERE a.institutions= #{institutions}
+        AND a.job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
+        AND a.job_id = b.detail_job_id
+        AND (b.detail_institutions  &lt;&gt;  a.institutions )
+        GROUP BY b.detail_institutions
+        )
+        UNION
+        (
+        SELECT detail_institutions FROM t_fate_site_job_detail
+        WHERE detail_job_id IN
+            (
+                SELECT detail_job_id FROM
+                (
+                SELECT d.detail_job_id, d.detail_institutions
+                FROM t_fate_site_job c, t_fate_site_job_detail d
+                WHERE c.institutions= #{institutions}
+                AND c.job_create_day_date  BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
+                AND c.job_id = d.detail_job_id
+                GROUP BY d.detail_job_id,d.detail_institutions
+                ) e
+                GROUP BY detail_job_id HAVING COUNT(1) &lt; 2
+            )
+            GROUP BY detail_institutions
+        )
+        ) tmp
+
+    </select>
+    <select id="getPagedJobStatisticsODimensionForPeriod"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
+
+        SELECT detail_institutions institutions,
+        count(case when detail_status='failed' then 1 end) failedJobCountForInstitutions,
+        count(case when detail_status='success' then 1 end) successJobCountForInstitutions,
+        count(case when detail_status='running' then 1 end) runningJobCountForInstitutions,
+        count(case when detail_status='waiting' then 1 end) waitingJobCountForInstitutions
+        FROM
+        (
+        SELECT  a.detail_institutions, b.detail_job_id, b.detail_status
+        FROM
+        (
+        (
+        SELECT detail_institutions
+        FROM t_fate_site_job a, t_fate_site_job_detail b
+        WHERE a.institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
+        AND a.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        AND a.job_id = b.detail_job_id
+        AND (b.detail_institutions  &lt;&gt;  a.institutions )
+        GROUP BY b.detail_institutions
+        )
+        UNION
+        (
+        SELECT detail_institutions FROM t_fate_site_job_detail
+        WHERE detail_job_id IN (
+        SELECT detail_job_id FROM
+        (
+        SELECT d.detail_job_id, d.detail_institutions
+        FROM t_fate_site_job c, t_fate_site_job_detail d
+        WHERE c.institutions=  #{jobOfSiteDimensionPeriodQo.institutions}
+        AND c.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        AND c.job_id = d.detail_job_id
+        GROUP BY d.detail_job_id,d.detail_institutions
+        ) e
+        GROUP BY detail_job_id HAVING COUNT(1) &lt; 2
+
+        )
+        GROUP BY detail_institutions
+        )
+        ORDER BY detail_institutions
+        LIMIT #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
+        ) a,
+        t_fate_site_job_detail b
+        WHERE a.detail_institutions =b.detail_institutions
+        AND b.detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
+        AND b.detail_job_id IN (SELECT detail_job_id FROM t_fate_site_job_detail WHERE detail_institutions= #{jobOfSiteDimensionPeriodQo.institutions}
+            AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE} )
+        GROUP BY a.detail_institutions, b.detail_job_id,b.detail_status
+        ) c
+        GROUP BY c.detail_institutions
+        ORDER BY c.detail_institutions ASC
+
+    </select>
+    <select id="getInputInsitutionsStatistics"
+            resultType="com.webank.ai.fatecloud.system.pojo.dto.JobStatisticOfInstitutionsDimensionDto">
+        SELECT
+        count(case when detail_status='failed' then 1 end) failedJobCountForInstitutions,
+        count(case when detail_status='success' then 1 end) successJobCountForInstitutions,
+        count(case when detail_status='running' then 1 end) runningJobCountForInstitutions,
+        count(case when detail_status='waiting' then 1 end) waitingJobCountForInstitutions
+        FROM
+        (
+        SELECT  a.detail_job_id, a.detail_status FROM
+        (
+        SELECT detail_job_id,detail_institutions,detail_status FROM t_fate_site_job_detail
+        WHERE detail_job_id IN
+        (
+        SELECT detail_job_id  FROM t_fate_site_job_detail
+        WHERE detail_institutions=  #{institutions}
+        AND detail_job_create_day_date BETWEEN #{beginDate,jdbcType=DATE} AND #{endDate,jdbcType=DATE}
+        )
+        GROUP BY detail_job_id,detail_institutions,detail_status
+        ) a GROUP BY detail_job_id, detail_status HAVING COUNT(1)  &lt; 2
+        ) b
+
+    </select>
+
+
+</mapper>

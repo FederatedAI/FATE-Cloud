@@ -2,73 +2,67 @@
   <div class="site-add">
     <div class="add-info">
       <div class="title">
-        <span v-if="type==='siteadd'">Add a site</span>
-        <span v-if="type==='siteinfo'">Waiting for site activation...</span>
-        <span v-if="type==='siteUpdate'">Site Update</span>
+        <span v-if="type==='siteadd'">{{$t('m.siteAdd.addSite')}}</span>
+        <span v-if="type==='siteinfo'">{{$t('m.siteAdd.waitingActivation')}}</span>
+        <span v-if="type==='siteUpdate'">{{$t('m.siteAdd.siteUpdate')}}</span>
       </div>
       <el-form
         ref="infoform"
         :model="form"
         label-position="left"
         :rules="rules"
-        label-width="250px"
-      >
-        <el-form-item label="Site Name" prop="siteName">
-          <span v-if="type==='siteinfo'" class="info-text">{{form.siteName}}</span>
+        label-width="250px">
+        <el-form-item :label="$t('m.common.siteName')"  prop="siteName">
+
+          <span v-if="type==='siteinfo'" class="info-text require">{{form.siteName}}</span>
           <el-input
-            v-if="type==='siteadd' || type==='siteUpdate'"
-            :class="{ 'edit-text': true, 'stienamewarn': siteNamewarnshow }"
+            v-else
             v-model="form.siteName"
             @blur="toCheckSiteName"
             @focus="cancelValid('siteName')"
-            placeholder="Maximum of 20 chatacters"
+            :placeholder="$t('m.siteAdd.maximum20chatacters')"
           ></el-input>
         </el-form-item>
-        <el-form-item label="Institution" prop="institutions">
+        <el-form-item  :label="$t('m.common.siteInstitution')" prop="institutions">
             <span v-if="type==='siteinfo'" class="info-text">{{form.institutions}}</span>
             <el-select
-                v-if="type==='siteadd' || type==='siteUpdate'"
-                :class="{ 'edit-text': true, 'institutionwarn': institutionswarnshow }"
+                v-else
                 :popper-append-to-body="false"
                 v-model="form.institutions"
                 @focus="cancelValid('institutions')"
-                placeholder="Choose Institutions"
-            >
+                :placeholder="$t('m.siteAdd.chooseInstitutions')">
                 <el-option v-for="item in institutionsdownList" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
-            <span  v-if="type==='siteadd' || type==='siteUpdate'" @click="toAddInstitutions" class="add-institutions">add</span>
+            <span  v-if="type==='siteadd' || type==='siteUpdate'" @click="toAddInstitutions" class="add-institutions">{{$t('m.common.add')}}</span>
         </el-form-item>
-        <el-form-item label="Role" prop="role">
-          <span v-if="type==='siteinfo'" class="info-text">{{form.role===1?"Guest":"Host"}}</span>
+        <el-form-item :label="$t('m.common.role')"  prop="role">
+          <span v-if="type==='siteinfo'" class="info-text">{{form.role===1? $t('m.common.guest') : $t('m.common.host')}}</span>
           <el-select
-            v-if="type==='siteadd' || type==='siteUpdate'"
-            :class="{ 'edit-text': true, 'rolewarn': rolewarnshow }"
+            v-else
             :popper-append-to-body="false"
             v-model="form.role"
             @focus="cancelValid('role')"
             @change="getPartyid"
-            placeholder="Choose Role"
-          >
+            :placeholder="$t('m.siteAdd.chooseRole')">
             <el-option v-for="item in roleOp" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="Party ID" >
+        <el-form-item  :label="$t('m.common.partyID')" >
             <span slot="label">
                 <span>
-                <span>Party ID</span>
+                <span>{{$t('m.common.partyID')}}</span>
                     <i style="margin-left:15px;cursor: pointer;" @click="toPartyid" class="el-icon-s-tools tools"></i>
                 </span>
             </span>
             <span v-if="type==='siteinfo'" class="info-text">{{form.partyId}}</span>
             <el-select
-                v-if="type==='siteadd' || type==='siteUpdate'"
-                class="edit-text"
+                v-else
                 :disabled="partyidname.length===0"
+                filterable
                 v-model="partyidSelect"
                 @change="selectPartyid"
                 :popper-append-to-body="false"
-                placeholder="choose an ID Group"
-            >
+                :placeholder="$t('m.siteAdd.chooseGroup')">
             <el-option v-for="item in partyidname" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -81,30 +75,29 @@
         </el-form-item>
         <el-form-item label prop="partyId" v-if="type==='siteadd' || type==='siteUpdate'">
           <el-input
-            :class="{ 'edit-text': true, 'partyidwarn': partyIdwarnshow }"
             :disabled="!partyidSelect"
             v-model.trim="form.partyId"
             @focus="cancelValid('partyId')"
             @blur="tocheckPartyid"
-            placeholder="Type the Party ID"
-          ></el-input>
+            :placeholder="$t('m.siteAdd.typePartyID')">
+            </el-input>
         </el-form-item>
-        <el-form-item label="Network Acess Entrances" prop="networkAccessEntrances">
+        <el-form-item :label="$t('m.site.networkEntrances')" prop="networkAccessEntrances">
           <span v-if="type==='siteinfo'" class="info-text">
             <div v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>{{item}}</div>
           </span>
           <el-input
-            v-if="type==='siteadd' || type==='siteUpdate'"
+            v-else
+            class="plus-text"
             @focus="addShow('entrances')"
             @blur="cancelValid('networkAccessEntrances')"
-            :class="{ 'edit-text': true, 'plus-text':true,'entranceswarn': networkAccessEntranceswarnshow }"
             v-model="form.networkAccessEntrances"
-            placeholder
-          >
-            <i slot="suffix" @click="addShow('entrances')" class="el-icon-edit plus" />
+            placeholder  >
+            <i slot="suffix" @click="addShow('entrances')" v-if="type==='siteUpdate'" class="el-icon-edit plus" />
+            <i slot="suffix" @click="addShow('entrances')" v-if="type==='siteadd'" class="el-icon-plus plus" />
           </el-input>
         </el-form-item>
-        <el-form-item label="Network Acess Exits" prop="networkAccessExits">
+        <el-form-item  :label="$t('m.site.networkExits')"  prop="networkAccessExits">
           <span class="info-text"  v-if="type==='siteinfo'">
             <div v-for="(item,index) in form.networkAccessExits.split(';')" :key='index'>{{item}}</div>
           </span>
@@ -112,10 +105,11 @@
             v-if="type==='siteadd' || type==='siteUpdate'"
             @focus="addShow('exit')"
             @blur="cancelValid('networkAccessExits')"
-            :class="{ 'edit-text': true, 'plus-text':true,'exitwarn': networkAccessExitswarnshow }"
+            class="plus-text"
             v-model="form.networkAccessExits"
             placeholder>
-            <i slot="suffix" @click="addShow('exit')" class="el-icon-edit plus" />
+            <i slot="suffix" @click="addShow('exit')" v-if="type==='siteUpdate'" class="el-icon-edit plus" />
+            <i slot="suffix" @click="addShow('exit')" v-if="type==='siteadd'" class="el-icon-plus plus" />
           </el-input>
         </el-form-item>
         <el-form-item v-show="false"  prop="exits">
@@ -130,31 +124,33 @@
             <span v-if="sansViewDefault" class="info-text">{{form.secretInfo.secret}} <img src="@/assets/view_hide.png" @click="sansViewDefault=!sansViewDefault" class="view" ></span>
             <span  v-if="!sansViewDefault" class="info-text">***********************<img src="@/assets/view_show.png" @click="sansViewDefault=!sansViewDefault" class="view" ></span>
         </el-form-item>
-        <el-form-item v-if="type==='siteadd' || type==='siteUpdate'" label="Registration Link Type" prop="protocol">
-            <!-- <span class="info-text"  v-if="type==='siteinfo'">
-               <span v-if="form.protocol==='http://'">HTTP</span>
-               <span v-else>HTTPS</span>
-            </span> -->
-            <span  >
-                <el-radio-group  v-model="form.protocol">
+        <span class="registration-box">
+            <el-form-item  label="" prop="">
+                <span slot="label">
+                    <span style="color:#4E5766">{{$t('m.siteAdd.registrationLinkSetting')}}</span>
+                </span>
+            </el-form-item>
+            <el-form-item :label="$t('m.siteAdd.linkType')"  prop="protocol">
+                <span v-if="type==='siteinfo' && form.protocol" class="info-text">{{form.protocol==='https://'?"HTTPS":'HTTP'}}</span>
+                <el-radio-group v-else  v-model="form.protocol">
                     <el-radio label="https://">HTTPS</el-radio>
                     <el-radio label="http://">HTTP</el-radio>
                 </el-radio-group>
-            </span>
-        </el-form-item>
-        <el-form-item v-if="type==='siteadd' || type==='siteUpdate'" label="Encryption Type" prop="encryptType">
-            <!-- <span class="info-text"  v-if="type==='siteinfo'">
-               <span v-if="form.encryptType===1">Encryption</span>
-               <span v-else>Unencrypted</span>
-            </span> -->
-            <span v-if="type==='siteadd' || type==='siteUpdate'">
-                <el-radio-group  v-model="form.encryptType">
-                    <el-radio :label="1">Encryption</el-radio>
-                    <el-radio :label="2">Unencrypted</el-radio>
+            </el-form-item>
+            <el-form-item :label="$t('m.siteAdd.encryption')" prop="encryptType">
+                <span v-if="type==='siteinfo' && form.encryptType" class="info-text">{{form.encryptType===1 ? $t('m.siteAdd.encryptionType') : $t('m.siteAdd.unencrypted')}}</span>
+                <el-radio-group v-else  v-model="form.encryptType">
+                    <el-radio :label="1">{{$t('m.siteAdd.encryptionType')}}</el-radio>
+                    <el-radio :label="2">{{$t('m.siteAdd.unencrypted')}}</el-radio>
                 </el-radio-group>
-            </span>
-        </el-form-item>
-        <el-form-item v-if="type==='siteinfo'" label="Registration Link">
+            </el-form-item>
+            <el-form-item :label="$t('m.siteAdd.proxyNetworkAccess')"  prop="network">
+                <span v-if="type==='siteinfo'" class="info-text">{{form.network}}</span>
+                <el-input v-else v-model="form.network"></el-input>
+                <span  v-if="type==='siteadd' || type==='siteUpdate'" @click="toResetNetwork" class="add-institutions">{{$t('m.siteAdd.resetDefault')}}</span>
+            </el-form-item>
+        </span>
+        <el-form-item v-if="type==='siteinfo'" :label="$t('m.siteAdd.registrationLink')" >
             <el-popover
                 placement="top"
                 width="300"
@@ -162,22 +158,22 @@
                 :content="form.registrationLink">
                 <span slot="reference" class="link-text" style="color:#217AD9">{{form.registrationLink}}</span>
             </el-popover>
-            <span class="copy formcopy" @click="toCopy('from')" :data-clipboard-text="form.registrationLink">copy</span>
+            <span class="copy formcopy" @click="toCopy('from')" :data-clipboard-text="form.registrationLink">{{$t('m.common.copy')}}</span>
         </el-form-item>
       </el-form>
       <div class="Submit">
-        <el-button type="primary" v-if="type==='siteadd'" @click="submitAction">Submit</el-button>
-        <el-button type="primary" v-if="type==='siteUpdate'" @click="submitAction">Resubmit</el-button>
-        <el-button type="primary" v-if="type==='siteinfo'" @click="modifyAction">Modify</el-button>
+        <el-button type="primary" v-if="type==='siteadd'" @click="submitAction">{{$t('m.common.submit')}}</el-button>
+        <el-button type="primary" v-if="type==='siteUpdate'" @click="submitAction">{{$t('m.common.resubmit')}}</el-button>
+        <el-button type="primary" v-if="type==='siteinfo'" @click="modifyAction">{{$t('m.common.modify')}}</el-button>
       </div>
     </div>
     <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="ok-dialog">
       <div class="icon">
         <i class="el-icon-success"></i>
       </div>
-      <div v-if="type==='siteadd'" class="line-text-one" >Add successfully !</div>
-      <div v-if="type==='siteUpdate'" class="line-text-one" >Modify successfully !</div>
-      <div class="line-text-two">the registration link has been generated as follows:</div>
+      <div v-if="type==='siteadd'" class="line-text-one" >{{$t('m.siteAdd.addSuccessfully')}}</div>
+      <div v-if="type==='siteUpdate'" class="line-text-one" >{{$t('m.siteAdd.modifySuccessfully')}}</div>
+      <div class="line-text-two">{{$t('m.siteAdd.registrationLinkGenerated')}}</div>
       <div class="line-text-three">
         <el-popover
             placement="top"
@@ -187,18 +183,18 @@
             :content="form.registrationLink">
             <span class="copy-link" slot="reference">{{form.registrationLink}}</span>
         </el-popover>
-        <span class="copy dialogcopy"  @click="toCopy('tooltip')"  :data-clipboard-text="form.registrationLink">copy</span>
+        <span class="copy dialogcopy"  @click="toCopy('tooltip')"  :data-clipboard-text="form.registrationLink">{{$t('m.common.copy')}}</span>
       </div>
       <div class="dialog-footer">
-        <el-button class="ok-btn" type="primary" @click="okAction">OK</el-button>
+        <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.OK')}}</el-button>
       </div>
     </el-dialog>
     <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="700px">
-      <div class="line-text-one">Are you sure you want to leave this page ?</div>
-      <div class="line-text-two">Your information will not be saved.</div>
+      <div class="line-text-one">{{$t('m.siteAdd.sureLeavePage')}}</div>
+      <div class="line-text-two">{{$t('m.siteAdd.notSavedTips')}}</div>
       <div class="dialog-footer">
-        <el-button class="sure-btn" type="primary" @click="sureLeave">Sure</el-button>
-        <el-button class="sure-btn" type="primary" @click="cancelLeave">Cancel</el-button>
+        <el-button class="sure-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
+        <el-button class="sure-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
     <siteaddip ref="siteaddip"/>
@@ -206,11 +202,13 @@
 </template>
 
 <script>
-import { getPartyRang, siteAdd, getSiteInfo, siteUpdate, checkPartId, checkSiteName, addInstitutionsList } from '@/api/federated'
+import { getPartyRang, siteAdd, getSiteInfo, siteUpdate, checkPartId, checkSiteName, addInstitutionsList, resetNetwork } from '@/api/federated'
 import { responseRange, requestRange } from '@/utils/idRangeRule'
 
 import Clipboard from 'clipboard'
 import siteaddip from './siteaddip'
+// import checkip from '@/utils/checkip'
+
 export default {
     name: 'siteadd',
     components: {
@@ -220,12 +218,6 @@ export default {
         return {
             type: this.$route.query.type, // 编辑或者添加
             id: '', // 数据库对应的id
-            siteNamewarnshow: false, // 是否显示警告样式
-            institutionswarnshow: false, // 是否显示警告样式
-            rolewarnshow: false, // 是否显示警告样式
-            partyIdwarnshow: false, // 是否显示警告样式
-            networkAccessEntranceswarnshow: false, // 是否显示警告样式
-            networkAccessExitswarnshow: false, // 是否显示警告样式
             isleave: false, // 是否可以离开路由
             isleavedialog: false, // 中途离开弹窗
             leaveRouteName: '', // 中途离开路由名称
@@ -245,6 +237,7 @@ export default {
                 institutions: '',
                 role: '',
                 partyId: '',
+                network: '',
                 networkAccessEntrances: '',
                 networkAccessExits: '',
                 secretInfo: {
@@ -259,11 +252,11 @@ export default {
             roleOp: [
                 {
                     value: 1,
-                    label: 'Guest'
+                    label: this.$t('m.common.guest')
                 },
                 {
                     value: 2,
-                    label: 'Host'
+                    label: this.$t('m.common.host')
                 }
             ],
             rules: {
@@ -274,51 +267,19 @@ export default {
                         validator: (rule, val, callback) => {
                             let value = val.trim()
                             if (!value) {
-                                this.siteNamewarnshow = true
-                                callback(new Error('The Site Name field is required.'))
+                                callback(new Error(this.$t('m.siteAdd.siteNameRequired')))
                             } else if (value.length > 20) {
-                                this.siteNamewarnshow = true
-                                callback(new Error('The Site Name cannot exceed 20 characters.'))
+                                callback(new Error(this.$t('m.siteAdd.maxCharacters')))
                             } else if (this.siteNameExists) {
-                                this.siteNamewarnshow = true
-                                callback(new Error('This site name already exists'))
+                                callback(new Error(this.$t('m.siteAdd.alreadyExists')))
                             } else {
-                                this.siteNamewarnshow = false
                                 callback()
                             }
                         }
                     }
                 ],
-                institutions: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.institutionswarnshow = true
-                                callback(new Error('Institution field is required.'))
-                            } else {
-                                this.institutionswarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ],
-                role: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.rolewarnshow = true
-                                callback(new Error('Role field is required.'))
-                            } else {
-                                this.rolewarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ],
+                institutions: [{ required: true, message: this.$t('m.siteAdd.institutionRrequired'), trigger: 'bulr' }],
+                role: [{ required: true, message: this.$t('m.siteAdd.roleRrequired'), trigger: 'bulr' }],
                 partyId: [
                     {
                         required: true,
@@ -342,51 +303,33 @@ export default {
                                 }
                             })
                             if (!value) {
-                                this.partyIdwarnshow = true
-                                callback(new Error('Party ID field is required'))
+                                callback(new Error(this.$t('m.siteAdd.partyIDRequired')))
                             } else if (result || !number.test(value)) {
-                                this.partyIdwarnshow = true
-                                callback(new Error('Invalid Party ID'))
+                                callback(new Error(this.$t('m.siteAdd.invalidPartyID')))
                             } else if (!this.partyIdPostPass) {
-                                this.partyIdwarnshow = true
-                                callback(new Error('This Party ID has been used, please reassign'))
+                                callback(new Error(this.$t('m.siteAdd.partyIDUsed')))
                             } else {
-                                this.partyIdwarnshow = false
                                 callback()
                             }
                         }
                     }
                 ],
-                networkAccessEntrances: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.networkAccessEntranceswarnshow = true
-                                callback(new Error('Network Acess Entrances field is required.'))
-                            } else {
-                                this.networkAccessEntranceswarnshow = false
-                                callback()
-                            }
+                networkAccessEntrances: [{ required: true, message: this.$t('m.siteAdd.networkAcessEntrancesRequired'), trigger: 'bulr' }],
+                networkAccessExits: [{ required: true, message: this.$t('m.siteAdd.networkAcessExitRequired'), trigger: 'bulr' }],
+                network: [{
+                    required: true,
+                    trigger: 'change',
+                    validator: (rule, value, callback) => {
+                        if (!value) {
+                            callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessRequired')))
+                        } else {
+                            callback()
                         }
+                        // else if (!checkip(value)) {
+                        //     callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessInvalid')))
+                        // }
                     }
-                ],
-                networkAccessExits: [
-                    {
-                        required: true,
-                        trigger: 'change',
-                        validator: (rule, value, callback) => {
-                            if (!value) {
-                                this.networkAccessExitswarnshow = true
-                                callback(new Error('Network Acess Exit field is required.'))
-                            } else {
-                                this.networkAccessExitswarnshow = false
-                                callback()
-                            }
-                        }
-                    }
-                ]
+                }]
             }
         }
     },
@@ -410,17 +353,19 @@ export default {
                 this.institutionsdownList.push(obj)
             })
         })
+        this.toResetNetwork()
     },
     beforeDestroy() {},
     mounted() {
         this.$router.beforeEach((to, from, next) => {
             this.leaveRouteName = to.name
+            // console.log(this.leaveRouteName, 'leaveRouteName')
             if (this.isleave) {
                 next()
             } else {
-                this.isleavedialog = true
                 // 中断路由
                 next(false)
+                this.isleavedialog = true
             }
         })
     },
@@ -449,7 +394,8 @@ export default {
         // 检查partyid是否被占用
         tocheckPartyid() {
             this.$refs['infoform'].validateField('partyId', valid => {
-                if (valid !== 'Invalid Party ID' && valid !== 'Party ID field is required') {
+                console.log(valid, 'valid')
+                if (valid !== this.$t('m.siteAdd.partyIDRequired') && valid !== this.$t('m.siteAdd.invalidPartyID')) {
                     let data = {
                         id: this.$route.query.id,
                         partyId: this.form.partyId,
@@ -532,6 +478,9 @@ export default {
         },
         // 取消离开
         cancelLeave() {
+            // this.$router.go(0)
+            this.$store.dispatch('SetMune', 'Site Manage')
+            console.log(this.$store, 'this.$store')
             this.isleavedialog = false
         },
         // 添加/编辑出入口
@@ -619,13 +568,15 @@ export default {
                 id: this.id ? parseInt(this.id) : parseInt(this.$route.query.id)
             }
             getSiteInfo(data).then(res => {
+                // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
+                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
                 if (this.type === 'siteinfo') {
                     let data = { ...res.data }
                     if (!res.data.protocol && !res.data.encryptType) {
                         data.protocol = 'https://'
                         data.encryptType = 1
                     }
-                    this.form = { ...data }
+                    this.form = data
                 } else {
                     this.form.registrationLink = res.data.registrationLink
                 }
@@ -641,7 +592,8 @@ export default {
             if (type === 'tooltip') {
                 let dialogClipboard = new Clipboard('.dialogcopy')
                 dialogClipboard.on('success', e => {
-                    this.$message({ type: 'success', message: 'Success!' })
+                    console.log(e, 'copy-e')
+                    this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     dialogClipboard.destroy()
                 })
@@ -649,7 +601,7 @@ export default {
             if (type === 'from') {
                 let formClipboard = new Clipboard('.formcopy')
                 formClipboard.on('success', e => {
-                    this.$message({ type: 'success', message: 'Success!' })
+                    this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     formClipboard.destroy()
                 })
@@ -666,6 +618,12 @@ export default {
                 name: 'Admin Access',
                 query: { type: 'FATE Manager' }
             })
+        },
+        // 重置默认值
+        toResetNetwork() {
+            resetNetwork().then(res => {
+                this.form.network = res.data.network
+            })
         }
 
     }
@@ -673,6 +631,9 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" >
-
 @import 'src/styles/siteadd.scss';
+    /* Solve Firefox compatibility issues  */
+    .el-form-item__content{
+        margin-bottom: 5px;
+    }
 </style>
