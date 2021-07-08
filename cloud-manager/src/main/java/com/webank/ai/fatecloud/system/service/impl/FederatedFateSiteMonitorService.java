@@ -58,6 +58,7 @@ public class FederatedFateSiteMonitorService {
         pqw.select("site_name", "party_id").eq("status", 2);
         List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(pqw);
         Set<Long> partyIdSet = federatedSiteManagerDoList.stream().map(FederatedSiteManagerDo::getPartyId).collect(Collectors.toSet());
+        partyIdSet.add(0L);// filter file upload site is 0
 
         Date date = new Date();
         for (FateSiteJobDo fateSiteJobDo : fateSiteJobDoArrayList) {
