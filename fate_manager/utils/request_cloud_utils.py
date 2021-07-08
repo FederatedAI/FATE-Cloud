@@ -78,7 +78,7 @@ def get_site_signature_head(uri, data, body):
 
 def request_cloud_manager(uri_key, data, body, methods="post", url=None):
     uri = CLOUD_URL[uri_key]
-    body_json = json.dumps(body, separators=(',', ':'), sort_keys=True)
+    body_json = json.dumps(body, separators=(',', ':'), sort_keys=True, ensure_ascii=False)
     if uri_key in CLOUD_INSTITUTION_SIGNATURE:
         head = get_institution_signature_head(uri, data, body_json)
     elif uri_key in CLOUD_SITE_SIGNATURE:
