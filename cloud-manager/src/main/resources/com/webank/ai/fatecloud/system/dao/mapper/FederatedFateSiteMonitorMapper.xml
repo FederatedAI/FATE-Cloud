@@ -249,7 +249,8 @@
         ) d
         ORDER BY detail_institutions ASC, detail_site_name ASC, site_name ASC
         ) e,
-        (SELECT b.job_id,b.status,GROUP_CONCAT(b1.detail_party_id) AS union_name FROM t_fate_site_job b,t_fate_site_job_detail b1
+        (SELECT b.job_id,b.status,(case when COUNT(1) > 1 then GROUP_CONCAT(b1.detail_party_id) ELSE GROUP_CONCAT(b1.detail_party_id,',',b1.detail_party_id) END)
+        AS union_name FROM t_fate_site_job b,t_fate_site_job_detail b1
         WHERE b.institutions = #{jobOfSiteDimensionPeriodQo.institutions}
         and b.job_id = b1.detail_job_id
         AND b1.detail_role &lt;&gt; ('arbiter') AND b.job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
