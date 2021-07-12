@@ -316,7 +316,7 @@ public class FederatedFateSiteMonitorService {
 
         for (Date date : supplementSet) {
             long zero = 0;
-            String zeroRatio = "0%";
+            String zeroRatio = "0.00%";
             JobTypedTableDto jobTypedTableDto = new JobTypedTableDto(date, zero, zero, zeroRatio, zero, zeroRatio, zero, zero, zero);
             jobTypedTableDtoList.add(jobTypedTableDto);
         }
