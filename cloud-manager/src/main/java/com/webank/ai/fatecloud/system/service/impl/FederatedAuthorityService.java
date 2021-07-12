@@ -17,6 +17,7 @@ package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
@@ -249,6 +250,7 @@ public class FederatedAuthorityService {
 
     public CancelListDto findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo, String scenarioType) {
         CancelListDto cancelListDto = new CancelListDto();
+        Set<String> institutionsSet = Sets.newHashSet();
         cancelListDto.setScenarioType(scenarioType);
 
         if ("3".equals(scenarioType)) {
@@ -261,6 +263,7 @@ public class FederatedAuthorityService {
                 guestSet.add(guest.getAuthorityInstitutions());
             }
             cancelListDto.setGuestList(guestSet);
+            institutionsSet.addAll(guestSet);
 
             //get institution applying the input institutions
             QueryWrapper<FederatedSiteAuthorityDo> ewForHost = new QueryWrapper<>();
@@ -271,6 +274,7 @@ public class FederatedAuthorityService {
                 hostSet.add(host.getInstitutions());
             }
             cancelListDto.setHostList(hostSet);
+            institutionsSet.addAll(guestSet);
 
         }
 
@@ -286,6 +290,7 @@ public class FederatedAuthorityService {
                 guestSet.add(guest.getAuthorityInstitutions());
             }
             cancelListDto.setGuestList(guestSet);
+            institutionsSet.addAll(guestSet);
 
         }
 
@@ -301,8 +306,10 @@ public class FederatedAuthorityService {
                 all.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
             }
             cancelListDto.setAll(all);
+            institutionsSet.addAll(all);
         }
 
+        cancelListDto.setTotal(institutionsSet.size());
         return cancelListDto;
 
 

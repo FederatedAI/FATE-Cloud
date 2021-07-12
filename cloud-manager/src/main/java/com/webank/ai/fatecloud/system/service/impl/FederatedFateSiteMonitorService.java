@@ -293,7 +293,34 @@ public class FederatedFateSiteMonitorService {
                 jobTypedTableDto.setFailedRatio("0.00%");
             }
         }
+
+        // add empty data for the time period without tasks
+        typedTableSupplement(beginDate, endDate, sdf, jobTypedTableDtos);
+
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobTypedTableDtos);
+    }
+
+    private void typedTableSupplement(Date beginDate, Date endDate, SimpleDateFormat sdf, LinkedList<JobTypedTableDto> jobTypedTableDtoList) {
+        Set<String> dateSet = jobTypedTableDtoList.stream().map(jobTypedTableDto -> sdf.format(jobTypedTableDto.getDate())).collect(Collectors.toSet());
+        Set<Date> supplementSet = Sets.newHashSet();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(beginDate);
+
+        while (beginDate.getTime() <= endDate.getTime()) {
+            if (!dateSet.contains(sdf.format(beginDate))) {
+                supplementSet.add(beginDate);
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            beginDate = calendar.getTime();
+        }
+
+        for (Date date : supplementSet) {
+            long zero = 0;
+            String zeroRatio = "0%";
+            JobTypedTableDto jobTypedTableDto = new JobTypedTableDto(date, zero, zero, zeroRatio, zero, zeroRatio, zero, zero, zero);
+            jobTypedTableDtoList.add(jobTypedTableDto);
+        }
+        jobTypedTableDtoList.sort(Comparator.comparing(JobTypedTableDto::getDate));
     }
 
     public CommonResponse<List<JobTypedDurationDto>> findTypedDuration(JobTypedTableQo jobTypedTableQo) throws ParseException {
