@@ -159,6 +159,15 @@ def group_by_site(site_job_list):
             if not site_job_dict[site_job.party_id]["institutions"][other_institutions_dict[other_party_id]].get(other_party_id):
                 site_job_dict[site_job.party_id]["institutions"][other_institutions_dict[other_party_id]][other_party_id] = []
             site_job_dict[site_job.party_id]["institutions"][other_institutions_dict[other_party_id]][other_party_id].append(site_job)
+            # symmetrical display
+            if other_institutions_dict[site_job.party_id] == other_institutions_dict[other_party_id] and site_job.party_id != other_party_id:
+                if not site_job_dict.get(other_party_id):
+                    site_job_dict[other_party_id] = {"institutions": {other_institutions_dict[site_job.party_id]: {site_job.party_id: []}}}
+                if not site_job_dict[other_party_id]["institutions"].get(other_institutions_dict[site_job.party_id]):
+                    site_job_dict[other_party_id]["institutions"][other_institutions_dict[site_job.party_id]] = {site_job.party_id: []}
+                if not site_job_dict[other_party_id]["institutions"][other_institutions_dict[site_job.party_id]].get(site_job.party_id):
+                    site_job_dict[other_party_id]["institutions"][other_institutions_dict[site_job.party_id]][site_job.party_id] = []
+                site_job_dict[other_party_id]["institutions"][other_institutions_dict[site_job.party_id]][site_job.party_id].append(site_job)
     total_job_num = 0
     for party_id, party_id_item in site_job_dict.items():
         for institutions, institutions_item in party_id_item["institutions"].items():
