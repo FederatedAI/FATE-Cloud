@@ -165,7 +165,7 @@ export default {
             this.$parent.$parent.$parent.initList()
         },
         handleSizeChange(val) {
-            // console.log(`每页 ${val} 条`)
+            console.log(`每页 ${val} 条`)
         },
         handleCurrentChange(val) {
             this.data.pageNum = val

@@ -16,7 +16,7 @@
                         :picker-options="pickerOptions">
                     </el-date-picker>
                     <span class="institution">{{$t('Site')}} : </span>
-                    <el-select v-model="party_id" class="select" placeholder="请选择">
+                    <el-select @change="getJobs" v-model="party_id" class="select" placeholder="请选择">
                         <el-option
                         v-for="item in siteOptions"
                         :key="item.value"
@@ -47,7 +47,7 @@
                 </div>
                 <div class="job-modeling">
                     <div class="echarts-line">
-                        <jobMonitorProgress :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
+                        <jobMonitorProgress ref="progress" :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
                     </div>
                 </div>
             </div>
@@ -289,12 +289,15 @@ export default {
                 this.setProgressData(this.detail)
                 this.changeProgressType('intersect')
                 loading.style.display = 'none'
+                this.$refs['progress'].selectedProgressBarIndex = 0
             })
         },
         changeSite() {
             this.getJobs()
         },
         changeProgressType(name) {
+            console.log(name, 'name')
+            console.log(this.detail, 'detail')
             this.selectData = this.detail[name]
             this.dayTotal = Object.assign({}, this.selectData.total)
             this.setDayChartData(this.selectData.day)
@@ -313,6 +316,7 @@ export default {
                     ...data[key].total
                 }
             })
+            console.log(this.dayListData)
         },
         setProgressData(data) {
             let success = []
@@ -338,6 +342,7 @@ export default {
                 chartdata.push((data[key].total.failed_percent * 100).toFixed(2))
                 day.push(moment(key).format('YYYY-MM-DD'))
             })
+            console.log(chartdata, 'chartdata')
             this.$set(this.failedChartData, 'data', chartdata)
             this.$set(this.failedChartData, 'day', day)
         },

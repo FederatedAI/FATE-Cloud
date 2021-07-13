@@ -54,6 +54,7 @@ export const m = {
         'time': 'Time',
         'date': 'Date',
         'history': 'History',
+        'agreed': 'agreed',
         'agree': 'Agree',
         'reject': 'Reject',
         'apply': 'Apply',

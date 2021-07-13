@@ -75,6 +75,7 @@ export default {
                                     let urlStr = this.activteForm.link.split('\\n').join('')
                                     let Url = utf8to16(decode64(urlStr))
                                     let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+                                    console.log(newStr)
                                     callback()
                                 }
                             } catch {

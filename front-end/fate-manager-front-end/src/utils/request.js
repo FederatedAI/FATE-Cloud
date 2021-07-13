@@ -156,7 +156,22 @@ service.interceptors.response.use(
     error => {
         // 关闭全局loading
         loading.style.display = 'none'
+        console.log(111)
         setErrorMsgToI18n(error)
+        // Message({
+        //     message: `${error}`,
+        //     type: 'error',
+        //     duration: 5 * 1000
+        // })
+
+        // 服务端发生错误退出
+        // setTimeout(() => {
+        //     router.push({
+        //         path: '/welcome/login'
+        //     })
+        //     location.reload() // 为了重新实例化vue-router对象 避免bug
+        // }, 1500)
+
         return Promise.reject(error)
     }
 )

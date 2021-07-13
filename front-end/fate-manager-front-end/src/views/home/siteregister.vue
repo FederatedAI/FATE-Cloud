@@ -49,8 +49,15 @@ export default {
                 // this.showBtn()
                 if (val) {
                     this.inputClass = true
-                    let url = this.inputform.input.split('\\n').join('')
-                    this.inputform.inputUrl = url ? utf8to16(decode64(url)).split('?st')[0] : ''
+                    let url = this.inputform.input
+                    if (url.indexOf('?st') < 0) {
+                        url = url.split('\\n').join('')
+                        this.inputform.inputUrl = url ? utf8to16(decode64(url)).split('?st')[0] : ''
+                    } else {
+                        this.inputform.inputUrl = url.split('?st')[0]
+                    }
+                    console.log(url, 'url-watch')
+                    console.log(this.inputform.inputUrl, 'url-inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true
@@ -76,11 +83,17 @@ export default {
     methods: {
 
         okAction() {
-            let urlStr = this.inputform.input.split('\\n').join('')
-            let Url = utf8to16(decode64(urlStr))
-            let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
-            this.inputform.input = this.inputform.input.replace(/\\n/g, '\n')
-            // console.log(this.inputform.input, 'this.inputform.input')
+            let Url = this.inputform.input
+            let urlStr = ''
+            let newStr = ''
+            if (Url.indexOf('st=') < 0) {
+                urlStr = Url.split('\\n').join('')
+                Url = utf8to16(decode64(urlStr))
+                this.inputform.input = this.inputform.input.replace(/\\n/g, '\n')
+                newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+            } else {
+                newStr = Url.split('st=')[1].split('\\\\').join('"').replace(new RegExp('\\\\', 'g'), '')
+            }
             // 判断URL后面是否是json
             try {
                 let data = {}
@@ -97,6 +110,7 @@ export default {
                 data.partyId = obj.partyId
                 data.role = obj.role
                 data.siteName = obj.siteName
+                console.log(data, 'data')
                 checkUrl(data).then(res => {
                     if (res.code === 0) {
                         this.$router.push({
@@ -105,9 +119,11 @@ export default {
                         })
                     }
                 }).catch(res => {
+                    console.log(res, 'warn')
                     // this.warnActive = true
                 })
             } catch (err) {
+                console.log(err, 'erro')
                 // this.warnActive = true
             }
         },

@@ -71,8 +71,6 @@ export default {
                     },
                     formatter: function (params, ticket, callback) {
                         // if (params.componentIndex !== 3) {
-                        console.log(arguments, 'arg')
-                        console.log(self.chartData, 'chartData')
                         let data = self.chartData
                         let index = params.dataIndex
                         let success = data.success[index] * 1
@@ -130,8 +128,8 @@ export default {
                     splitLine: { show: false },
                     splitArea: { show: false },
                     axisLabel: { show: false },
-                    axisTick: { show: false },
-                    max: 100
+                    axisTick: { show: false }
+                    // max: 100
                 },
                 grid: {
                     top: 0,
@@ -150,9 +148,14 @@ export default {
                         itemStyle: {
                             normal: {
                                 barBorderRadius: 10,
-                                color: '#fff'
+                                color: function(param) {
+                                    return self.selectedProgressBarIndex === param.dataIndex ? '#ecf6ff' : '#FFFFFF'
+                                }
                             },
-                            triggerOn: 'click'
+                            emphasis: {
+                                color: '#ecf6ff'
+                            },
+                            triggerOn: 'hover'
                         }
                     },
                     {
@@ -171,7 +174,8 @@ export default {
                             },
                             emphasis: {
                                 color: '#E6EBF0'
-                            }
+                            },
+                            triggerOn: 'click'
                         }
                     },
                     {
@@ -191,7 +195,8 @@ export default {
                             },
                             emphasis: {
                                 color: '#00C99E'
-                            }
+                            },
+                            triggerOn: 'click'
                         }
                     },
                     {
@@ -204,9 +209,13 @@ export default {
                                 barBorderRadius: 0,
                                 // color: '#ccc'
                                 color: function(param) {
-                                    return self.selectedProgressBarIndex === param.dataIndex ? '#FAFBFC' : '#FFFFFF'
+                                    return self.selectedProgressBarIndex === param.dataIndex ? '#ecf6ff' : '#FFFFFF'
                                 }
-                            }
+                            },
+                            emphasis: {
+                                color: '#ecf6ff'
+                            },
+                            triggerOn: 'click'
                         }
                     }
                 ]
@@ -222,22 +231,6 @@ export default {
             this.$refs.chart_progress.chart.on('click', (e) => {
                 this.clickProgress(e)
             })
-            // const myChart = this.$refs.chart_progress.init(document.querySelectorAll('.echarts canvas')[1])
-            // console.log(document.querySelectorAll('.echarts canvas')[0], 'echarts')
-            // console.log(this.$refs.chart_progress, 'pro')
-            // console.log(myChart, 'chart')
-            // this.$refs.chart_progress.chart.on('mouseover', (e) => {
-            //     console.log(e, 'eeee')
-            //     if (e.targetType === 'axisLabel') {
-            //         let index = this.getclickxAxisIndex(e)
-            //         console.log(index, 'index')
-            //         this.$refs.chart_progress.dispatchAction({
-            //             type: 'showTip',
-            //             // 数据项的 index，如果不指定也可以通过 name 属性根据名称指定数据项
-            //             dataIndex: index
-            //         })
-            //     }
-            // })
         })
     },
 
@@ -258,7 +251,7 @@ export default {
             dataName = language === 'zh' ? this.getEnglish(e.name || e.value) : (e.name || e.value)
             this.selectedProgressBarIndex = hightLightIndex
             this.reFreshProgress()
-            this.$emit('setProgressIndex', dataName)
+            this.$emit('setProgressIndex', dataName.toLowerCase())
         },
         reFreshProgress() {
             var series = this.chartExtend.series
@@ -293,6 +286,12 @@ export default {
                     console.log(newVal, 'newVal-progress')
                     this.chartExtend.series[1].data = newVal.failed
                     this.chartExtend.series[2].data = newVal.success
+                    let failedMax = Math.max(...newVal.failed)
+                    let successMax = Math.max(...newVal.success)
+                    let diffWhichMax = failedMax - successMax > 0 ? failedMax : successMax
+                    let bgMax = Math.max((diffWhichMax * 2 + 20), 100)
+                    let bgArr = [bgMax, bgMax, bgMax, bgMax]
+                    this.chartExtend.series[3].data = bgArr
                 }
             },
             deep: true

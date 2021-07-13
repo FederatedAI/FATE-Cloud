@@ -143,11 +143,13 @@
                 " <span style="color:#217AD9">{{tipstempData.institutions}}</span> "
             </div>
             <div class="line-text-one">
-                {{$t('m.site.appliedView')}}
-                <span v-if="tipstempData.scenarioType==='1'"></span>
+                {{$t('m.site.appliedView',
+                {type:tipstempData.scenarioType==='1' ? '' :
+                tipstempData.scenarioType==='2' ? $t('m.common.guest') : $t('m.common.host')})}}{{$t('m.site.sitesOfPlaceHodler')}}
+                <!-- <span v-if="tipstempData.scenarioType==='1'"></span>
                 <span v-if="tipstempData.scenarioType==='2'">{{$t('m.common.guest')}}</span>
-                <span v-if="tipstempData.scenarioType==='3'">{{$t('m.common.host')}}</span>
-                {{$t('m.site.sitesOf')}}
+                <span v-if="tipstempData.scenarioType==='3'">{{$t('m.common.host')}}</span> -->
+
             </div>
             <div class="line-text-one" style="color:#217AD9">
                 <span v-for="(item, index) in tipstempData.insList" :key="index">

@@ -126,8 +126,7 @@ export default {
                     splitLine: { show: false },
                     splitArea: { show: false },
                     axisLabel: { show: false },
-                    axisTick: { show: false },
-                    max: 100
+                    axisTick: { show: false }
                 },
                 grid: {
                     top: 0,
@@ -146,9 +145,14 @@ export default {
                         itemStyle: {
                             normal: {
                                 barBorderRadius: 10,
-                                color: '#fff'
+                                color: function(param) {
+                                    return self.selectedProgressBarIndex === param.dataIndex ? '#ecf6ff' : '#FFFFFF'
+                                }
                             },
-                            triggerOn: 'click'
+                            emphasis: {
+                                color: '#ecf6ff'
+                            },
+                            triggerOn: 'hover'
                         }
                     },
                     {
@@ -167,7 +171,8 @@ export default {
                             },
                             emphasis: {
                                 color: '#E6EBF0'
-                            }
+                            },
+                            triggerOn: 'click'
                         }
                     },
                     {
@@ -187,7 +192,8 @@ export default {
                             },
                             emphasis: {
                                 color: '#00C99E'
-                            }
+                            },
+                            triggerOn: 'click'
                         }
                     },
                     {
@@ -198,10 +204,15 @@ export default {
                         itemStyle: {
                             normal: {
                                 barBorderRadius: 0,
+                                // color: '#ccc'
                                 color: function(param) {
-                                    return self.selectedProgressBarIndex === param.dataIndex ? '#FAFBFC' : '#FFFFFF'
+                                    return self.selectedProgressBarIndex === param.dataIndex ? '#ecf6ff' : '#FFFFFF'
                                 }
-                            }
+                            },
+                            emphasis: {
+                                color: '#ecf6ff'
+                            },
+                            triggerOn: 'click'
                         }
                     }
                 ]
@@ -238,7 +249,7 @@ export default {
             dataName = language === 'zh' ? this.getEnglish(e.name || e.value) : (e.name || e.value)
             this.selectedProgressBarIndex = hightLightIndex
             this.reFreshProgress()
-            this.$emit('setProgressIndex', dataName)
+            this.$emit('setProgressIndex', dataName.toLowerCase())
         },
         getclickxAxisIndex(e) {
             return (this.$t(`xAxis`).split(',')).indexOf(e.value)
@@ -247,6 +258,7 @@ export default {
             var series = this.chartExtend.series
             this.chartExtend.series = []
             this.chartExtend.series = series
+            console.log(this.chartExtend, 'chartExtend')
         },
         getEnglish(name) {
             let xAxisTranslate = {
@@ -262,8 +274,15 @@ export default {
         chartData: {
             handler(newVal, oldVal) {
                 if (newVal) {
+                    console.log(newVal, 'newVal')
                     this.chartExtend.series[1].data = newVal.failed
                     this.chartExtend.series[2].data = newVal.success
+                    let failedMax = Math.max(...newVal.failed)
+                    let successMax = Math.max(...newVal.success)
+                    let diffWhichMax = failedMax - successMax > 0 ? failedMax : successMax
+                    let bgMax = Math.max((diffWhichMax * 2 + 20), 100)
+                    let bgArr = [bgMax, bgMax, bgMax, bgMax]
+                    this.chartExtend.series[3].data = bgArr
                 }
             },
             deep: true
@@ -271,6 +290,7 @@ export default {
         lang: {
             handler(newVal, oldVal) {
                 if (newVal) {
+                    console.log(newVal, 'newVal')
                     this.chartExtend.xAxis.data = newVal
                 }
             }

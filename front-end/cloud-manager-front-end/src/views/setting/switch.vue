@@ -212,6 +212,7 @@ export default {
                         }
                     }
                 })
+                console.log(this.functionIdObj, 'functionIdObj')
             })
         },
         // 确定改变状态
@@ -256,6 +257,7 @@ export default {
             this.status = ''
             this.switchVisible = true // 弹框
             this.paramsData.functionId = this.functionIdObj[type]
+            console.log(this.functionIdObj, 'paramsData')
             if (type === 'auto') {
                 if (this.autostatus) {
                     this.paramsData.status = 1

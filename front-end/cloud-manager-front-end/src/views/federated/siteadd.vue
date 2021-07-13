@@ -395,6 +395,7 @@ export default {
         // 检查partyid是否被占用
         tocheckPartyid() {
             this.$refs['infoform'].validateField('partyId', valid => {
+                console.log(valid, 'valid')
                 if (valid !== this.$t('m.siteAdd.partyIDRequired') && valid !== this.$t('m.siteAdd.invalidPartyID')) {
                     let data = {
                         id: this.$route.query.id,
@@ -480,6 +481,7 @@ export default {
         cancelLeave() {
             // this.$router.go(0)
             this.$store.dispatch('SetMune', 'Site Manage')
+            console.log(this.$store, 'this.$store')
             this.isleavedialog = false
         },
         // 添加/编辑出入口
@@ -568,7 +570,14 @@ export default {
             }
             getSiteInfo(data).then(res => {
                 // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
-                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
+                let link = res.data.registrationLink
+                if (link.indexOf('?st') < 0) {
+                    console.log('加密链接')
+                    link = JSON.stringify(link).replace(new RegExp('"', 'g'), '')
+                } else {
+                    console.log('未加密链接')
+                    link = JSON.stringify(link).replace(new RegExp('\\\\', 'g'), '')
+                }
                 if (this.type === 'siteinfo') {
                     let data = { ...res.data }
                     if (!res.data.protocol && !res.data.encryptType) {
@@ -577,7 +586,7 @@ export default {
                     }
                     this.form = data
                 } else {
-                    this.form.registrationLink = res.data.registrationLink
+                    this.form.registrationLink = link
                 }
                 this.partyidSelect = res.data.groupName // groupName范围下拉
                 this.getPartyid(res.data.role)// role下拉获取数据
@@ -591,6 +600,7 @@ export default {
             if (type === 'tooltip') {
                 let dialogClipboard = new Clipboard('.dialogcopy')
                 dialogClipboard.on('success', e => {
+                    console.log(e, 'copy-e')
                     this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     dialogClipboard.destroy()
