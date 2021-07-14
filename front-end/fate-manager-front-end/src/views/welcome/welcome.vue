@@ -3,19 +3,19 @@
     <img src="@/assets/welcomepage.svg" />
     <div class="welcomepage">
         <div class="title">
-        <span>Welcome to FATE Cloud!</span>
+        <span>{{$t('m.welcome.welcome')}}</span>
         </div>
         <div class="line"></div>
         <div class="text">
-        <span>It is an Infrastructure for Building and Managing Federated Data Collaboration Network.</span>
+        <span>{{$t('m.welcome.introductions')}}</span>
         </div>
         <div class="text-two">
-        <span>Start registering and joining a federated organization.</span>
+        <span>{{$t('m.welcome.startRegistering')}}</span>
         </div>
         <div class="text-two">
-        <span>After successfully joining the organization, you are ready for federated modeling.</span>
+        <span>{{$t('m.welcome.afterJoining')}}</span>
         </div>
-        <el-button class="begin-btn" type="primary" @click="begin">Register</el-button>
+        <el-button class="begin-btn" type="primary" @click="begin">{{$t('m.welcome.register')}}</el-button>
         <div class="round">
         <span class="circul"></span>
         <span class="circul"></span>

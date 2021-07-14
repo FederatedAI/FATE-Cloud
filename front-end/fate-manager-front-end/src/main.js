@@ -44,7 +44,6 @@ Vue.use(ElementUI, {
 // Vue.use(VueClipboard)
 // Vue.use(mavonEditor)
 // Vue.component('my-tooltip', Tooltip)
-// Vue.component('v-chart', ECharts)// 全局使用
 Vue.config.productionTip = false
 Vue.prototype.$message = singleMessageCell
 Vue.prototype.$Map = map

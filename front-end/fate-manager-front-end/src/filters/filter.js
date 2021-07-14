@@ -24,7 +24,8 @@ let dateFormat = (value, formats) => {
 }
 
 let getRoleType = (value) => {
-    let maps = map['roleType'].filter(item => item.value === `${value.roleId}`)[0]
+    let roleId = `${value.roleId}` || `${value}`
+    let maps = map['roleType'].filter(item => `${item.value}` === roleId)[0]
     return maps ? maps.label : value.roleName
 }
 
@@ -39,7 +40,9 @@ let getServiceStatus = (value) => {
 }
 
 let getSiteType = (value) => {
-    let maps = map['siteType'].filter(item => item.value === `${value.code}`)[0]
+    if (!value) return ''
+    let code = value.code ? value.code : value
+    let maps = map['siteType'].filter(item => item.value === `${code}`)[0]
     return maps ? maps.label : value.desc
 }
 

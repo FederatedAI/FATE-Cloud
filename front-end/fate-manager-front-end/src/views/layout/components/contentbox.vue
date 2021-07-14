@@ -49,7 +49,7 @@ export default {
             } else if (name === 'cooperation') {
                 this.path = ['Monitor', 'Site Cooperation']
             } else if (name === 'jobmonitor') {
-                this.path = ['Monitor', 'job Monitor']
+                this.path = ['Monitor', 'Job Monitor']
             } else if (name === 'Admin Access') {
                 this.path = ['Setting', 'Admin Access']
             } else if (name === 'System Function Switch') {

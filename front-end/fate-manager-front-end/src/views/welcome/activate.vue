@@ -3,30 +3,30 @@
         <div class="site-add">
             <div class="add-info">
             <div class="title">
-                <span>Activate my site</span>
+                <span>{{$t('m.welcome.activateSite')}}</span>
             </div>
             <el-form ref="infoform" :model="form" label-position="left" label-width="250px" >
                 <!-- <el-form-item label="Federated Organization" prop="stiename">
                     <span class="info-text">{{form.federatedOrganization}}</span>
                 </el-form-item> -->
-                <el-form-item label="Site Name" prop="stiename">
+                <el-form-item :label="$t('m.common.siteName')" prop="stiename">
                     <span class="info-text">{{form.siteName}}</span>
                 </el-form-item>
-                <el-form-item label="Institution" prop="institution">
+                <el-form-item :label="$t('m.common.institution')" prop="institution">
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
-                <el-form-item label="Role" prop="role">
-                    <span class="info-text">{{form.role===1?'guest':'host'}}</span>
+                <el-form-item :label="$t('m.common.role')" prop="role">
+                    <span class="info-text">{{form.role | getSiteType}}</span>
                 </el-form-item>
-                <el-form-item label="Party ID">
+                <el-form-item :label="$t('m.common.partyID')">
                     <span class="info-text">{{form.partyId}}</span>
                 </el-form-item>
-                <el-form-item label="Network Acess Entrances" prop="entrances">
+                <el-form-item :label="$t('m.sitemanage.networkEntrances')" prop="entrances">
                 <span v-if='form.networkAccessEntrances' class="info-text" style="margin-top: 5px;">
                     <div style="line-height: 30px" v-for="(item, index) in form.networkAccessEntrances.split(';')" :key="index">{{item}}</div>
                 </span>
                 </el-form-item>
-                <el-form-item label="Network Acess Exits" prop="exit">
+                <el-form-item :label="$t('m.sitemanage.networkExits')" prop="exit">
                     <span v-if='form.networkAccessExits' class="info-text" style="margin-top: 5px;">
                         <div style="line-height: 30px" v-for="(item, index) in form.networkAccessExits.split(';')" :key="index">{{item}}</div>
                     </span>
@@ -39,7 +39,7 @@
                     <span v-if="secretViewDefault" class="info-text">{{form.appSecret}} <img src="@/assets/view_show.png" @click="secretViewDefault = !secretViewDefault" class="view" ></span>
                     <span  v-if="!secretViewDefault" class="info-text">***********************<img src="@/assets/view_hide.png" @click="secretViewDefault = !secretViewDefault" class="view" ></span>
                 </el-form-item>
-                <el-form-item label="Registration Link">
+                <el-form-item :label="$t('m.sitemanage.registrationLink')">
                     <el-popover
                         placement="top"
                         width="400"
@@ -50,16 +50,15 @@
                 </el-form-item>
             </el-form>
             <div class="Submit">
-                <el-button type="primary" @click="modifyAction">Confirm and Activate</el-button>
+                <el-button type="primary" @click="modifyAction">{{$t('m.welcome.confirmAndActivate')}}</el-button>
             </div>
             </div>
             <el-dialog :visible.sync="confirmdialog" class="site-toleave-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
                 <i class="el-icon-success"></i>
-                <div class="line-text-success">Activate successfully !</div>
-                <div class="line-text-one">Before using federated learning modeling,</div>
-                <div class="line-text-two">you must ensure that FATE is deployed correctly.</div>
+                <div class="line-text-success">{{$t('m.welcome.activateSuccessfully')}}</div>
+                <div class="line-text-one">{{$t('m.welcome.activateSuccessfully')}}</div>
                 <div class="dialog-footer">
-                    <el-button class="sure-btn" type="primary" @click="confirm">OK</el-button>
+                    <el-button class="sure-btn" type="primary" @click="confirm">{{$t('m.common.OK')}}</el-button>
                 </div>
             </el-dialog>
         </div>
@@ -92,7 +91,13 @@ export default {
         // this.$store.dispatch('selectEnum')
     },
     mounted() {
-        let Url = utf8to16(decode64(this.$route.query.registerUrl))
+        let Url = this.$route.query.registerUrl
+        if (Url.indexOf('?st') < 0) {
+            Url = Url.split('\\n').join('')
+            Url = utf8to16(decode64(Url))
+        }
+        console.log(this.$route.query.registerUrl, 'registerUrl')
+        console.log(Url, 'url')
         let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
         let obj = { ...JSON.parse(newStr) }
         let fromObj = {}

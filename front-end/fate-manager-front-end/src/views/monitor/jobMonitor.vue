@@ -16,7 +16,7 @@
                         :picker-options="pickerOptions">
                     </el-date-picker>
                     <span class="institution">{{$t('Site')}} : </span>
-                    <el-select v-model="party_id" class="select" placeholder="请选择">
+                    <el-select @change="getJobs" v-model="party_id" class="select" placeholder="请选择">
                         <el-option
                         v-for="item in siteOptions"
                         :key="item.value"
@@ -47,7 +47,7 @@
                 </div>
                 <div class="job-modeling">
                     <div class="echarts-line">
-                        <jobMonitorProgress :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
+                        <jobMonitorProgress ref="progress" :chartData="chartData" :lang="lang" @setProgressIndex="changeProgressType" />
                     </div>
                 </div>
             </div>
@@ -196,7 +196,7 @@ export default {
         return {
             lang: '',
             progressType: 0,
-            timevalue: [new Date(), new Date()],
+            timevalue: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()],
             siteOptions: [],
             party_id: 'ALL',
             modelList: [
@@ -289,6 +289,7 @@ export default {
                 this.setProgressData(this.detail)
                 this.changeProgressType('intersect')
                 loading.style.display = 'none'
+                this.$refs['progress'].selectedProgressBarIndex = 0
             })
         },
         changeSite() {
@@ -296,6 +297,7 @@ export default {
         },
         changeProgressType(name) {
             console.log(name, 'name')
+            console.log(this.detail, 'detail')
             this.selectData = this.detail[name]
             this.dayTotal = Object.assign({}, this.selectData.total)
             this.setDayChartData(this.selectData.day)
@@ -337,10 +339,10 @@ export default {
             let chartdata = []
             let day = []
             Object.keys(data).map(key => {
-                chartdata.push((data[key].total.failed_percent*100).toFixed(2))
+                chartdata.push((data[key].total.failed_percent * 100).toFixed(2))
                 day.push(moment(key).format('YYYY-MM-DD'))
             })
-            console.log(chartdata,'chartdata')
+            console.log(chartdata, 'chartdata')
             this.$set(this.failedChartData, 'data', chartdata)
             this.$set(this.failedChartData, 'day', day)
         },

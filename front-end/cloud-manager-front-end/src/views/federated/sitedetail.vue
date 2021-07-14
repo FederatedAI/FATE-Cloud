@@ -105,7 +105,7 @@
             </el-radio-group>
             <el-tooltip effect="dark" placement="top">
                 <div style="font-size:14px" slot="content">
-                    <div>including FATE-Board, FATE-Flow</div>
+                    <div>{{$t('m.site.including')}} FATE-Board, FATE-Flow</div>
                 </div>
                 <i class="el-icon-info icon-info"></i>
             </el-tooltip>

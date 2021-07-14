@@ -84,6 +84,7 @@
                                         <el-popover
                                             v-if="scope.row.history"
                                             v-model="scope.row.visible"
+                                            effect="light"
                                             placement="left"
                                             popper-class="ip-history"
                                             width="650"
@@ -422,6 +423,7 @@ export default {
 .ip-history{
     margin-top: -18px !important;
     padding: 0;
+    background: #fff !important;
     .content{
         padding: 36px 0;
         // height:500px;

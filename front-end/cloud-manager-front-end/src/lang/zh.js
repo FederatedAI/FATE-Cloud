@@ -47,7 +47,7 @@ export const m = {
         'foldAll': '全部折叠',
         'institution': '机构',
         'siteInstitution': '站点机构',
-        'institutionName': '站点名称',
+        'institutionName': '机构',
         'time': '时间',
         'date': '日期',
         'history': '操作历史',
@@ -93,7 +93,8 @@ export const m = {
         'The username or password error!': '用户名或密码输入错误!',
         'System error!': '系统错误',
         'The party id doesnt register or  has been activated or removed!': '站点ID未注册或已被激活或删除！',
-        'This rollsite already exist!': '该站点已经存在！'
+        'This rollsite already exist!': '该站点已经存在！',
+        'Site name exist!': '站点名称已存在'
     },
     login: {
         'signTitle': '登录FATE Cloud',
@@ -128,13 +129,14 @@ export const m = {
         'authorization': '的授权',
         'agreedAuthorze': '同意授权',
         'rejectedAuthorize': '拒绝授权',
+        'applyAuthorize': '申请授权',
         'viewAites': '查看',
         'hostSites': '数据源站点',
         'guestSites': '应用方站点',
         'searchSiteOrParty': '搜索站点名称或站点ID',
         'sureDelete': '您是否确定要删除站点',
-        'cantUndo': '您无法撤消此操作。'
-
+        'cantUndo': '您无法撤消此操作。',
+        'including': '包括'
     },
     siteAdd: {
         'addSite': '添加站点',

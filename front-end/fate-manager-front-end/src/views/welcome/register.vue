@@ -2,23 +2,23 @@
 <div>
 <img src="@/assets/welcomepage.svg" />
   <div class="register">
-        <div class="title">Register</div>
+        <div class="title">{{$t('m.sitemanage.register')}}</div>
             <div class="organization">
             <div class="name-tip">
-                <span>Please enter the registration link from Cloud Manager</span>
+                <span>{{$t('m.sitemanage.pleaseEnterRegistration')}}</span>
             </div>
             <el-form ref="inputform" :model="inputform" :rules="rules" @submit.native.prevent >
                 <el-form-item :class="{ name:true,'name-warn': warnActive }" prop="inputUrl">
                     <el-input :class="{ 'active': inputClass }" placeholder="" clearable v-model="inputform.input"></el-input>
                     <div class="warn-text">
-                        <span v-show='warnActive'>The registration link is invalid. Please enter again.</span>
+                        <span v-show='warnActive'>{{$t('m.sitemanage.registrationInvalid')}}</span>
                     </div>
                 </el-form-item>
             </el-form>
             </div>
             <div class="btn">
-                <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="okAction">OK</el-button>
-                <el-button class="Cancel-btn" type="info"  @click="cancelAction">Cancel</el-button>
+                <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="okAction">{{$t('m.common.OK')}}</el-button>
+                <el-button class="Cancel-btn" type="info"  @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
             </div>
     </div>
   </div>
@@ -51,8 +51,9 @@ export default {
                 // this.showBtn()
                 if (val) {
                     this.inputClass = true
-                    console.log(this.inputform.input, 'this.inputform.input')
-                    this.inputform.inputUrl = this.inputform.input ? utf8to16(decode64(this.inputform.input)).split('?st')[0] : ''
+                    let url = this.inputform.input.split('\\n').join('')
+                    console.log(url, 'url-watch')
+                    this.inputform.inputUrl = url ? utf8to16(decode64(url)).split('?st')[0] : ''
                     console.log(this.inputform.inputUrl, 'this.inputform.inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
@@ -79,8 +80,10 @@ export default {
     methods: {
 
         okAction() {
-            let Url = utf8to16(decode64(this.inputform.input))
+            let urlStr = this.inputform.input.split('\\n').join('')
+            let Url = utf8to16(decode64(urlStr))
             let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
+            this.inputform.input = this.inputform.input.replace(/\\n/g, '\n')
             // 判断URL后面是否是json
             try {
                 let data = {}
@@ -88,7 +91,7 @@ export default {
                 data.appKey = obj.secretInfo.key
                 data.appSecret = obj.secretInfo.secret
                 data.federatedUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
-                data.registrationLink = JSON.stringify(this.inputform.input).replace()
+                data.registrationLink = this.inputform.input
                 data.federatedOrganization = obj.federatedOrganization
                 data.id = obj.id
                 data.institutions = obj.institutions

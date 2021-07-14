@@ -47,7 +47,7 @@
                     <div v-if="totalList.length>0" class="jobs-box">
                         <span v-for="(item, index) in totalList" :key="index">
                             <div class="jobs-institution" ref='jobs' >
-                                <!-- <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/> -->
+                                <overflowtooltip class="jobs-text" :width="'80px'" :content="item.siteName" :placement="'top'"/>
                                 <overflowtooltip class="jobs-text" :width="'60px'" :content="`${item.partyId}`" :placement="'top'"/>
                                 <el-tooltip placement="top">
                                     <div slot="content">
@@ -493,6 +493,15 @@ export default {
                 console.log(tableData, 'tableData')
 
                 this.siteNameList = Object.values(tableData).map(item => item.site_name) || []
+                if (this.siteNameList.length < 1) return
+                // 按字母顺序排序
+                this.siteNameList.sort((a, b) => {
+                    var x = a.toLowerCase()
+                    var y = b.toLowerCase()
+                    if (x < y) { return -1 }
+                    if (x > y) { return 1 }
+                    return 0
+                })
                 console.log(this.siteNameList, 'siteNameList')
 
                 this.totalSitetitution = (tableData.total) || 0
@@ -512,25 +521,28 @@ export default {
                 // 按站点维度排序
                 let siteSortArr = []
                 this.sortBySame(arr, 'institutionSiteName')
-                // 按站点名合并
-                for (let k = arr.length - 1; k >= 0; k--) {
-                    for (let j = k - 1; j >= 0; j--) {
-                        if (arr[k].institutionSiteName === arr[j].institutionSiteName) {
-                            siteSortArr.push({
-                                ...arr[k],
-                                [Object.keys(arr[j])[2]]: Object.values(arr[j])[2]
-                            })
-                        }
+                // 按站点名合并(递归)
+                let index = 0
+                findSame(arr, false)
+                function findSame(waitArr, hasSame) {
+                    if (waitArr.length < 1) return
+                    if (!hasSame) {
+                        siteSortArr.push(waitArr[0])
+                    }
+                    waitArr.shift()
+                    let same = waitArr.find(item => {
+                        return item.institutionSiteName === siteSortArr[index].institutionSiteName
+                    })
+                    if (same) {
+                        siteSortArr[index][Object.keys(same)[2]] = Object.values(same)[2]
+                        findSame(waitArr, true)
+                    } else {
+                        index++
+                        findSame(waitArr, false)
                     }
                 }
-                siteSortArr.map(item => {
-                    arr.map((val, index) => {
-                        if (item.institutionSiteName === val.institutionSiteName) {
-                            delete arr[index]
-                        }
-                    })
-                })
-                arr = arr.filter(el => el != null).concat(siteSortArr)
+                console.log(siteSortArr, 'siteSortArr')
+                arr = siteSortArr
                 // 按机构维度排序
                 this.sortBySame(arr, 'institution')
                 // 获取机构数组

@@ -487,7 +487,7 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" >
+<style rel="stylesheet/scss" lang="scss">
 @import 'src/styles/access.scss';
 .el-popover{
     background: rgba(0,0,0,.8);

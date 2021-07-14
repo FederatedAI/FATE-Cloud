@@ -19,7 +19,7 @@
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
                 <el-form-item  :label="$t('m.common.role')" >
-                    <span class="info-text">{{form.role?form.role.desc:form.role}}</span>
+                    <span class="info-text">{{form.role | getSiteType}}</span>
                 </el-form-item>
                 <el-form-item label="Federation key">
                     <span class="info-text">{{form.appKey}}</span>
@@ -32,7 +32,7 @@
                 </el-col>
                 <el-col :span="12">
                 <el-form-item :label="$t('m.common.status')" >
-                    <span class="info-text">{{form.status?form.status.desc:form.status}}</span>
+                    <span class="info-text">{{form.status | getSiteStatus}}</span>
                 </el-form-item>
                 <el-form-item :label="$t('m.common.partyID')" >
                     <span class="info-text">{{form.partyId}}</span>
@@ -552,46 +552,31 @@ export default {
             }
             this.form.componentVersion = object.map(item => {
                 let setl = []
-                let api = {
-                    'clustermanager': 'getClusterList',
-                    'fateboard': 'getFateboardList',
-                    'mysql': 'getMysqlList',
-                    'nodemanager': 'getNodeList',
-                    'rollsite': 'getrollsiteList',
-                    'fateflow': 'getFateflowList'
-                }
-                let getList = () => {
-                    [api[item.label]]().then(res => {
-                        console.log(res, `get(${item.label})list-res`)
+                if (item.label === 'clustermanager') {
+                    getClusterList().then(res => {
+                        getres(res, setl)
+                    })
+                } else if (item.label === 'fateboard') {
+                    getFateboardList().then(res => {
+                        getres(res, setl)
+                    })
+                } else if (item.label === 'mysql') {
+                    getMysqlList().then(res => {
+                        getres(res, setl)
+                    })
+                } else if (item.label === 'nodemanager') {
+                    getNodeList().then(res => {
+                        getres(res, setl)
+                    })
+                } else if (item.label === 'rollsite') {
+                    getrollsiteList().then(res => {
+                        getres(res, setl)
+                    })
+                } else if (item.label === 'fateflow') {
+                    getFateflowList().then(res => {
                         getres(res, setl)
                     })
                 }
-                getList()
-                // if (item.label === 'clustermanager') {
-                //     getClusterList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // } else if (item.label === 'fateboard') {
-                //     getFateboardList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // } else if (item.label === 'mysql') {
-                //     getMysqlList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // } else if (item.label === 'nodemanager') {
-                //     getNodeList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // } else if (item.label === 'rollsite') {
-                //     getrollsiteList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // } else if (item.label === 'fateflow') {
-                //     getFateflowList().then(res => {
-                //         getres(res, setl)
-                //     })
-                // }
 
                 item.setl = setl
                 return item

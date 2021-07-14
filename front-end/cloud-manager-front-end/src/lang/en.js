@@ -94,7 +94,8 @@ export const m = {
         'The username or password error!': 'The username or password error!',
         'System error!': 'System error!',
         'The party id doesnt register or  has been activated or removed!': 'The party id doesnt register or has been activated or removed!',
-        'This rollsite already exist!': 'This rollsite already exist!'
+        'This rollsite already exist!': 'This rollsite already exist!',
+        'Site name exist!': 'Site name exist!'
     },
     login: {
         'signTitle': 'Sign in to FATE Cloud',
@@ -121,20 +122,22 @@ export const m = {
         'theAuthorization': 'the authorization to',
         'authorizationTo': '',
         'fateManeger': 'FATE Maneger',
-        'appliedView': 'applied to view the other sites of',
-        'selectApprove': 'please select the institution you want to approve,',
+        'appliedView': 'applied to view the {type} sites of',
+        'selectApprove': 'please select the institution you want to approve',
         'authorizationReject': 'the authorization, and the others will be reject:',
         'canceledAuthorization': 'Canceled the authorization of',
         'to': 'to',
         'authorization': '',
         'agreedAuthorze': 'Agreed to authorze',
         'rejectedAuthorize': 'Rejected to authorize',
+        'applyAuthorize': 'Applied to authorize',
         'viewAites': 'to view the sites of',
         'hostSites': 'Host sites',
         'guestSites': 'Guest sites',
         'searchSiteOrParty': 'Search for Site Name or Party ID',
         'sureDelete': 'Are you sure you want to delete',
-        'cantUndo': "You can't undo this action."
+        'cantUndo': "You can't undo this action.",
+        'including': 'including'
     },
     siteAdd: {
         'addSite': 'Add a site',

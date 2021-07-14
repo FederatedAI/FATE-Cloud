@@ -3,15 +3,15 @@
         <img src="@/assets/welcomepage.svg" />
         <div class="welcomepage">
             <div class="title">
-            <span>{{$t('Welcome to FATE Cloud!')}}</span>
+            <span>{{$t('m.welcome.welcome')}}</span>
             </div>
             <div class="text">
             <span>
-                {{$t('It is an Infrastructure for Building and Managing Federated Data Collaboration Network.')}}
+                {{$t('m.welcome.introductions')}}
             </span>
             </div>
             <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" label-position="left">
-                <div class="from-text">{{$t('Username/Email/Phone')}}</div>
+                <!-- <div class="from-text">{{$t('Username/Email/Phone')}}</div> -->
                 <el-form-item prop="username">
                     <el-input
                         style="width:450px"
@@ -25,7 +25,7 @@
                         @keyup.enter.native="handleLogin">
                     </el-input>
                 </el-form-item>
-                <div class="from-text">{{$t('Password')}}</div>
+                <!-- <div class="from-text">{{$t('Password')}}</div> -->
                 <el-form-item prop="password">
                     <el-input
                         style="width:450px"
@@ -42,28 +42,28 @@
                     <span  @click="toshowPwd" v-else class="view"> <img src="@/assets/view_show.png" /></span>
                 </el-form-item>
                 <div class="Remember-text">
-                    <el-checkbox v-model="checked">{{$t('Remember me')}}</el-checkbox>
+                    <el-checkbox v-model="checked">{{$t('m.welcome.RememberMe')}}</el-checkbox>
                 </div>
                 <el-form-item>
                     <el-button  class="btn-login" type="primary" @click.native.prevent="handleLogin">
-                        {{$t('Sign in')}}
+                        {{$t('m.welcome.SignIn')}}
                     </el-button>
                 </el-form-item>
                 <div class="activate-it">
                     <span style="color:#848C99">
-                        {{$t('Administrator account not activated yet?')}}
+                        {{$t('m.welcome.administratorNotActivated')}}
                     </span>
-                    <span class="it" @click="toAct">{{$t('Activate it.')}}</span>
+                    <span class="it" @click="toAct">{{$t('m.welcome.activateIt')}}</span>
                 </div>
             </el-form>
         </div>
         <activte-dialog ref="activtedialog"/>
         <el-dialog :visible.sync="contactdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="contact-dialog">
             <div class="line-text-two">
-                {{$t('Please contact the administrator to add permission for you.')}}
+                {{$t('m.welcome.contactAdministratorTips')}}
             </div>
             <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="contactdialog=false"> {{$t('OK')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="contactdialog=false"> {{$t('m.common.OK')}}</el-button>
             </div>
         </el-dialog>
     </div>
@@ -73,31 +73,6 @@
 <script>
 import activteDialog from './loginDialog'
 import { decode64, encode64 } from '@/utils/base64'
-// 国际化
-const local = {
-    zh: {
-        'Welcome to FATE Cloud!': '欢迎来到FATE Cloud!',
-        'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.': '作为构建和管理联邦数据合作网络的基础设施，提供一站式联邦数据合作服务。',
-        'Username/Email/Phone': '用户名/邮箱/手机号',
-        'Password': '密码',
-        'Remember me': '记住密码',
-        'Sign in': '登录',
-        'Administrator account not activated yet?': '管理员账号尚未激活？',
-        'Activate it.': '点此激活',
-        'Please contact the administrator to add permission for you.': '请联系管理员为你添加权限'
-    },
-    en: {
-        'Welcome to FATE Cloud!': 'Welcome to FATE Cloud!',
-        'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.': 'It is an Infrastructure for Building and Managing Federated Data Collaboration Network.',
-        'Username/Email/Phone': 'Username/Email/Phone',
-        'Password': 'Password',
-        'Remember me': 'Remember me',
-        'Sign in': 'Sign in',
-        'Administrator account not activated yet?': 'Administrator account not activated yet?',
-        'Activate it.': 'Activate it.',
-        'Please contact the administrator to add permission for you.': 'Please contact the administrator to add permission for you.'
-    }
-}
 
 export default {
     name: 'login',
@@ -107,8 +82,8 @@ export default {
     data() {
         return {
             contactdialog: false, // 连接失败
-            placeholderUsername: 'Please enter the Username/Email/Phone', // 兼容edge浏览器 光标不在中间
-            placeholderPassword: 'Please enter the Password', // 兼容edge浏览器 光标不在中间
+            placeholderUsername: this.$t('m.welcome.userNameTips'), // 兼容edge浏览器 光标不在中间
+            placeholderPassword: this.$t('m.welcome.passWordTips'), // 兼容edge浏览器 光标不在中间
             loginForm: {
                 username: '',
                 password: ''
@@ -127,13 +102,13 @@ export default {
                             if (name.length === 0) {
                                 callback(
                                     new Error(
-                                        'Please enter the Username/Email/Phone'
+                                        this.$t('m.welcome.userNameTips')
                                     )
                                 )
                             } else if (name.length >= 50) {
                                 callback(
                                     new Error(
-                                        'Please enter the correct account!'
+                                        this.$t('m.welcome.correctAccountTips')
                                     )
                                 )
                             } else {
@@ -149,7 +124,7 @@ export default {
                         validator: (rule, value, callback) => {
                             const password = value.trim()
                             if (password.length === 0) {
-                                callback(new Error('Please enter the password'))
+                                callback(new Error(this.$t('m.welcome.passWordTips')))
                             } else {
                                 callback()
                             }
@@ -172,8 +147,6 @@ export default {
     },
     computed: {},
     created() {
-        this.$i18n.mergeLocaleMessage('en', local.en)
-        this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     mounted() {
         this.checked = localStorage.getItem('fatechecked') === 'true'
@@ -239,9 +212,9 @@ export default {
         // 兼容edge浏览器 光标不在中间
         getplaceholder(type) {
             if (type === 'username') {
-                this.placeholderUsername = 'Please enter the Username/Email/Phone'
+                this.placeholderUsername = this.$t('m.welcome.userNameTips')
             } else if (type === 'password') {
-                this.placeholderPassword = 'Please enter the Password'
+                this.placeholderPassword = this.$t('m.welcome.passWordTips')
             }
         },
         //
