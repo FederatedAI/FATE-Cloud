@@ -40,6 +40,7 @@ let getServiceStatus = (value) => {
 }
 
 let getSiteType = (value) => {
+    if (!value) return ''
     let code = value.code ? value.code : value
     let maps = map['siteType'].filter(item => item.value === `${code}`)[0]
     return maps ? maps.label : value.desc

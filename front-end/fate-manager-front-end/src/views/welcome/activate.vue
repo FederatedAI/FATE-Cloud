@@ -91,7 +91,13 @@ export default {
         // this.$store.dispatch('selectEnum')
     },
     mounted() {
-        let Url = utf8to16(decode64(this.$route.query.registerUrl))
+        let Url = this.$route.query.registerUrl
+        if (Url.indexOf('?st') < 0) {
+            Url = Url.split('\\n').join('')
+            Url = utf8to16(decode64(Url))
+        }
+        console.log(this.$route.query.registerUrl, 'registerUrl')
+        console.log(Url, 'url')
         let newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
         let obj = { ...JSON.parse(newStr) }
         let fromObj = {}

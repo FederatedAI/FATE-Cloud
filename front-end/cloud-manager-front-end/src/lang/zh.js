@@ -93,7 +93,8 @@ export const m = {
         'The username or password error!': '用户名或密码输入错误!',
         'System error!': '系统错误',
         'The party id doesnt register or  has been activated or removed!': '站点ID未注册或已被激活或删除！',
-        'This rollsite already exist!': '该站点已经存在！'
+        'This rollsite already exist!': '该站点已经存在！',
+        'Site name exist!': '站点名称已存在'
     },
     login: {
         'signTitle': '登录FATE Cloud',
