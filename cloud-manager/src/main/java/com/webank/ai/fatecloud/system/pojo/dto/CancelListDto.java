@@ -20,7 +20,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.LinkedList;
 
 @Data
 @NoArgsConstructor
@@ -37,4 +36,6 @@ public class CancelListDto implements Serializable {
     private HashSet<String> hostList;
 
     private HashSet<String> all;
+
+    private Integer total;
 }
