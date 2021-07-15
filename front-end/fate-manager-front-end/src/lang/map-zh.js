@@ -5,6 +5,7 @@ export const mp = {
     'developerOrOp': '开发或运维',
     'businessOrDataAnalyst': '市场人员或数据分析师',
     'joined': '已加入',
+    'notJoin': '未加入',
     'deleted': '已删除',
     'published': '已发布',
     'unpublished': '未发布',
