@@ -587,10 +587,10 @@ export default {
                     }
                     this.form = data
                 } else {
-                    if (res.data.link.indexOf('?st') < 0) {
+                    if (res.data.registrationLink.indexOf('?st') < 0) {
                         this.form.registrationLink = link
                     } else {
-                        this.form.registrationLink = res.data.link
+                        this.form.registrationLink = res.data.registrationLink
                     }
                 }
                 console.log(this.form.registrationLink, 'this.form.registrationLink')
