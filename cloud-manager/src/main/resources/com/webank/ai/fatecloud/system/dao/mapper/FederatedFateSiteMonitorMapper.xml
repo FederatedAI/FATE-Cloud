@@ -238,7 +238,6 @@
         AND a.job_id = b.detail_job_id
 
         GROUP BY b.detail_institutions, b.detail_site_name,b.detail_party_id
-        ORDER BY b.detail_institutions ASC, b.detail_site_name ASC
         LIMIT #{startIndex}, #{jobOfSiteDimensionPeriodQo.pageSize}
         ) c,
         (SELECT detail_site_name AS site_name,detail_party_id AS p_pid
@@ -246,9 +245,7 @@
         WHERE detail_institutions = #{jobOfSiteDimensionPeriodQo.institutions}
         AND detail_job_create_day_date BETWEEN #{jobOfSiteDimensionPeriodQo.beginDate,jdbcType=DATE} AND #{jobOfSiteDimensionPeriodQo.endDate,jdbcType=DATE}
         GROUP BY detail_site_name,detail_party_id
-        ) d
-        ORDER BY detail_institutions ASC, detail_site_name ASC, site_name ASC
-        ) e,
+        ) d) e,
         (SELECT b.job_id,b.status,(case when COUNT(1) > 1 then GROUP_CONCAT(b1.detail_party_id) ELSE GROUP_CONCAT(b1.detail_party_id,',',b1.detail_party_id) END)
         AS union_name FROM t_fate_site_job b,t_fate_site_job_detail b1
         WHERE b.institutions = #{jobOfSiteDimensionPeriodQo.institutions}
@@ -257,7 +254,8 @@
         GROUP  BY b.job_id,b.status) x
 
         WHERE e.union_name = x.union_name
-        GROUP BY e.detail_institutions, e.detail_site_name, e.site_name;
+        GROUP BY e.detail_institutions, e.detail_site_name, e.site_name
+        ORDER BY e.detail_institutions ASC, e.detail_site_name ASC, e.site_name ASC;
     </select>
 
     <select id="findInstitutionsCountPeriod" resultType="java.lang.Integer">
