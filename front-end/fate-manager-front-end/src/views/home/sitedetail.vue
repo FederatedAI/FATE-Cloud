@@ -15,7 +15,7 @@
                 <el-form-item :label="$t('m.common.siteName')">
                     <span class="info-text">{{form.siteName}}</span>
                 </el-form-item>
-                <el-form-item :label="$t('m.common.institution')">
+                <el-form-item :label="$t('m.common.institution',{type:'i'})">
                     <span class="info-text">{{form.institutions}}</span>
                 </el-form-item>
                 <el-form-item  :label="$t('m.common.role')" >

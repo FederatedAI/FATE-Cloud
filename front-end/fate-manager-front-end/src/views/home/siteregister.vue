@@ -89,7 +89,7 @@ export default {
             if (Url.indexOf('st=') < 0) {
                 urlStr = Url.split('\\n').join('')
                 Url = utf8to16(decode64(urlStr))
-                this.inputform.input = this.inputform.input.replace(/\\n/g, '\n')
+                this.inputform.input = this.inputform.input.replace(/\\n/g, '\n').replace(new RegExp(' ', 'g'), '\n')
                 newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
             } else {
                 newStr = Url.split('st=')[1].split('\\\\').join('"').replace(new RegExp('\\\\', 'g'), '')

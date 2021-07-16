@@ -54,3 +54,12 @@ export function activateAct(data) {
         data
     })
 }
+
+// 测试Telnet
+export function telnet(data) {
+    return request({
+        url: `/${urlType}/api/site/checkWeb`,
+        method: 'post',
+        data
+    })
+}
