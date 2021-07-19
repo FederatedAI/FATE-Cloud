@@ -246,7 +246,7 @@ export default {
                 id: parseInt(this.$route.query.id)
             }
             getSiteInfo(data).then(res => {
-                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
+                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replace(new RegExp('"', 'g'), '')
                 this.form = { ...res.data }
                 this.form.componentVersion = []
                 if (res.data.componentVersion) {

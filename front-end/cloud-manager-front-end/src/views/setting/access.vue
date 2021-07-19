@@ -397,7 +397,7 @@ export default {
                             network: this.managerForm.network
                         }
                         addManager(data).then(res => {
-                            this.managerForm.addSuccessText = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
+                            this.managerForm.addSuccessText = JSON.stringify(res.data.registrationLink).replace(new RegExp('"', 'g'), '')
                             this.managerForm.fateManagerId = res.data.fateManagerId
                             this.managerForm.protocol = res.data.protocol
                             this.adddialog = false
@@ -431,7 +431,7 @@ export default {
         },
         // 激活
         toactivat(row) {
-            this.managerForm.addSuccessText = JSON.stringify(row.registrationLink).replaceAll('"', '')
+            this.managerForm.addSuccessText = JSON.stringify(row.registrationLink).replace(new RegExp('"', 'g'), '')
             this.managerForm.fateManagerId = row.fateManagerId
             this.managerForm.institutionName = row.institutions
             this.managerForm.network = row.network
@@ -450,7 +450,7 @@ export default {
             updataManager(data).then(res => {
                 this.modifyDialog = false
                 this.addSuccessdialog = false
-                this.managerForm.addSuccessText = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
+                this.managerForm.addSuccessText = JSON.stringify(res.data.registrationLink).replace(new RegExp('"', 'g'), '')
                 this.managerForm.protocol = res.data.protocol
                 this.managerForm.network = res.data.network
                 this.initList()
