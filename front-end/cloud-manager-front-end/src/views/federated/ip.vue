@@ -38,7 +38,7 @@
                             height="100%">
                             <el-table-column prop="" type="index"  :label="$t('m.common.index')" class-name="cell-td-td" width="70"></el-table-column>
                             <el-table-column prop="siteName"  :label="$t('m.common.siteName')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="institutions" :label="$t('m.common.institutionName')"  class-name="cell-td-td" ></el-table-column>
+                            <el-table-column prop="institutions" :label="$t('m.common.institutionName')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
                             <el-table-column prop="partyId" :label="$t('m.common.partyID')"  class-name="cell-td-td" ></el-table-column>
                             <el-table-column prop="role" :label="$t('m.common.role')" class-name="cell-td-td">
                                 <template slot-scope="scope">
