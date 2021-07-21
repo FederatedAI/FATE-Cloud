@@ -5,6 +5,7 @@ export const mp = {
     'developerOrOp': 'Developer or op',
     'businessOrDataAnalyst': 'Business or data analyst',
     'joined': 'Joined',
+    'notJoin': 'Not Join',
     'deleted': 'Deleted',
     'published': 'Published',
     'unpublished': 'Unpublished',

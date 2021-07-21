@@ -218,7 +218,7 @@ const local = {
         'Invitation Link Setting': '邀请链接设置',
         'Link Type': '链接类型：',
         'Proxy Network Access': '代理网关：',
-        'Invitation Link': '邀请链接',
+        'Invitation Link': '邀请链接：',
         'the administrator': '管理员链接已生成：',
         'Modify': '修改信息',
         'Search for Institution': '搜索机构名称',
@@ -247,7 +247,7 @@ const local = {
         'Invitation Link Setting': 'Invitation Link Setting',
         'Link Type': 'Link Type：',
         'Proxy Network Access': 'Proxy Network Access：',
-        'Invitation Link': 'Invitation Link',
+        'Invitation Link': 'Invitation Link:',
         'the administrator': 'the administrator invitation link has been generated as follows:',
         'Modify': 'Modify',
         'Search for Institution': 'Search for Institution',
@@ -495,8 +495,8 @@ export default {
     border:transparent;
 }
 .el-popper[x-placement^=top]{
-    .popper__arrow::after {
-    border-top-color: rgba(0,0,0,.8);
-}
+        .popper__arrow::after {
+        border-top-color: rgba(0,0,0,.8);
+    }
 }
 </style>

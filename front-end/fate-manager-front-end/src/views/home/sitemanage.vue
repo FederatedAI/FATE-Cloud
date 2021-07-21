@@ -6,7 +6,7 @@
             <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization || ''}`" :placement="'top'"/>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('m.common.institution')}}</span>
+            <span class="title">{{$t('m.common.institution',{type:'i'})}}</span>
             <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
         </div>
         <div class="site-item-text">

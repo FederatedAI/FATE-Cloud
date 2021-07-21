@@ -26,8 +26,8 @@
             <el-collapse v-model="activeName" v-for="(itm, index) in institutionsItemList" :key="index" >
                 <el-collapse-item  :name="itm.institutions">
                     <template slot="title">
-                        <span class="ins" >{{itm.institutions}}</span>
-                        <img v-if="itm.tooltip && siteState" src="@/assets/msg.png" @click.stop="toshowins(itm.institutions)" alt="" >
+                        <span class="ins">{{itm.institutions}}</span>
+                        <img :key="index" v-if="itm.tooltip && siteState" src="@/assets/msg.png" @click.stop="toshowins(itm.institutions)" alt="" >
                         <!-- <img v-if="true" src="@/assets/msg.png" @click.stop="toshowins(itm.institutions)" alt="" > -->
                         <span v-if="itm.historyList.length>0">
                             <el-popover
@@ -334,9 +334,9 @@ export default {
     },
 
     created() {
-        this.$nextTick(res => {
-            this.getinsSelectList()
+        this.$nextTick(() => {
             this.info()
+            this.getinsSelectList()
             this.getinitinstitutions()
             if (localStorage.getItem('activeName').length > 0) {
                 this.activeName = localStorage.getItem('activeName').split(',').filter(item => item) // 缓存记录取折叠记录
@@ -427,25 +427,26 @@ export default {
                     }
                     let re = await authorityPermiss(dataparams)
                     item.authoritylist = re.data
-                    // 获取小黄点显示状态
-                    let params = {
-                        institutions: [item.institutions]
-                    }
-                    await institutionsStatus(params).then(r => {
-                        if (r.data.length > 0) {
-                            item.tooltip = true
-                        } else {
-                            item.tooltip = false
-                        }
-                    })
                 })
-
+                console.log(Arr, 'arr')
+                console.log(this.siteState, 'siteState')
                 setTimeout(() => {
                     this.institutionsItemList = [...Arr]
+                    this.setMsg()
                 }, 500)
             })
-
-            return this.institutionsItemList
+        },
+        setMsg() {
+            this.institutionsItemList.map((item, index) => {
+                let i = index
+                // 获取小黄点显示状态
+                let params = {
+                    institutions: [item.institutions]
+                }
+                institutionsStatus(params).then(r => {
+                    this.$set(this.institutionsItemList[i], 'tooltip', r.data.length > 0)
+                })
+            })
         },
         // 点击显示机构历史记录
         gethistory(index) {

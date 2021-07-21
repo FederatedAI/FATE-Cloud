@@ -577,6 +577,7 @@ export default {
                 } else {
                     console.log('未加密链接')
                     link = JSON.stringify(link).replace(new RegExp('\\\\', 'g'), '')
+                    console.log(link, 'link')
                 }
                 if (this.type === 'siteinfo') {
                     let data = { ...res.data }
@@ -586,8 +587,13 @@ export default {
                     }
                     this.form = data
                 } else {
-                    this.form.registrationLink = link
+                    if (res.data.registrationLink.indexOf('?st') < 0) {
+                        this.form.registrationLink = link
+                    } else {
+                        this.form.registrationLink = res.data.registrationLink
+                    }
                 }
+                console.log(this.form.registrationLink, 'this.form.registrationLink')
                 this.partyidSelect = res.data.groupName // groupName范围下拉
                 this.getPartyid(res.data.role)// role下拉获取数据
                 setTimeout(() => {

@@ -114,8 +114,8 @@ module.exports = {
                 // target: 'http://172.16.153.196:8999', // 1.2.1 联调服务
                 // target: 'http://172.16.153.224:8997', // 1.3.0 联调服务
                 target:
-                'http://172.16.153.116:7999', // 1.3.0 测试服务
-                // 'http://172.16.153.224:8998',
+                // 'http://172.16.153.116:7999', // 1.3.0 测试服务
+                'http://172.16.153.224:8998',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'
