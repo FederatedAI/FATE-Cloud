@@ -4,32 +4,32 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.base.Objects;
+import com.google.common.collect.Sets;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FateSiteJobDetailDo;
 import com.webank.ai.fatecloud.system.dao.entity.FateSiteJobDo;
-import com.webank.ai.fatecloud.system.dao.entity.FederatedJobStatisticsDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FateSiteDetailMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedFateSiteMonitorMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
-import com.webank.ai.fatecloud.system.pojo.monitor.*;
+import com.webank.ai.fatecloud.system.pojo.monitor.MonitorSiteDto;
+import com.webank.ai.fatecloud.system.pojo.monitor.MonitorSiteItem;
+import com.webank.ai.fatecloud.system.pojo.monitor.MonitorTwoSite;
+import com.webank.ai.fatecloud.system.pojo.monitor.SiteBase;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
-import io.swagger.models.auth.In;
-import jdk.nashorn.internal.ir.CallNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -53,10 +53,30 @@ public class FederatedFateSiteMonitorService {
             fateSiteJobDoArrayList.add(fateSiteJobDo);
         }
 
+        // do not save jobs for sites that do not exist or have been deleted
+        QueryWrapper<FederatedSiteManagerDo> pqw = new QueryWrapper<>();
+        pqw.select("site_name", "party_id").eq("status", 2);
+        List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(pqw);
+        Set<Long> partyIdSet = federatedSiteManagerDoList.stream().map(FederatedSiteManagerDo::getPartyId).collect(Collectors.toSet());
+        partyIdSet.add(0L);// filter file upload site is 0
+
         Date date = new Date();
         for (FateSiteJobDo fateSiteJobDo : fateSiteJobDoArrayList) {
-            //find the job info in t_fate_site_job table whether exist or not. if exist,update! if not,insert!
 
+            String roles = fateSiteJobDo.getRoles();
+            JSONObject rolesObject = JSON.parseObject(roles);
+            try {
+                HashSet<Long> newHashSet = Sets.newHashSet();
+                rolesObject.forEach((key, value) -> newHashSet.addAll(JSON.parseArray(value.toString(), Long.TYPE)));
+                if (!partyIdSet.containsAll(newHashSet)) {
+                    log.error("the job of the site that does not exist or has been deleted will be deleted, partyIds: {}, jobId: {}", newHashSet, fateSiteJobDo.getJobId());
+                    continue;
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+
+            //find the job info in t_fate_site_job table whether exist or not. if exist,update! if not,insert!
             QueryWrapper<FateSiteJobDo> fateSiteJobDoQueryWrapper = new QueryWrapper<>();
             String jobId = fateSiteJobDo.getJobId();
             fateSiteJobDoQueryWrapper.eq("party_id", fateSiteJobDo.getPartyId()).eq("role", fateSiteJobDo.getRole()).eq("job_id", jobId);
@@ -69,11 +89,9 @@ public class FederatedFateSiteMonitorService {
             }
 
             //find the job info in t_fate_site_job_detail table whether exist or not. if exist,update! if not,insert!
-            String roles = fateSiteJobDo.getRoles();
             String status = fateSiteJobDo.getStatus();
             String jobType = fateSiteJobDo.getJobType();
             Date createDate = fateSiteJobDo.getJobCreateDayDate();
-            JSONObject rolesObject = JSON.parseObject(roles);
 
             Set<Map.Entry<String, Object>> entries = rolesObject.entrySet();
 
@@ -275,7 +293,34 @@ public class FederatedFateSiteMonitorService {
                 jobTypedTableDto.setFailedRatio("0.00%");
             }
         }
+
+        // add empty data for the time period without tasks
+        typedTableSupplement(beginDate, endDate, sdf, jobTypedTableDtos);
+
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, jobTypedTableDtos);
+    }
+
+    private void typedTableSupplement(Date beginDate, Date endDate, SimpleDateFormat sdf, LinkedList<JobTypedTableDto> jobTypedTableDtoList) {
+        Set<String> dateSet = jobTypedTableDtoList.stream().map(jobTypedTableDto -> sdf.format(jobTypedTableDto.getDate())).collect(Collectors.toSet());
+        Set<Date> supplementSet = Sets.newHashSet();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(beginDate);
+
+        while (beginDate.getTime() <= endDate.getTime()) {
+            if (!dateSet.contains(sdf.format(beginDate))) {
+                supplementSet.add(beginDate);
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            beginDate = calendar.getTime();
+        }
+
+        for (Date date : supplementSet) {
+            long zero = 0;
+            String zeroRatio = "0.00%";
+            JobTypedTableDto jobTypedTableDto = new JobTypedTableDto(date, zero, zero, zeroRatio, zero, zeroRatio, zero, zero, zero);
+            jobTypedTableDtoList.add(jobTypedTableDto);
+        }
+        jobTypedTableDtoList.sort(Comparator.comparing(JobTypedTableDto::getDate));
     }
 
     public CommonResponse<List<JobTypedDurationDto>> findTypedDuration(JobTypedTableQo jobTypedTableQo) throws ParseException {
@@ -425,7 +470,8 @@ public class FederatedFateSiteMonitorService {
         QueryWrapper<FateSiteJobDetailDo> fateSiteJobDetailDoEw = new QueryWrapper<>();
         fateSiteJobDetailDoEw.select("detail_site_name").eq("detail_institutions", institutions).between("detail_job_create_day_date", bd, ed).groupBy("detail_site_name").orderByAsc("detail_site_name");
         List<FateSiteJobDetailDo> fateSiteJobDetailDos = fateSiteDetailMapper.selectList(fateSiteJobDetailDoEw);
-        HashSet<String> sites = new HashSet<>();
+        //HashSet<String> sites = new HashSet<>();
+        TreeSet<String> sites = new TreeSet<>();// sort 2021-06-21
         for (FateSiteJobDetailDo fateSiteJobDetailDo : fateSiteJobDetailDos) {
             String detailSiteName = fateSiteJobDetailDo.getDetailSiteName();
             sites.add(detailSiteName);
@@ -436,11 +482,11 @@ public class FederatedFateSiteMonitorService {
         PageBean<MonitorSiteItem> jobStatisticsOfSiteDimensionPageBean = new PageBean<>(jobOfSiteDimensionPeriodQo.getPageNum(), jobOfSiteDimensionPeriodQo.getPageSize(), count);
         long startIndex = jobStatisticsOfSiteDimensionPageBean.getStartIndex();
         List<MonitorSiteItem> siteItems = federatedFateSiteMonitorMapper.getPagedJobStatisticsOfSiteDimensionForPeriodDynamicRow(startIndex, jobOfSiteDimensionPeriodQo);
-        for (MonitorSiteItem siteItem : siteItems) {
+        for (MonitorSiteItem siteItem : siteItems) { // institutional collection
             List<MonitorTwoSite> institutionSiteList = siteItem.getInstitutionSiteList();
-            for (MonitorTwoSite monitorTwoSite : institutionSiteList) {
+            for (MonitorTwoSite monitorTwoSite : institutionSiteList) { // collection of sites under the organization
                 List<SiteBase> mixSiteModeling = monitorTwoSite.getMixSiteModeling();
-                for (SiteBase siteBase : mixSiteModeling) {
+                for (SiteBase siteBase : mixSiteModeling) { // site details
                     Integer totalJobs = siteBase.getTotalJobs();
                     Integer successJobs = siteBase.getSuccessJobs();
                     Integer runningJobs = siteBase.getRunningJobs();
@@ -460,6 +506,32 @@ public class FederatedFateSiteMonitorService {
                 }
             }
         }
+
+        // modify your own site modeling display to be unique 2021-06-18
+        /*HashSet<String> match = Sets.newHashSet();
+        for (MonitorSiteItem siteItem : siteItems) {
+            if (institutions.equals(siteItem.getInstitution())) {
+                List<MonitorTwoSite> institutionSiteList = siteItem.getInstitutionSiteList();
+                for (MonitorTwoSite monitorTwoSite : institutionSiteList) {
+                    String institutionSiteName = monitorTwoSite.getInstitutionSiteName();
+                    List<SiteBase> mixSiteModeling = monitorTwoSite.getMixSiteModeling();
+                    for (SiteBase siteBase : mixSiteModeling) {
+                        String siteBaseName = siteBase.getSiteName();
+                        String combination = institutionSiteName + siteBaseName;
+                        if (match.contains(combination)) {
+                            siteBase.setSuccessPercent("0.00%");
+                            siteBase.setRunningPercent("0.00%");
+                            siteBase.setFailedPercent("0.00%");
+                            siteBase.setWaitingPercent("0.00%");
+                            siteBase.setTotalJobs(0);
+                        } else {
+                            match.add(institutionSiteName + siteBaseName);
+                            match.add(siteBaseName + institutionSiteName);
+                        }
+                    }
+                }
+            }
+        }*/
 
         MonitorSiteDto monitorSiteDto = new MonitorSiteDto();
         monitorSiteDto.setSiteList(new ArrayList<>(sites));

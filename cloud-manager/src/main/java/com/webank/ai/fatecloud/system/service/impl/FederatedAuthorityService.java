@@ -17,6 +17,7 @@ package com.webank.ai.fatecloud.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
@@ -193,25 +194,46 @@ public class FederatedAuthorityService {
 
         //get all pending authority apply for this input institution
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapperForReview = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", institutions).eq("status", 1);
+        federatedSiteAuthorityDoQueryWrapperForReview.eq("institutions", institutions).eq("status", 1).eq("generation", 1);
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapperForReview);
 
+        // update keep application records and add all records as new records
         Date date = new Date();
         if (approvedInstitutionsList == null) { //if null, set all applying status to 3(reject)
+            // update to the previous generation
             FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-            federatedSiteAuthorityDo.setStatus(3);
+            federatedSiteAuthorityDo.setGeneration(2);
             federatedSiteAuthorityDo.setUpdateTime(date);
             federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, federatedSiteAuthorityDoQueryWrapperForReview);
+
+            // insert all applying status to 3(reject) update to the new generation
+            for (FederatedSiteAuthorityDo authorityDo : federatedSiteAuthorityDos) {
+                authorityDo.setCreateTime(date);
+                authorityDo.setUpdateTime(date);
+                authorityDo.setStatus(3);
+                authorityDo.setGeneration(1);
+            }
+            federatedSiteAuthorityMapper.insertAllStatus(federatedSiteAuthorityDos);
         } else {
+            long currentSequence = federatedSiteAuthorityMapper.findMaxSequence() + 1;
             for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDos) {
+                // update to the previous generation
+                federatedSiteAuthorityDo.setUpdateTime(date);
+                federatedSiteAuthorityDo.setGeneration(2);
+                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
+
+                // insert new generation
                 if (approvedInstitutionsList.contains(federatedSiteAuthorityDo.getAuthorityInstitutions())) { // if contains,set status 2(approve) or set 3
                     federatedSiteAuthorityDo.setStatus(2);
                 } else {
                     federatedSiteAuthorityDo.setStatus(3);
                 }
-                federatedSiteAuthorityDo.setUpdateTime(date);
-                federatedSiteAuthorityMapper.updateById(federatedSiteAuthorityDo);
 
+                federatedSiteAuthorityDo.setGeneration(1);
+                federatedSiteAuthorityDo.setAuthorityId(null);
+                federatedSiteAuthorityDo.setCreateTime(date);
+                federatedSiteAuthorityDo.setSequence(currentSequence);
+                federatedSiteAuthorityMapper.insert(federatedSiteAuthorityDo);
             }
         }
     }
@@ -228,6 +250,7 @@ public class FederatedAuthorityService {
 
     public CancelListDto findAuthorizedInstitutions(AuthorityApplyResultsQo authorityApplyResultsQo, String scenarioType) {
         CancelListDto cancelListDto = new CancelListDto();
+        Set<String> institutionsSet = Sets.newHashSet();
         cancelListDto.setScenarioType(scenarioType);
 
         if ("3".equals(scenarioType)) {
@@ -240,6 +263,7 @@ public class FederatedAuthorityService {
                 guestSet.add(guest.getAuthorityInstitutions());
             }
             cancelListDto.setGuestList(guestSet);
+            institutionsSet.addAll(guestSet);
 
             //get institution applying the input institutions
             QueryWrapper<FederatedSiteAuthorityDo> ewForHost = new QueryWrapper<>();
@@ -250,6 +274,7 @@ public class FederatedAuthorityService {
                 hostSet.add(host.getInstitutions());
             }
             cancelListDto.setHostList(hostSet);
+            institutionsSet.addAll(guestSet);
 
         }
 
@@ -265,6 +290,7 @@ public class FederatedAuthorityService {
                 guestSet.add(guest.getAuthorityInstitutions());
             }
             cancelListDto.setGuestList(guestSet);
+            institutionsSet.addAll(guestSet);
 
         }
 
@@ -280,8 +306,10 @@ public class FederatedAuthorityService {
                 all.add(federatedSiteAuthorityDo.getAuthorityInstitutions());
             }
             cancelListDto.setAll(all);
+            institutionsSet.addAll(all);
         }
 
+        cancelListDto.setTotal(institutionsSet.size());
         return cancelListDto;
 
 
@@ -641,7 +669,7 @@ public class FederatedAuthorityService {
     public AuthorityApplyDetailsDto findAuthorityApplyDetails(AuthorityApplyDetailsQo authorityApplyDetailsQo, String scenarioType) {
         LinkedList<String> authorityInstitutionsList = new LinkedList<>();
         QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.select("authority_institutions").eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 1).groupBy("authority_institutions");
+        federatedSiteAuthorityDoQueryWrapper.select("authority_institutions").eq("institutions", authorityApplyDetailsQo.getInstitutions()).eq("status", 1).eq("generation", 1).groupBy("authority_institutions");
         List<FederatedSiteAuthorityDo> authorityApplyDetails = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
         for (FederatedSiteAuthorityDo authorityApplyDetail : authorityApplyDetails) {
             authorityInstitutionsList.add(authorityApplyDetail.getAuthorityInstitutions());
@@ -817,8 +845,8 @@ public class FederatedAuthorityService {
 
                     //insert new item
                     FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
-                    federatedSiteAuthorityDo.setInstitutions(institutions);
-                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutionsToCancel);
+                    federatedSiteAuthorityDo.setInstitutions(institutionsToCancel);
+                    federatedSiteAuthorityDo.setAuthorityInstitutions(institutions);
                     federatedSiteAuthorityDo.setCreateTime(date);
                     federatedSiteAuthorityDo.setUpdateTime(date);
                     federatedSiteAuthorityDo.setStatus(4);

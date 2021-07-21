@@ -11,6 +11,18 @@
         <result property="status" column="network_access_entrances"></result>
     </resultMap>
 
+    <insert id="insertAllStatus" parameterType="java.util.List">
+        INSERT INTO `t_federated_site_authority`
+        (`authority_id`, `institutions`, `authority_institutions`, `create_time`, `update_time`, `status`, `generation`, `sequence`)
+        SELECT null, tmp.institutions, tmp.authorityInstitutions, null, tmp.updateTime, tmp.status, tmp.generation, tmp.current_sequence
+        FROM (SELECT t.current_sequence,t1.* FROM
+        (SELECT MAX(`sequence`) + 1 as current_sequence  FROM t_federated_site_authority) t ,
+        <foreach collection="federatedSiteAuthorityDos" item="authorityDo" open="(" separator=" UNION ALL " close=")">
+            SELECT #{authorityDo.institutions} AS institutions ,#{authorityDo.authorityInstitutions} AS authorityInstitutions,
+            #{authorityDo.status} AS status ,#{authorityDo.generation} AS generation ,#{authorityDo.updateTime} AS updateTime
+        </foreach>
+        t1) tmp
+    </insert>
 
     <select id="findMaxSequence" resultType="Long">
         SELECT MAX(sequence) FROM t_federated_site_authority
@@ -25,7 +37,7 @@
                 #{institution}
             </foreach>
 
-            and a.status = 1
+            and a.status = 1 and a.generation = 1   <!--retention of application records to add conditions-->
         </where>
         group by a.institutions
     </select>
@@ -39,7 +51,7 @@
             <if test="institutions != null">
                 and a.institutions = #{institutions}
             </if>
-            and status = 1
+            and status = 1 and a.generation = 1
         </where>
     </select>
 
@@ -54,7 +66,7 @@
     <resultMap id="authorityHistoryMap" type="com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto">
 
         <result property="institutions" column="institutions"></result>
-<!--        <result property="createTime" column="create_time"></result>-->
+        <result property="createTime" column="create_time"></result>
         <result property="updateTime" column="update_time"></result>
 
         <result property="sequence" column="sequence"></result>
@@ -101,7 +113,7 @@
             (select distinct sequence from t_federated_site_authority where status !=1 and institutions =
             #{authorityHistoryOfFateManagerQo.institutions} order by sequence desc limit
             #{startIndex}, #{authorityHistoryOfFateManagerQo.pageSize}) tmp )
-            order by a.update_time desc
+            order by a.create_time desc
 
         </where>
 

@@ -75,7 +75,7 @@ public class FederatedFateManagerUserService {
         stringObjectHashMap.put("fateManagerUser", federatedFateManagerUserDo);
 
         QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
-        query.select("id", "name", "institution").eq("status", 1);
+        query.select("id", "name", "institution", "create_time").eq("status", 1);
         FederatedOrganizationDo federatedOrganizationDo = federatedOrganizationMapper.selectOne(query);
         stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
 
@@ -123,7 +123,7 @@ public class FederatedFateManagerUserService {
         stringObjectHashMap.put("fateManagerUser", federatedFateManagerUserDo);
 
         QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
-        query.select("id", "name", "institution").eq("status", 1);
+        query.select("id", "name", "institution", "create_time").eq("status", 1);
         FederatedOrganizationDo federatedOrganizationDo = federatedOrganizationMapper.selectOne(query);
         stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
 
