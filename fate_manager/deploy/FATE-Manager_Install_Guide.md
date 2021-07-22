@@ -19,7 +19,7 @@
 
 ```shell
 cd /data/projects
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_manager_1.3.0_rc2.tar.gz
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_manager_1.3.0_release-1.0.0.tar.gz
 tar -xzvf fate_manager_1.3.0_rc2.tar.gz
 ```
 
