@@ -1,4 +1,3 @@
-###Cloud-Manager
 
 create TABLE IF NOT EXISTS `t_federated_site_manager` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
@@ -264,3 +263,78 @@ CREATE TABLE IF NOT EXISTS `t_cloud_certificate_type` (
 	`type_name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
 	PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='cloud manager certificate type';
+
+CREATE TABLE SPRING_SESSION (
+	PRIMARY_ID CHAR(36) NOT NULL,
+	SESSION_ID CHAR(36) NOT NULL,
+	CREATION_TIME BIGINT NOT NULL,
+	LAST_ACCESS_TIME BIGINT NOT NULL,
+	MAX_INACTIVE_INTERVAL INT NOT NULL,
+	EXPIRY_TIME BIGINT NOT NULL,
+	PRINCIPAL_NAME VARCHAR(100),
+	CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+CREATE UNIQUE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (SESSION_ID);
+CREATE INDEX SPRING_SESSION_IX2 ON SPRING_SESSION (EXPIRY_TIME);
+CREATE INDEX SPRING_SESSION_IX3 ON SPRING_SESSION (PRINCIPAL_NAME);
+
+CREATE TABLE SPRING_SESSION_ATTRIBUTES (
+	SESSION_PRIMARY_ID CHAR(36) NOT NULL,
+	ATTRIBUTE_NAME VARCHAR(200) NOT NULL,
+	ATTRIBUTE_BYTES BLOB NOT NULL,
+	CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
+	CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `t_fate_site_job` (
+  `create_time` bigint(20) DEFAULT NULL,
+  `create_date` datetime DEFAULT NULL,
+  `update_time` bigint(20) DEFAULT NULL,
+  `update_date` datetime DEFAULT NULL,
+  `institutions` varchar(128)   DEFAULT NULL,
+  `party_id` int(11) NOT NULL DEFAULT '0',
+  `site_name` varchar(50)   DEFAULT NULL,
+  `role` varchar(50)   NOT NULL,
+  `job_id` varchar(64)   NOT NULL DEFAULT '',
+  `job_elapsed` bigint(20) DEFAULT NULL,
+  `roles` longtext   NOT NULL,
+  `other_party_id` longtext   NOT NULL,
+  `other_institutions` longtext   NOT NULL,
+  `job_type` varchar(50)   NOT NULL,
+  `job_create_day` varchar(10)   DEFAULT NULL,
+  `job_create_day_date` date DEFAULT NULL,
+  `job_create_time` bigint(20) DEFAULT NULL,
+  `job_start_time` bigint(20) DEFAULT NULL,
+  `job_end_time` bigint(20) DEFAULT NULL,
+  `status` varchar(50)   NOT NULL,
+  `job_info` longtext ,
+  PRIMARY KEY (`party_id`,`role`,`job_id`),
+  KEY `fatesitejobinfo_party_id` (`party_id`),
+  KEY `fatesitejobinfo_role` (`role`),
+  KEY `fatesitejobinfo_job_type` (`job_type`),
+  KEY `fatesitejobinfo_job_create_day` (`job_create_day`),
+  KEY `fatesitejobinfo_job_create_day_date` (`job_create_day_date`),
+  KEY `fatesitejobinfo_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COLLATE='utf8_general_ci' COMMENT='fate job statistics';
+
+CREATE TABLE `t_fate_site_job_detail` (
+  `detail_job_id` varchar(64) NOT NULL DEFAULT '',
+  `detail_institutions` varchar(128) NOT NULL DEFAULT '',
+  `detail_site_name` varchar(128) NOT NULL DEFAULT '',
+  `detail_party_id` int(11) NOT NULL DEFAULT '0',
+  `detail_role` varchar(50)  NOT NULL DEFAULT '' ,
+  `detail_status` varchar(50)  NOT NULL DEFAULT '',
+  `detail_job_type` varchar(50)  NOT NULL DEFAULT '',
+  `detail_job_create_day_date` date NOT NULL,
+  `detail_create_time` timestamp DEFAULT NULL,
+  `detail_update_time` timestamp DEFAULT NULL,
+  PRIMARY KEY (`detail_job_id`,`detail_party_id`,`detail_role`),
+  KEY `detail_job_id` (`detail_job_id`),
+  KEY `detail_institutions` (`detail_institutions`),
+  KEY `detail_site_name` (`detail_site_name`),
+  KEY `detail_party_id` (`detail_party_id`),
+  KEY `detail_role` (`detail_role`),
+  KEY `detail_status` (`detail_status`),
+  KEY `detail_job_create_day_date` (`detail_job_create_day_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='fate job detail statistics';

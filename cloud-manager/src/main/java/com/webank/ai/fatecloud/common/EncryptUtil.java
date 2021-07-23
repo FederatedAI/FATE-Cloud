@@ -51,8 +51,9 @@ public class EncryptUtil {
                 encryptText += encryptParams[i];
             }
             encryptText = new String(encryptText.getBytes(), EncryptUtil.UTF8);
-
-            return Base64.getEncoder().encodeToString(EncryptUtil.HmacSHA1Encrypt(encryptText, appSecret));
+            String signature = Base64.getEncoder().encodeToString(EncryptUtil.HmacSHA1Encrypt(encryptText, appSecret));
+            log.warn("appSecret:{}, UTF8 encryptText:{}, signature:{}",appSecret,encryptText,signature);
+            return signature;
         } catch (Exception e) {
             e.printStackTrace();
         }

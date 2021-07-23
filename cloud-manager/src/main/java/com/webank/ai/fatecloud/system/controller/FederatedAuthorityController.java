@@ -16,6 +16,7 @@
 package com.webank.ai.fatecloud.system.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo;
@@ -43,9 +44,17 @@ public class FederatedAuthorityController {
     @Autowired
     FederatedAuthorityServiceFacade federatedAuthorityServiceFacade;
 
+    @PostMapping(value = "/findPendingApply")
+    @ApiOperation(value = "find pending apply request")
+    public CommonResponse<List<String>> findPendingApply(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
+
+        return federatedAuthorityServiceFacade.findPendingApply(authorityApplyResultsQo, httpServletRequest);
+
+    }
+
     @PostMapping(value = "/institutions")
     @ApiOperation(value = "find all institutions authority status for the input institutions: 1 could apply, 2 already apply successfully")
-    public CommonResponse<PageBean<InstitutionsForFateDto>> findInstitutionsForSite(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<InstitutionsForFateDto>> findInstitutionsForSite(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
 
         return federatedAuthorityServiceFacade.findInstitutionsForSite(authorityInstitutionsQo, httpServletRequest);
 
@@ -53,7 +62,7 @@ public class FederatedAuthorityController {
 
     @PostMapping(value = "/apply")
     @ApiOperation(value = "apply access-authority of other institutions")
-    public CommonResponse applyForAuthorityOfInstitutions(@RequestBody AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse applyForAuthorityOfInstitutions(@RequestBody AuthorityApplyQo authorityApplyQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
 
         return federatedAuthorityServiceFacade.applyForAuthorityOfInstitutions(authorityApplyQo, httpServletRequest);
 
@@ -61,15 +70,23 @@ public class FederatedAuthorityController {
 
     @PostMapping(value = "/institutions/approved")
     @ApiOperation(value = "find the finished apply results of the input institutions ")
-    public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<InstitutionsForFateDto>> findApprovedInstitutions(@RequestBody AuthorityInstitutionsQo authorityInstitutionsQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
 
         return federatedAuthorityServiceFacade.findApprovedInstitutions(authorityInstitutionsQo, httpServletRequest);
 
     }
 
+    @PostMapping(value = "/institutions/self/approved")
+    @ApiOperation(value = "find the finished apply results of the input institutions launching")
+    public CommonResponse<List<InstitutionsForFateDto>> findSelfApprovedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+
+        return federatedAuthorityServiceFacade.findSelfApprovedInstitutions(authorityApplyResultsQo, httpServletRequest);
+
+    }
+
     @PostMapping(value = "/applied")
     @ApiOperation(value = "find  institutions lists which get the authority of the input institutions")
-    public CommonResponse<Set<String>> findAuthorizedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<CancelListDto> findAuthorizedInstitutions(@RequestBody AuthorityApplyResultsQo authorityApplyResultsQo, HttpServletRequest httpServletRequest) {
 
         return federatedAuthorityServiceFacade.findAuthorizedInstitutions(authorityApplyResultsQo, httpServletRequest);
 
@@ -118,19 +135,27 @@ public class FederatedAuthorityController {
     }
 
 
+    @PostMapping(value = "/history")
+    @ApiOperation(value = "find authority history")
+    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistory(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
+
+        return federatedAuthorityServiceFacade.findAuthorityHistory(authorityHistoryOfFateManagerQo);
+    }
+
     @PostMapping(value = "/history/fateManager")
     @ApiOperation(value = "find authority history of fateManager")
-    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo) {
+    public CommonResponse<PageBean<AuthorityHistoryDto>> findAuthorityHistoryOfFateManager(@RequestBody AuthorityHistoryOfFateManagerQo authorityHistoryOfFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
 
-        return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo);
+        return federatedAuthorityServiceFacade.findAuthorityHistoryOfFateManager(authorityHistoryOfFateManagerQo, httpServletRequest);
     }
 
     @PostMapping(value = "/check/partyId")
     @ApiOperation(value = "check institutions of the partyId has the authority of the input institutions or not")
-    public CommonResponse<Boolean> checkPartyIdAuthority(@RequestBody PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) {
-        log.warn("PartyIdCheckQo:{}", partyIdCheckQo);
-        return federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo, httpServletRequest);
-
+    public CommonResponse<Boolean> checkPartyIdAuthority(@RequestBody PartyIdCheckQo partyIdCheckQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("PartyIdCheckQo:{}", partyIdCheckQo);
+        CommonResponse<Boolean> commonResponse = federatedAuthorityServiceFacade.checkPartyIdAuthority(partyIdCheckQo, httpServletRequest);
+        log.info("PartyIdCheckResponse:{}", commonResponse);
+        return commonResponse;
     }
 
 }

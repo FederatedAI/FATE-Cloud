@@ -12,8 +12,8 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder charset="utf-8">
-            <pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n
-            </pattern>
+            <!--<pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] (%file:%line\) - %m%n</pattern>
         </encoder>
     </appender>
     <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -22,8 +22,8 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder charset="utf-8">
-            <pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n
-            </pattern>
+            <!--<pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] (%file:%line\) - %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
@@ -56,8 +56,7 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder charset="utf-8">
-            <pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n
-            </pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] (%file:%line\) - %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
@@ -73,8 +72,8 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder charset="utf-8">
-            <pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n
-            </pattern>
+            <!--<pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] (%file:%line\) - %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>DEBUG</level>
@@ -87,8 +86,8 @@
 
     <appender name="signature" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder charset="utf-8">
-            <pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n
-            </pattern>
+            <!--<pattern>[%-5level] %d{${DATETIME}} [%thread] %logger{36} - %m%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) [%thread] (%file:%line\) - %m%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>

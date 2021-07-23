@@ -1,0 +1,73 @@
+
+        .register {
+            .el-dialog__header{
+                padding: 0;
+            }
+            .title {
+                text-align: left;
+                font-size: 18px;
+                color: #505765;
+                font-weight: bold;
+            }
+            .organization {
+
+                .name-tip {
+                    margin-top: 24px;
+                    color: #848C99;
+                    font-size: 14px;
+                }
+                .name {
+                    margin: 0 auto;
+                    width: 100%;
+                    border-bottom: 2px solid #E6EBF0;
+                    position: relative;
+                    
+                    .el-input__inner {
+                        
+                        border: 0px;
+                        outline: none;
+                        font-size: 14px;
+                        background-color: #fff;
+                    }
+                    .active {
+                        input{
+                            color: #2D3642;
+                            font-weight: 400;
+                            font-size: 14px
+                        }
+                    }
+                }
+                .name-warn{
+                    border-bottom: 2px solid #FF9D00;
+                }
+                .el-form-item__error{
+                    color: #FF9D00;
+                    left: calc(50% - 164.5px);
+                    font-size: 1em;
+                }
+                .warn-text{
+                    position: absolute;
+                    top:30px;
+                    width: 100%;
+                    color: #FF9D00;
+                    text-align: center;
+                    font-size: 1em;
+                }
+            }
+            .btn{
+                text-align: center;
+                margin-top: 24px;
+                .OK-btn {
+                    height: 32px;
+                    padding: 0;
+                    width:130px;
+                    font-size: 14px
+                }
+                .Cancel-btn {
+                    height: 32px;
+                    padding: 0;
+                    width:130px;
+                    font-size: 14px;
+                }
+            }
+        }

@@ -17,6 +17,8 @@ package com.webank.ai.fatecloud.system.service.facade;
 
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
@@ -136,37 +138,30 @@ public class FederatedSiteManagerServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-//        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
-//        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
-//        if (!result) {
-//            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
-//
-//        }
-
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1, 2);
         } else {
-            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1);
+            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), 1, 2);
         }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
 //        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),1);
-        FederatedSiteManagerDo site = federatedSiteManagerService.findSiteDoByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), 1);
+        FederatedSiteManagerDo site = federatedSiteManagerService.findSiteDoByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), 1, 2);
         if (site == null) {
             return new CommonResponse(ReturnCodeEnum.PARTYID_UPDATE__ERROR);
         }
 
-        String registrationLink = site.getRegistrationLink();
-        String finalUrl;
-        if (StringUtils.isNotBlank(fateManagerUserId)) {
-            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
-        } else {
-            finalUrl = registrationLink;
-        }
+        String finalUrl = site.getRegistrationLink();
+//        String finalUrl;
+//        if (StringUtils.isNotBlank(fateManagerUserId)) {
+//            finalUrl = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
+//        } else {
+//            finalUrl = registrationLink;
+//        }
         String registrationLinkFromRequest = siteActivateQo.getRegistrationLink();
 
         log.info("registrationLinkFromRequest:{}", registrationLinkFromRequest);
@@ -224,6 +219,20 @@ public class FederatedSiteManagerServiceFacade {
         }
 
         return federatedSiteManagerService.checkSiteAuthority(siteInfo);
+    }
+
+
+    public CommonResponse checkSiteAuthorityV3(CheckAuthorityQo siteInfo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String httpBody = mapper.writeValueAsString(siteInfo);
+
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
+        if (!result) {
+            return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+
+        return federatedSiteManagerService.checkSiteAuthorityV3(siteInfo);
+
     }
 
     public CommonResponse checkSiteAuthorityForFDN(String siteInfo, HttpServletRequest httpServletRequest) {
@@ -284,14 +293,21 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, site);
     }
 
-    public CommonResponse updateVersion(VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse updateVersion(VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         //check authority
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(versionUpdateQo);
+        } else {
+            httpBody = JSON.toJSONString(versionUpdateQo);
+        }
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(versionUpdateQo), Dict.FATE_SITE_USER, new int[]{2}, 2);
+            result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
         } else {
-            result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(versionUpdateQo), 2);
+            result = checkSignature.checkSignature(httpServletRequest, httpBody, 2);
         }
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
@@ -422,8 +438,15 @@ public class FederatedSiteManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
     }
 
-    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) {
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(siteListForFateManagerQo), Dict.FATE_MANAGER_USER, new int[]{2}, null);
+    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(siteListForFateManagerQo);
+        } else {
+            httpBody = JSON.toJSONString(siteListForFateManagerQo);
+        }
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_MANAGER_USER, new int[]{2}, null);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }

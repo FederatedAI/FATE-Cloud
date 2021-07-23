@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
@@ -186,6 +187,15 @@ public class FederatedSiteController {
         return commonResponse;
     }
 
+    @PostMapping(value = "/checkAuthority/fateManager/v3")
+    @ApiOperation(value = "check site authority in http body for fate manager")
+    public CommonResponse checkSiteAuthorityV3(@RequestBody CheckAuthorityQo siteInfo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
+        log.info("site info for checkAuthority:{}", siteInfo);
+        CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkSiteAuthorityV3(siteInfo, httpServletRequest);
+        log.info("response for checkAuthority:{}",commonResponse);
+        return commonResponse;
+    }
+
 //    @PostMapping(value = "/heart/fateManager")
 //    @ApiOperation(value = "heart check for fate manager")
 //    public CommonResponse heart(HttpServletRequest httpServletRequest) {
@@ -209,7 +219,7 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/ip/accept")
     @ApiOperation(value = "Accept Ip Modify Apply for fate manager")
-    public CommonResponse<IpManagerAcceptDto> acceptIpModify(@RequestBody IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<IpManagerAcceptDto> acceptIpModify(@RequestBody IpManagerAcceptQo ipManagerAcceptQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("ipManagerAcceptQo for ip accept:{}", ipManagerAcceptQo);
         CommonResponse<IpManagerAcceptDto> ipManagerAcceptDtoCommonResponse = federatedIpManagerServiceFacade.acceptIpModify(ipManagerAcceptQo, httpServletRequest);
         log.info("response for ip accept:{}",ipManagerAcceptDtoCommonResponse);
@@ -218,7 +228,7 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/ip/query")
     @ApiOperation(value = "query Ip Modify Process for fate manager")
-    public CommonResponse<IpManagerQueryDto> queryIpModify(@RequestBody IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<IpManagerQueryDto> queryIpModify(@RequestBody IpManagerQueryQo ipManagerQueryQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("ipManagerQueryQo for ip query:{}", ipManagerQueryQo);
         CommonResponse<IpManagerQueryDto> ipManagerQueryDtoCommonResponse = federatedIpManagerServiceFacade.queryIpModify(ipManagerQueryQo, httpServletRequest);
         log.info("response for ip query:{}",ipManagerQueryDtoCommonResponse);
@@ -234,7 +244,7 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/fate/version")
     @ApiOperation(value = "update fate and serving version for fate manager")
-    public CommonResponse updateVersion(@RequestBody VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse updateVersion(@RequestBody VersionUpdateQo versionUpdateQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("versionUpdateQo for fate version:{}", versionUpdateQo);
         CommonResponse commonResponse = federatedSiteManagerServiceFacade.updateVersion(versionUpdateQo, httpServletRequest);
         log.info("response for fate version:{}",commonResponse);
@@ -250,7 +260,7 @@ public class FederatedSiteController {
 
     @PostMapping(value = "/page/fateManager")
     @ApiOperation(value = "find all sites by page for fate manager")
-    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) {
+    public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(@RequestBody SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("siteListForFateManagerQo for page:{}", siteListForFateManagerQo);
         CommonResponse<PageBean<SiteDetailDto>> pagedSitesForFateManager = federatedSiteManagerServiceFacade.findPagedSitesForFateManager(siteListForFateManagerQo, httpServletRequest);
         log.info("response for page:{}",pagedSitesForFateManager);

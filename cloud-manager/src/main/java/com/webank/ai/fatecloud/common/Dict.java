@@ -25,6 +25,7 @@ public class Dict {
     public static final String TIMESTAMP = "TIMESTAMP";
     public static final String NONCE = "NONCE";
     public static final String ROLE = "ROLE";
+    public static final String VERSION = "VERSION";
 
     public static final String PARTY_ID = "PARTY_ID";
     public static final String APP_KEY = "APP_KEY";

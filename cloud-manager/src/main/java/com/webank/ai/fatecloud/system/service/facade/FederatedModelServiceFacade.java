@@ -16,6 +16,8 @@
 package com.webank.ai.fatecloud.system.service.facade;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
@@ -45,7 +47,7 @@ public class FederatedModelServiceFacade {
     @Autowired
     CheckSignature checkSignature;
 
-    public CommonResponse modelHeart(ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest) {
+    public CommonResponse modelHeart(ArrayList<ModelHeartQo> modelHeartQos, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         HashSet<Long> ids = new HashSet<>();
         for (ModelHeartQo modelHeartQo : modelHeartQos) {
 
@@ -70,8 +72,14 @@ public class FederatedModelServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
-
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(modelHeartQos), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(modelHeartQos);
+        } else {
+            httpBody = JSON.toJSONString(modelHeartQos);
+        }
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
 
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
@@ -83,7 +91,7 @@ public class FederatedModelServiceFacade {
     }
 
 
-    public CommonResponse addModelNew(List<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest) {
+    public CommonResponse addModelNew(List<ModelAddQo> modelAddQos, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         HashSet<Long> ids = new HashSet<>();
         for (ModelAddQo modelAddQo : modelAddQos) {
             if (modelAddQo.getInstallItems() == null || 0 == modelAddQo.getInstallItems().trim().length()) {
@@ -111,9 +119,15 @@ public class FederatedModelServiceFacade {
             return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
-
+        String httpBody;
+        if ((httpServletRequest.getHeader(Dict.VERSION) != null)) {
+            ObjectMapper mapper = new ObjectMapper();
+            httpBody = mapper.writeValueAsString(modelAddQos);
+        } else {
+            httpBody = JSON.toJSONString(modelAddQos);
+        }
 //        boolean result = checkSignature.checkSignature(httpServletRequest, JSON.toJSONString(modelAddQos), 2);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, JSON.toJSONString(modelAddQos), Dict.FATE_SITE_USER, new int[]{2}, 2);
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, httpBody, Dict.FATE_SITE_USER, new int[]{2}, 2);
 
         if (!result) {
             return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);

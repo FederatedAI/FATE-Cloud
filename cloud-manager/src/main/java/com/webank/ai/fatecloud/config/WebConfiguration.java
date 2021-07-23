@@ -70,7 +70,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/api/dropdown/**")
 
                 .addPathPatterns("/api/authority/**")
-                .excludePathPatterns("/api/authority/institutions", "/api/authority/institutions/approved", "/api/authority/apply", "/api/authority/applied", "/api/authority/check/partyId", "/api/authority/results")
+                .excludePathPatterns("/api/authority/institutions/self/approved","/api/authority/findPendingApply", "/api/authority/institutions", "/api/authority/apply", "/api/authority/institutions/approved", "/api/authority/applied", "/api/authority/history/fateManager", "/api/authority/check/partyId")
 
                 .addPathPatterns("/api/cloud/user/**")
                 .excludePathPatterns("/api/cloud/user/login")
@@ -88,7 +88,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 
                 .addPathPatterns("/api/site/**")
                 .excludePathPatterns("/api/site/findOneSite", "/api/site/checkAuthority", "/api/site/heart", "/api/site/page",
-                        "/api/site/findOneSite/fateManager", "/api/site/checkAuthority/fateManager", "/api/site/heart/fateManager", "/api/site/page/fateManager",
+                        "/api/site/findOneSite/fateManager", "/api/site/checkAuthority/fateManager", "/api/site/checkAuthority/fateManager/v3","/api/site/heart/fateManager", "/api/site/page/fateManager",
                         "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version", "/api/site/rollsite/checkPartyId"
                 )
 
@@ -98,6 +98,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 
                 .addPathPatterns("/api/job/**")
                 .excludePathPatterns("/api/job/push")
+                .excludePathPatterns("/api/job/v3/push")
 
                 .addPathPatterns("/api/product/**")
                 .excludePathPatterns("/api/product/page/fatemanager")

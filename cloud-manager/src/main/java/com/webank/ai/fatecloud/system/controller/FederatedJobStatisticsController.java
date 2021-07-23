@@ -15,6 +15,7 @@
  */
 package com.webank.ai.fatecloud.system.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
@@ -49,7 +50,7 @@ public class FederatedJobStatisticsController {
 
     @PostMapping(value = "/push")
     @ApiOperation(value = "push job statistics of site")
-    public CommonResponse pushJosStatistics(@Valid @RequestBody ArrayList<JobStatisticsQo> jobStatisticsQos, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    public CommonResponse pushJosStatistics(@Valid @RequestBody ArrayList<JobStatisticsQo> jobStatisticsQos, BindingResult bindingResult, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("job push RequestBody:{}", jobStatisticsQos);
         if (bindingResult.hasErrors()) {
             FieldError errors = bindingResult.getFieldError();

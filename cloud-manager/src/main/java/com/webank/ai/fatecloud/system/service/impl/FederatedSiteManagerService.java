@@ -18,6 +18,8 @@ package com.webank.ai.fatecloud.system.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.*;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
@@ -284,7 +286,7 @@ public class FederatedSiteManagerService {
 
     public void activateSite(Long partyId, HttpServletRequest httpServletRequest) {
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
-        ew.eq("party_id", partyId).in("status", 1);
+        ew.eq("party_id", partyId).in("status", 1,2);
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
         Date date = new Date();
         federatedSiteManagerDo.setStatus(2);
@@ -298,31 +300,31 @@ public class FederatedSiteManagerService {
         }
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
-        //update job statistics table
-        QueryWrapper<FederatedSiteManagerDo> ewForSite = new QueryWrapper<>();
-        ewForSite.eq("party_id", partyId).in("status", 2);
-        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ewForSite);
-        FederatedSiteManagerDo site = federatedSiteManagerDos.get(0);
-        String institutions = site.getInstitutions();
-        String siteName = site.getSiteName();
-        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
-        federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
-        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
-        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
-            Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
-            Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
-            if(siteGuestId.equals(partyId)){
-                federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
-                federatedJobStatisticsDo.setSiteGuestName(siteName);
-            }
-            if(siteHostId.equals(partyId)){
-                federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
-                federatedJobStatisticsDo.setSiteHostName(siteName);
-            }
-            QueryWrapper<FederatedJobStatisticsDo> ewForUpdate = new QueryWrapper<>();
-            ewForUpdate.eq("site_guest_id",federatedJobStatisticsDo.getSiteGuestId()).eq("site_host_id",federatedJobStatisticsDo.getSiteHostId()).eq("job_finish_date",federatedJobStatisticsDo.getJobFinishDate());
-            federatedJobStatisticsMapper.update(federatedJobStatisticsDo,ewForUpdate);
-        }
+        //update job statistics table todo
+//        QueryWrapper<FederatedSiteManagerDo> ewForSite = new QueryWrapper<>();
+//        ewForSite.eq("party_id", partyId).in("status", 2);
+//        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ewForSite);
+//        FederatedSiteManagerDo site = federatedSiteManagerDos.get(0);
+//        String institutions = site.getInstitutions();
+//        String siteName = site.getSiteName();
+//        QueryWrapper<FederatedJobStatisticsDo> federatedJobStatisticsDoQueryWrapper = new QueryWrapper<>();
+//        federatedJobStatisticsDoQueryWrapper.eq("site_host_id", partyId).or().eq("site_guest_id", partyId);
+//        List<FederatedJobStatisticsDo> federatedJobStatisticsDos = federatedJobStatisticsMapper.selectList(federatedJobStatisticsDoQueryWrapper);
+//        for (FederatedJobStatisticsDo federatedJobStatisticsDo : federatedJobStatisticsDos) {
+//            Long siteGuestId = federatedJobStatisticsDo.getSiteGuestId();
+//            Long siteHostId = federatedJobStatisticsDo.getSiteHostId();
+//            if(siteGuestId.equals(partyId)){
+//                federatedJobStatisticsDo.setSiteGuestInstitutions(institutions);
+//                federatedJobStatisticsDo.setSiteGuestName(siteName);
+//            }
+//            if(siteHostId.equals(partyId)){
+//                federatedJobStatisticsDo.setSiteHostInstitutions(institutions);
+//                federatedJobStatisticsDo.setSiteHostName(siteName);
+//            }
+//            QueryWrapper<FederatedJobStatisticsDo> ewForUpdate = new QueryWrapper<>();
+//            ewForUpdate.eq("site_guest_id",federatedJobStatisticsDo.getSiteGuestId()).eq("site_host_id",federatedJobStatisticsDo.getSiteHostId()).eq("job_finish_date",federatedJobStatisticsDo.getJobFinishDate());
+//            federatedJobStatisticsMapper.update(federatedJobStatisticsDo,ewForUpdate);
+//        }
     }
 
     public int checkPartyId(SitePartyIdCheckQo sitePartyIdCheckQo) {
@@ -446,10 +448,10 @@ public class FederatedSiteManagerService {
 
         FederatedSiteManagerDo siteByPartyId = federatedSiteManagerMapper.findSiteByPartyId(Long.parseLong(partyId), appKey, 2);
 
-        if (2 != siteByPartyId.getDetectiveStatus()) {
-            log.info("detectiveStatus:{}", siteByPartyId.getDetectiveStatus());
-            return new CommonResponse(ReturnCodeEnum.SITE_STATUS_ERROR);
-        }
+//        if (2 != siteByPartyId.getDetectiveStatus()) {
+//            log.info("detectiveStatus:{}", siteByPartyId.getDetectiveStatus());
+//            return new CommonResponse(ReturnCodeEnum.SITE_STATUS_ERROR);
+//        }
 
         SiteDetailDto siteDetailDto = new SiteDetailDto(siteByPartyId);
         SecretInfo secretInfo = siteDetailDto.getSecretInfo();
@@ -471,6 +473,13 @@ public class FederatedSiteManagerService {
             return new CommonResponse(ReturnCodeEnum.SUCCESS);
         }
         return new CommonResponse(ReturnCodeEnum.AUTHORITY_ERROR);
+    }
+
+
+    public CommonResponse checkSiteAuthorityV3(CheckAuthorityQo siteInfo) throws JsonProcessingException {
+        String site = siteInfo.getSite();
+        CommonResponse commonResponse = checkSiteAuthority(site);
+        return commonResponse;
     }
 
     public CommonResponse heart(Long partyId) {
@@ -637,17 +646,55 @@ public class FederatedSiteManagerService {
             return this.findPagedSitesForFateManager(siteListForFateManagerQo);
         }
 
-        //check authority
-        QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
-        federatedSiteAuthorityDoQueryWrapper.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions);
-        federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
-        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
-        if (federatedSiteAuthorityDos.size() <= 0) {
-            return null;
+        if ("1".equals(scenarioType)) {//mix
+            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+            federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead)).or(k -> k.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions)));
+            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+            if (federatedSiteAuthorityDos.size() <= 0) {
+                return null;
+            } else {
+                return this.findSitesList(siteListForFateManagerQo,"1");
+            }
         }
 
-        return this.findSitesList(siteListForFateManagerQo, scenarioType);
+        if ("2".equals(scenarioType)) {//guest
+            QueryWrapper<FederatedSiteAuthorityDo> federatedSiteAuthorityDoQueryWrapper = new QueryWrapper<>();
+            federatedSiteAuthorityDoQueryWrapper.and(i -> i.and(j -> j.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead)).or(k -> k.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions)));
+            federatedSiteAuthorityDoQueryWrapper.eq("status", 2).eq("generation", 1);
+            List<FederatedSiteAuthorityDo> federatedSiteAuthorityDos = federatedSiteAuthorityMapper.selectList(federatedSiteAuthorityDoQueryWrapper);
+            if (federatedSiteAuthorityDos.size() <= 0) {
+                return null;
+            } else {
+                return this.findSitesList(siteListForFateManagerQo, "2");
+            }
+        }
 
+        if ("3".equals(scenarioType)) {//host
+            QueryWrapper<FederatedSiteAuthorityDo> ewForInstitutionsLaunch = new QueryWrapper<>();
+            ewForInstitutionsLaunch.eq("institutions", institutions).eq("authority_institutions", institutionsOfHead);
+            ewForInstitutionsLaunch.eq("status", 2).eq("generation", 1);
+            List<FederatedSiteAuthorityDo> sitesForInstitutionsLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsLaunch);
+
+            QueryWrapper<FederatedSiteAuthorityDo> ewForInstitutionsOfHeadLaunch = new QueryWrapper<>();
+            ewForInstitutionsOfHeadLaunch.eq("institutions", institutionsOfHead).eq("authority_institutions", institutions);
+            ewForInstitutionsOfHeadLaunch.eq("status", 2).eq("generation", 1);
+            List<FederatedSiteAuthorityDo> sitesForInstitutionsOfHeadLaunch = federatedSiteAuthorityMapper.selectList(ewForInstitutionsOfHeadLaunch);
+
+            if (sitesForInstitutionsLaunch.size() > 0 && sitesForInstitutionsOfHeadLaunch.size() > 0) {//get all
+                return this.findSitesList(siteListForFateManagerQo,"1");
+            }
+
+            if (sitesForInstitutionsLaunch.size() > 0) {//get guest sites
+                return this.findSitesList(siteListForFateManagerQo, "2");
+            }
+
+            if (sitesForInstitutionsOfHeadLaunch.size() > 0) {//get host sites
+                return this.findSitesList(siteListForFateManagerQo, "3");
+            }
+
+        }
+        return null;
     }
 
     private PageBean<SiteDetailDto> findSitesList(SiteListForFateManagerQo siteListForFateManagerQo, String scenarioType) {

@@ -1,0 +1,156 @@
+.site-detail-box{
+    margin: 0px 12px;
+    .site-detail{
+        position: absolute;
+        height: calc(100% - 40px);
+        width: calc(100% - 24px);
+        overflow: auto;
+        
+        .info-box{
+            background:#fff;
+            margin-bottom: 24px;
+            .el-form-item{
+                margin-bottom: 10px;
+                height:42px;
+                min-width: 260px;
+                .label{
+                    font-size: 14px;
+                    .label-title{
+                        margin-left: 36px;
+                        display:inline-block;
+                        width: 120px;
+                    }
+                    .label-version{
+                        margin-left: 5px
+                    }
+                }
+            }
+            .info{
+                font-size: 24px;
+                font-weight: 650;
+                padding: 12px 0;
+                padding-left: 24px;
+                color: #217AD9;
+                border-bottom: 2px #e6ebf0 solid
+            }
+            .el-row{
+                width: 100%;
+                margin:6px 0 12px 0;
+                padding-left: 48px !important
+            }
+            .el-col-12{
+                min-width: 285px;
+            }
+            .el-form-item__label{
+                font-size: 18px;
+                color: #848C99;
+            }
+            .info-text{
+                font-size: 18px;
+                color: #2D3642;
+                width: 100%;
+
+            }
+            .link-text{
+                font-size: 18px;
+                display: inline-block;
+                white-space: nowrap; //文本强制不换行；
+                text-overflow: ellipsis; // 文本溢出显示省略号；
+                overflow: hidden; //溢出的部分隐藏；
+                width: 95%;
+                height: 40px;
+                line-height: 40px;
+            }
+            .icon-info{
+                vertical-align: -15px;
+                font-size: 18px;
+                color: #B8BFCC;
+                margin-left: 15px;
+            }
+            .icon-info:hover{
+                color: #FF9D00
+            }
+            .radio{
+                margin-top: 24px;
+                margin-left: 48px;
+                .el-radio-button__inner{
+                    padding: 7px 20px;
+                    font-size: 18px;
+                    height: 36px;
+                    border-left: 0px solid #DCDFE6;
+                    border-radius:0;
+                    border:0;
+                    line-height: 23px;
+                }
+                .el-radio-button{
+                    
+                    .el-radio-button__inner{
+                        color: #217AD9;
+                        background-color: #E6EBF0 !important;
+                        width: 174px;
+                    }
+                }
+                .is-active{
+                    
+                    .el-radio-button__inner{
+                        color: #fff;
+                        background-color: #217AD9 !important;
+                        width: 174px;
+                    }
+                }
+            }
+            .fate-version{
+                margin-left: 48px;
+                padding-bottom: 15px;
+                padding-top: 15px;
+                border-bottom: 2px solid #e6ebf0;
+                background-color: #FAFBFC;
+                width: calc(100% - 96px);
+                .fate-inline{
+                    font-size: 16px;
+                    color: #2D3642;
+                    margin-right: 10px;
+                    margin-left: 24px;
+                    // font-weight: bold
+                }
+                .fate-text{
+                    font-size: 16px;
+                    color: #217AD9;
+                }
+            }
+            .table{
+                padding-left: 48px;
+                padding-bottom: 18px;
+                width: calc(100% - 96px);
+                .title{
+                    background-color: #FAFBFC;
+                    padding-left: 24px;
+                    height: 36px;
+                    line-height: 36px;
+                    color: #4E5766;
+                    font-weight: bold;
+                    .title-text{
+                        display:inline-block;
+                        width: 33%;
+                        font-size: 14px;
+                    }
+                }
+                .body{
+                    background-color: #FAFBFC;
+                    padding-left: 24px;
+                    height: 36px;
+                    line-height: 36px;
+                    color: #4E5766;
+                    .body-text{
+                        display:inline-block;
+                        width: 33%;
+                        font-size: 14px;
+                    }
+                }
+            }
+            
+   
+        }
+
+    }
+}
