@@ -5,23 +5,24 @@
 ## Cloud Manager ##
 
 **Site manage**
-- Add site authorization management. You can approve or reject an institutions  application for authorization, and view the authorization action history of the institutions.
+- Add two-way authorization mechanism.
 
 **Job Monitor**
-- Add Job Monitor. Job monitoring provides statistical information display by job type and time period.
-
-**System Function Switch**
-- Add the site authorization function switch. After this function is turned on, the institutions can apply for authorization to view the sites of other institutions.
+- Add job monitor function,supports for viewing statistics of jobs based on job type.
 
 
 ## FATE Manager ##
 **Architecture**
-- code refactoring: Use python instead of go;
+- Code refactoring: Use python instead of go;
+
+**Site manage**
+- You can view the sites of other institution which has the permission of viewing your sites
 
 **Site cooperation**
-- Add job classification statistics module:
-    - Show job failure rate and time-consuming by date;
-    - Show the job duration distribution map.
+- Add job monitor function,supports for viewing statistics of jobs based on job type. 
+
+**Others**
+- Supports for switching  to the Chinese language.
 
 # **Release 1.2.0** #
 
