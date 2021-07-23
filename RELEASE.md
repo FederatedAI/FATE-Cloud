@@ -1,3 +1,19 @@
+# **Release 1.3.0** #
+
+# **Major Features and Improvements** #
+
+## Cloud Manager ##
+
+
+## FATE Manager ##
+**Architecture**
+- code refactoring: Use python instead of go;
+
+**Site cooperation**
+- Add job classification statistics module:
+    - Show job failure rate and time-consuming by date;
+    - Show the job duration distribution map.
+
 # **Release 1.2.0** #
 
 # **Major Features** #
