@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.webank.ai.fatecloud.system.pojo.dto.PartyDetailsDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -34,6 +35,18 @@ import java.util.Date;
 @ApiModel(value = "party details ")
 @TableName("t_party")
 public class PartyDo implements Serializable {
+
+    public PartyDo(PartyDetailsDto partyDetailsDto) {
+        this.id = partyDetailsDto.getId();
+        this.partyId = partyDetailsDto.getPartyId();
+        this.networkAccess = partyDetailsDto.getNetworkAccess();
+        this.pollingStatus = partyDetailsDto.getPollingStatus();
+        this.secureStatus = partyDetailsDto.getSecureStatus();
+        this.status = partyDetailsDto.getStatus();
+        this.createTime = partyDetailsDto.getCreateTime();
+        this.updateTime = partyDetailsDto.getUpdateTime();
+        this.validTime = partyDetailsDto.getValidTime();
+    }
 
     @ApiModelProperty(value = "primary key")
     @TableId(value = "id", type = IdType.AUTO)
@@ -55,7 +68,7 @@ public class PartyDo implements Serializable {
     @TableField(value = "polling_status")
     private Integer pollingStatus;
 
-    @ApiModelProperty(value = "status")
+    @ApiModelProperty(value = "0 wait activated, 1 publised, 2 modified, 3 to be deleted")
     @TableField(value = "status")
     private Integer status;
 
@@ -71,8 +84,7 @@ public class PartyDo implements Serializable {
     @TableField(value = "valid_time")
     private Date validTime;
 
-    @ApiModelProperty(value = "roll site  id")
-    @TableId(value = "roll_site_id")
-    private Long rollSiteId;
-
+    @ApiModelProperty(value = "whether the route is used by the site")
+    @TableField(exist = false)
+    private Boolean using;
 }

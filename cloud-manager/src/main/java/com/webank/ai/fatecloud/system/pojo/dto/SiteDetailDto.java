@@ -17,14 +17,15 @@ package com.webank.ai.fatecloud.system.pojo.dto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.webank.ai.fatecloud.common.SecretInfo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -53,7 +54,7 @@ public class SiteDetailDto implements Serializable {
         this.detectiveStatus = federatedSiteManagerDo.getDetectiveStatus();
         this.network = federatedSiteManagerDo.getNetwork();
         this.protocol = federatedSiteManagerDo.getProtocol();
-        this.encryptType=federatedSiteManagerDo.getEncryptType();
+        this.encryptType = federatedSiteManagerDo.getEncryptType();
         if (federatedSiteManagerDo.getCreateTime() != null) {
             this.createTime = federatedSiteManagerDo.getCreateTime().getTime();
         }
@@ -73,16 +74,26 @@ public class SiteDetailDto implements Serializable {
 
     }
 
+    public SiteDetailDto(FederatedSiteManagerDo federatedSiteManagerDo, PartyDetailsDto partyDetailsDto) {
+        this(federatedSiteManagerDo);
+        if (partyDetailsDto != null) {
+            this.exchangeId = partyDetailsDto.getExchangeId();
+            this.exchangeName = partyDetailsDto.getExchangeName();
+            this.vipEntrance = partyDetailsDto.getVipEntrance();
+            this.rollSiteDoList = partyDetailsDto.getRollSiteDoList();
+        }
+    }
+
     @ApiModelProperty(value = "primary key")
     private Long id;
 
     @ApiModelProperty(value = "site name")
     private String siteName;
 
-    @ApiModelProperty(value = "site partyid")
+    @ApiModelProperty(value = "site party id")
     private Long partyId;
 
-    @ApiModelProperty(value = "site appkey && secret")
+    @ApiModelProperty(value = "site app key && secret")
     private SecretInfo secretInfo;
 
     @ApiModelProperty(value = "federated registration link")
@@ -138,4 +149,16 @@ public class SiteDetailDto implements Serializable {
 
     @ApiModelProperty(value = "encrypt type")
     private Integer encryptType;
+
+    @ApiModelProperty(value = "exchange id")
+    private Long exchangeId;
+
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
+
+    @ApiModelProperty(value = "exchange vip entrances")
+    private String vipEntrance;
+
+    @ApiModelProperty(value = "contains the current party roll site list")
+    List<RollSiteDo> rollSiteDoList;
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.PartyMapper">
+
+    <select id="selectPartyDetails" parameterType="java.lang.Long" resultMap="rollSiteListMap">
+        SELECT p.`*`, e.exchange_id, e.exchange_name, e.vip_entrance
+        FROM t_party p, t_roll_site s, t_roll_site_party rsp, t_federated_exchange e
+        WHERE p.party_id = rsp.party_id
+        AND rsp.roll_site_id = s.roll_site_id
+        AND s.exchange_id = e.exchange_id
+        AND p.party_id = #{partyId}
+        LIMIT 1;
+    </select>
+
+    <resultMap id="rollSiteListMap" type="com.webank.ai.fatecloud.system.pojo.dto.PartyDetailsDto">
+        <id property="id" column="id"/>
+        <result property="partyId" column="party_id"/>
+        <result property="networkAccess" column="network_access"/>
+        <result property="secureStatus" column="secure_status"/>
+        <result property="pollingStatus" column="polling_status"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="validTime" column="valid_time"/>
+        <result property="exchangeId" column="exchange_id"/>
+        <result property="exchangeName" column="exchange_name"/>
+        <result property="vipEntrance" column="vip_entrance"/>
+
+        <collection property="rollSiteDoList" ofType="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo"
+                    select="queryRollSiteByPartyId" column="party_id">
+        </collection>
+    </resultMap>
+
+    <select id="queryRollSiteByPartyId" parameterType="string" resultType="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
+        SELECT * FROM t_roll_site WHERE roll_site_id IN (SELECT roll_site_id FROM t_roll_site_party WHERE party_id = #{party_id})
+    </select>
+</mapper>

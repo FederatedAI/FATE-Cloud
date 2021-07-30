@@ -19,20 +19,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webank.ai.fatecloud.common.CaseIdUtil;
 import com.webank.ai.fatecloud.common.Enum.IpManagerEnum;
 import com.webank.ai.fatecloud.common.Enum.SiteStatusEnum;
-import com.webank.ai.fatecloud.common.IdNamePair;
 import com.webank.ai.fatecloud.common.util.PageBean;
-import com.webank.ai.fatecloud.system.controller.FederatedSiteController;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedIpManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedGroupSetMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedIpManagerMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
-import com.webank.ai.fatecloud.system.pojo.dto.IpManagerAcceptDto;
-import com.webank.ai.fatecloud.system.pojo.dto.IpManagerListDto;
-import com.webank.ai.fatecloud.system.pojo.dto.IpManagerQueryDto;
-import com.webank.ai.fatecloud.system.pojo.dto.IpManagerUpdateDto;
-import com.webank.ai.fatecloud.system.pojo.qo.*;
+import com.webank.ai.fatecloud.system.dao.mapper.PartyMapper;
+import com.webank.ai.fatecloud.system.pojo.dto.*;
+import com.webank.ai.fatecloud.system.pojo.qo.IpManagerAcceptQo;
+import com.webank.ai.fatecloud.system.pojo.qo.IpManagerListQo;
+import com.webank.ai.fatecloud.system.pojo.qo.IpManagerQueryQo;
+import com.webank.ai.fatecloud.system.pojo.qo.IpManagerUpdateQo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +52,9 @@ public class FederatedIpManagerService {
 
     @Autowired
     FederatedGroupSetMapper federatedGroupSetMapper;
+
+    @Autowired
+    PartyMapper partyMapper;
 
     public PageBean<IpManagerListDto> getIpList(IpManagerListQo ipManagerListQo) {
 
@@ -112,6 +114,15 @@ public class FederatedIpManagerService {
             } else {
                 ipManagerListDto.setHistory(0);
             }
+
+            // 1.4 party exchange info
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(pagedSites.get(i).getPartyId());
+            if (partyDetailsDto != null) {
+                ipManagerListDto.setExchangeName(partyDetailsDto.getExchangeName());
+                ipManagerListDto.setPollingStatus(partyDetailsDto.getPollingStatus());
+                ipManagerListDto.setSecureStatus(partyDetailsDto.getSecureStatus());
+            }
+
             ipManagerListDtos.add(ipManagerListDto);
         }
         ipManagerListDtoPageBean.setList(ipManagerListDtos);
@@ -189,5 +200,17 @@ public class FederatedIpManagerService {
         QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
         ew.eq(partyId != null, "party_id", partyId).ne("status", 0).orderByDesc("update_time");
         return federatedIpManagerMapper.selectList(ew);
+    }
+
+    public List<FederatedIpManagerDo> queryUpdateIpModify(String fateManagerUserId) {
+        QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
+        ew.eq("institutions", fateManagerUserId).eq("status", 3);
+        List<FederatedIpManagerDo> federatedIpManagerDos = federatedIpManagerMapper.selectList(ew);
+
+        FederatedIpManagerDo federatedIpManagerDo = new FederatedIpManagerDo();
+        federatedIpManagerDo.setUpdateTime(new Date());
+        federatedIpManagerDo.setStatus(4);
+        federatedIpManagerMapper.update(federatedIpManagerDo, ew);
+        return federatedIpManagerDos;
     }
 }

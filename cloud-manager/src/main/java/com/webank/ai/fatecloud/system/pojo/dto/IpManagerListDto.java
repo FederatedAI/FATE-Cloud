@@ -60,6 +60,15 @@ public class IpManagerListDto implements Serializable {
     @ApiModelProperty(value = "network access exits old")
     private String networkAccessExitsOld;
 
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
+
+    @ApiModelProperty(value = "secure status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer pollingStatus;
+
     @ApiModelProperty(value = "update time")
     private Long updateTime;
 

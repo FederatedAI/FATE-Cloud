@@ -17,6 +17,9 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
+import com.webank.ai.fatecloud.system.pojo.dto.PartyDetailsDto;
+import org.apache.ibatis.annotations.Param;
 
 public interface PartyMapper extends BaseMapper<PartyDo> {
+    PartyDetailsDto selectPartyDetails(@Param("partyId") Long partyId);
 }

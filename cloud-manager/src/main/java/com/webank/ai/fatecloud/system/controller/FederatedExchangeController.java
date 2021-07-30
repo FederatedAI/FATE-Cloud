@@ -18,9 +18,8 @@ package com.webank.ai.fatecloud.system.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
-import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.facade.FederatedExchangeServiceFacade;
@@ -109,12 +108,33 @@ public class FederatedExchangeController {
         return federatedExchangeServiceFacade.findRollSitePage(rollSitePageQo);
     }
 
-
     @PostMapping(value = "/exchange/page/fatemanager")
     @ApiOperation(value = "find exchange page for fate manager")
     public CommonResponse<PageBean<FederatedExchangeDo>> findExchangePageForFateManager(@RequestBody ExchangePageForFateManagerQo exchangePageForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
         log.info("url:find paged exchange for fate manager, requestBody:{}", exchangePageForFateManagerQo);
         return federatedExchangeServiceFacade.findExchangePageForFateManager(exchangePageForFateManagerQo, httpServletRequest);
+    }
+
+    @PostMapping(value = "/party/page")
+    @ApiOperation(value = "find party page")
+    public CommonResponse<List<PartyDo>> findPartyPage(@RequestBody PartyQueryQo partyQueryQo) {
+        log.info("url:find party page, requestBody:{}", partyQueryQo);
+        return federatedExchangeServiceFacade.finPartyPage(partyQueryQo);
+    }
+
+    @PostMapping(value = "/party/edit")
+    @ApiOperation(value = "edit site party info")
+    public CommonResponse<Void> updateParty(@RequestBody PartyUpdateQo partyUpdateQo) {
+        log.info("url:edit site party info, requestBody:{}", partyUpdateQo);
+        return federatedExchangeServiceFacade.updateIpManagerPartyInfo(partyUpdateQo);
+    }
+
+    @PostMapping(value = "/exchange/dropDownBox")
+    @ApiOperation(value = "find exchange drop down box")
+    public CommonResponse<List<FederatedExchangeDo>> findAllExchange() {
+        CommonResponse<List<FederatedExchangeDo>> exchangeDoList = federatedExchangeServiceFacade.findAllExchange();
+        log.info("url:find exchange drop down box, resultBody:{}", exchangeDoList);
+        return exchangeDoList;
     }
 
 }

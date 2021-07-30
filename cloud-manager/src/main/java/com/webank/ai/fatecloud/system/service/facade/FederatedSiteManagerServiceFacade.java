@@ -24,6 +24,7 @@ import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupDetailDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.sql.BatchUpdateException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,9 +136,8 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse checkUrl(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        if (siteActivateQo.getRegistrationLink() == null) {
-            return new CommonResponse(ReturnCodeEnum.PARAMETERS_ERROR);
-        }
+        CommonResponse checkRegistrationLink = checkRegistrationLink(siteActivateQo, httpServletRequest);
+        if (checkRegistrationLink != null) return checkRegistrationLink;
 
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
@@ -148,11 +149,18 @@ public class FederatedSiteManagerServiceFacade {
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
 
-//        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),1);
+    public CommonResponse<Boolean> checkRegistrationLink(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        if (siteActivateQo.getRegistrationLink() == null) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        //        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)),1);
         FederatedSiteManagerDo site = federatedSiteManagerService.findSiteDoByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), 1, 2);
         if (site == null) {
-            return new CommonResponse(ReturnCodeEnum.PARTYID_UPDATE__ERROR);
+            return new CommonResponse<>(ReturnCodeEnum.PARTYID_UPDATE__ERROR);
         }
 
         String finalUrl = site.getRegistrationLink();
@@ -168,9 +176,9 @@ public class FederatedSiteManagerServiceFacade {
         log.info("finalUrl                   :{}", finalUrl);
 
         if (!finalUrl.equals(registrationLinkFromRequest)) {
-            return new CommonResponse(ReturnCodeEnum.PARTYID_ACTIVATE__ERROR);
+            return new CommonResponse<>(ReturnCodeEnum.PARTYID_ACTIVATE__ERROR);
         }
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+        return null;
     }
 
     public CommonResponse activateSite(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
@@ -181,6 +189,57 @@ public class FederatedSiteManagerServiceFacade {
 
         federatedSiteManagerService.activateSite(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
+
+    public CommonResponse<SiteDetailDto> querySiteActivateDetails(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        CommonResponse<Boolean> booleanCommonResponse = checkRegistrationLink(siteActivateQo, httpServletRequest);
+        if (0 != booleanCommonResponse.getCode()) {
+            return new CommonResponse<>(booleanCommonResponse.getCode(), booleanCommonResponse.getMsg());
+        }
+
+        boolean checkResult = checkSignature.shortLinkActivateCheckSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_SITE_USER, new int[]{2}, 1);
+        if (checkResult) {
+            long partyId = Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID));
+            SiteDetailDto siteDetailDto = federatedSiteManagerService.querySiteActivateDetails(partyId);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, siteDetailDto);
+        } else {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+    }
+
+    public CommonResponse<Void> shortLinkActivateSite(SiteActivateShortQo siteActivateShortQo, HttpServletRequest httpServletRequest) {
+        if (ObjectUtil.isEmpty(siteActivateShortQo.getRollSiteAddress(), siteActivateShortQo.getNetworkAccessEntrance(),
+                siteActivateShortQo.getNetworkAccessExit()) || !ObjectUtil.matchNetworkAddress(siteActivateShortQo.getRollSiteAddress())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        boolean checkResult = checkSignature.shortLinkActivateCheckSignature(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 1);
+        if (checkResult) {
+            long partyId = Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID));
+            try {
+                federatedSiteManagerService.shortLinkActivateSite(siteActivateShortQo, partyId, httpServletRequest);
+                return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+            } catch (RuntimeException e) {
+                return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_UPDATE_ERROR);
+            }
+
+        } else {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+    }
+
+    // v4.0
+    public CommonResponse<Boolean> reactivateSite(SiteUpdateQo siteUpdateQo) {
+        if (ObjectUtil.isEmpty(siteUpdateQo.getId(), siteUpdateQo.getPartyId())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        boolean result = federatedSiteManagerService.reactivateSite(siteUpdateQo);
+        if (result) {
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+        } else {
+            return new CommonResponse<>(ReturnCodeEnum.SITE_REACTIVATE_ERROR);
+        }
     }
 
     public CommonResponse checkPartyId(SitePartyIdCheckQo sitePartyIdCheckQo) {
@@ -341,7 +400,7 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Long> addSiteNew(SiteAddQo siteAddQo) throws UnsupportedEncodingException {
-        if (siteAddQo.getGroupId() == null || siteAddQo.getPartyId() == null || siteAddQo.getEncryptType() == null) {
+        if (ObjectUtil.isEmpty(siteAddQo.getGroupId(), siteAddQo.getPartyId(), siteAddQo.getEncryptType(), siteAddQo.getExchangeName())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -433,9 +492,12 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<PageBean<InstitutionsDto>> findInstitutions(InstitutionQo institutionQo) {
-
-        PageBean<InstitutionsDto> pagedInstitutions = federatedSiteManagerService.findInstitutions(institutionQo);
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
+        if (institutionQo.getStatus() != null) {
+            return this.findInstitutionsByStatus(institutionQo);
+        } else {
+            PageBean<InstitutionsDto> pagedInstitutions = federatedSiteManagerService.findInstitutions(institutionQo);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
+        }
     }
 
     public CommonResponse<PageBean<SiteDetailDto>> findPagedSitesForFateManager(SiteListForFateManagerQo siteListForFateManagerQo, HttpServletRequest httpServletRequest) throws JsonProcessingException {
@@ -507,9 +569,22 @@ public class FederatedSiteManagerServiceFacade {
 
     public CommonResponse<List<Long>> findAllSite(AuthorityApplyDetailsQo authorityApplyDetailsQo) {
 
-        List<Long> partyIdList=  federatedSiteManagerService.findAllSite(authorityApplyDetailsQo);
+        List<Long> partyIdList = federatedSiteManagerService.findAllSite(authorityApplyDetailsQo);
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, partyIdList);
 
+    }
+
+    public CommonResponse<PageBean<InstitutionsDto>> findInstitutionsByStatus(InstitutionQo institutionQo) {
+        PageBean<InstitutionsDto> pagedInstitutions = federatedSiteManagerService.findInstitutionsByStatus(institutionQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, pagedInstitutions);
+    }
+
+    public CommonResponse<Boolean> deleteInstitutions(InstitutionStateQo institutionStateQo) {
+        if (StringUtils.isEmpty(institutionStateQo.getInstitution())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        boolean result = federatedSiteManagerService.deleteInstitution(institutionStateQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, result);
     }
 }

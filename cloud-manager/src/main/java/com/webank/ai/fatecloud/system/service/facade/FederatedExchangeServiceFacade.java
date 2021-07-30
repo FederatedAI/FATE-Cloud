@@ -22,10 +22,10 @@ import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
-import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
-import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
+import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedExchangeService;
@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -82,7 +81,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return 1;
         }
 
-        if (StringUtils.isBlank(exchangeAddQo.getVip())) {
+        if (StringUtils.isBlank(exchangeAddQo.getVipEntrance())) {
             return 1;
         }
 
@@ -121,9 +120,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return 3;
         }
 
-//        if (!exchangeAddQo.getVip().matches(ipAndPortRegex)) {
-//            return 1;
-//        }
+        //if (!exchangeAddQo.getVipEntrance().matches("[\\d]{1,3}(\\.[\\d]{1,3}){3}:[0-9]{1,5}")) {
+        //    return 1;
+        //}
 
         return 0;
 
@@ -311,5 +310,36 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, rollSitePageDtoPageBean);
 
+    }
+
+    // v1.4
+    public CommonResponse<List<PartyDo>> finPartyPage(PartyQueryQo partyQueryQo) {
+        if (ObjectUtil.isEmpty(partyQueryQo.getRollSiteId(), partyQueryQo.getPartyId())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        PageBean<PartyDo> partyDoPageBean = federatedExchangeService.findPartyPage(partyQueryQo);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, partyDoPageBean.getList());
+    }
+
+    // v1.4
+    public CommonResponse<Void> updateIpManagerPartyInfo(PartyUpdateQo partyUpdateQo) {
+        if (ObjectUtil.isEmpty(partyUpdateQo.getId(), partyUpdateQo.getPartyId(), partyUpdateQo.getExchangeId())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        try {
+            federatedExchangeService.updateIpManagerPartyInfo(partyUpdateQo);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_UPDATE_ERROR);
+        }
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+    }
+
+    // v1.4
+    public CommonResponse<List<FederatedExchangeDo>> findAllExchange() {
+        List<FederatedExchangeDo> exchangeDoList = federatedExchangeService.findAllExchange();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangeDoList);
     }
 }

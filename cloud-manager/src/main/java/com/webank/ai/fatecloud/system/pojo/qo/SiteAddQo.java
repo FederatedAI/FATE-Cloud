@@ -56,4 +56,9 @@ public class SiteAddQo implements Serializable {
     @ApiModelProperty(value = "network")
     private String network;
 
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
+
+    @ApiModelProperty("generate registration link pattern, long or short")
+    private String mode;
 }

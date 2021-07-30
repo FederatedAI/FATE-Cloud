@@ -42,6 +42,7 @@ public class Dict {
     public static final String FATE_SITE_USER = "fate_site_user";
     public static final String FATE_MANAGER_USER_APP_KEY = "FATE_MANAGER_APP_KEY";
     public static final String FATE_MANAGER_USER_ID = "FATE_MANAGER_USER_ID";
+    public static final String FATE_MANAGER_USER_NAME = "FATE_MANAGER_USER_NAME";
 
     public static final List<String> ORDER_FIELDS = new ArrayList<>();
 

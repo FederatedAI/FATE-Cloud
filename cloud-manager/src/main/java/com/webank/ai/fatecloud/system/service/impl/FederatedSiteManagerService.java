@@ -19,7 +19,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.*;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
@@ -28,15 +27,11 @@ import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.*;
 import com.webank.ai.fatecloud.system.dao.mapper.*;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
-import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
-import com.webank.ai.fatecloud.system.pojo.dto.UsedSiteDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +66,12 @@ public class FederatedSiteManagerService {
 
     @Autowired
     FederatedJobStatisticsMapper federatedJobStatisticsMapper;
+
+    @Autowired
+    PartyMapper partyMapper;
+
+    @Autowired
+    FederatedExchangeService federatedExchangeService;
 
     @Value(value = "${cloud-manager.ip}")
     String ip;
@@ -135,14 +136,15 @@ public class FederatedSiteManagerService {
 
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
-        String protocol = siteAddQo.getProtocol();
+        String protocol = "http://".equals(siteAddQo.getProtocol()) ? "http://" : "https://";
 
         String url;
-        if ("http://".equals(protocol)) {
-            url = "http://" + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        if ("short".equals(siteAddQo.getMode())) {
+            url = protocol + network + "?stl=" + siteAddQo.getPartyId() + "_" + appKey;
         } else {
-            url = "https://" + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            url = protocol + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
+
         String finalUrl;
         if (siteAddQo.getEncryptType() == 1) {
             finalUrl = EncryptUtil.encode(url);
@@ -152,11 +154,8 @@ public class FederatedSiteManagerService {
 
         FederatedSiteManagerDo federatedSiteManagerDoUpdate = new FederatedSiteManagerDo();
         federatedSiteManagerDoUpdate.setRegistrationLink(finalUrl);
-        if ("http://".equals(protocol)) {
-            federatedSiteManagerDoUpdate.setProtocol("http://");
-        } else {
-            federatedSiteManagerDoUpdate.setProtocol("https://");
-        }
+        federatedSiteManagerDoUpdate.setProtocol(protocol);
+
 //        federatedSiteManagerDoUpdate.setNetwork(network);
         QueryWrapper<FederatedSiteManagerDo> federatedSiteManagerDoQueryWrapper = new QueryWrapper<>();
         federatedSiteManagerDoQueryWrapper.eq("id", federatedSiteManagerDo.getId());
@@ -171,18 +170,30 @@ public class FederatedSiteManagerService {
         ew.eq("group_id", groupId);
         federatedGroupSetMapper.update(federatedGroupSetDoUpdate, ew);
 
+        // add roll site
+        PartyDo partyDo = new PartyDo();
+        partyDo.setStatus(0);
+        partyDo.setPartyId(siteAddQo.getPartyId() + "");
+        partyMapper.insert(partyDo);
+        federatedExchangeService.addToExchangeRollSite(partyDo, siteAddQo.getExchangeName());
+
         return federatedSiteManagerDo.getId();
     }
 
     public SiteDetailDto findSite(Long id) {
         FederatedSiteManagerDo site = federatedSiteManagerMapper.findSite(id);
-        return site == null ? null : new SiteDetailDto(site);
+        if (site != null) {
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId());
+            return new SiteDetailDto(site, partyDetailsDto);
+        }
+        return null;
     }
 
     public SiteDetailDto findSiteByPartyId(Long partyId, String secretInfo, Object... status) {
         FederatedSiteManagerDo site = federatedSiteManagerMapper.findSiteByPartyId(partyId, secretInfo, status);
         if (site != null) {
-            return new SiteDetailDto(site);
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId());
+            return new SiteDetailDto(site, partyDetailsDto);
         }
         return null;
     }
@@ -220,6 +231,11 @@ public class FederatedSiteManagerService {
         QueryWrapper<FederatedGroupSetDo> ewForUpdate = new QueryWrapper<>();
         ewForUpdate.eq("group_id", groupId);
         federatedGroupSetMapper.update(federatedGroupSetDoForUpdate, ewForUpdate);
+
+        PartyDo partyDo = new PartyDo();
+        partyDo.setStatus(3);
+        partyDo.setUpdateTime(new Date());
+        partyMapper.update(partyDo, new QueryWrapper<PartyDo>().lambda().eq(PartyDo::getPartyId, federatedSiteManagerDo.getPartyId()));
     }
 
     @Transactional
@@ -230,7 +246,8 @@ public class FederatedSiteManagerService {
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo(siteUpdateQo);
 
         FederatedSiteManagerDo federatedSiteManagerDoForSecretInfo = federatedSiteManagerMapper.selectById(siteUpdateQo.getId());
-        federatedSiteManagerDo.setSecretInfo(federatedSiteManagerDoForSecretInfo.getSecretInfo());
+        String secretInfo = federatedSiteManagerDoForSecretInfo.getSecretInfo();
+        federatedSiteManagerDo.setSecretInfo(secretInfo);
         Long groupId = siteUpdateQo.getGroupId();
         FederatedGroupSetDo federatedGroupSetDoForUpdate = federatedGroupSetMapper.selectById(groupId);
         QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
@@ -241,19 +258,23 @@ public class FederatedSiteManagerService {
 
         String info = JSON.toJSONString(siteActivateUrl);
         log.info("info:{}", info);
-        String protocol = siteUpdateQo.getProtocol();
 
         String url = "";
+        String protocol = "http://".equals(siteUpdateQo.getProtocol()) ? "http://" : "https://";
         String network = siteUpdateQo.getNetwork();
         federatedSiteManagerDo.setNetwork(network);
         federatedSiteManagerDo.setEncryptType(siteUpdateQo.getEncryptType());
-        if ("http://".equals(protocol)) {
-            url = "http://" + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-            federatedSiteManagerDo.setProtocol("http://");
+
+        if ("short".equals(siteUpdateQo.getMode())) {
+            JSONObject jsonObject = JSONObject.parseObject(secretInfo);
+            String appKey = jsonObject.getString("key");
+            //String appSecret = jsonObject.getString("secret");
+            url = protocol + network + "?stl=" + siteUpdateQo.getPartyId() + "_" + appKey;
         } else {
-            url = "https://" + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
-            federatedSiteManagerDo.setProtocol("https://");
+            url = protocol + network + prefix + "/api/site/activate" + "?st=" + info.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
+        federatedSiteManagerDo.setProtocol(protocol);
+
         String finalUrl;
         if (siteUpdateQo.getEncryptType() == 1) {
             finalUrl = EncryptUtil.encode(url);
@@ -282,6 +303,11 @@ public class FederatedSiteManagerService {
         FederatedGroupSetDo federatedGroupSetDoForRemove = new FederatedGroupSetDo();
         federatedGroupSetDoForRemove.setUsed(groupDoForRemove.getUsed() - 1);
         federatedGroupSetMapper.update(federatedGroupSetDoForRemove, newGroupQWForRemove);
+
+        // add roll site
+        PartyDo partyDo = new PartyDo();
+        partyDo.setPartyId(siteUpdateQo.getPartyId() + "");
+        federatedExchangeService.addToExchangeRollSite(partyDo, siteUpdateQo.getExchangeName());
     }
 
     public void activateSite(Long partyId, HttpServletRequest httpServletRequest) {
@@ -325,6 +351,50 @@ public class FederatedSiteManagerService {
 //            ewForUpdate.eq("site_guest_id",federatedJobStatisticsDo.getSiteGuestId()).eq("site_host_id",federatedJobStatisticsDo.getSiteHostId()).eq("job_finish_date",federatedJobStatisticsDo.getJobFinishDate());
 //            federatedJobStatisticsMapper.update(federatedJobStatisticsDo,ewForUpdate);
 //        }
+    }
+
+    public SiteDetailDto querySiteActivateDetails(long partyId) {
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.select("id").eq("party_id", partyId);
+        FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectOne(ew);
+        return findSite(federatedSiteManagerDo.getId());
+    }
+
+    @Transactional
+    public void shortLinkActivateSite(SiteActivateShortQo siteActivateShortQo, long partyId, HttpServletRequest httpServletRequest) {
+        QueryWrapper<FederatedSiteManagerDo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("party_id", partyId).in("status", 1, 2);
+        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
+        Date date = new Date();
+        federatedSiteManagerDo.setStatus(2);
+        federatedSiteManagerDo.setActivationTime(date);
+        federatedSiteManagerDo.setNetworkAccessEntrances(siteActivateShortQo.getNetworkAccessEntrance());
+        federatedSiteManagerDo.setNetworkAccessExits(siteActivateShortQo.getNetworkAccessExit());
+
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        if (StringUtils.isBlank(fateManagerUserId)) {
+            //cancel the set of site survive status
+            federatedSiteManagerDo.setDetectiveStatus(2);
+            federatedSiteManagerDo.setLastDetectiveTime(date);
+        }
+        federatedSiteManagerMapper.update(federatedSiteManagerDo, queryWrapper);
+
+        // add party scrolling sites to all scrolling sites under the exchange
+        boolean result = federatedExchangeService.updatePartyInfoAndRollSite(siteActivateShortQo.getRollSiteAddress(), partyId);
+        if (!result) {
+            throw new RuntimeException();
+        }
+    }
+
+    public boolean reactivateSite(SiteUpdateQo siteUpdateQo) {
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.eq("id", siteUpdateQo.getId()).eq("party_id", siteUpdateQo.getPartyId()).eq("status", 2);
+        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
+        Date date = new Date();
+        federatedSiteManagerDo.setStatus(1);
+        federatedSiteManagerDo.setActivationTime(date);
+        int update = federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
+        return update == 1;
     }
 
     public int checkPartyId(SitePartyIdCheckQo sitePartyIdCheckQo) {
@@ -564,6 +634,7 @@ public class FederatedSiteManagerService {
 
     }
 
+    @Deprecated
     public PageBean<InstitutionsDto> findInstitutions(InstitutionQo institutionQo) {
         //get parameters for page
 //        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
@@ -581,8 +652,26 @@ public class FederatedSiteManagerService {
         long startIndex = institutionsDtoPageBean.getStartIndex();
 
         //get paged institutions and their numbers
-
         List<InstitutionsDto> institutions = federatedSiteManagerMapper.findInstitutions(institutionQo, startIndex);
+        institutionsDtoPageBean.setList(institutions);
+
+        return institutionsDtoPageBean;
+
+    }
+
+    // institution status if 1 not activated else if 2 using else if 3 deleted
+    public PageBean<InstitutionsDto> findInstitutionsByStatus(InstitutionQo institutionQo) {
+
+        if (StringUtils.isNotBlank(institutionQo.getCondition())) {
+            institutionQo.setCondition("%" + institutionQo.getCondition() + "%");
+        }
+
+        long count = federatedSiteManagerMapper.countInstitutionsByStatus(institutionQo);
+        PageBean<InstitutionsDto> institutionsDtoPageBean = new PageBean<>(institutionQo.getPageNum(), institutionQo.getPageSize(), count);
+        long startIndex = institutionsDtoPageBean.getStartIndex();
+
+        // get paged institutions and their numbers
+        List<InstitutionsDto> institutions = federatedSiteManagerMapper.findInstitutionsByStatus(institutionQo, startIndex);
         institutionsDtoPageBean.setList(institutions);
 
         return institutionsDtoPageBean;
@@ -724,5 +813,47 @@ public class FederatedSiteManagerService {
         }
         return partyIdList;
 
+    }
+
+    @Transactional
+    public boolean deleteInstitution(InstitutionStateQo institutionStateQo) {
+        Date updateTime = new Date();
+        String institution = institutionStateQo.getInstitution();
+
+        // 1.update the information related to institution authorization
+        QueryWrapper<FederatedSiteAuthorityDo> saw = new QueryWrapper<FederatedSiteAuthorityDo>().eq("institutions", institution)
+                .eq("generation", 1).in("status", 1, 2);
+        List<FederatedSiteAuthorityDo> federatedSiteAuthorityDoList = federatedSiteAuthorityMapper.selectList(saw);
+        for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDoList) {
+            federatedSiteAuthorityDo.setUpdateTime(updateTime);
+            federatedSiteAuthorityDo.setAuthorityId(null);
+            federatedSiteAuthorityDo.setCreateTime(null);
+            federatedSiteAuthorityDo.setGeneration(1);
+            federatedSiteAuthorityDo.setStatus(4);
+        }
+
+        // update old generation = 2
+        FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
+        federatedSiteAuthorityDo.setUpdateTime(updateTime);
+        federatedSiteAuthorityDo.setGeneration(2);
+        federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, saw);
+        // insert new generation = 1
+        federatedSiteAuthorityMapper.insertAllStatus(federatedSiteAuthorityDoList);
+
+        // 2.update the site status under institution
+        QueryWrapper<FederatedSiteManagerDo> suw = new QueryWrapper<FederatedSiteManagerDo>().eq("institutions", institution);
+        List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(suw);
+        for (FederatedSiteManagerDo federatedSiteManagerDo : federatedSiteManagerDoList) {
+            deleteSite(federatedSiteManagerDo.getId());
+        }
+
+        // 3.update institution status
+        QueryWrapper<FederatedFateManagerUserDo> fuw = new QueryWrapper<FederatedFateManagerUserDo>().eq("institutions", institution);
+        FederatedFateManagerUserDo federatedFateManagerUserDo = new FederatedFateManagerUserDo();
+        federatedFateManagerUserDo.setStatus(3);
+        federatedFateManagerUserDo.setUpdateTime(updateTime);
+        int update = federatedFateManagerUserMapper.update(federatedFateManagerUserDo, fuw);
+
+        return update == 1;
     }
 }

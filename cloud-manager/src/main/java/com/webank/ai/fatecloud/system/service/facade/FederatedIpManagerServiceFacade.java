@@ -116,4 +116,18 @@ public class FederatedIpManagerServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, federatedIpManagerDos);
 
     }
+
+    public CommonResponse<List<FederatedIpManagerDo>> queryUpdateIpModify(HttpServletRequest httpServletRequest) {
+        String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+        if (StringUtils.isBlank(fateManagerUserId)) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_MANAGER_USER, new int[]{2}, 2);
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+        List<FederatedIpManagerDo> updateList =  federatedIpManagerService.queryUpdateIpModify(fateManagerUserId);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, updateList);
+    }
 }

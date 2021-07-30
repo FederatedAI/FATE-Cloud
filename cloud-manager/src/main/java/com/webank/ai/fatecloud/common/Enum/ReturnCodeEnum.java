@@ -65,6 +65,12 @@ public enum ReturnCodeEnum {
     SCENARIO_ERROR(145, "The scenario doesn't exist!"),
     AUTHORITY_CANCEL_ERROR(146, "Original approved authority-apply doesn't exist!"),
 
+    // 200 institutions error
+    INSTITUTIONS_REACTIVATE_ERROR(201, "Institution reactivate fail, institution not activate or deleted!"),
+    // 300 site error
+    SITE_REACTIVATE_ERROR(301, "Site reactivate fail, site not activate or deleted!"),
+    SITE_PARTY_UPDATE_ERROR(302, "Site roll site update error!"),
+
     ;
     private int code;
     private String message;

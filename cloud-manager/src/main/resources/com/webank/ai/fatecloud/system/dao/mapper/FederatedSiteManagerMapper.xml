@@ -156,6 +156,7 @@
 
     </select>
 
+    <!--todo @Deprecated to findInstitutionsByStatus-->
     <select id="findInstitutions" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto">
 
         select mu.institutions,IFNULL(sm.count,0) as number from (
@@ -195,6 +196,41 @@
         institutions) as sm on
         mu.institutions=sm.institutions
 
+    </select>
+
+    <select id="findInstitutionsByStatus" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto">
+
+        SELECT fm.institutions,sm.count AS number FROM
+        t_fate_manager_user AS fm,
+
+        <if test="institutionQo.condition != null">
+            (SELECT institutions
+            FROM t_federated_site_manager
+            WHERE (party_id LIKE #{institutionQo.condition} OR site_name LIKE #{institutionQo.condition})
+            GROUP BY institutions
+            ) AS mu,
+        </if>
+
+        (SELECT institutions,COUNT(case when `status` = 2 then 1 END) count
+        FROM t_federated_site_manager
+        GROUP BY institutions
+        ) AS sm
+        WHERE fm.`status` = #{status}
+        AND fm.institutions = sm.institutions
+
+        <if test="institutionQo.institutionsArray != null and institutionQo.institutionsArray.length > 0">
+            <foreach collection="institutionQo.institutionsArray" open=" AND fm.institutions IN (" close=")"
+                     item="institutionsItem"
+                     separator=",">
+                #{institutionsItem}
+            </foreach>
+        </if><!--AND fm.institutions IN (...)-->
+
+        <if test="institutionQo.condition != null">
+            AND fm.institutions = mu.institutions
+        </if>
+
+        ORDER BY fm.institutions desc LIMIT #{startIndex}, #{institutionQo.pageSize}
     </select>
 
 
@@ -258,6 +294,7 @@
 
     </select>
 
+    <!--todo @Deprecated to countInstitutions-->
     <select id="countForInstitutions" parameterType="com.webank.ai.fatecloud.system.pojo.qo.InstitutionQo"
             resultType="long">
 
@@ -299,6 +336,44 @@
 
     </select>
 
+    <select id="countInstitutionsByStatus" parameterType="com.webank.ai.fatecloud.system.pojo.qo.InstitutionQo"
+            resultType="java.lang.Integer">
+
+        <if test="institutionQo.condition == null">
+            select count(1) from t_fate_manager_user
+
+            <where>
+                <if test="institutionQo.institutionsArray != null and institutionQo.institutionsArray.length > 0">
+                    <foreach collection="institutionQo.institutionsArray" open=" and institutions  in (" close=")"
+                             item="institutionsItem"
+                             separator=",">
+                        #{institutionsItem}
+                    </foreach>
+                </if>
+            </where>
+
+        </if>
+
+        <if test="institutionQo.condition != null">
+            select count(1) from ( select institutions from t_federated_site_manager
+            <where>
+                and (party_id like #{institutionQo.condition} or site_name like #{institutionQo.condition})
+
+                <if test="institutionQo.institutionsArray != null and institutionQo.institutionsArray.length > 0">
+                    <foreach collection="institutionQo.institutionsArray" open=" and institutions  in (" close=")"
+                             item="institutionsItem"
+                             separator=",">
+                        #{institutionsItem}
+                    </foreach>
+                </if>
+                group by institutions
+
+            </where>
+            ) as tmp, t_fate_manager_user as t where tmp.institutions = t.institutions
+
+        </if>
+        and status = #{status}
+    </select>
 
     <resultMap id="institutionsWithSitesMap" type="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsWithSites">
         <result property="institutions" column="institutions"></result>
