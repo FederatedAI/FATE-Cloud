@@ -10,7 +10,7 @@ from fate_manager.entity import item
 from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
     ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
-from fate_manager.operation import federated_db_operator
+from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import site_service_logger as logger, CLOUD_URL
 from fate_manager.utils.request_cloud_utils import request_cloud_manager, get_old_signature_head
@@ -120,9 +120,9 @@ def find_all_fatemanager():
 
 def get_home_site_list():
     logger.info("get all site")
-    federated_site_list = federated_db_operator.get_home_site()
+    federated_site_list = JointOperator.get_home_site()
     logger.info(f"federated_site_list:{federated_site_list}")
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     federated_item_dict = {}
     if not federated_site_list:
         return []
@@ -195,16 +195,16 @@ def get_home_site_list():
 
 
 def get_fate_manager_list():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     allow_institutions_list = allow_apply_task(account)
     return allow_institutions_list
 
 
 def get_other_site_list():
-    federated_infos = federated_db_operator.get_federated_info()
-    account = federated_db_operator.get_admin_info()
+    federated_infos = SingleOperation.get_federated_info()
+    account = SingleOperation.get_admin_info()
     apply_result_task(account)
-    apply_institutions_list = federated_db_operator.get_apply_institutions_info(status=AuditStatusType.AGREED)
+    apply_institutions_list = SingleOperation.get_apply_institutions_info(status=AuditStatusType.AGREED)
     logger.info(f"apply institutions list: {apply_institutions_list}")
     if not apply_institutions_list:
         return None
@@ -248,7 +248,7 @@ def get_other_site_list():
 
 
 def query_apply_site():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     logger.info('start request cloud: GetApplyListUri')
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
@@ -271,7 +271,7 @@ def get_institutions_read_status():
 
 
 def get_exchange_info():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     logger.info("start request cloud ExchangeUri")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
@@ -297,7 +297,7 @@ def get_exchange_info():
 
 
 def get_apply_institutions():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     logger.info("start request cloud AuthorityInstitutions")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
@@ -328,7 +328,7 @@ def get_apply_institutions():
 
 
 def apply_site(request_data):
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     request_data["institutions"] = account.institutions
     logger.info("start request cloud AuthorityApply")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
@@ -340,7 +340,7 @@ def apply_site(request_data):
 
 def read_apply_site():
     logger.info(f'start update apply institutions read status')
-    update_list = federated_db_operator.update_apply_institutions_read_status(ApplyReadStatusType.NOT_READ,
+    update_list = SingleOperation.update_apply_institutions_read_status(ApplyReadStatusType.NOT_READ,
                                                                 {"read_status": ApplyReadStatusType.READ})
     logger.info(f'update success: {update_list}')
 
@@ -463,7 +463,7 @@ def update_component_version(request_data):
         "fate_serving_version": request_data.get("fateServingVersion")
     }
     DBOperator.update_entity(FateSiteInfo, site_info)
-    federated_info_list = federated_db_operator.get_party_id_info(party_id=request_data.get("PartyId"))
+    federated_info_list = JointOperator.get_party_id_info(party_id=request_data.get("PartyId"))
     if federated_info_list:
         federated_item = federated_info_list[0]
         federated_item.component_version = request_data.get("componentVersion")
@@ -473,7 +473,7 @@ def update_component_version(request_data):
 
 
 def get_apply_log():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     logger.info("start request cloud ApplyLog")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
@@ -488,7 +488,7 @@ def get_apply_log():
 
 
 def function_read():
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     resp_list = []
     for block_item in account.block_msg:
         block_item["readStatus"] = ApplyReadStatusType.READ
@@ -499,7 +499,7 @@ def function_read():
 
 
 def check_site(request_data):
-    federated_info_list = federated_db_operator.get_party_id_info(party_id=request_data.get("dstPartyId"))
+    federated_info_list = JointOperator.get_party_id_info(party_id=request_data.get("dstPartyId"))
     if federated_info_list:
         federated_item = federated_info_list[0]
         fate_site_item = federated_item.fatesiteinfo

@@ -4,15 +4,15 @@ from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, De
 from fate_manager.entity import item
 from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
     IsValidType, \
-    ToyTestOnlyType, DeployType, ProductType, ApplyReadStatusType
-from fate_manager.operation import federated_db_operator
+    ToyTestOnlyType, DeployType, ProductType
+from fate_manager.operation.db_operator import JointOperator, SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
 
 
 def get_change_log_task():
-    change_log_list = federated_db_operator.get_no_deal_list()
+    change_log_list = SingleOperation.get_no_deal_list()
     for change_log in change_log_list:
         federated_info_list = DBOperator.query_entity(FederatedInfo, **{"federated_id": change_log.federated_id})
         body = {"caseId": change_log.case_id, "partyId": change_log.party_id}
@@ -61,7 +61,7 @@ def get_change_log_task():
 
 
 def heart_task():
-    federated_site_list = federated_db_operator.get_home_site()
+    federated_site_list = SingleOperation.get_home_site()
     for federated_site in federated_site_list:
         if not hasattr(federated_site, "fatesiteinfo"):
             continue

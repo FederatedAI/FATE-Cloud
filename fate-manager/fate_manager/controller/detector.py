@@ -1,8 +1,8 @@
 import functools
 import traceback
 
-from fate_manager.controller import apply, count
-from fate_manager.operation import federated_db_operator
+from fate_manager.controller import apply, monitoring_job
+from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.service import task_service
 from fate_manager.service.site_service import get_home_site_list
 from fate_manager.settings import stat_logger as logger
@@ -25,7 +25,7 @@ def exception_catch(func):
 class TaskDetector(cron.Cron):
     @exception_catch
     def run_do(self):
-        admin_info = federated_db_operator.get_admin_info()
+        admin_info = SingleOperation.get_admin_info()
         self.site_status_task()
         # self.ip_manager_task()
         self.heart_task()
@@ -103,13 +103,13 @@ class TaskDetector(cron.Cron):
 class MonitorDetector(cron.Cron):
     @exception_catch
     def run_do(self):
-        account = federated_db_operator.get_admin_info()
+        account = SingleOperation.get_admin_info()
         self.log_fate_flow_job(account)
 
     @classmethod
     @exception_catch
     def log_fate_flow_job(cls, account):
-        party_id_flow_url = count.CountJob.count_fate_flow_job(account)
-        count.CountJob.detector_no_end_job(account, party_id_flow_url)
-        count.CountJob.detector_no_report_job(account)
+        party_id_flow_url = monitoring_job.CountJob.count_fate_flow_job(account)
+        monitoring_job.CountJob.detector_no_end_job(account, party_id_flow_url)
+        monitoring_job.CountJob.detector_no_report_job(account)
 

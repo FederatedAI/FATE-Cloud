@@ -11,7 +11,7 @@ from hashlib import sha1
 from fate_manager.db.db_models import AccountInfo
 from fate_manager.entity.status_code import RequestCloudCode, UserStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole
-from fate_manager.operation import federated_db_operator
+from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import request_cloud_logger, CLOUD_URL, CLOUD_SITE_SIGNATURE, CLOUD_INSTITUTION_SIGNATURE
 
@@ -91,7 +91,7 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
     else:
         head = {}
     if not url:
-        federated_info = federated_db_operator.get_federated_info()[0]
+        federated_info = SingleOperation.get_federated_info()[0]
         url = federated_info.federated_url
     url = url + uri
     request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
