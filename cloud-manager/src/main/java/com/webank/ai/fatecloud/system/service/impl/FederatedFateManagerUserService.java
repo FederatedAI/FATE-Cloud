@@ -255,11 +255,24 @@ public class FederatedFateManagerUserService {
 
         }
 
+        federatedCloudManagerUserDoQueryWrapper.in("status", 1, 2);
         Integer count = federatedFateManagerUserMapper.selectCount(federatedCloudManagerUserDoQueryWrapper);
         PageBean<FederatedFateManagerUserDo> userListBean = new PageBean<>(fateManagerUserPagedQo.getPageNum(), fateManagerUserPagedQo.getPageSize(), count);
         long startIndex = userListBean.getStartIndex();
 
         List<FederatedFateManagerUserDo> pagedCloudUser = federatedFateManagerUserMapper.findPagedFateManagerUser(fateManagerUserPagedQo, startIndex);
+
+        // is it possible to reactivate
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : pagedCloudUser) {
+            if (federatedFateManagerUserDo.getStatus() != null && federatedFateManagerUserDo.getStatus() == 2) {
+                QueryWrapper<FederatedSiteManagerDo> siteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>()
+                        .eq("institutions", federatedFateManagerUserDo.getInstitutions());
+                Integer integer = federatedSiteManagerMapper.selectCount(siteManagerDoQueryWrapper);
+                if (integer != null && integer > 0) {
+                    federatedFateManagerUserDo.setStatus(20);
+                }
+            }
+        }
 
         userListBean.setList(pagedCloudUser);
         return userListBean;
@@ -296,8 +309,8 @@ public class FederatedFateManagerUserService {
 //        registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
 
         if (!linkeInput.equals(registrationLink)) {
-            log.error("linkeInput     :{}",linkeInput);
-            log.error("linkeInDateBase:{}",registrationLink);
+            log.error("linkeInput     :{}", linkeInput);
+            log.error("linkeInDateBase:{}", registrationLink);
             return false;
         }
 
@@ -307,7 +320,7 @@ public class FederatedFateManagerUserService {
     public List<String> findAllInstitutions() {
 
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
-        federatedFateManagerUserDoQueryWrapper.select("institutions");
+        federatedFateManagerUserDoQueryWrapper.select("institutions").in("status", 1, 2);
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
 
         LinkedList<String> institutionsList = new LinkedList<>();
@@ -323,7 +336,7 @@ public class FederatedFateManagerUserService {
         federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", fateManagerUserUpdateQo.getFateManagerId());
         FederatedFateManagerUserDo fateManagerUserDo = federatedFateManagerUserMapper.selectOne(federatedFateManagerUserDoQueryWrapper);
 
-        if (result = (fateManagerUserDo.getStatus() == 2)) {
+        if (result = (fateManagerUserDo != null && fateManagerUserDo.getStatus() == 2)) {
             QueryWrapper<FederatedSiteManagerDo> smw = new QueryWrapper<>();
             smw.eq("institutions", fateManagerUserDo.getInstitutions());
             List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(smw);

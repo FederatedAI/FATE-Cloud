@@ -20,6 +20,16 @@ import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.pojo.dto.PartyDetailsDto;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 public interface PartyMapper extends BaseMapper<PartyDo> {
     PartyDetailsDto selectPartyDetails(@Param("partyId") Long partyId);
+
+    List<PartyDo> selectByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    List<PartyDo> selectExistByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    Integer findSiteExistByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    int deleteNotExistAssociateParty();
 }

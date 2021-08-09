@@ -122,6 +122,13 @@ public class FederatedExchangeController {
         return federatedExchangeServiceFacade.finPartyPage(partyQueryQo);
     }
 
+    @PostMapping(value = "/party/check")
+    @ApiOperation(value = "check party is exist")
+    public CommonResponse<Boolean> checkPartyExist(@RequestBody PartyQueryQo partyQueryQo) {
+        log.info("url:check party is exist, requestBody:{}", partyQueryQo);
+        return federatedExchangeServiceFacade.checkPartyExist(partyQueryQo);
+    }
+
     @PostMapping(value = "/party/edit")
     @ApiOperation(value = "edit site party info")
     public CommonResponse<Void> updateParty(@RequestBody PartyUpdateQo partyUpdateQo) {

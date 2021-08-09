@@ -318,6 +318,12 @@ public class FederatedSiteController {
         return federatedSiteManagerServiceFacade.findAllInstitutionsForDropdown();
     }
 
+    @PostMapping(value = "/institutions/status/dropdown")
+    @ApiOperation(value = "find institutions by status for drop down")
+    public CommonResponse<InstitutionsDropdownDto> findStatusInstitutionsForDropdown(@RequestBody InstitutionStateQo institutionStateQo) {
+        return federatedSiteManagerServiceFacade.findStatusInstitutionsForDropdown(institutionStateQo);
+    }
+
     @PostMapping(value = "/institutions/delete")
     @ApiOperation(value = "delete institutions, institutions go offline state")
     public CommonResponse<Boolean> deleteInstitutions(@RequestBody InstitutionStateQo institutionStateQo) {

@@ -84,6 +84,10 @@ public class PartyDo implements Serializable {
     @TableField(value = "valid_time")
     private Date validTime;
 
+    @ApiModelProperty(hidden = true)
+    @TableField(exist = false)
+    private Integer exist = 0;
+
     @ApiModelProperty(value = "whether the route is used by the site")
     @TableField(exist = false)
     private Boolean using;

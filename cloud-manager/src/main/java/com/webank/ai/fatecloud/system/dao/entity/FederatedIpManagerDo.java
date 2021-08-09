@@ -86,7 +86,7 @@ public class FederatedIpManagerDo implements Serializable  {
     private String exchangeName;
 
     @ApiModelProperty(value = "network access exits_old")
-    @TableField(value = "network_access_exits_old")
+    @TableField(value = "exchange_name_old")
     private String exchangeNameOld;
 
     @ApiModelProperty(value = "exchange vip entrance")

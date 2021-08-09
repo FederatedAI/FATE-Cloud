@@ -144,6 +144,12 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "group name")
     private String groupName;
 
+    @ApiModelProperty(value = "federated organization name")
+    private String federatedOrganization;
+
+    @ApiModelProperty(value = "federated organization id")
+    private Long federatedOrganizationId;
+
     @ApiModelProperty(value = "site detective status")
     private Integer detectiveStatus;
 

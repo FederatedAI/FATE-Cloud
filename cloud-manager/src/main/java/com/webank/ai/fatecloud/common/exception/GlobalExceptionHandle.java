@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.common;
+package com.webank.ai.fatecloud.common.exception;
 
+import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,7 +30,7 @@ public class GlobalExceptionHandle {
 
     @ExceptionHandler(Exception.class)
     public CommonResponse globalExceptionHandle(Exception e) {
-        log.error("global error:",e);
+        log.error("global error:", e);
         return new CommonResponse<>(ReturnCodeEnum.SYSTEM_ERROR);
     }
 
@@ -43,6 +44,12 @@ public class GlobalExceptionHandle {
     public CommonResponse nullPointerHandle(HttpServletRequest req, NullPointerException e) {
         log.error("null pointer error", e);
         return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+    }
+
+    @ExceptionHandler(LogicException.class)
+    public CommonResponse<Object> logicExceptionHandler(LogicException e) {
+        log.error("logic error", e);
+        return new CommonResponse<>(e.getReturnCode(), e.getData());
     }
 
     @ExceptionHandler(OutOfMemoryError.class)

@@ -34,4 +34,30 @@
     <select id="queryRollSiteByPartyId" parameterType="string" resultType="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
         SELECT * FROM t_roll_site WHERE roll_site_id IN (SELECT roll_site_id FROM t_roll_site_party WHERE party_id = #{party_id})
     </select>
+
+    <select id="selectByRollSiteId" parameterType="java.lang.Long" resultType="com.webank.ai.fatecloud.system.dao.entity.PartyDo">
+        SELECT p.*
+        FROM t_party p, t_roll_site_party rp
+        WHERE p.party_id = rp.party_id
+        AND rp.roll_site_id = #{rollSiteId}
+    </select>
+
+    <select id="selectExistByRollSiteId" parameterType="java.lang.Long" resultType="com.webank.ai.fatecloud.system.dao.entity.PartyDo">
+        SELECT p.*,(SELECT COUNT(1) FROM t_federated_site_manager WHERE party_id = p.party_id) exist
+        FROM t_party p, t_roll_site_party rp
+        WHERE p.party_id = rp.party_id
+        AND rp.roll_site_id = #{rollSiteId}
+        ORDER BY CAST(p.party_id AS SIGNED)
+    </select>
+
+    <select id="findSiteExistByRollSiteId" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM t_roll_site_party rsp, t_federated_site_manager s
+        WHERE rsp.party_id = s.party_id
+        AND rsp.roll_site_id = #{rollSiteId}
+    </select>
+
+    <delete id="deleteNotExistAssociateParty">
+        DELETE FROM t_party
+        WHERE NOT EXISTS (SELECT r.party_id FROM t_roll_site_party r WHERE t_party.party_id = r.party_id);
+    </delete>
 </mapper>

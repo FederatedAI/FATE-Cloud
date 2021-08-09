@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -96,9 +97,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
             //check roll site ip
             String networkAccess = rollSiteAddBean.getNetworkAccess();
-//            if (!networkAccess.matches(ipAndPortRegex)) {
-//                return 1;
-//            }
+            if (!ObjectUtil.matchNetworkAddress(networkAccess) || !ObjectUtil.matchNetworkAddress(rollSiteAddBean.getNetworkAccessExit())) {
+                return 1;
+            }
 
             //check roll site is managed or not
             if (federatedExchangeService.findRollSite(networkAccess)) {
@@ -137,6 +138,12 @@ public class FederatedExchangeServiceFacade implements Serializable {
     }
 
     public CommonResponse deleteExchange(ExchangeDeleteQo exchangeDeleteQo) {
+        // check if there are any using sites under the switch
+        boolean result = federatedExchangeService.checkSiteExistByExchange(exchangeDeleteQo.getExchangeId());
+        if (result) {
+            return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXIST_ERROR);
+        }
+
         federatedExchangeService.deleteExchange(exchangeDeleteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
 
@@ -153,9 +160,12 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         for (PartyAddBean partyAddBean : partyAddBeanList) {
             String networkAccess = partyAddBean.getNetworkAccess();
-//            if (!networkAccess.matches(ipAndPortRegex)) {
-//                return false;
-//            }
+            if (partyAddBean.getStatus() == null || partyAddBean.getStatus() != 0){
+                if (!ObjectUtil.matchNetworkAddressNew(networkAccess)) {
+                    return false;
+                }
+            }
+
             //check secure status
             Integer secureStatus = partyAddBean.getSecureStatus();
             if (secureStatus == null || (secureStatus != 1 && secureStatus != 2)) {
@@ -169,7 +179,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             }
 
             String partyId = partyAddBean.getPartyId();
-            if (StringUtils.isBlank(partyId)) {
+            if (StringUtils.isBlank(partyId) || federatedExchangeService.checkExchangePartyId(partyId)) {
                 return false;
             }
             partyIds.add(partyId);
@@ -178,9 +188,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
                 Integer status = partyAddBean.getStatus();
 
                 HashSet<Integer> integers = new HashSet<>();
-                integers.add(1);
-                integers.add(2);
-                integers.add(3);
+                Collections.addAll(integers, 0,1,2,3);
                 if (!integers.contains(status)) {
                     return false;
                 }
@@ -188,11 +196,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             }
         }
 
-        if (partyIds.size() != partyAddBeanList.size()) {
-            return false;
-        }
-
-        return true;
+        return partyIds.size() == partyAddBeanList.size();
     }
 
 
@@ -217,7 +221,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
     public CommonResponse<List<PartyDo>> queryExchange(ExchangeQueryQo exchangeQueryQo) {
 
         String networkAccess = exchangeQueryQo.getNetworkAccess();
-        if (StringUtils.isBlank(networkAccess)) {
+        if (!ObjectUtil.matchNetworkAddress(networkAccess)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
@@ -265,6 +269,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
+        // exclude automatic management party
+        rollSiteUpdateQo.getPartyAddBeanList().removeIf(partyAddBean -> partyAddBean.getStatus() != null && partyAddBean.getStatus() == 0);
+
         federatedExchangeService.updateRollSite(rollSiteUpdateQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
@@ -275,6 +282,11 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
 
         }
+
+        if (federatedExchangeService.checkSiteExistByRollSite(rollSiteId)) {
+            return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXIST_ERROR);
+        }
+
         federatedExchangeService.deleteRollSite(rollSiteDeleteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
@@ -324,7 +336,8 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     // v1.4
     public CommonResponse<Void> updateIpManagerPartyInfo(PartyUpdateQo partyUpdateQo) {
-        if (ObjectUtil.isEmpty(partyUpdateQo.getId(), partyUpdateQo.getPartyId(), partyUpdateQo.getExchangeId())) {
+        if (ObjectUtil.isEmpty(partyUpdateQo.getId(), partyUpdateQo.getPartyId(), partyUpdateQo.getExchangeId(),
+                partyUpdateQo.getPollingStatus(), partyUpdateQo.getSecureStatus())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -341,5 +354,14 @@ public class FederatedExchangeServiceFacade implements Serializable {
     public CommonResponse<List<FederatedExchangeDo>> findAllExchange() {
         List<FederatedExchangeDo> exchangeDoList = federatedExchangeService.findAllExchange();
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, exchangeDoList);
+    }
+
+    public CommonResponse<Boolean> checkPartyExist(PartyQueryQo partyQueryQo) {
+        if (ObjectUtil.isEmpty(partyQueryQo.getPartyId())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        boolean result = federatedExchangeService.findPartyByPartyId(partyQueryQo.getPartyId()) != null;
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, result);
     }
 }

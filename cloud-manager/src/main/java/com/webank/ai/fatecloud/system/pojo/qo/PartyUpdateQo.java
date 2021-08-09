@@ -35,7 +35,7 @@ public class PartyUpdateQo {
     private String networkAccessExits;
 
     @ApiModelProperty(value = "exchange id")
-    private String exchangeId;
+    private Long exchangeId;
 
     @ApiModelProperty(value = "secure status")
     private Integer secureStatus;

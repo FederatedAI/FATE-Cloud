@@ -193,7 +193,7 @@ public class FederatedSiteManagerServiceFacade {
 
     public CommonResponse<SiteDetailDto> querySiteActivateDetails(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
         CommonResponse<Boolean> booleanCommonResponse = checkRegistrationLink(siteActivateQo, httpServletRequest);
-        if (0 != booleanCommonResponse.getCode()) {
+        if (booleanCommonResponse != null && 0 != booleanCommonResponse.getCode()) {
             return new CommonResponse<>(booleanCommonResponse.getCode(), booleanCommonResponse.getMsg());
         }
 
@@ -208,8 +208,8 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Void> shortLinkActivateSite(SiteActivateShortQo siteActivateShortQo, HttpServletRequest httpServletRequest) {
-        if (ObjectUtil.isEmpty(siteActivateShortQo.getRollSiteAddress(), siteActivateShortQo.getNetworkAccessEntrance(),
-                siteActivateShortQo.getNetworkAccessExit()) || !ObjectUtil.matchNetworkAddress(siteActivateShortQo.getRollSiteAddress())) {
+        if (ObjectUtil.isEmpty(siteActivateShortQo.getRollSiteNetworkAccess(), siteActivateShortQo.getNetworkAccessEntrances(),
+                siteActivateShortQo.getNetworkAccessExits()) || !ObjectUtil.matchNetworkAddressNew(siteActivateShortQo.getRollSiteNetworkAccess())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -558,6 +558,15 @@ public class FederatedSiteManagerServiceFacade {
 
     public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
         InstitutionsDropdownDto institutionsDropdownDto = federatedSiteManagerService.findAllInstitutionsForDropdown();
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsDropdownDto);
+
+    }
+
+    public CommonResponse<InstitutionsDropdownDto> findStatusInstitutionsForDropdown(InstitutionStateQo institutionStateQo) {
+        if (ObjectUtil.isEmpty(institutionStateQo.getStatus())) {
+            return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        InstitutionsDropdownDto institutionsDropdownDto = federatedSiteManagerService.findStatusInstitutionsForDropdown(institutionStateQo.getStatus());
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, institutionsDropdownDto);
 
     }

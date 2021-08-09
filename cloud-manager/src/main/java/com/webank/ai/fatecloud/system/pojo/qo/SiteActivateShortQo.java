@@ -12,11 +12,11 @@ public class SiteActivateShortQo {
     private String registrationLink;
 
     @ApiModelProperty(value = "roll site address")
-    private String rollSiteAddress;
+    private String rollSiteNetworkAccess;
 
     @ApiModelProperty(value = "network access entrance")
-    private String networkAccessEntrance;
+    private String networkAccessEntrances;
 
     @ApiModelProperty(value = "network access exit")
-    private String networkAccessExit;
+    private String networkAccessExits;
 }

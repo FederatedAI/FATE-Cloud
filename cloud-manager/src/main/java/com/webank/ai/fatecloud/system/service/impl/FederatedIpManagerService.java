@@ -19,14 +19,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webank.ai.fatecloud.common.CaseIdUtil;
 import com.webank.ai.fatecloud.common.Enum.IpManagerEnum;
 import com.webank.ai.fatecloud.common.Enum.SiteStatusEnum;
+import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
+import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedIpManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
-import com.webank.ai.fatecloud.system.dao.mapper.FederatedGroupSetMapper;
-import com.webank.ai.fatecloud.system.dao.mapper.FederatedIpManagerMapper;
-import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
-import com.webank.ai.fatecloud.system.dao.mapper.PartyMapper;
+import com.webank.ai.fatecloud.system.dao.mapper.*;
 import com.webank.ai.fatecloud.system.pojo.dto.*;
 import com.webank.ai.fatecloud.system.pojo.qo.IpManagerAcceptQo;
 import com.webank.ai.fatecloud.system.pojo.qo.IpManagerListQo;
@@ -36,9 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -46,6 +43,9 @@ public class FederatedIpManagerService {
 
     @Autowired
     FederatedIpManagerMapper federatedIpManagerMapper;
+
+    @Autowired
+    FederatedFateManagerUserMapper federatedFateManagerUserMapper;
 
     @Autowired
     FederatedSiteManagerMapper federatedSiteManagerMapper;
@@ -118,6 +118,7 @@ public class FederatedIpManagerService {
             // 1.4 party exchange info
             PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(pagedSites.get(i).getPartyId());
             if (partyDetailsDto != null) {
+                ipManagerListDto.setExchangeId(partyDetailsDto.getExchangeId());
                 ipManagerListDto.setExchangeName(partyDetailsDto.getExchangeName());
                 ipManagerListDto.setPollingStatus(partyDetailsDto.getPollingStatus());
                 ipManagerListDto.setSecureStatus(partyDetailsDto.getSecureStatus());
@@ -198,19 +199,28 @@ public class FederatedIpManagerService {
 
     public List<FederatedIpManagerDo> queryIpModifyHistory(Long partyId) {
         QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
-        ew.eq(partyId != null, "party_id", partyId).ne("status", 0).orderByDesc("update_time");
+        ew.eq(partyId != null, "party_id", partyId).in("status", 1, 2).orderByDesc("update_time");
         return federatedIpManagerMapper.selectList(ew);
     }
 
     public List<FederatedIpManagerDo> queryUpdateIpModify(String fateManagerUserId) {
-        QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
-        ew.eq("institutions", fateManagerUserId).eq("status", 3);
-        List<FederatedIpManagerDo> federatedIpManagerDos = federatedIpManagerMapper.selectList(ew);
+        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+        federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", fateManagerUserId);
+        FederatedFateManagerUserDo federatedFateManagerUserDo = federatedFateManagerUserMapper.selectOne(federatedFateManagerUserDoQueryWrapper);
+        QueryWrapper<FederatedIpManagerDo> queryWrapper = new QueryWrapper<FederatedIpManagerDo>()
+                .eq("institutions", federatedFateManagerUserDo.getInstitutions())
+                .eq("status", 3);
+        List<FederatedIpManagerDo> federatedIpManagerDos = federatedIpManagerMapper.selectList(queryWrapper);
 
+        // filter
+        federatedIpManagerDos.sort(Comparator.comparing(FederatedIpManagerDo::getCreateTime));
+        Map<Long, FederatedIpManagerDo> longFederatedIpManagerDoMap = ObjectUtil.toMap(FederatedIpManagerDo::getPartyId, federatedIpManagerDos);
+
+        log.info("institutions {} get new update record.", federatedFateManagerUserDo.getInstitutions());
         FederatedIpManagerDo federatedIpManagerDo = new FederatedIpManagerDo();
         federatedIpManagerDo.setUpdateTime(new Date());
         federatedIpManagerDo.setStatus(4);
-        federatedIpManagerMapper.update(federatedIpManagerDo, ew);
-        return federatedIpManagerDos;
+        federatedIpManagerMapper.update(federatedIpManagerDo, queryWrapper);
+        return new ArrayList<>(longFederatedIpManagerDoMap.values());
     }
 }

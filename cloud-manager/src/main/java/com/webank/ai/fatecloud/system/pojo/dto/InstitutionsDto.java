@@ -33,5 +33,5 @@ public class InstitutionsDto implements Serializable {
     private String institutions;
 
     @ApiModelProperty("institution number")
-    private Integer number;
+    private Integer number = 0;
 }

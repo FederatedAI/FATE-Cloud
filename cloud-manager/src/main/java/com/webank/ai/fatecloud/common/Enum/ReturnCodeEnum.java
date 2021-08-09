@@ -68,12 +68,13 @@ public enum ReturnCodeEnum {
     // 200 institutions error
     INSTITUTIONS_REACTIVATE_ERROR(201, "Institution reactivate fail, institution not activate or deleted!"),
     // 300 site error
-    SITE_REACTIVATE_ERROR(301, "Site reactivate fail, site not activate or deleted!"),
+    SITE_REACTIVATE_ERROR(301, "Site reactivate fail, site not activate or exist no delete site!"),
     SITE_PARTY_UPDATE_ERROR(302, "Site roll site update error!"),
+    SITE_PARTY_EXIST_ERROR(303, "There are using sites in the roll site!"),
 
     ;
-    private int code;
-    private String message;
+    private final int code;
+    private final String message;
 
     ReturnCodeEnum(int code, String message) {
         this.code = code;
