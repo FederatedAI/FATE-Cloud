@@ -1,3 +1,61 @@
+# **Release 1.3.0** #
+
+# **Major Features and Improvements** #
+
+## Cloud Manager ##
+
+**Site manage**
+- Add two-way authorization mechanism.
+
+**Job Monitor**
+- Add job monitor function,supports for viewing statistics of jobs based on job type.
+
+
+## FATE Manager ##
+**Architecture**
+- Code refactoring: Use python instead of go;
+
+**Site manage**
+- You can view the sites of other institution which has the permission of viewing your sites
+
+**Site cooperation**
+- Add job monitor function,supports for viewing statistics of jobs based on job type. 
+
+**Others**
+- Supports for switching  to the Chinese language.
+
+# **Release 1.2.0** #
+
+# **Major Features** #
+
+## Cloud Manager ##
+
+**Site manage**
+- Supports for specifying the proxy network access of  site before generating registration link.
+----------------------------------------------------------------------------------------------------
+**IP manage**
+- Supports for setting the true/false value for "is polling" field of each router .
+----------------------------------------------------------------------------------------------------
+**Certificate**
+- Add certificate function,supports for Cloud manager certificates publishment and revocation.
+----------------------------------------------------------------------------------------------------
+**System function switch**
+- Supports for setting the federated senario for Cloud manager.After setting the senario,FATE manager can only apply to view the specified sites of other FATE managers as follows:
+  - hetero federation only：appliers can  only view the host sites of other FATE managers.
+  - homo federation only：appliers can  only view the guest sites of other FATE managers.
+  - hetero federation and homo federation：appliers can view both the guest sites and host sites of other FATE managers.
+----------------------------------------------------------------------------------------------------
+**Admin access**
+- Supports for specifying the proxy network access of FATE manager before generating invitation link.
+----------------------------------------------------------------------------------------------------
+
+# **Improvements** #
+**Site monitor**
+- Improvements for the arrangement of institutions and sites in each module.
+
+**Others**
+- Supports for switching  to the Chinese language.
+
 # **Release 1.1.0** #
 
 # **Major Features and Improvements** #
