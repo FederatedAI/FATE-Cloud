@@ -1,18 +1,22 @@
+import json
+
 from fate_manager.entity.status_code import SiteStatusCode
 from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent
 from fate_manager.entity import item
 from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
     IsValidType, \
-    ToyTestOnlyType, DeployType, ProductType, ApplyReadStatusType
-from fate_manager.operation import federated_db_operator
+    ToyTestOnlyType, DeployType, ProductType
+from fate_manager.operation.db_operator import JointOperator, SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
+from fate_manager.settings import site_service_logger as logger, CLOUD_URL,ROLL_SITE_KEY
+from fate_manager.controller.roll_site import write_site_route
 
 
 def get_change_log_task():
-    change_log_list = federated_db_operator.get_no_deal_list()
+    change_log_list = SingleOperation.get_no_deal_list()
     for change_log in change_log_list:
         federated_info_list = DBOperator.query_entity(FederatedInfo, **{"federated_id": change_log.federated_id})
         body = {"caseId": change_log.case_id, "partyId": change_log.party_id}
@@ -61,7 +65,7 @@ def get_change_log_task():
 
 
 def heart_task():
-    federated_site_list = federated_db_operator.get_home_site()
+    federated_site_list = JointOperator.get_home_site()
     for federated_site in federated_site_list:
         if not hasattr(federated_site, "fatesiteinfo"):
             continue
@@ -99,4 +103,62 @@ def test_only_task():
     for deploy_site in deploy_site_list:
         if deploy_site.deploy_type == DeployType.HYPERION:
             pass
+
+
+def update_exchange_info_task():
+    logger.info("get all institution")
+    institution = DBOperator.query_entity(FederatedInfo)[0]
+    logger.info(f"start request cloud OrganizationQueryUri:{institution.institutions}")
+    account = SingleOperation.get_admin_info()
+    institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
+                                                               appKey=account.app_key,
+                                                               appSecret=account.app_secret,
+                                                               ).to_dict()
+    data = institution_signature_item.update({'institutions':institution.institutions})
+    resp = request_cloud_manager(uri_key="UpdateIpQueryUri",
+                                 data=institution_signature_item,
+                                 body={},
+                                 url=None
+                                 )
+    logger.info(f"request cloud success, return {resp}")
+    if resp:
+        federated_id = institution.federated_id
+        for site in resp:
+            partyId = site.get("partyId")
+            exchange_name_new = site.get("exchangeName")
+            vip_entrances_new = site.get("vipEntrance")
+            network_access_entrances_new = site.get("networkAccessEntrances")
+            network_access_exits_new = site.get("networkAccessExits")
+
+            site_info = {
+                "party_id": partyId,
+                "federated_id": federated_id,
+                "exchange_read_status": 1,
+
+            }
+
+            if exchange_name_new:
+                site_info.update({"exchange_name_new": exchange_name_new})
+            if vip_entrances_new:
+                site_info.update({"vip_entrances_new": vip_entrances_new})
+            if network_access_entrances_new:
+                site_info.update({"network_access_entrances_new": network_access_entrances_new})
+            if network_access_exits_new:
+                site_info.update({"network_access_exits_new": network_access_exits_new})
+
+            DBOperator.safe_save(FateSiteInfo, site_info)
+            logger.info(f"update site exchange info {partyId} success")
+
+            # site_route = json.dumps({exchange_name: {'default': [{'port': ex_port, 'ip': ex_ip}]}})
+            #
+            # site_list = DBOperator.query_entity(FateSiteInfo, party_id=partyId, federated_id=federated_id)
+            # site_data = site_list[0]
+            # roll_site_ip = site_data.get('rollsite_Network_Access').split(':')[0]
+            # roll_site_port = site_data.get('rollsite_Network_Access').split(':')[1]
+            # logger.info(f"write_site_route {roll_site_ip}-{roll_site_port}-{ROLL_SITE_KEY}-{site_route}-{partyId}")
+            # # write_site_route(roll_site_ip, roll_site_port, ROLL_SITE_KEY, site_route, partyId)
+            # logger.info(f"update rollsite info {partyId} success")
+
+    logger.info(f"update table {FateSiteInfo}  exchange info success")
+
 

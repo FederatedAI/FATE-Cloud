@@ -151,7 +151,6 @@ class ChangeLog(DataBaseModel):
         primary_key = CompositeKey('federated_id', 'party_id', 'case_id')
 
 
-
 class ComponentVersion(DataBaseModel):
     id = BigAutoField()
     fate_version = CharField(max_length=30, null=True, help_text='fate version')
@@ -391,8 +390,31 @@ class FateSiteInfo(DataBaseModel):
     app_key = CharField(max_length=64, null=True, help_text='federation key')
     app_secret = CharField(max_length=64, null=True, help_text='Federation secret')
     registration_link = TextField(help_text='registration link')
+
+    # old site network conf
     network_access_entrances = CharField(null=True, help_text='network access entrances')
     network_access_exits = CharField(null=True, help_text='network access exits')
+
+    # old exchange conf
+    exchange_name = CharField(null=True, help_text='exchange name')
+    vip_entrances = CharField(null=True, help_text='vip entrances')
+    exchange_network_access_exits = CharField(null=True, help_text='exchange network access exits')
+    exchange_network_access = CharField(null=True, help_text='exchange network access exits')
+    # rollsite conf
+    rollsite_network_access = CharField(null=True, help_text='rollsite Network Access')
+
+    # new site network conf
+    network_access_entrances_new = CharField(null=True, help_text='network access entrances')
+    network_access_exits_new = CharField(null=True, help_text='network access exits')
+
+    # new exchange conf
+    exchange_name_new = CharField(null=True, help_text='exchange name update')
+    vip_entrances_new = CharField(null=True, help_text='vip entrances')
+    exchange_network_access_exits_new = CharField(null=True, help_text='exchange network access exits')
+    exchange_exits_new = CharField(null=True, help_text='exchange network access exits')
+    exchange_read_status = SmallIntegerField(default=0, help_text='edit status,0 unupdate,1 unedit,2 edit')
+
+    fate_flow_info = CharField(null=True, help_text='fate flow ip and port')
     fate_version = CharField(max_length=10, null=True, help_text='fate version')
     fate_serving_version = CharField(max_length=10, null=True, help_text='fate serving version')
     component_version = CharField(max_length=512, null=True, help_text='fate component version')

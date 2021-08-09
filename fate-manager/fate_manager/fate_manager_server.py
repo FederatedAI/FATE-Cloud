@@ -31,7 +31,7 @@ from fate_manager.apps.service_app import manager as service_manager
 from fate_manager.apps.static_app import manager as static_manager
 from fate_manager.settings import IP, PORT, stat_logger, JOB_DETECTOR_INTERVAL, TASK_DETECTOR_INTERVAL
 from fate_manager.utils.api_utils import get_json_result
-from fate_manager.scheduler.detector import TaskDetector, MonitorDetector
+from fate_manager.controller.detector import TaskDetector, MonitorDetector
 
 manager = Flask(__name__)
 

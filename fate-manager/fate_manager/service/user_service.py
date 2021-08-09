@@ -3,7 +3,7 @@ from fate_manager.db.db_models import TokenInfo, AccountInfo, FateSiteInfo, Fate
 from fate_manager.entity import item
 from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, PermissionType, IsValidType, RoleType, SiteStatusType
-from fate_manager.operation import federated_db_operator
+from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.service.site_service import get_other_site_list
 from fate_manager.settings import user_logger as logger
@@ -34,7 +34,7 @@ def get_user_info(token):
 
 
 def get_user_list(request_data):
-    user_list = federated_db_operator.get_user_list(request_data.get("context"))
+    user_list = SingleOperation.get_user_list(request_data.get("context"))
     return [{"userId": user.user_id, "userName": user.user_name} for user in user_list]
 
 
@@ -88,7 +88,7 @@ def add_user(request_data, token):
         raise Exception(UserStatusCode.AddUserFailed, f"add user failed:role id {request_data.get('roleId')} party id"
                                                       f"{request_data.get('partyId')}")
     logger.info("start check user")
-    account_info_list = federated_db_operator.check_user(user_name=request_data.get("userName"))
+    account_info_list = SingleOperation.check_user(user_name=request_data.get("userName"))
     if account_info_list and account_info_list[0].status == IsValidType.YES:
         raise Exception(UserStatusCode.AddUserFailed, f'check user failed: user {request_data.get("userName")} '
                                                       f'already exists')
@@ -145,7 +145,7 @@ def delete_user(token, request_data):
 
 
 def edit_user(request_data):
-    account_info_list = federated_db_operator.check_user(user_name=request_data.get("userName"))
+    account_info_list = SingleOperation.check_user(user_name=request_data.get("userName"))
     if not account_info_list:
         raise Exception(UserStatusCode.CheckUserFailed, f'check user failed: request_data.get("userName")')
     is_admin = False
@@ -179,7 +179,7 @@ def edit_user(request_data):
 
 
 def get_user_site_list():
-    federated_info_list = federated_db_operator.get_federated_info()
+    federated_info_list = SingleOperation.get_federated_info()
     site_info_list = DBOperator.query_entity(FateSiteInfo, **{"federated_id": federated_info_list[0].federated_id})
     data = []
     for site in site_info_list:
@@ -275,7 +275,7 @@ def change_login(request_data):
 
 
 def permission_authority(request_data):
-    account = federated_db_operator.get_admin_info()
+    account = SingleOperation.get_admin_info()
     logger.info("start request cloud CheckPartyUri")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                        appKey=account.app_key,
@@ -289,7 +289,7 @@ def permission_authority(request_data):
 
 
 def get_allow_party_list(request_data):
-    federated_item_list = get_other_site_list()
+    federated_item_list = get_other_site_list(request_data)
     if not request_data.get("roleName"):
         return federated_item_list
     data = []

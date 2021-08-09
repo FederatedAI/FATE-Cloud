@@ -75,6 +75,10 @@ def deserialize_b64(src):
     return restricted_loads(src)
 
 
+def deserialize_b64_demo(src):
+    src = base64.b64decode(string_to_bytes(src) if isinstance(src, str) else src)
+    return src.decode('utf-8')
+
 safe_module = {
     'federatedml',
     'numpy',

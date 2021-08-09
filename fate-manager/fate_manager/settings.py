@@ -36,15 +36,17 @@ login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
 monitor_logger = log.getLogger('monitor_service')
 
+ROLL_SITE_KEY = ""
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
 
 FATE_FLOW_SETTINGS = {
-    "QueryJob": "/v1/job/query"
+    "QueryJob": "/v1/job/query",
+    "QueryFateVersion": "/v1/version/get"
 }
-
+ROLLSITE_URL = ""
 HYPERION_SETTINGS = {
     "ConnectUri": "/ansible/v1/server/status",
     "JobSubmitUri": "/ansible/v1/job/submit",
@@ -82,17 +84,26 @@ CLOUD_URL= {
     "ProductVersionUri": "/cloud-manager/api/product/page/fatemanager",
     "ExchangeUri": "/cloud-manager/api/exchange/exchange/page/fatemanager",
     "GetApplyListUri": "/cloud-manager/api/authority/findPendingApply",
-    "ApplyLog": "/cloud-manager/api/authority/history/fateManager"
+    "ApplyLog": "/cloud-manager/api/authority/history/fateManager",
+    "OrganizationQueryUri": "/cloud-manager/api/fate/user/find/page",
+
+    "ActivateUriNew": "/cloud-manager/api/site/activate/v2",
+    "ActivateUriInfo": "/cloud-manager/api/site/activate/query/details",
+    "UserActivateNew": "/cloud-manager/api/fate/user/activate/v2",
+    "UpdateIpQueryUri": "/cloud-manager/api/site/ip/update/query",
 }
 
 CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUri", "UpdateVersionUri", "IpAcceptUri",
-                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri"]
+                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri","ActivateUriNew","ActivateUriInfo",]
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "MyApprovedUri", "OtherSiteUri",
                                "ExchangeUri", "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri",
-                               "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri"]
+                               "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri",
+                               "OrganizationQueryUri","UpdateIpQueryUri","UserActivateNew",
+                               ]
 
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms
 
 TASK_DETECTOR_INTERVAL = 30 * 1000  # ms
 JOB_DETECTOR_INTERVAL = 30 * 60 * 1000  # ms
+DEFAULT_GRPC_TIMEOUT = 30 * 1000  # ms

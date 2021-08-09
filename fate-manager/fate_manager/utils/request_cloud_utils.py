@@ -11,7 +11,7 @@ from hashlib import sha1
 from fate_manager.db.db_models import AccountInfo
 from fate_manager.entity.status_code import RequestCloudCode, UserStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole
-from fate_manager.operation import federated_db_operator
+from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import request_cloud_logger, CLOUD_URL, CLOUD_SITE_SIGNATURE, CLOUD_INSTITUTION_SIGNATURE
 
@@ -91,7 +91,7 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
     else:
         head = {}
     if not url:
-        federated_info = federated_db_operator.get_federated_info()[0]
+        federated_info = SingleOperation.get_federated_info()[0]
         url = federated_info.federated_url
     url = url + uri
     request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
@@ -107,3 +107,75 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None):
             raise Exception(RequestCloudCode.SignatureFailed, f'request cloud uri key {uri_key} failed: code {response.json().get("code")}, msg {response.json().get("msg")}')
     else:
         raise Exception(RequestCloudCode.HttpRequestFailed, f'request cloud uri key {uri_key} failed,http status code:{response.status_code}')
+
+
+def request_cloud_manager_new(uri_key, data, body, methods="post", url=None):
+    uri = CLOUD_URL[uri_key]
+    body_json = json.dumps(body, separators=(',', ':'), sort_keys=True, ensure_ascii=False)
+    if uri_key in CLOUD_INSTITUTION_SIGNATURE:
+        head = get_institution_signature_head_new(uri, data, body_json)
+    elif uri_key in CLOUD_SITE_SIGNATURE:
+        if "account" not in data.keys():
+            accounts = DBOperator.query_entity(AccountInfo, status=ActivateStatus.YES, role=UserRole.ADMIN)
+            if not accounts:
+                raise Exception(UserStatusCode.NoFoundAccount, "no found account")
+            data["account"] = accounts[0]
+        if body.get('networkAccessExits'):
+            head = get_site_signature_head_new(uri, data, "{}")
+        else:
+            head = get_site_signature_head_new(uri, data, body_json)
+    else:
+        head = {}
+    if not url:
+        federated_info = SingleOperation.get_federated_info()[0]
+        url = federated_info.federated_url
+    url = url + uri
+    request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
+    if methods == "get":
+        response = requests.get(url, json=body, headers=head)
+    else:
+        response = requests.post(url, json=body, headers=head)
+    request_cloud_logger.info(f'response:{response.text}')
+    if response.status_code == 200:
+        if not response.json().get('code') or response.json().get('code') in [127, 145]:
+            return response.json().get('data')
+        else:
+            raise Exception(RequestCloudCode.SignatureFailed, f'request cloud uri key {uri_key} failed: code {response.json().get("code")}, msg {response.json().get("msg")}')
+    else:
+        raise Exception(RequestCloudCode.HttpRequestFailed, f'request cloud uri key {uri_key} failed,http status code:{response.status_code}')
+
+
+def get_institution_signature_head_new(uri, data, body):
+    head = {}
+    head["TIMESTAMP"] = str(int(time.time() * 1000))
+    head["FATE_MANAGER_USER_ID"] = str(data.get("fateManagerId"))
+    head["FATE_MANAGER_USER_NAME"] = str(data.get("institutionName"))
+    head["NONCE"] = uuid.uuid1().hex
+    if body == '{}':
+        body = ""
+    sign_str = '{}\n{}\n{}\n{}\n{}\n{}'.format(head["TIMESTAMP"],head["FATE_MANAGER_USER_ID"],
+                                               head["FATE_MANAGER_USER_NAME"], head["NONCE"], uri, body)
+    key = data.get("fateManagerId")
+    sign = hash_hmac(key, sign_str)
+    head["SIGNATURE"] = sign
+    return head
+
+
+def get_site_signature_head_new(uri, data, body):
+    head = {}
+    head["TIMESTAMP"] = str(int(time.time()*1000))
+    head["PARTY_ID"] = str(data.get("partyId"))
+    head["FATE_MANAGER_USER_ID"] = data["account"].fate_manager_id
+    head["FATE_MANAGER_APP_KEY"] = data["account"].app_key
+    head["APP_KEY"] = data.get("appKey")
+    head["NONCE"] = uuid.uuid1().hex
+
+    if body == '{}':
+        body = ""
+    sign_str = '{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}'.format(head["TIMESTAMP"],head["PARTY_ID"], data["account"].fate_manager_id,
+                                                           data["account"].app_key,head["APP_KEY"],
+                                                            head["NONCE"], uri, body)
+    key = data["account"].app_secret
+    sign = hash_hmac(key, sign_str)
+    head["SIGNATURE"] = sign
+    return head
