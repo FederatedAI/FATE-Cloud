@@ -84,38 +84,15 @@ export default {
 
         okAction() {
             let Url = this.inputform.input
-            let urlStr = ''
-            let newStr = ''
-            if (Url.indexOf('st=') < 0) {
-                urlStr = Url.split('\\n').join('')
-                Url = utf8to16(decode64(urlStr))
-                this.inputform.input = this.inputform.input.replace(/\\n/g, '\n').replace(new RegExp(' ', 'g'), '\n')
-                newStr = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
-            } else {
-                newStr = Url.split('st=')[1].split('\\\\').join('"').replace(new RegExp('\\\\', 'g'), '')
-            }
-            // 判断URL后面是否是json
             try {
                 let data = {}
-                var obj = { ...JSON.parse(newStr) }
-                data.appKey = obj.secretInfo.key
-                data.appSecret = obj.secretInfo.secret
-                data.federatedUrl = `${Url.split('//')[0]}//${Url.split('//')[1].split('/')[0]}`
-                data.registrationLink = this.inputform.input
-                data.federatedOrganization = obj.federatedOrganization
-                data.id = obj.id
-                data.institutions = obj.institutions
-                data.networkAccessEntrances = obj.networkAccessEntrances
-                data.networkAccessEntrances = obj.networkAccessExits
-                data.partyId = obj.partyId
-                data.role = obj.role
-                data.siteName = obj.siteName
+                data.link = Url
                 console.log(data, 'data')
                 checkUrl(data).then(res => {
                     if (res.code === 0) {
                         this.$router.push({
                             name: 'activate',
-                            query: { registerUrl: this.inputform.input }
+                            query: { data: res.data }
                         })
                     }
                 }).catch(res => {

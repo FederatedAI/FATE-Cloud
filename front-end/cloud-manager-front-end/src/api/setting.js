@@ -143,6 +143,15 @@ export function updataManager(data) {
     })
 }
 
+// 更新manager
+export function reactivateUser(data) {
+    return request({
+        url: '/cloud-manager/api/fate/user/reactivate',
+        method: 'post',
+        data
+    })
+}
+
 // 获取开关状态
 export function switchState(data) {
     return request({

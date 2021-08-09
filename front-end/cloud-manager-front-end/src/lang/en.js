@@ -40,6 +40,7 @@ export const m = {
         'guest': 'guest',
         'go': 'GO',
         'add': 'add',
+        'edit': 'edit',
         'and': 'and',
         'delete': 'delete',
         'noData': 'No Data',
@@ -83,7 +84,8 @@ export const m = {
         'start': 'start',
         'end': 'end',
         'unavailable': 'Unavailable',
-        'available': 'Available'
+        'available': 'Available',
+        'serchForPlaceholder': 'search for {type}'
     },
     errorTips: {
         'This function doesnt work!': "This function of federal authorization doesn't work!",
@@ -95,7 +97,12 @@ export const m = {
         'System error!': 'System error!',
         'The party id doesnt register or  has been activated or removed!': 'The party id doesnt register or has been activated or removed!',
         'This rollsite already exist!': 'This rollsite already exist!',
-        'Site name exist!': 'Site name exist!'
+        'Site name exist!': 'Site name exist!',
+        'The input parameters are wrong!': 'The input parameters are wrong!',
+        'There is an error when connect to the ip!': 'There is an error when connect to the ip!',
+        'Institution reactivate fail, institution not activate or exist site!': 'Institution reactivate fail, institution not activate or exist site!',
+        'Site reactivate fail, site not activate or deleted!': 'Site reactivate fail, site not activate or deleted!',
+        'There are using sites in the roll site!': 'There are using sites in the roll site!'
     },
     login: {
         'signTitle': 'Sign in to FATE Cloud',
@@ -137,10 +144,19 @@ export const m = {
         'searchSiteOrParty': 'Search for Site Name or Party ID',
         'sureDelete': 'Are you sure you want to delete',
         'cantUndo': "You can't undo this action.",
-        'including': 'including'
+        'including': 'including',
+        'In Use': 'In Use',
+        'Historic Uses': 'Historic Uses',
+        'reactivate': 'reactivate',
+        'Are you sure you want to reactivate this site': 'Are you sure you want to reactivate this site',
+        'Stautus of the site will be reset to unjoined': 'Stautus of the site will be reset to unjoined',
+        'Are you sure you want to delete this institution': 'Are you sure you want to delete this institution',
+        'All sites of the institution will be deleted': 'All sites of the institution will be deleted'
     },
     siteAdd: {
         'addSite': 'Add a site',
+        'Basic Info': 'Basic Info',
+        'Exchange Info': 'Exchange Info',
         'waitingActivation': 'Waiting for site activation...',
         'siteUpdate': 'Site Update',
         'maximum20chatacters': 'Maximum of 20 chatacters',
@@ -177,7 +193,8 @@ export const m = {
         'networkAcessEntrancesRequired': 'Network Acess Entrances field is required.',
         'networkAcessExitRequired': 'Network Acess Exit field is required.',
         'proxyNetworkAccessRequired': 'Proxy Network Access field is required',
-        'proxyNetworkAccessInvalid': 'The Proxy Network Access field is invalid. Please enter again.'
+        'proxyNetworkAccessInvalid': 'The Proxy Network Access field is invalid. Please enter again.',
+        'exchange': 'exchange'
     },
     ip: {
         'telnetFailed': 'Telnet Failed !',
@@ -200,7 +217,10 @@ export const m = {
         'rollsiteNetworkAccess': 'Rollsite Network Access',
         'isSecure': 'Is Secure',
         'isPolling': 'Is Polling',
+        'entrances': 'entrances',
+        'exit': 'exit',
         'sureWantSaveExchange': 'Are you sure you want to save this exchange?',
+        'sureWantSaveChanges': 'Are you sure you want to save the changes？',
         'updateToServer': 'Site network access info will update to server as well.',
         'addRollsite': 'Add Rollsite',
         'editRollsite': 'Edit Rollsite',
@@ -267,5 +287,38 @@ export const m = {
         'groupNameExist': 'Group name exist!',
         'enterIDRangeLike': 'Enter an ID range like',
         'deleteSuccessful': 'Delete successful!'
+    },
+    access: {
+        'add': 'add',
+        'Today’s active data': 'Today’s active data',
+        'Cumulative active data': 'Cumulative active data',
+        'Name': 'Name',
+        'Admin-level': 'Admin-level',
+        'Creator': 'Creator',
+        'Create Time': 'Create Time',
+        'Action': 'Action',
+        'Institution': 'Institution',
+        'Admin ID': 'Admin ID',
+        'Status': 'Status',
+        'Are you sure you want to delete this administrator?': 'Are you sure you want to delete this administrator?',
+        'Add admin': 'Add admin',
+        'To add': 'To add administrtor right to FATE Manager,please fill in the institution name to which the administrator belongs. Once filled in,it cannot be modified.',
+        'senior admin': 'senior admin',
+        'Maximum of 20 chatacters': 'Maximum of 20 chatacters',
+        'Invitation Link Setting': 'Invitation Link Setting',
+        'Link Type': 'Link Type：',
+        'Proxy Network Access': 'Proxy Network Access：',
+        'Invitation Link': 'Invitation Link',
+        'the administrator': 'The administrator invitation link has been generated as follows:',
+        'Modify': 'Modify',
+        'Search for Institution': 'Search for Institution',
+        'Search for Name': 'Search for Name',
+        'reset to default': 'reset to default',
+        'Cloud Manager': 'Cloud Manager',
+        'FATE Manager': 'FATE Manager',
+        'Are you sure you want to reactivate this institution': 'Are you sure you want to reactivate this institution',
+        'Status of the institution will be reset to unactivated': 'Status of the institution will be reset to unactivated',
+        'reactivate': 'reactivate',
+        'detail': 'detail'
     }
 }

@@ -8,10 +8,11 @@
         background: #F5F8FA;
         overflow: auto;
         .Basic {
-            padding: 32px 64px 20px 64px;
+            padding: 20px 28px;
             width: 1272px;
             background: #fff;
             margin: 12px auto;
+            font-family: OPPOSans;
             .Network {
                 font-size: 18px;
                 color: #4E5766;
@@ -21,7 +22,25 @@
                 margin-bottom: 10px;
             }
             .el-form{
-                margin-top: 36px;
+                margin-top: 24px;
+                .plate{
+                    padding: 12px;
+                    background: #FAFBFC;
+                    border-radius: 4px;
+                    margin-top: 8px;
+                    .plate-title{
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 12px;
+                        .title-text{
+                            font-size: 18px;
+                            font-weight: 500;
+                            line-height: 24px;
+                            color: #4E5766;
+                        }
+                    }
+                }
+                
                 .el-form-item {
                     margin-bottom: 10px;
                     height:42px;
@@ -189,59 +208,92 @@
                 
                 
             }
+            .info-del {
+                // margin-top: 10px;
+                font-size: 24px;
+                float: right;
+                .el-button--primary{
+                    background: transparent;
+                    color: #217AD9;
+                    border: 0;
+                }
+                .el-button--primary.is-disabled{
+                    color: #90bdec;
+                }
+                .el-button--info{
+                    background: transparent;
+                    color: #848C99;
+                    border: 0;
+                }
+                .edit{
+                    cursor: pointer;
+                }  
+                .edit.disable{
+                    opacity: .5;
+                    pointer-events: none;
+                    filter: grayscale(100%); 
+                }         
+                .under{
+                    font-size: 18px;
+                    color:#B8BFCC;
+                    img{
+                        vertical-align: middle;
+                        line-height: 29px;
+                        margin-bottom: 5px;
+                    }
+                }
+                
+                .sta-action {
+                    margin-left: 20px;
+                    color: #217AD9;
+                }
+
+                .info-sta {
+                    font-size: 18px;
+                    color: #848C99;
+                    margin-left: -20px;
+                }
+
+                .el-button {
+                    // width: 96px;
+                    // height: 28px;
+                    padding: 0;
+                    font-size: 16px;
+                    vertical-align: top;
+                    border-radius: 0;
+                    font-family: Product Sans;
+                    margin-left: 16px
+                }
+            }
             
             .info {
-                font-size: 32px;
+                font-size: 24px;
                 font-weight: 650;
-                margin: 5px 0;
-                color: #217AD9;
-                border-bottom: 2px solid #E6EBF0;
-                padding-bottom: 12px;
+                margin: 5px 0 0;
+                // color: #217AD9;
+                color: #505765;
+                // border-bottom: 2px solid #E6EBF0;
                 .refresh{
                     cursor: pointer;
                     vertical-align: -3px;
                     margin-left: 15px
                 }
-                .info-del {
-                    margin-top: 10px;
-                    font-size: 24px;
-                    float: right;
-                    .edit{
-                        cursor: pointer;
-                    }           
-                    .under{
-                        font-size: 18px;
-                        color:#B8BFCC;
-                        img{
-                            vertical-align: middle;
-                            line-height: 29px;
-                            margin-bottom: 5px;
-                        }
+                
+            }
+            
+            .site-table{
+                margin-top: 24px;
+                .tableHead:nth-of-type(1){
+                    th{
+                        background: linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%);
                     }
-                    
-                    .sta-action {
-                        margin-left: 20px;
-                    }
-    
-                    .info-sta {
-                        font-size: 18px;
-                        color: #848C99;
-                        margin-left: -20px;
-                    }
-    
-                    .el-button {
-                        width: 96px;
-                        height: 28px;
-                        padding: 0;
-                        font-size: 16px;
-                        vertical-align: top;
-                        border-radius: 0;
-                        font-family: Product Sans;
-                        margin-left: 16px
+                }
+                .tableHead:nth-of-type(2){
+                    th{
+                        background: #fff;
                     }
                 }
             }
-            
 
         }
 
@@ -413,4 +465,142 @@
 
     }
 
+}
+
+.connection-dialog{
+    .el-dialog__headerbtn{
+        font-size: 28px;
+        top: 10px;
+        right: 15px;
+    }
+    .connection-loading,.success-section,.failed-section{
+        text-align: center;
+
+        .el-icon-loading{
+            display: block;
+            font-size: 50px;
+            color: #217AD9;
+            margin-bottom: 12px;
+        }
+            
+    }
+    .dialog-title{
+        font-size: 18px;
+        font-weight: bold;
+        line-height: 24px;
+        color: #4E5766;
+        margin-bottom: 15px;
+    }
+    .dialog-text{
+        font-size: 18px;
+        color: #848C99;
+        padding-bottom: 20px;
+    }
+    .ok-btn{
+        width: 240px;
+        height: 32px;
+        line-height: 22px;
+        padding: 5px 0;
+        background: #217AD9;
+        border-radius: 2px;
+        margin-top: 16px;
+    }
+    .failed-rollsite-list{
+        width: 93%;
+        height: 110px;
+        padding: 12px;
+        background: #FAFBFC;
+        border-radius: 2px;
+        overflow-y: auto;
+        box-sizing: border-box;
+        margin: 0 auto 36px;
+        ul{
+            margin: 0;
+            padding: 0;
+        }
+        .list-item{
+            list-style: none;
+            text-align: left;
+            color: #4E5766;
+            margin-bottom: 12px;
+        }
+    }
+}
+
+.change-dialog{
+    .el-dialog__headerbtn{
+        font-size: 24px;
+        top: 10px;
+        right: 15px;
+    }
+    .el-dialog__body {
+        padding: 20px 24px;
+    }
+
+    .main-title{
+        font-size: 16px;
+        font-weight: 600;
+        color: #4E5766;
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .dialog-title{
+        font-size: 14px;
+        font-family: OPPOSans;
+        font-weight: 400;
+        color: #848C99;
+        margin-bottom: 12px;
+    }
+    .dialog-text{
+        font-size: 14px;
+        font-family: OPPOSans;
+        font-weight: 400;
+        color: #848C99;
+        text-align: center;
+        margin: 36px auto 24px;
+    }
+    .ok-btn{
+        display: block;
+        width: 240px;
+        height: 32px;
+        line-height: 22px;
+        padding: 5px 0;
+        background: #217AD9;
+        border-radius: 2px;
+        margin: 0 auto;
+    }
+    .change-rollsite-list{
+        width: 100%;
+        height: 96px;
+        padding: 12px;
+        background: #FAFBFC;
+        border-radius: 2px;
+        overflow-y: auto;
+        box-sizing: border-box;
+        margin: 0 auto 36px;
+        display: flex;
+
+        .link-area{
+            width: 50%;
+            display: flex;
+
+            &>div{
+                width: 50px;
+                text-align: right;
+                color: #848C99;
+                margin-right: 24px;
+            }
+            ul{
+                margin: 0;
+                padding: 0;
+            }
+            .list-item{
+                list-style: none;
+                text-align: left;
+                color: #4E5766;
+                margin-bottom: 12px;
+            }
+        }
+    }
 }

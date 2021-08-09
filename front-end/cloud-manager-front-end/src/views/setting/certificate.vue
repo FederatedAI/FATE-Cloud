@@ -64,7 +64,7 @@
                 </el-table-column>
                 <el-table-column prop="status" :label="$t('Status')" >
                     <template slot-scope="scope">
-                        {{$t('m.common.'+scope.row.status.toLowerCase())}}
+                        {{$t(`m.common.${scope.row.status.toLowerCase()}`)}}
                     </template>
                 </el-table-column>
                 <el-table-column prop="notes" :label="$t('Notes')"   show-overflow-tooltip>
@@ -216,7 +216,7 @@
     <el-dialog :visible.sync="deletedialog" class="auto-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
         <div class="line-text-one">
-          {{$t('m.certificate.sureTodo',{type:$t('m.common.'+dialogType)})}}
+          {{$t('m.certificate.sureTodo',{type:$t(`m.common.${dialogType}`)})}}
         </div>
         <div class="line-text-two" v-if="dialogType === 'publish'">
             {{$t('m.certificate.certificateAfterPublished')}}
@@ -266,7 +266,9 @@ const local = {
         'Search for Certificate ID or Site': '搜索证书ID或站点',
         'Add Certificate': '添加证书',
         'Edit Certificate': '编辑证书',
-        'institution DNS': '机构域名'
+        'institution DNS': '机构域名',
+        'start': '开始时间',
+        'end': '结束时间'
     },
     en: {
         'Certificate ID': 'Certificate ID',
@@ -284,7 +286,10 @@ const local = {
         'Search for Certificate ID or Site': 'Search for Certificate ID or Site',
         'Add Certificate': 'Add Certificate',
         'Edit Certificate': 'Edit Certificate',
-        'institution DNS': 'institution DNS'
+        'institution DNS': 'institution DNS',
+        'start': 'start',
+        'end': 'end'
+
     }
 }
 
@@ -316,7 +321,7 @@ export default {
             certiTypeSelect: [], // 类型下拉选项
             addCertiTypeList: [],
             siteSelect: [], // 站点下拉选项
-            dialogType: '', // 弹框类型
+            dialogType: 'publish', // 弹框类型
             params: '', // 弹框传入id
             editRules: {
                 typeId: [{ required: true, message: ' ', trigger: 'bulr' }],
@@ -391,6 +396,7 @@ export default {
         },
         init() {
             this.institutionsSelectList = []
+            this.institutionsSelectListAll = []
             this.certiTypeSelect = []
             institutionsListDropdown().then(res => {
                 res.data.institutionsSet.forEach(element => {

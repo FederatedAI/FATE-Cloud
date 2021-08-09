@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import homeRouter from './homeRouter'
+import federatedRouter from './federatedRouter'
+import settingRouter from './settingRouter'
 
 /* Layout */
-import Layout from '../views/layout/Layout'
+// import Layout from '../views/layout/Layout'
 // import marketingRouter from './modules/marketing-manage'
 
 // in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
@@ -31,108 +34,9 @@ export const constantRouterMap = [
     // { path: '*', redirect: '/home/homepage', hidden: true },
     // { path: '/home', component: () => import('@/views/home/home') },
     { path: '/404', component: () => import('@/views/404'), hidden: true },
-    {
-        path: '/home',
-        component: () => import('@/views/home/home'),
-        name: 'home',
-        hidden: true,
-        children: [
-            {
-                name: 'welcome', //
-                hidden: true,
-                path: 'welcome',
-                component: () => import('@/views/home/welcome')
-            }, {
-                name: 'register', //
-                hidden: true,
-                path: 'register',
-                component: () => import('@/views/home/register')
-            }, {
-                name: 'login', //
-                hidden: true,
-                path: 'login',
-                component: () => import('@/views/home/login')
-            }
-
-        ]
-    },
-    {
-        path: '/federated',
-        component: Layout,
-        name: 'federated',
-        children: [
-            {
-                name: 'Site Manage', // 根据侧边导航栏命名
-                path: 'site',
-                component: () => import('@/views/federated/site')
-            }, {
-                name: 'siteadd', //
-                path: 'siteadd',
-                component: () => import('@/views/federated/siteadd')
-            }, {
-                name: 'detail', //
-                hidden: true,
-                path: 'detail',
-                component: () => import('@/views/federated/sitedetail')
-            }, {
-                name: 'IP Manage', //
-                path: 'ip',
-                component: () => import('@/views/federated/ip')
-            }, {
-                name: 'Add an Exchange', //
-                path: 'ipexchange',
-                component: () => import('@/views/federated/ipaddexchange')
-            }, {
-                name: 'Service Manage', //
-                path: 'sys',
-                component: () => import('@/views/federated/system')
-            }, {
-                name: 'Site Monitor', //
-                path: 'sitemonitor',
-                component: () => import('@/views/federated/monitor')
-            }, {
-                name: 'Job Monitor', //
-                path: 'jobmonitor',
-                component: () => import('@/views/federated/jobMonitor')
-            }
-
-        ]
-    },
-    {
-        path: '/setting',
-        component: Layout,
-        name: 'setting',
-        children: [
-            {
-                name: 'Party ID', //
-                path: 'partyid',
-                component: () => import('@/views/setting/partyid')
-            },
-            {
-                name: 'Repository', //
-                path: 'repository',
-                component: () => import('@/views/setting/repository')
-            },
-            {
-                name: 'partyuser', //
-                path: 'partyuser',
-                component: () => import('@/views/setting/partyuser')
-            }, {
-                name: 'Admin Access', //
-                path: 'access',
-                component: () => import('@/views/setting/access')
-            }, {
-                name: 'System Function Switch', //
-                path: 'switch',
-                component: () => import('@/views/setting/switch')
-            }, {
-                name: 'Certificate', //
-                path: 'certificate',
-                component: () => import('@/views/setting/certificate')
-            }
-
-        ]
-    }
+    { ...homeRouter },
+    { ...federatedRouter },
+    { ...settingRouter }
 ]
 
 const router = new Router({

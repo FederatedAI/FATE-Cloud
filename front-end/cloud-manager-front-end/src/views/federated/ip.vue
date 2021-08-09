@@ -66,23 +66,40 @@
                                         </span>
                                     </template>
                                 </el-table-column>
+                                <el-table-column prop="exchangeName" label="Exchange"  class-name="cell-td-td" ></el-table-column>
+                                <el-table-column prop="isSecure" :label="$t('m.ip.isSecure')"  class-name="cell-td-td" >
+                                    <template slot-scope="scope">
+                                        <span>{{scope.row.secureStatus === 1 ? $t('m.common.true') :  $t('m.common.false')}}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="isPolling" :label="$t('m.ip.isPolling')"  class-name="cell-td-td" >
+                                    <template slot-scope="scope">
+                                        <span>{{scope.row.pollingStatus === 1 ? $t('m.common.true') :  $t('m.common.false')}}</span>
+                                    </template>
+                                </el-table-column>
                                 <el-table-column prop="updateTime" show-overflow-tooltip :label="$t('m.common.updateTime')"  class-name="cell-td-td" min-width="100px">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
                                 </template>
                                 </el-table-column>
-                                <el-table-column prop="" align="left" :label="$t('m.common.action')" class-name="cell-td-td" min-width="70">
+                                <el-table-column prop="" align="left" :label="$t('m.common.action')" class-name="cell-td-td" min-width="80">
                                     <template slot-scope="scope">
-                                        <el-badge is-dot v-if="scope.row.status===0" type="warning" style="margin-right:10px;">
-                                            <el-button type="text" >
-                                                <i class="el-icon-refresh-right" @click="upDate(scope.row)"></i>
+                                        <el-badge is-dot v-if="scope.row.status === 0" type="warning" style="margin-right:10px;">
+                                            <el-button type="text" @click="upDate(scope.row)">
+                                                <img class="edit-img" src="@/assets/refresh.png" alt="" >
                                             </el-button>
                                         </el-badge>
-                                        <el-button v-else type="text" :disabled="true" style="margin-right:10px;" class="delete">
-                                            <i class="el-icon-refresh-right" ></i>
+                                        <el-button v-else type="text" :disabled="scope.row.status === 1" style="margin-right:10px;" class="delete">
+                                            <img class="edit-img" src="@/assets/refresh_disable.png" alt="" >
+                                        </el-button>
+                                        <!-- :disabled="scope.row.status === 1" -->
+                                        <el-button class="edit" type="text" @click="editData(scope.row)" style="margin-right:10px;margin-left:0" >
+                                            <!-- v-if="scope.row.status!==1" -->
+                                            <img class="edit-img" src="@/assets/edit_click.png" alt="" >
+                                            <!-- <img v-else class="edit-img" src="@/assets/edit_disable.png" alt="" > -->
                                         </el-button>
                                         <el-popover
-                                            v-if="scope.row.history"
+                                            v-if="scope.row.history === 1"
                                             v-model="scope.row.visible"
                                             effect="light"
                                             placement="left"
@@ -155,11 +172,11 @@
                                                 </div>
                                             </div>
                                             <el-button slot="reference" type="text" >
-                                                <i class="el-icon-tickets"></i>
+                                                <img  class="tickets" src="@/assets/historyclick.png" alt="" >
                                             </el-button>
                                         </el-popover>
-                                        <el-button v-if="!scope.row.history" slot="reference" disabled style="margin-left:0" type="text" >
-                                            <i class="el-icon-tickets"></i>
+                                        <el-button v-if="scope.row.history === 0" slot="reference" disabled style="margin-left:0" type="text" >
+                                            <img  class="tickets" src="@/assets/history.png" alt="" >
                                         </el-button>
                                     </template>
                                 </el-table-column>
@@ -231,18 +248,20 @@
                 </div>
             </el-dialog>
         </div>
+        <ipedit ref="ipedit" :rowData="rowData" @updateRowData="updateRowData"></ipedit>
     </div>
 </template>
 
 <script>
 
-import { ipList, telnet, deal, iphistory, institutionsListDropdown } from '@/api/federated'
+import { ipList, telnet, deal, iphistory, institutionsListDropdown, ipListEdit } from '@/api/federated'
 import moment from 'moment'
 import ipexchange from './ipexchange'
+import ipedit from './ipedit'
 
 export default {
     name: 'Ip',
-    components: { ipexchange },
+    components: { ipexchange, ipedit },
     filters: {
         dateFormat(vaule) {
             return moment(vaule).format('YYYY-MM-DD HH:mm:ss')
@@ -256,6 +275,7 @@ export default {
             total: 0,
             isdot: false,
             historylist: [], // 历史数据
+            rowData: {},
             dialogData: {
                 siteName: '',
                 type: '',
@@ -311,7 +331,7 @@ export default {
             }
             ipList(this.data).then(res => {
                 this.tableData = res.data.list.map(item => {
-                    if (item.history) {
+                    if (item.history === 1) {
                         item.visible = false// 历史记录表格弹框
                         iphistory({ partyId: item.partyId }).then(res => {
                             item.historylist = [...res.data]
@@ -398,7 +418,26 @@ export default {
                 }
             }).catch(res => {
                 if (res.code === 109) {
-                    this.$message.error(this.$t('m.ip.telnetFailed'))
+                    if (!document.querySelectorAll('.el-message__content')) {
+                        this.$message.error(this.$t('m.ip.telnetFailed'))
+                    }
+                }
+            })
+        },
+        editData(row) {
+            console.log(row, 'row')
+            this.$refs['ipedit'].editdialog = true
+            this.$nextTick(() => {
+                this.rowData = JSON.parse(JSON.stringify(row))
+            })
+        },
+        updateRowData(data) {
+            console.log(data, 'updateRowData')
+            ipListEdit(data).then(res => {
+                console.log(res, 'res-updateRowData')
+                if (res && res.code === 0 && res.msg === 'Success!') {
+                    this.$refs['ipedit'].editdialog = false
+                    this.initList()
                 }
             })
         }

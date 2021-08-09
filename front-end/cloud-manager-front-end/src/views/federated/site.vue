@@ -1,8 +1,14 @@
 <template>
   <div class="site-box">
     <div class="site" >
+        <div class="site-radio">
+            <el-radio-group class="radio" v-model="radioInstitutions" @change="changeRadio">
+                <el-radio-button label="In Use">{{$t('m.site.In Use')}}</el-radio-button>
+                <el-radio-button label="Historic Uses">{{$t('m.site.Historic Uses')}}</el-radio-button>
+            </el-radio-group>
+        </div>
         <div class="site-header">
-            <el-button class="add" type="text" @click="addsite">
+            <el-button v-if="radioInstitutions==='In Use'" class="add" type="text" @click="addsite">
                 <img src="@/assets/add_site.png">
                 <span>{{$t('m.common.add')}}</span>
             </el-button>
@@ -92,7 +98,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <img slot="reference"  class="tickets" src="@/assets/historyclick.png" @click.stop="gethistory(index)" alt="" >
+                                <img slot="reference"  class="tickets" src="@/assets/historyclick.png" alt="" >
+                                <!-- <img slot="reference"  class="tickets" src="@/assets/historyclick.png" @click.stop="gethistory(index)" alt="" > -->
                             </el-popover>
                         </span>
                         <span v-else class="ins">
@@ -103,12 +110,14 @@
                             <span>
                                 <span v-if="itm.number === 1 || itm.number === 0">{{$t('m.site.siteJoined')}}</span>
                                 <span v-else>{{$t('m.site.sitesJoined')}}</span>
-
                             </span>
                         </div>
+                        <span v-if="radioInstitutions==='In Use'" class="site-delete" @click.stop="deleteSite(itm.institutions)">
+                            <i class="el-icon-delete-solid"></i>
+                        </span>
                     </template>
                     <div  class="msg-warn" v-if=" siteState && itm.authoritylist && itm.authoritylist.length>0">
-                    <!-- <div  class="msg-warn" v-if="true"> -->
+                        <!-- <div  class="msg-warn" v-if="true"> -->
                         <span>
                             {{itm.institutions}}
                         </span>
@@ -122,7 +131,11 @@
                             {{$t('m.site.cancalAuthorization')}}
                         </el-button>
                     </div>
-                    <sitetable ref="sitelist" :institutions="itm.institutions" :condition="data.condition"/>
+                    <sitetable ref="sitelist"
+                    :institutions="itm.institutions"
+                    :radioInstitutions="radioInstitutions"
+                    :fateVersionSelect="fateVersionSelect"
+                    :condition="data.condition"/>
                 </el-collapse-item>
             </el-collapse>
             <div class="no-data" v-if="institutionsItemList.length===0">{{$t('m.common.noData')}}</div>
@@ -179,8 +192,8 @@
                 <el-button class="ok-btn" type="info" @click="tipsVisible = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
-              <!-- 取消授权申请 -->
-         <el-dialog :visible.sync="cancelAuthorVisible" class="cancel-author-dialog" width="700px">
+        <!-- 取消授权申请 -->
+        <el-dialog :visible.sync="cancelAuthorVisible" class="cancel-author-dialog" width="700px">
             <div class="line-text-one">{{$t('m.site.selectCancel')}}</div>
             <div class="line-text-one">{{$t('m.site.theAuthorization')}}
                 <span style="color:#217AD9">{{canceltempData.institutions}}</span>
@@ -237,29 +250,44 @@
                 <el-button class="ok-btn" type="info" @click="cancelAuthorVisible = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
+        <!-- 删除机构 -->
+        <el-dialog :visible.sync="delInstitutions" class="del-institutions-dialog" width="700px">
+            <div class="line-text-one">
+                {{$t('m.site.Are you sure you want to delete this institution')}}?
+            </div>
+            <div class="line-text-two">
+                {{$t('m.site.All sites of the institution will be deleted')}}.
+            </div>
+            <div class="dialog-footer">
+                <el-button class="ok-btn" type="primary" @click="deleteInstitutions" >{{$t('m.common.sure')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="delInstitutions=false">{{$t('m.common.cancel')}}</el-button>
+            </div>
+        </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-
 import {
     // getinstitutionsHistory,
     institutionsHistory,
     institutionsList,
-    institutionsListDropdown,
+    institutionsListValid,
     institutionsStatus,
     institutionsDetails,
     institutionsReview,
     cancelAuthorityList,
     cancelAuthority,
-    authorityPermiss } from '@/api/federated'
+    authorityPermiss,
+    deleteInstitutions,
+    getversion } from '@/api/federated'
 import { switchState } from '@/api/setting'
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import sitetable from './siteaatable'
-import { setTimeout } from 'timers'
+import sitetable from './sitetable'
 import tooltip from '@/components/Tooltip'
+
+const loading = document.getElementById('ajaxLoading')
 
 export default {
     name: 'Site',
@@ -274,10 +302,12 @@ export default {
     },
     data() {
         return {
+            radioInstitutions: 'In Use',
             activeName: [], // 折叠版激活
             currentPage: 1, // 当前页
             total: 0,
             tipsVisible: false, // 提示弹框
+            delInstitutions: false,
             tipstempData: {
                 instituAll: false,
                 instituisnate: false,
@@ -313,9 +343,11 @@ export default {
             },
             institutionsItemList: [], // 站点列表
             institutionsSelectList: [], // 站点下拉
+            fateVersionSelect: [], // fate版本下拉
             data: {
                 condition: '',
-                // institutionsArray: [],
+                status: 2,
+                institutionsArray: [],
                 pageNum: 1,
                 pageSize: 20
             }
@@ -341,6 +373,7 @@ export default {
             if (localStorage.getItem('activeName').length > 0) {
                 this.activeName = localStorage.getItem('activeName').split(',').filter(item => item) // 缓存记录取折叠记录
             }
+            this.togetversion('fate_version')
         })
     },
 
@@ -360,7 +393,11 @@ export default {
         },
         // 站点下拉接口
         async getinsSelectList() {
-            let res = await institutionsListDropdown()
+            this.institutionsSelectList = []
+            let data = {
+                status: this.data.status
+            }
+            let res = await institutionsListValid(data)
             res.data.institutionsSet.forEach((item, index) => {
                 let obj = {}
                 obj.value = item
@@ -379,63 +416,75 @@ export default {
                     }
                 }
             }
+            loading.style.display = 'block' // 开启loading
             await institutionsList(this.data).then(resl => {
                 this.total = resl.data && resl.data.totalRecord
                 this.institutionsItemList = [] // 清空记录
-                let Arr = []
-
-                resl.data.list.forEach(async (item, index) => {
+                let arrTemp = []
+                resl.data.list.length > 0 && resl.data.list.forEach(async (item, index) => {
                     item.historyList = []
-                    item.visible = false // 历史记录弹框
-                    Arr.push(item)
-                    // this.institutionsItemList = Arr
+                    item.visible = false // 历史记录弹框 (点击方式)
+                    arrTemp.push(item)
                     // this.activeName.push(item.institutions) //默认全部展开
-
-                    let data = {
+                    // 获取institutions中cancel授权信息
+                    let paramsAuthority = {
+                        institutions: item.institutions
+                    }
+                    let resAuthor = await authorityPermiss(paramsAuthority)
+                    item.authoritylist = resAuthor.data
+                    let paramsHistory = {
                         institutions: item.institutions,
                         pageNum: 1,
                         pageSize: 100
                     }
                     // 获取历史记录
-                    // let res = await getinstitutionsHistory(data)
-                    let res = await institutionsHistory(data)
-                    res.data.list.forEach((itr) => {
-                        let obj = {}
-                        obj.agree = []
-                        obj.reject = []
-                        obj.cancel = []
-                        obj.apply = []
-                        obj.createTime = itr.createTime
-                        obj.institutions = itr.institutions
-                        itr.authorityApplyReceivers.forEach((elm) => {
-                            if (elm.status === 2) {
-                                obj.agree.push(elm.authorityInstitutions)
-                            } else if (elm.status === 3) {
-                                obj.reject.push(elm.authorityInstitutions)
-                            } else if (elm.status === 4) {
-                                obj.cancel.push(elm.authorityInstitutions)
-                            }
-                            // else if (elm.status === 1) {
-                            //     obj.apply.push(elm.authorityInstitutions)
-                            // }
-                        })
-                        item.historyList.push(obj)
-                    })
-                    // 获取institutions中cancel授权信息
-                    let dataparams = {
-                        institutions: item.institutions
+                    item.historyList = await this.institutionsHistory(paramsHistory)
+                    if (resl.data.list.length - 1 === index) {
+                        this.institutionsItemList = [...arrTemp]
+                        this.setMsg()
+                        this.loadingFalse()
                     }
-                    let re = await authorityPermiss(dataparams)
-                    item.authoritylist = re.data
                 })
-                console.log(Arr, 'arr')
-                console.log(this.siteState, 'siteState')
-                setTimeout(() => {
-                    this.institutionsItemList = [...Arr]
-                    this.setMsg()
-                }, 500)
+            }).catch(res => {
+                loading.style.display = 'none' // 关闭loading
             })
+
+            return this.institutionsItemList
         },
+        // 关闭loading
+        loadingFalse() {
+            loading.style.display = 'none' // 关闭loading
+        },
+        // 获取历史记录
+        async institutionsHistory(paramsHistory) {
+            // let res = await getinstitutionsHistory(data)
+            let res = await institutionsHistory(paramsHistory)
+            let historyList = []
+            res.data.list.length > 0 && res.data.list.forEach((itr) => {
+                let obj = {}
+                obj.agree = []
+                obj.reject = []
+                obj.cancel = []
+                obj.apply = []
+                obj.createTime = itr.createTime
+                obj.institutions = itr.institutions
+                itr.authorityApplyReceivers.forEach((elm) => {
+                    if (elm.status === 2) {
+                        obj.agree.push(elm.authorityInstitutions)
+                    } else if (elm.status === 3) {
+                        obj.reject.push(elm.authorityInstitutions)
+                    } else if (elm.status === 4) {
+                        obj.cancel.push(elm.authorityInstitutions)
+                    }
+                    // else if (elm.status === 1) {
+                    //     obj.apply.push(elm.authorityInstitutions)
+                    // }
+                })
+                historyList.push(obj)
+            })
+            return historyList
+        },
+        // 获取小黄点显示状态
         setMsg() {
             this.institutionsItemList.map((item, index) => {
                 let i = index
@@ -448,31 +497,33 @@ export default {
                 })
             })
         },
-        // 点击显示机构历史记录
-        gethistory(index) {
-            console.log(index, 'history-index')
-            // 其他弹框隐藏
-            this.institutionsItemList.forEach((item, idx) => {
-                if (idx !== index) {
-                    item.visible = false
-                }
-            })
-            let bol = !this.institutionsItemList[index].visible
-            this.$set('this.institutionsItemList', this.institutionsItemList[index].visible, bol)
-        },
+        // 点击显示机构历史记录 (历史操作记录变为hover)
+        // gethistory(index) {
+        //     console.log(index, 'history-index')
+        //     // 其他弹框隐藏
+        //     this.institutionsItemList.forEach((item, idx) => {
+        //         if (idx !== index) {
+        //             item.visible = false
+        //         }
+        //     })
+        //     let bol = !this.institutionsItemList[index].visible
+        //     this.$set('this.institutionsItemList', this.institutionsItemList[index].visible, bol)
+        // },
         // 搜索
         toSearch() {
             this.data.pageNum = 1
             this.getinitinstitutions().then(res => {
-                res.forEach((item, index) => {
+                res.length > 0 && res.forEach((item, index) => {
                     this.$refs['sitelist'][index].initList()
                 })
             })
         },
         handleCurrentChange(val) {
             this.data.pageNum = val
+            this.data.condition = ''
+            this.data.institutionsArray = []
             this.getinitinstitutions().then(res => {
-                res.forEach((item, index) => {
+                res.length > 0 && res.forEach((item, index) => {
                     this.$refs['sitelist'][index].initList()
                 })
             })
@@ -632,6 +683,50 @@ export default {
             } else {
                 this.activeName = this.institutionsItemList.map(item => item.institutions)
             }
+        },
+        // 删除机构
+        deleteSite(institution) {
+            this.delInstitutions = true
+            this.deleteInstitution = institution
+        },
+        deleteInstitutions() {
+            let data = {
+                institution: this.deleteInstitution
+            }
+            deleteInstitutions(data).then(res => {
+                this.delInstitutions = false
+                this.getinitinstitutions()
+            })
+        },
+        // 切换历史、使用中
+        changeRadio(value) {
+            // 重置搜索条件
+            this.data.condition = ''
+            this.data.pageNum = 1
+            this.data.pageSize = 20
+            this.data.institutionsArray = []
+            if (this.radioInstitutions === 'In Use') {
+                this.data.status = 2
+            } else {
+                this.data.status = 3
+            }
+            this.getinitinstitutions()
+            this.getinsSelectList()
+        },
+        // 获取版本号
+        togetversion(version) {
+            let data = {
+                institutions: this.institutions,
+                versionName: version
+            }
+            getversion(data).then((res) => {
+                res.data.forEach(item => {
+                    let obj = {}
+                    obj.value = item
+                    obj.text = item
+                    this.fateVersionSelect.push(obj)
+                })
+            })
         }
     }
 }

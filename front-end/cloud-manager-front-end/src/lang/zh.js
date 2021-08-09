@@ -39,6 +39,7 @@ export const m = {
         'guest': '应用方',
         'go': '搜索',
         'add': '添加',
+        'edit': '编辑',
         'and': '和',
         'delete': '删除',
         'noData': '暂无数据',
@@ -82,7 +83,8 @@ export const m = {
         'start': '开始日期',
         'end': '结束日期',
         'unavailable': '不可用',
-        'available': '可用的'
+        'available': '可用的',
+        'serchForPlaceholder': '根据{type}搜索'
     },
     errorTips: {
         'This function doesnt work!': '联邦授权这个功能未开启!',
@@ -94,7 +96,12 @@ export const m = {
         'System error!': '系统错误',
         'The party id doesnt register or  has been activated or removed!': '站点ID未注册或已被激活或删除！',
         'This rollsite already exist!': '该站点已经存在！',
-        'Site name exist!': '站点名称已存在'
+        'Site name exist!': '站点名称已存在',
+        'The input parameters are wrong!': '输入参数有误',
+        'There is an error when connect to the ip!': '连接ip时出现错误！',
+        'Institution reactivate fail, institution not activate or exist site!': '机构重新激活失败，机构未激活或存在站点！',
+        'Site reactivate fail, site not activate or deleted!': '站点重新激活失败，站点未激活或已删除！',
+        'There are using sites in the roll site!': '该rollsite中有正在使用的站点!'
     },
     login: {
         'signTitle': '登录FATE Cloud',
@@ -136,10 +143,19 @@ export const m = {
         'searchSiteOrParty': '搜索站点名称或站点ID',
         'sureDelete': '您是否确定要删除站点',
         'cantUndo': '您无法撤消此操作。',
-        'including': '包括'
+        'including': '包括',
+        'In Use': '使用中机构',
+        'Historic Uses': '历史中机构',
+        'reactivate': '重新激活',
+        'Are you sure you want to reactivate this site': '是否确实要重新激活',
+        'Stautus of the site will be reset to unjoined': '站点的状态将重置为未加入',
+        'Are you sure you want to delete this institution': '是否确实要删除此机构',
+        'All sites of the institution will be deleted': '该机构的所有站点将被删除'
     },
     siteAdd: {
         'addSite': '添加站点',
+        'Basic Info': '基本信息',
+        'Exchange Info': 'Exchange信息',
         'waitingActivation': '待激活...',
         'siteUpdate': '站点信息更改',
         'maximum20chatacters': '不超过20个字符',
@@ -177,7 +193,8 @@ export const m = {
         'networkAcessEntrancesRequired': '网关入口字段为必填字段',
         'networkAcessExitRequired': '网关出口字段为必填字段',
         'proxyNetworkAccessRequired': '代理网关字段为必填项',
-        'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。'
+        'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。',
+        'exchange': '请选择Exchange'
 
     },
     ip: {
@@ -201,7 +218,10 @@ export const m = {
         'rollsiteNetworkAccess': 'Rollsite网关',
         'isSecure': '加密传输',
         'isPolling': '单向模式',
+        'entrances': '入口',
+        'exit': '出口',
         'sureWantSaveExchange': '确定要保存这个Exchange吗?',
+        'sureWantSaveChanges': '确定要保存这些改动吗？',
         'updateToServer': '站点网络访问信息也将更新到服务器。',
         'addRollsite': '添加Rollsite',
         'editRollsite': '编辑Rollsite',
@@ -268,5 +288,39 @@ export const m = {
         'groupNameExist': '组名存在！',
         'enterIDRangeLike': '输入ID范围，例如',
         'deleteSuccessful': '删除成功！'
+    },
+    access: {
+        'add': '添加',
+        'Today’s active data': '今日活跃数据',
+        'Cumulative active data': '累计活跃数据',
+        'Name': '用户名',
+        'Admin-level': '管理级别',
+        'Creator': '创建者',
+        'Create Time': '创建时间',
+        'Action': '操作',
+        'Institution': '机构名称',
+        'Admin ID': '管理ID',
+        'Status': '状态',
+        'Are you sure you want to delete this administrator?': '确认删除此管理账号吗?',
+        'Add admin': '添加管理员',
+        'To add': '为FATE Manager添加管理员权限，需要填写管理员所属的FATE Manager机构名以完成匹配，信息填写后不允许更改。',
+        'senior admin': '高级管理员',
+        'Maximum of 20 chatacters': '不超过20个字符',
+        'Invitation Link Setting': '邀请链接设置',
+        'Link Type': '链接类型：',
+        'Proxy Network Access': '代理网关：',
+        'Invitation Link': '邀请链接',
+        'the administrator': '管理员链接已生成：',
+        'Modify': '修改信息',
+        'Search for Institution': '搜索机构名称',
+        'Search for Name': '搜索用户名',
+        'reset to default': '恢复默认',
+        'Cloud Manager': '云端管理',
+        'FATE Manager': '联邦管理',
+        'Are you sure you want to reactivate this institution': '您确定要重新激活此机构吗',
+        'Status of the institution will be reset to unactivated': '机构的状态将重置为未激活',
+        'reactivate': '重新激活',
+        'detail': '详情'
     }
+
 }
