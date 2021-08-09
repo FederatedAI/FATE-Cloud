@@ -1,6 +1,21 @@
 <template>
 
   <div class="switch-box">
+        <div class="card" v-if="!sortSwitch">
+                <div class="card-title">{{$t('Site-Authorization')}}</div>
+                <div class="card-switch"  @click="toswitch('site')">
+                    <el-switch v-model="sitestatus"></el-switch>
+                </div>
+                <div class="card-text">{{$t("Control whether a FATE Manager can view other FATE Manager's sites")}}</div>
+                <div class="desc">
+                    <!-- 丛向 -->
+                    <span v-if="descriptions==='3'">{{$t('Hetero federation only')}}</span>
+                    <!-- 横向 -->
+                    <span v-if="descriptions==='2'">{{$t('Homo federation only')}}</span>
+                    <!-- 混合 -->
+                    <span v-if="descriptions==='1'">{{$t('Hetero federation and homo federation')}}</span>
+                </div>
+        </div>
         <div class="card">
                 <div class="card-title">{{$t('Auto-deploy')}}</div>
                 <div class="card-switch" @click="toswitch('auto')">
@@ -10,7 +25,7 @@
                     {{$t('Manage the automated deployment and upgrade of the site')}}
                 </div>
         </div>
-        <div class="card">
+        <div class="card" v-if="sortSwitch">
                 <div class="card-title">{{$t('Site-Authorization')}}</div>
                 <div class="card-switch"  @click="toswitch('site')">
                     <el-switch v-model="sitestatus"></el-switch>
@@ -166,6 +181,7 @@ export default {
     // },
     data() {
         return {
+
             status: '',
             statusdeploy: '',
             switchVisible: false,
@@ -174,6 +190,7 @@ export default {
             selectRadio: '',
             autostatus: false, // 是否打开，默认关闭
             sitestatus: false, // 是否打开，默认关闭
+            sortSwitch: this.autostatus,
             itmetext: '',
             itmeline: '',
             descriptions: '',
@@ -191,6 +208,7 @@ export default {
         this.$i18n.mergeLocaleMessage('zh', local.zh)
     },
     mounted() {
+
     },
     methods: {
         init() {
@@ -211,6 +229,7 @@ export default {
                             this.descriptions = ''
                         }
                     }
+                    this.sortSwitch = this.autostatus
                 })
                 console.log(this.functionIdObj, 'functionIdObj')
             })
@@ -229,6 +248,7 @@ export default {
             updateSwitch(this.paramsData).then(res => {
                 this.switchVisible = false
                 this.init()
+                this.sortSwitch = this.autostatus
             }).catch(res => {
                 this.cancelAction()
             })
@@ -257,7 +277,6 @@ export default {
             this.status = ''
             this.switchVisible = true // 弹框
             this.paramsData.functionId = this.functionIdObj[type]
-            console.log(this.functionIdObj, 'paramsData')
             if (type === 'auto') {
                 if (this.autostatus) {
                     this.paramsData.status = 1

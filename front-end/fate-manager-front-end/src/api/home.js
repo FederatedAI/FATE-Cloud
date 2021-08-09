@@ -127,20 +127,20 @@ export function applysite(data) {
 }
 
 // 获取我的站点
-export function mySiteList(params) {
+export function mySiteList(data) {
     return request({
         url: `/${urlType}/api/site`,
-        method: 'get',
-        params
+        method: 'post',
+        data
     })
 }
 
 // 获取其他站点
-export function otherSitList(params) {
+export function otherSitList(data) {
     return request({
         url: `/${urlType}/api/site/other`,
-        method: 'get',
-        params
+        method: 'post',
+        data
     })
 }
 
@@ -262,11 +262,11 @@ export function updateVersion(data) {
 }
 
 // 获取历史记录
-export function applyHistory(params) {
+export function applyHistory(data) {
     return request({
         url: `/${urlType}/api/site/applylog`,
-        method: 'get',
-        params
+        method: 'post',
+        data
     })
 }
 

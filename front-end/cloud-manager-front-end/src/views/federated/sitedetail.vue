@@ -73,6 +73,30 @@
         </el-form>
       </div>
       <div class="info-box">
+        <div class="info">Exchange Info</div>
+        <el-form ref="form" :model="form" label-position="left" label-width="280px">
+            <el-row :gutter="140">
+                <el-col :span="12">
+                    <el-form-item  style="height:100%;" label="Exchange Name" >
+                        {{form.exchangeName}}
+                    </el-form-item>
+                    <el-form-item  style="height:100%;" label="VIP Entrances" >
+                       {{form.vipEntrance}}
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item v-if="form.rollSiteDoList.length>0" style="height:100%;" :label="$t('Network Acess Exits')" >
+                        <span v-for="(item,index) in form.rollSiteDoList" :key='index'>
+                            <div style="width:100%;"  v-if="item" class="info-text ">
+                            {{item.networkAccessExit}}
+                            </div>
+                        </span>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+      </div>
+      <div class="info-box">
         <div class="info">{{$t('Network configuration')}}</div>
         <el-form ref="form" :model="form" label-position="left" label-width="280px">
             <el-row :gutter="140">
@@ -99,32 +123,15 @@
       </div>
       <div class="info-box">
         <div class="info">{{$t('System version')}}</div>
-            <el-radio-group class="radio" v-model="radio">
-                <el-radio-button label="FATE"></el-radio-button>
-                <el-radio-button disabled label="FATE Serving"></el-radio-button>
-            </el-radio-group>
-            <el-tooltip effect="dark" placement="top">
-                <div style="font-size:14px" slot="content">
-                    <div>{{$t('m.site.including')}} FATE-Board, FATE-Flow</div>
-                </div>
-                <i class="el-icon-info icon-info"></i>
-            </el-tooltip>
-            <div class="fate-version">
-                <span class="fate-inline">{{$t('FATE version')}}</span>
-                <span class="fate-text">{{form.fateVersion}}</span>
-            </div>
-            <div class="table">
-                <div class="title">
-                    <div class="title-text">{{$t('FATE Component')}}</div>
-                    <div class="title-text">{{$t('Version')}}</div>
-                    <div class="title-text">IP</div>
-                </div>
-                <div class="body" v-for="(item, index) in form.componentVersion" :key="index">
-                    <div class="body-text">{{item.label}}</div>
-                    <div class="body-text">{{item.version.version}}</div>
-                    <div class="body-text">{{item.version.address}}</div>
-                </div>
-            </div>
+            <el-form ref="form" :model="form" label-position="left" label-width="280px">
+                <el-row :gutter="140">
+                    <el-col :span="12">
+                        <el-form-item :label="$t('FATE version')" >
+                            {{form.fateVersion}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
       </div>
     </div>
   </div>
@@ -191,9 +198,7 @@ export default {
             timeWidth: '', // 监听宽度
             secretkeyshow: false,
             secretkeyWidth: '',
-            form: {},
-            versionList: [], // 版本
-            radio: 'FATE'
+            form: {}
 
         }
     },
@@ -246,7 +251,7 @@ export default {
                 id: parseInt(this.$route.query.id)
             }
             getSiteInfo(data).then(res => {
-                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replaceAll('"', '')
+                res.data.registrationLink = JSON.stringify(res.data.registrationLink).replace(new RegExp('"', 'g'), '')
                 this.form = { ...res.data }
                 this.form.componentVersion = []
                 if (res.data.componentVersion) {

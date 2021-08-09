@@ -30,7 +30,9 @@ let getRoleType = (value) => {
 }
 
 let getSiteStatus = (value) => {
-    let maps = map['siteStatus'].filter(item => item.value === `${value.code}`)[0]
+    if (!value) return ''
+    let code = value.code ? value.code : value
+    let maps = map['siteStatus'].filter(item => item.value === `${code}`)[0]
     return maps ? maps.label : value.desc
 }
 

@@ -566,9 +566,11 @@ def update_component_version(request_data):
         raise Exception(SiteStatusCode.NoFoundSite, "no found site")
 
 
+
 def get_apply_log(request_data):
     pageNum = request_data.get('pageNum', 1)
     pageSize = request_data.get('pageSize', 5)
+
     account = SingleOperation.get_admin_info()
     logger.info("start request cloud ApplyLog")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,

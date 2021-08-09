@@ -89,6 +89,7 @@ export default {
     watch: {
         entrancesSelect: {
             handler: function(val) {
+                console.log(val, 'val')
                 this.addtotal = this.entrancesSelect.length
                 if (val.length >= 20) {
                     this.addDisabled = true
@@ -180,33 +181,35 @@ export default {
         // 确定保存
         saveAction() {
             let arr = [...new Set(this.entrancesSelect.map(item => `${item.ip};`))]
-            if (this.networkacesstype === 'entrances') {
-                // networkAccessEntrances赋值
-                this.$parent.form.networkAccessEntrances = arr.join('')
-                // 单独验证entrances表单
-                this.$parent.$refs['form'].validateField(
-                    'networkAccessEntrances',
-                    valid => {}
-                )
-                this.entrancesSelect = []
-            } else if (this.networkacesstype === 'exit') {
-                // networkAccessExits赋值
-                this.$parent.form.networkAccessExits = arr.join('')
-                // 单独验证entrances表单
-                this.$parent.$refs['form'].validateField(
-                    'networkAccessExits',
-                    valid => {}
-                )
+            let editType = {
+                'entrances': 'networkAccessEntrances',
+                'exit': 'networkAccessExits',
+                'rollsite': 'rollsiteNetworkAccess'
+            }
+            let parameterName = editType[this.networkacesstype]
+            if (parameterName) {
+                let paramData = {
+                    name: parameterName,
+                    data: arr.join('')
+                }
+                this.$emit('updateIp', paramData)
+                this.$parent.$refs['form'].validateField(`${parameterName}`, valid => {})
                 this.entrancesSelect = []
             }
             this.adddialog = false
-            this.$parent.shouldtosubmit()
+            this.$parent.shouldtosubmit(parameterName)
         },
         // 关闭弹框
         cancelAction() {
+            let editType = {
+                'entrances': 'networkAccessEntrances',
+                'exit': 'networkAccessExits',
+                'rollsite': 'rollsiteNetworkAccess'
+            }
+            let parameterName = editType[this.networkacesstype]
             this.entrancesSelect = []
             this.adddialog = false
-            this.$parent.shouldtosubmit()
+            this.$parent.shouldtosubmit(parameterName)
             this.saveDisabled = false// 可点击保存
             this.addDisabled = false // 可点击添加
             this.showMes = 0 // 透明度为0

@@ -55,7 +55,7 @@ def fate_manager_login(request_data):
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by username:{user_name}")
     account = accounts[0]
     if account.role not in [UserRole.ADMIN, UserRole.DEVELOPER] :
-        raise Exception(UserStatusCode.AccountRoleLow, f"user role {account.role} not in [{UserRole.ADMIN}, {UserRole.DEVELOPER}]")
+        raise Exception(UserStatusCode.AccountRoleLow, f"user {user_name} is not allowed to login")
     users = DBOperator.query_entity(FateUserInfo, user_name=user_name, password=password)
     if not users:
         raise Exception(UserStatusCode.LoginFailed, f"login failed:user name or password error")
