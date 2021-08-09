@@ -16,3 +16,4 @@ _build
 
 /fate_manager/fate_manager/apps/static
 /logs
+/fate-manager/logs

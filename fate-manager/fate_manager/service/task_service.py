@@ -61,7 +61,7 @@ def get_change_log_task():
 
 
 def heart_task():
-    federated_site_list = SingleOperation.get_home_site()
+    federated_site_list = JointOperator.get_home_site()
     for federated_site in federated_site_list:
         if not hasattr(federated_site, "fatesiteinfo"):
             continue
