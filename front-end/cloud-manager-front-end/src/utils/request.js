@@ -36,12 +36,27 @@ const setErrorMsgToI18n = (msg) => {
 
 const loading = document.getElementById('ajaxLoading')
 
+// 不开启loading的接口
+let URL = [
+    '/cloud-manager/api/authority/history',
+    '/cloud-manager/api/authority/currentAuthority',
+    '/cloud-manager/api/authority/status',
+    '/cloud-manager/api/site/institutions/status/dropdown',
+    '/cloud-manager/api/site/institutions',
+    '/cloud-manager/api/site/page/cloudManager',
+    '/cloud-manager/api/dropdown/version',
+    '/cloud-manager/api/function/find/all'
+
+]
+
 // request interceptor
 // 请求拦截
 service.interceptors.request.use(
     config => {
         // 开启全局loading
-        loading.style.display = 'block'
+        if (!URL.includes(config.url)) {
+            loading.style.display = 'block'
+        }
         // Do something before request is sent
         return config
     },
@@ -65,9 +80,13 @@ service.interceptors.response.use(
    * 以下代码均为样例，请结合自生需求加以修改，若不需要，则可删除
    */
     response => {
-        // 关闭全局loading
-        loading.style.display = 'none'
         const res = response.data
+        let url = response.config.url
+        // 关闭全局loading
+        if (!URL.includes(url)) {
+            loading.style.display = 'none'
+        };
+
         if (res.code === 0) {
             return res
         } else if (response.config.responseType === 'blob') { // 流下载设置
@@ -81,7 +100,9 @@ service.interceptors.response.use(
                     path: '/home/welcome'
                 })
             })
+            return Promise.reject(res)
         } else if (msgCode(res.code)) {
+            setErrorMsgToI18n(res.msg)
             return Promise.reject(res)
         } else {
             setErrorMsgToI18n(res.msg)

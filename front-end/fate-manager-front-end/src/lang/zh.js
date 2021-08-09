@@ -109,7 +109,9 @@ export const m = {
         'noAccountByUsername': '未找到{username}这个账号',
         'The scenario doesnt exist!': '联邦授权这个功能未初始化!',
         'login failed:user name or password error': '登录失败:用户名或密码错误',
-        'Authority failure!': '鉴权失败'
+        'Authority failure!': '鉴权失败',
+        'The PartyID has been used!': '该partyId已经被使用',
+        'Site roll site update error!': '更新rollsite发生错误'
     },
     welcome: {
         'activateSite': '激活站点',
@@ -178,7 +180,7 @@ export const m = {
         'exit': '出口',
         'networkEntrances': '网关入口',
         'networkExits': '网关出口',
-        'rollsiteNetworkAccess': 'Rollsite 网络访问',
+        'rollsiteNetworkAccess': 'Rollsite网关入口',
         'systemVersion': '系统版本',
         'FATEversion': 'FATE版本',
         'FATEComponent': 'FATE服务组件',
@@ -191,7 +193,7 @@ export const m = {
         'sureChangeVersion': '确定要更改系统版本吗？',
         'resultsSynchronized': '结果将同步到cloud manager。',
         'sureWantTo': '您确定要',
-        'changeNetworkAccess ': '把{type}',
+        'changeNetworkAccess': '把{type}',
         'from': '从',
         'to': '变更为',
         'and': '同时',
@@ -212,7 +214,23 @@ export const m = {
         'sureToDeleteUser': '是否确认删除该用户？',
         'userName': '用户名',
         'siteNetworkConf': '站点网络配置',
-        'rollsiteNetworkConf': 'Rollsite 网络配置'
+        'rollsiteNetworkConf': 'Rollsite 网络配置',
+        'clusterNetworkConf': '集群网络配置',
+        'exchangeName': 'Exchange名称',
+        'VIPEntrances': '虚拟地址入口',
+        'networkAccessExits': '网关出口',
+        'FATEVersion': 'FATE版本',
+        'fateFlowIp': 'FATE Flow 地址',
+        'connectingIp': '连接到 {type}...',
+        'connectingStatus': '连接{type}！',
+        'hasBeenUpdated': '你的{type}信息已经更新。',
+        'connectionFailedRollsite': '下列rollsite连接失败：',
+        'pleaseRetryRollsite': '请核对您的 rollsite 地址并重试。',
+        'pleaseRetryFlow': '请核对您的FATE Flow地址并重试。',
+        'cloudManagerDidChangesTitle': 'Cloud Manager 对站点进行了以下更改：',
+        'changeThe': '{type} 产生了如下变更',
+        'rollsiteWillUpdated': '您的rollsite信息将被更新。',
+        'noConfiguration': '无配置'
     },
     siteAdd: {
         'addSite': '添加站点',

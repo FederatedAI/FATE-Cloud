@@ -100,6 +100,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="pagination-bar">
+                                    <el-pagination
+                                        v-if="historyTotal > 0"
+                                        background
+                                        @current-change="handleCurrentChange"
+                                        :current-page.sync="historyPageData.pageNum"
+                                        :page-size="historyPageData.pageSize"
+                                        layout="total, prev, pager, next, jumper"
+                                        :total="historyTotal"
+                                    ></el-pagination>
+                                </div>
                             </div>
                             <img slot="reference" class="tickets" src="@/assets/historyclick.png" @click="gethistory" alt="" >
                         </el-popover>
@@ -191,6 +202,18 @@
                 </template>
             </el-table-column>
         </el-table>
+        <div class="pagination-bar">
+            <el-pagination
+                v-if="siteTotal > 0"
+                background
+                @current-change="handleCurrentChange"
+                :current-page.sync="sitePageData.pageNum"
+                :page-size="sitePageData.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="siteTotal"
+            ></el-pagination>
+        </div>
+
         <!-- 申请查看其它站点 -->
         <span v-if='siteState'>
             <span v-for="(item, index) in otherSiteList" :key="index" >
@@ -234,7 +257,19 @@
                             <span>{{scope.row.activationTime | dateFormat}}</span>
                         </template>
                     </el-table-column>
+
                 </el-table>
+                <div class="pagination-bar">
+                    <el-pagination
+                        v-if="otherTotal > 0"
+                        background
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="otherPageData.pageNum"
+                        :page-size="otherPageData.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="otherTotal"
+                        ></el-pagination>
+                </div>
             </span>
         </span>
     </div>
@@ -364,7 +399,22 @@ export default {
             siteHistoryList: [], // 历史审批记录
             exchangedialog: false,
             exchangeList: { },
-            chartTimer: null // 轮询定时器
+            chartTimer: null, // 轮询定时器
+            siteTotal: 0,
+            otherTotal: 0,
+            historyTotal: 0,
+            otherPageData: {
+                pageSize: 2,
+                pageNum: 1
+            },
+            sitePageData: {
+                pageSize: 2,
+                pageNum: 1
+            },
+            historyPageData: {
+                pageSize: 2,
+                pageNum: 1
+            }
 
         }
     },
@@ -396,15 +446,16 @@ export default {
     methods: {
         getList() {
             // 我的站点
-            mySiteList().then(res => {
+            mySiteList(this.sitePageData).then(res => {
                 if (res.data) {
-                    this.myInstitution = res.data[0]
+                    this.myInstitution = res.data.data[0]
+                    this.siteTotal = res.data.total
                     this.myInstitution.joinedSites = 0
-                    this.myInstitution.siteList = res.data[0].siteList && res.data[0].siteList.map(item => {
+                    this.myInstitution.siteList = res.data.data[0].siteList && res.data.data[0].siteList.map(item => {
                         if (item.status.code === 2) {
                             this.myInstitution.joinedSites += 1
                         }
-                        item.federatedId = res.data[0].federatedId
+                        item.federatedId = res.data.data[0].federatedId
                         return item
                     })
                 }
@@ -415,8 +466,10 @@ export default {
                 this.otherApplys()
             })
             // 查看他人站点
-            otherSitList().then(res => {
+            otherSitList(this.otherPageData).then(res => {
+                console.log(res, 'res')
                 this.otherSiteList = []
+                this.otherTotal = (res.data && res.data[0] && res.data[0].size) || 0
                 res.data && res.data.forEach((item, index) => {
                     this.otherSiteList.push(item)
                 })
@@ -548,7 +601,8 @@ export default {
         // 获取历史记录
         gethistory() {
             this.siteHistoryList = []
-            applyHistory().then(res => {
+            applyHistory(this.historyPageData).then(res => {
+                this.historyTotal = (res && res.data && res.data.totalRecord) || 0
                 res.data && res.data.list && res.data.list.forEach(item => {
                     console.log(item, 'items')
                     let obj = {}
@@ -581,6 +635,11 @@ export default {
         },
         clearPollingTimer() {
             clearInterval(this.chartTimer)
+        },
+        handleCurrentChange() {
+            console.log(arguments, 'type-val')
+            // this[`${type}PageData`].pageNum = val
+            this.getList()
         }
     }
 }
@@ -592,6 +651,12 @@ export default {
     // margin-top: 0px !important;
     padding: 0;
     line-height:inherit;
+    .el-pagination{
+        float: right;
+        margin: 12px 20px;
+        margin-top: 12px;
+        margin-right: 20px;
+    }
     .content{
         padding: 12px 0px;
     }
@@ -643,6 +708,11 @@ export default {
             color: #666;
         }
     }
+}
+.pagination-bar{
+    clear: both;
+    width: 100%;
+    height: 42px;
 }
 
 </style>

@@ -9,6 +9,15 @@ export function siteList(data) {
     })
 }
 
+// 重新激活site
+export function reactivateSite(data) {
+    return request({
+        url: '/cloud-manager/api/site/reactivate',
+        method: 'post',
+        data
+    })
+}
+
 // 获取site下拉
 export function siteListAll(data) {
     return request({
@@ -62,6 +71,15 @@ export function siteAdd(data) {
         data
     })
 }
+// 获取Exchange下拉列表
+export function getExchangeList(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/exchange/dropDownBox',
+        method: 'post',
+        data
+    })
+}
+
 // 获取默认值
 
 export function resetNetwork(data) {
@@ -133,6 +151,22 @@ export function ipList(data) {
         data
     })
 }
+// 获取IP Manager表格数据编辑
+export function ipListEdit(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/party/edit',
+        method: 'post',
+        data
+    })
+}
+// 检查partyId是否被占用
+export function checkParty(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/party/check',
+        method: 'post',
+        data
+    })
+}
 
 // 获取是否同意覆盖旧ip
 export function deal(data) {
@@ -197,10 +231,28 @@ export function institutionsList(data) {
     })
 }
 
+// 删除机构institutions
+export function deleteInstitutions(data) {
+    return request({
+        url: '/cloud-manager/api/site/institutions/delete',
+        method: 'post',
+        data
+    })
+}
+
 // 获取institutions下拉
 export function institutionsListDropdown(data) {
     return request({
         url: '/cloud-manager/api/site/institutions/all/dropdown',
+        method: 'post',
+        data
+    })
+}
+
+// 获取有效 institutions下拉
+export function institutionsListValid(data) {
+    return request({
+        url: '/cloud-manager/api/site/institutions/status/dropdown',
         method: 'post',
         data
     })
@@ -353,6 +405,14 @@ export function getRollsiteList(data) {
 export function getNetworkAccessList(data) {
     return request({
         url: '/cloud-manager/api/exchange/query',
+        method: 'post',
+        data
+    })
+}
+// 根据partyId 搜索Rollsite Network Access 内部表格
+export function searchByPartyId(data) {
+    return request({
+        url: '/cloud-manager/api/exchange/party/page',
         method: 'post',
         data
     })

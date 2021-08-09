@@ -17,7 +17,7 @@
                 </div>
             </el-popover>
         </el-menu-item>
-        <el-menu-item v-if='autoState' index="Auto-deploy" :class="{notactive:active || monitoractive}" >{{$t('Auto-deploy')}}</el-menu-item>
+        <!-- <el-menu-item v-if='autoState' index="Auto-deploy" :class="{notactive:active || monitoractive}" >{{$t('Auto-deploy')}}</el-menu-item> -->
         <el-menu-item  v-if="role.roleName==='Admin'" index="Monitor">
             <el-popover placement="bottom" v-model="monitorvisible" popper-class="bar-pop" :visible-arrow="false" trigger="hover">
                 <div :class="{item:true,itemactive:$route.name === 'cooperation'}" @click="clickCooperation" >{{$t('Site Cooperation')}}</div>

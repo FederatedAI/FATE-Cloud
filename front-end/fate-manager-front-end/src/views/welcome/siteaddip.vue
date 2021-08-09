@@ -174,7 +174,7 @@ export default {
             let editType = {
                 'entrances': 'networkAccessEntrances',
                 'exit': 'networkAccessExits',
-                'rollsite': 'rollsiteNetworkAccess'
+                'rollsite': 'rollSiteNetworkAccess'
             }
             let parameterName = editType[this.networkacesstype]
             if (parameterName) {

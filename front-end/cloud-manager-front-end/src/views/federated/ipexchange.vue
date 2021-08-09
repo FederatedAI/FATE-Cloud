@@ -15,7 +15,7 @@
                 <el-collapse-item  :name="item.exchangeName">
                     <template slot="title">
                         <span class="collapse-title-name">{{item.exchangeName}}</span>
-                        <span class="collapse-title-vip">VIP：{{item.vip}}</span>
+                        <span class="collapse-title-vip">VIP Entrance：{{item.vipEntrance}}</span>
                         <span class="collapse-title-time"> {{$t('m.common.updateTime')}} ：{{item.updateTime | dateFormat}}</span>
                         <el-button style="margin-right:10px"  @click.stop="toAddRollsite(item)"  type="text">
                             {{$t('m.common.add')}} rollsite
@@ -24,7 +24,7 @@
                             {{$t('m.common.delete')}}
                         </el-button>
                     </template>
-                    <ipexchangetable  ref="ipexchangetable"   :exchangeId="item.exchangeId" />
+                    <ipexchangetable ref="ipexchangetable" :exchangeId="item.exchangeId" />
                 </el-collapse-item>
             </el-collapse>
         </span>
@@ -89,6 +89,7 @@ export default {
             deleteExchangeId: '',
             exchangeData: {
                 networkAccess: '',
+                networkAccessExit: '',
                 partyAddBeanList: []
             }, // 添加数据
             tempSiteNet: {} // sitenet数据
