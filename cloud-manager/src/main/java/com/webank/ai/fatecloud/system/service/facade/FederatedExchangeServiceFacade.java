@@ -66,6 +66,16 @@ public class FederatedExchangeServiceFacade implements Serializable {
         if (i == 3) {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_NETWORK_REPEAT);
         }
+        // check party ambiguity
+        for (RollSiteAddBean rollSiteAddBean : exchangeAddQo.getRollSiteAddBeanList()) {
+            List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
+            for (PartyAddBean partyAddBean : partyAddBeanList) {
+                if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), null)){
+                    return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXCHANGE_REPEAT_ERROR);
+                }
+            }
+        }
+
         FederatedExchangeDo federatedExchangeDo = federatedExchangeService.addExchange(exchangeAddQo);
 
         if (federatedExchangeDo == null) {
@@ -248,8 +258,14 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_EXIST_ERROR);
         }
         //check party
-        if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true)) {
+        if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true) || !ObjectUtil.matchNetworkAddress(rollSieAddQo.getNetworkAccessExit())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+        // check party ambiguity
+        for (PartyAddBean partyAddBean : rollSieAddQo.getPartyAddBeanList()) {
+            if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), rollSieAddQo.getExchangeId())){
+                return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXCHANGE_REPEAT_ERROR);
+            }
         }
 
         federatedExchangeService.addRollSite(rollSieAddQo);

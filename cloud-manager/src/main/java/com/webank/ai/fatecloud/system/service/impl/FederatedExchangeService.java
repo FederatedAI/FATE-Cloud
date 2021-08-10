@@ -602,6 +602,10 @@ public class FederatedExchangeService implements Serializable {
 
         }
 
+        // clean up unlinked sites
+        int rows = partyMapper.deleteNotExistAssociateParty();
+        if (rows > 0) log.info("clean up unlinked sites, rows = " + rows);
+
         //update roll site table
         rollSiteDo.setUpdateTime(date);
         rollSiteMapper.updateById(rollSiteDo);
@@ -802,6 +806,14 @@ public class FederatedExchangeService implements Serializable {
         return partyMapper.selectByRollSiteId(rollSiteId);
     }
 
+    public boolean checkPartyExistInOtherExchange(String partyId, Long exchangeId) {
+        PartyDetailsDto detailsDto = partyMapper.selectPartyDetails(Long.parseLong(partyId));
+        if (detailsDto != null) {
+            return detailsDto.getExchangeId() == null || !detailsDto.getExchangeId().equals(exchangeId);
+        }
+        return false;
+    }
+
     @Transactional
     public int deleteParty(PartyDo partyDo) {
         QueryWrapper<RollSitePartyDo> partyDoQueryWrapper = new QueryWrapper<>();
@@ -874,7 +886,7 @@ public class FederatedExchangeService implements Serializable {
             findOne.setSecureStatus(partyAddBean.getSecureStatus());
             findOne.setStatus(partyAddBean.getStatus());
             findOne.setPollingStatus(partyAddBean.getPollingStatus());
-            findOne.setValidTime(dateNow);
+            findOne.setUpdateTime(dateNow);
             partyMapper.updateById(findOne);
         }
 
@@ -958,31 +970,43 @@ public class FederatedExchangeService implements Serializable {
     }
 
     @Transactional
-    public void addToExchangeRollSite(PartyDo partyDo, String exchangeName) {
+    public void addToExchangeRollSite(PartyDetailsDto partyDetailsDto, String partyId, Long exchangeId) {
+        FederatedExchangeDo exchangeDo = federatedExchangeMapper.selectById(exchangeId);
+        if (exchangeDo == null) return;
 
         // updates need to delete old associations
-        PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(Long.parseLong(partyDo.getPartyId()));
-        if (partyDetailsDto != null && !exchangeName.equals(partyDetailsDto.getExchangeName())) {
-            rollSitePartyMapper.delete(new QueryWrapper<RollSitePartyDo>()
-                    .lambda()
-                    .eq(RollSitePartyDo::getPartyId, partyDo.getPartyId()));
-        }
+        List<RollSiteDo> rollSiteDoList = rollSiteMapper.selectList(new QueryWrapper<RollSiteDo>()
+                .lambda()
+                .eq(RollSiteDo::getExchangeId, exchangeDo.getExchangeId()));
 
-        // update the associated table
-        if (partyDetailsDto == null || !exchangeName.equals(partyDetailsDto.getExchangeName())) {
-            FederatedExchangeDo federatedExchangeDo = federatedExchangeMapper.selectOne(new QueryWrapper<FederatedExchangeDo>()
-                    .lambda()
-                    .eq(FederatedExchangeDo::getExchangeName, exchangeName));
+        if (partyDetailsDto != null) {
 
-            if (federatedExchangeDo != null) {
-                List<RollSiteDo> rollSiteDoList = rollSiteMapper.selectList(new QueryWrapper<RollSiteDo>()
+            // change the exchange to delete the original association
+            if (!exchangeId.equals(partyDetailsDto.getExchangeId())) {
+                rollSitePartyMapper.delete(new QueryWrapper<RollSitePartyDo>()
                         .lambda()
-                        .eq(RollSiteDo::getExchangeId, federatedExchangeDo.getExchangeId()));
+                        .eq(RollSitePartyDo::getPartyId, partyId));
+            } else {
+                Set<Long> rollSiteIdSet;
+                List<RollSiteDo> associateRollSiteList = partyDetailsDto.getRollSiteDoList();
+                if (associateRollSiteList != null && !associateRollSiteList.isEmpty()) {
+                    rollSiteIdSet = associateRollSiteList.stream().map(RollSiteDo::getRollSiteId).collect(Collectors.toSet());
+                } else {
+                    rollSiteIdSet = new HashSet<>();
+                }
 
                 for (RollSiteDo rollSiteDo : rollSiteDoList) {
-                    rollSitePartyMapper.insert(new RollSitePartyDo(rollSiteDo.getRollSiteId(), partyDo.getPartyId()));
+                    // sync not added roll site
+                    if (rollSiteIdSet.contains(rollSiteDo.getRollSiteId())) continue;
+                    rollSitePartyMapper.insert(new RollSitePartyDo(rollSiteDo.getRollSiteId(), partyId));
                 }
+                return;
             }
+        }
+
+        // associated with all the roll site under the exchange
+        for (RollSiteDo rollSiteDo : rollSiteDoList) {
+            rollSitePartyMapper.insert(new RollSitePartyDo(rollSiteDo.getRollSiteId(), partyId));
         }
     }
 

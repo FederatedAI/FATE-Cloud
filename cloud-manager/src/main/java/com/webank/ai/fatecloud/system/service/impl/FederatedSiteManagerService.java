@@ -22,7 +22,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.*;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.exception.LogicException;
 import com.webank.ai.fatecloud.common.util.KeyAndSecretGenerate;
+import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.*;
 import com.webank.ai.fatecloud.system.dao.mapper.*;
@@ -170,12 +172,25 @@ public class FederatedSiteManagerService {
         ew.eq("group_id", groupId);
         federatedGroupSetMapper.update(federatedGroupSetDoUpdate, ew);
 
-        // add roll site
-        PartyDo partyDo = new PartyDo();
-        partyDo.setStatus(0);
-        partyDo.setPartyId(siteAddQo.getPartyId() + "");
-        partyMapper.insert(partyDo);
-        federatedExchangeService.addToExchangeRollSite(partyDo, siteAddQo.getExchangeName());
+        // add or update roll site.
+        PartyDetailsDto partyDetails = partyMapper.selectPartyDetails(siteAddQo.getPartyId());
+        PartyDo partyDo;
+        if (partyDetails == null) {
+            partyDo = new PartyDo();
+            partyDo.setStatus(0);
+            partyDo.setPartyId(siteAddQo.getPartyId() + "");
+            partyMapper.insert(partyDo);
+        } else {
+            if (partyDetails.getExchangeId() != null && !siteAddQo.getExchangeId().equals(partyDetails.getExchangeId())) {
+                LogicException.throwInstance(ReturnCodeEnum.SITE_PARTY_EXCHANGE_BIND_ERROR, partyDetails.getExchangeName());
+            }
+
+            partyDo = new PartyDo(partyDetails);
+            partyDo.setStatus(0);
+            partyDo.setUpdateTime(new Date());
+            partyMapper.updateById(partyDo);
+        }
+        federatedExchangeService.addToExchangeRollSite(partyDetails, partyDo.getPartyId(), siteAddQo.getExchangeId());
 
         return federatedSiteManagerDo.getId();
     }
@@ -305,10 +320,22 @@ public class FederatedSiteManagerService {
         federatedGroupSetDoForRemove.setUsed(groupDoForRemove.getUsed() - 1);
         federatedGroupSetMapper.update(federatedGroupSetDoForRemove, newGroupQWForRemove);
 
-        // add roll site
-        PartyDo partyDo = new PartyDo();
-        partyDo.setPartyId(siteUpdateQo.getPartyId() + "");
-        federatedExchangeService.addToExchangeRollSite(partyDo, siteUpdateQo.getExchangeName());
+        // update roll site
+        PartyDetailsDto partyDetails = partyMapper.selectPartyDetails(siteUpdateQo.getPartyId());
+        if (partyDetails != null){
+            if (ObjectUtil.isEmpty(partyDetails.getNetworkAccess())) {
+                PartyDo partyDo = new PartyDo(partyDetails);
+                partyDo.setStatus(0);
+                partyDo.setUpdateTime(new Date());
+                partyDo.setPartyId(siteUpdateQo.getPartyId() + "");
+                partyMapper.updateById(partyDo);
+                federatedExchangeService.addToExchangeRollSite(partyDetails, partyDo.getPartyId(), siteUpdateQo.getExchangeId());
+            }else {
+                if (!siteUpdateQo.getExchangeId().equals(partyDetails.getExchangeId())) {
+                    LogicException.throwInstance(ReturnCodeEnum.SITE_PARTY_EXCHANGE_BIND_ERROR, partyDetails.getExchangeName());
+                }
+            }
+        }
     }
 
     public void activateSite(Long partyId, HttpServletRequest httpServletRequest) {
@@ -404,7 +431,7 @@ public class FederatedSiteManagerService {
         federatedSiteManagerDo.setActivationTime(date);
         int update = federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
-        if (update == 1){
+        if (update == 1) {
             return federatedExchangeService.resetParty(siteUpdateQo.getPartyId());
         }
 

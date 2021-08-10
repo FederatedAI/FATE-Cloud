@@ -400,7 +400,7 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Long> addSiteNew(SiteAddQo siteAddQo) throws UnsupportedEncodingException {
-        if (ObjectUtil.isEmpty(siteAddQo.getGroupId(), siteAddQo.getPartyId(), siteAddQo.getEncryptType(), siteAddQo.getExchangeName())) {
+        if (ObjectUtil.isEmpty(siteAddQo.getGroupId(), siteAddQo.getPartyId(), siteAddQo.getEncryptType(), siteAddQo.getExchangeId())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 

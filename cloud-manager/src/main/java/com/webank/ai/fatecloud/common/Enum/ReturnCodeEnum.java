@@ -66,11 +66,14 @@ public enum ReturnCodeEnum {
     AUTHORITY_CANCEL_ERROR(146, "Original approved authority-apply doesn't exist!"),
 
     // 200 institutions error
+    INSTITUTIONS_DELETED_ERROR(200, "The current institution is deleted or reactivate!"),
     INSTITUTIONS_REACTIVATE_ERROR(201, "Institution reactivate fail, institution not activate or deleted!"),
     // 300 site error
     SITE_REACTIVATE_ERROR(301, "Site reactivate fail, site not activate or exist no delete site!"),
     SITE_PARTY_UPDATE_ERROR(302, "Site roll site update error!"),
     SITE_PARTY_EXIST_ERROR(303, "There are using sites in the roll site!"),
+    SITE_PARTY_EXCHANGE_BIND_ERROR(304, "The site has a binding exchange, but the selected switch is not this!"),
+    SITE_PARTY_EXCHANGE_REPEAT_ERROR(305, "Site party already exists in other exchange, cannot be added!"),
 
     ;
     private final int code;

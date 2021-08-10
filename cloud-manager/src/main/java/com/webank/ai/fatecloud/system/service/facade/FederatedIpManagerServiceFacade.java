@@ -23,11 +23,13 @@ import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.PageBean;
+import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedIpManagerDo;
 import com.webank.ai.fatecloud.system.pojo.dto.IpManagerAcceptDto;
 import com.webank.ai.fatecloud.system.pojo.dto.IpManagerListDto;
 import com.webank.ai.fatecloud.system.pojo.dto.IpManagerQueryDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
+import com.webank.ai.fatecloud.system.service.impl.FederatedFateManagerUserService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedIpManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +46,9 @@ public class FederatedIpManagerServiceFacade {
 
     @Autowired
     FederatedIpManagerService federatedIpManagerService;
+
+    @Autowired
+    FederatedFateManagerUserService federatedFateManagerUserService;
 
     @Autowired
     CheckSignature checkSignature;
@@ -121,6 +126,11 @@ public class FederatedIpManagerServiceFacade {
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         if (StringUtils.isBlank(fateManagerUserId)) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
+        }
+
+        FederatedFateManagerUserDo fateManagerUser = federatedFateManagerUserService.findFateManagerUser(fateManagerUserId);
+        if (fateManagerUser != null && fateManagerUser.getStatus() != 2){
+            return new CommonResponse<>(ReturnCodeEnum.INSTITUTIONS_DELETED_ERROR);
         }
 
         boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_MANAGER_USER, new int[]{2}, 2);
