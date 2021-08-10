@@ -19,7 +19,8 @@ class UserStatusCode:
     CheckUserFailed = 20009
     DeleteUserFailed = 20010
     EditUserFailed = 20011
-    NoFoundPartyId = 20002
+    NoFoundPartyId = 20012
+    UserStatusDelete = 20013
 
 
 class SiteStatusCode:
@@ -27,6 +28,7 @@ class SiteStatusCode:
     PARTY_ID_NOT_EXIST = 30002
     SITE_NOT_JOINED = 30003
     SITE_NOT_ALLOW_UPDATE = 30004
+    PARTY_ID_HAS_EXIST = 30005
 
 
 class RequestCloudCode:
@@ -36,6 +38,10 @@ class RequestCloudCode:
 
 class RequestFateFlowCode:
     HttpRequestFailed = 40001
+
+
+class InstitutionStatusCode:
+    Institution_Not_Allow_Activate = 30001
 
 
 

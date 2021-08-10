@@ -289,7 +289,7 @@ def permission_authority(request_data):
 
 
 def get_allow_party_list(request_data):
-    federated_item_list = get_other_site_list()
+    federated_item_list = get_other_site_list(request_data)
     if not request_data.get("roleName"):
         return federated_item_list
     data = []

@@ -1,14 +1,17 @@
+import json
+
 from fate_manager.entity.status_code import SiteStatusCode
 from fate_manager.utils.base_utils import current_timestamp
-from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent
+from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent,AccountInfo
 from fate_manager.entity import item
 from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
-    IsValidType, \
-    ToyTestOnlyType, DeployType, ProductType
+    IsValidType, ToyTestOnlyType, DeployType, ProductType
 from fate_manager.operation.db_operator import JointOperator, SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
+from fate_manager.settings import site_service_logger as logger
+from fate_manager.utils.clear_data import clear_table_data
 
 
 def get_change_log_task():
@@ -99,4 +102,55 @@ def test_only_task():
     for deploy_site in deploy_site_list:
         if deploy_site.deploy_type == DeployType.HYPERION:
             pass
+
+
+def apply_exchange_task():
+    logger.info("get all institution")
+    institution = DBOperator.query_entity(FederatedInfo)[0]
+    logger.info(f"start request cloud OrganizationQueryUri:{institution.institutions}")
+    account = SingleOperation.get_admin_info()
+    institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
+                                                               appKey=account.app_key,
+                                                               appSecret=account.app_secret,
+                                                               ).to_dict()
+    institution_signature_item.update({'institutions':institution.institutions})
+    try:
+        resp = request_cloud_manager(uri_key="UpdateIpQueryUri",
+                                     data=institution_signature_item,
+                                     body={},
+                                     url=None
+                                     )
+        logger.info(f"request cloud success, return {resp}")
+    except Exception as e:
+        if "200" in str(e):
+            clear_table_data()
+        raise Exception(e)
+    logger.info(f"request cloud success, return {resp}")
+    if resp:
+        federated_id = institution.federated_id
+        for site in resp:
+            partyId = site.get("partyId")
+            exchange_name_new = site.get("exchangeName")
+            vip_entrances_new = site.get("vipEntrance")
+            network_access_entrances_new = site.get("networkAccessEntrances")
+            network_access_exits_new = site.get("networkAccessExits")
+            site_info = {
+                "party_id": partyId,
+                "federated_id": federated_id,
+                "exchange_read_status": 1,
+            }
+            if exchange_name_new:
+                site_info.update({"exchange_name_new": exchange_name_new})
+            if vip_entrances_new:
+                site_info.update({"vip_entrances_new": vip_entrances_new})
+            if network_access_entrances_new:
+                site_info.update({"network_access_entrances_new": network_access_entrances_new})
+            if network_access_exits_new:
+                site_info.update({"network_access_exits_new": network_access_exits_new})
+
+            DBOperator.safe_save(FateSiteInfo, site_info)
+            logger.info(f"update site exchange info {partyId} success")
+
+    logger.info(f"update table {FateSiteInfo}  exchange info success")
+
 

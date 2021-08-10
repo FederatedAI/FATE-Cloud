@@ -1,49 +1,77 @@
 import base64
 import hmac
+import json
 
 from fate_manager.utils.base_utils import current_timestamp
-from fate_manager.db.db_models import AccountInfo, FateUserInfo, FederatedInfo, TokenInfo
-from fate_manager.entity.status_code import UserStatusCode
+from fate_manager.db.db_models import AccountInfo, FateUserInfo, FederatedInfo, TokenInfo,FateSiteInfo
+from fate_manager.entity.status_code import UserStatusCode,InstitutionStatusCode
 from fate_manager.entity.types import UserRole, ActivateStatus, PermissionType, IsValidType
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import EXPIRE_TIME
 from fate_manager.settings import login_service_logger as logger
 from fate_manager.utils.model_utils import transform_dict_key
-from fate_manager.utils.request_cloud_utils import request_cloud_manager
+from fate_manager.utils.request_cloud_utils import request_cloud_manager,request_cloud_manager_active
 
 
 def fate_manager_activate(request_data):
     logger.info(f'request data: {request_data}')
     user_name = request_data.get("userName")
     accounts = DBOperator.query_entity(AccountInfo, role=UserRole.ADMIN)
-    if accounts:
-        raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: fate manager has been activated")
+    # if accounts:
+    #     raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: fate manager has been activated")
     users = DBOperator.query_entity(FateUserInfo, user_name=user_name)
     if not users:
         raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
 
-    # request cloud manager
+    institutions = request_data.get('institutions')
+    institution = DBOperator.query_entity(FateSiteInfo, institutions=institutions)
+    if institution:
+        raise Exception(InstitutionStatusCode.Institution_Not_Allow_Activate,
+                        f"Institution has exist {institutions} actived record,not allow activate ")
+
     body = {"registrationLink": request_data.get("link")}
     logger.info(f'start request cloud: body {body}')
-    request_cloud_manager(uri_key="UserActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"))
+    res = request_cloud_manager_active(uri_key="UserActivate", data=request_data, body=body,
+                                            url=request_data.get("federatedUrl"))
+    logger.info(f'response from cloud for institution info: {res}')
 
     # save account info
-    request_info = transform_dict_key(request_data)
-    request_info["creator"] = user_name
-    request_info["permission_list"] = [PermissionType.BASIC, PermissionType.DEPLOY,
-                                       PermissionType.FATEBOARD, PermissionType.FATESTUDIO]
-    request_info["role"] = UserRole.ADMIN
-    request_info["active_url"] = request_info["activate_url"]
-    request_info["status"] = IsValidType.YES
-    request_info["cloud_user"] = 1
-    logger.info(f'create account info: {request_info}')
-    DBOperator.create_entity(AccountInfo, request_info)
+    request_info = transform_dict_key(res)
+    saveAccountInfo = {}
+    saveAccountInfo["creator"] = user_name
+    saveAccountInfo["permission_list"] = [PermissionType.BASIC, PermissionType.DEPLOY,
+                                           PermissionType.FATEBOARD, PermissionType.FATESTUDIO]
+    saveAccountInfo["role"] = UserRole.ADMIN
+    saveAccountInfo["status"] = IsValidType.YES
+    saveAccountInfo["cloud_user"] = 1
+
+    saveAccountInfo["active_url"] = request_data.get("federatedUrl")
+    saveAccountInfo["institutions"] = request_data.get("institutions")
+    saveAccountInfo["fate_manager_id"] = request_data.get("fateManagerId")
+    saveAccountInfo["user_name"] = user_name
+
+    data = request_info.get('fate_manager_user').get('secretInfo')
+    data_dct = json.loads(data)
+    saveAccountInfo["app_secret"] = data_dct.get("secret")
+    saveAccountInfo["app_key"] = data_dct.get("key")
+
+    logger.info(f'create account info: {saveAccountInfo}')
+    DBOperator.safe_save(AccountInfo, saveAccountInfo)
 
     # save federated info
-    request_info["status"] = 1
-    logger.info(f'save federated info: {request_info}')
-    request_info["federated_organization_create_time"] = request_info["create_time"]
-    DBOperator.safe_save(FederatedInfo, request_info)
+    saveFederatedInfo = {}
+    federated_info = request_info.get('federated_organization')
+    federated_data = transform_dict_key(federated_info)
+    saveFederatedInfo["institutions"] = request_data.get('institutions')
+    saveFederatedInfo["federated_url"] = request_data.get("federatedUrl")
+    saveFederatedInfo["status"] = 1
+    saveFederatedInfo["federated_id"] = federated_data.get('id')
+    saveFederatedInfo["institution"] = federated_data.get('institution')
+    saveFederatedInfo["federated_organization"] = federated_data.get('name')
+    saveFederatedInfo["federated_organization_create_time"] = federated_data["create_time"]
+    logger.info(f'save federated info {saveFederatedInfo}')
+    DBOperator.safe_save(FederatedInfo, saveFederatedInfo)
+    return res
 
 
 def fate_manager_login(request_data):

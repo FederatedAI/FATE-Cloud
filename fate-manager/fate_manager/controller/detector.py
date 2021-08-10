@@ -32,6 +32,12 @@ class TaskDetector(cron.Cron):
         self.apply_result_task(admin_info)
         self.allow_apply_task(admin_info)
         self.ip_manager_task()
+        self.apply_exchange_task()
+
+    @classmethod
+    @exception_catch
+    def apply_exchange_task(cls):
+        task_service.apply_exchange_task()
 
     @classmethod
     @exception_catch

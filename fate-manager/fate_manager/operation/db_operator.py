@@ -49,6 +49,17 @@ class DBOperator:
             return False
         return False
 
+
+    @classmethod
+    @DB.connection_context()
+    def delete_entity_data(cls, entity_model, **kwargs):
+
+        instances = entity_model.select()
+        if instances:
+            for instance in instances:
+                instance.delete_instance()
+            return True
+
     @classmethod
     @DB.connection_context()
     def update_entity(cls, entity_model, entity_info):
