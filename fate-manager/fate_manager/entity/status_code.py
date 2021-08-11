@@ -34,6 +34,7 @@ class SiteStatusCode:
 class RequestCloudCode:
     HttpRequestFailed = 30001
     SignatureFailed = 30002 # Signature verification failed
+    InstitutionDelete = 30003
 
 
 class RequestFateFlowCode:

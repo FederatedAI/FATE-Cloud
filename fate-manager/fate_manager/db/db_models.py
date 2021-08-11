@@ -66,6 +66,21 @@ def init_database_tables():
     return table_info
 
 
+@DB.connection_context()
+def backup_database_table():
+    members = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    table_objs = []
+    table_info = {}
+    for name, obj in members:
+        if obj != DataBaseModel and issubclass(obj, DataBaseModel):
+            if issubclass(obj, FateUserInfo):
+                continue
+            table_objs.append(obj)
+            table_info[name] = obj
+    DB.drop_tables(table_objs, fair_silently=True)
+    return table_info
+
+
 def fill_db_model_object(model_object, human_model_dict):
     for k, v in human_model_dict.items():
         attr_name = 'f_%s' % k
