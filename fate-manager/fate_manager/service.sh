@@ -1,5 +1,9 @@
 #!/bin/bash
 
+workdir=$(cd $(dirname $0); pwd)
+. ${workdir}/conf/setup.conf
+venv=${pyenv}
+
 PROJECT_BASE=$(cd "$(dirname "$0")";cd ../;pwd)
 export PYTHONPATH=$PROJECT_BASE
 

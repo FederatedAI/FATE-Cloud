@@ -37,6 +37,7 @@ user_logger = log.getLogger('user_service')
 monitor_logger = log.getLogger('monitor_service')
 
 ROLL_SITE_KEY = "rollsite"
+ROLL_PART_Id = "100"
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)

@@ -14,7 +14,7 @@ from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, 
     ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
 from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
-from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY
+from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY,ROLL_PART_Id
 from fate_manager.utils.request_cloud_utils import request_cloud_manager, get_old_signature_head, request_cloud_manager_active
 from fate_manager.controller.roll_site import write_site_route
 
@@ -88,14 +88,11 @@ def register_fate_site(request_data, token):
 
     logger.info("start save exchange info to rollsite")
     exchangeName = request_data.get('exchangeName')
-    vipEntrance = request_data.get('vipEntrance').split(':')
+    vipEntrance = request_data.get('vipEntrance')
     try:
-        site_route = {exchangeName: {'default': [{'port': int(vipEntrance[1]), 'ip': vipEntrance[0]}]}}
-        rollsite_info = request_data.get("rollsiteNetworkAccess").split(':')
-        partyId = request_data.get("partyId")
-        logger.info(f'write rollsite info:{rollsite_info[0]}-{rollsite_info[1]}-{ROLL_SITE_KEY}-{site_route}-{partyId}')
-        write_site_route(rollsite_info[0], rollsite_info[1], ROLL_SITE_KEY, site_route, partyId)
-        logger.info(f"update rollsite info {partyId} success")
+        rollSiteNetworkAccess = request_data.get("rollSiteNetworkAccess")
+        update_all_rollsite_info(exchangeName,vipEntrance,rollSiteNetworkAccess)
+        logger.info(f"update rollsite info success")
     except Exception as e:
         logger.info(f"save exchange info faild {str(e)}")
 
@@ -407,7 +404,7 @@ def get_site_detail(request_data):
         "federatedId": site.federated_id,
         "federatedOrganization": site.federated_organization,
         "institutions": site.institutions,
-        "rollsiteNetworkAccess": site.rollsite_network_access,
+        "rollSiteNetworkAccess": site.rollsite_network_access,
 
         "ExchangeInfo": {
             "exchangeName": site.exchange_name,
@@ -452,10 +449,10 @@ def get_site_detail(request_data):
         }
         DBOperator.update_entity(FateSiteInfo, update_info)
 
-        # 更新rollsite路由信息：
+        # update rollsite info：
         if site.vip_entrances_new:
             update_all_rollsite_info(site.exchange_name_new, site.vip_entrances_new,
-                                     site.rollsite_network_access,site.party_id)
+                                     site.rollsite_network_access)
 
     else:  # 判断是cm是否有更新数据
         if site.exchange_read_status == 1:
@@ -714,7 +711,7 @@ def check_rollsite_url(UpdateRollSiteInfo):
     return info
 
 
-def update_all_rollsite_info(exchange_name,exchange_ip, rollsite_network_access, party_id):
+def update_all_rollsite_info(exchange_name,exchange_ip, rollsite_network_access):
     rollsite_network_access = rollsite_network_access.split(';')[:-1]
     Exhange_ip = exchange_ip.split(':')[0]
     Exhange_port = exchange_ip.split(':')[1]
@@ -722,7 +719,8 @@ def update_all_rollsite_info(exchange_name,exchange_ip, rollsite_network_access,
         rollsite_ip = rollsite.split(':')[0]
         rollsite_port = rollsite.split(':')[1]
         site_route = {exchange_name: {'default': [{'port': Exhange_port, 'ip': Exhange_ip}]}}
-        write_site_route(rollsite_ip, rollsite_port, ROLL_SITE_KEY, site_route, party_id)
+        logger.info(f"write rollsite info:{rollsite_ip}-{rollsite_port}-{ROLL_SITE_KEY}-{site_route}-{ROLL_PART_Id}")
+        ret = write_site_route(rollsite_ip, rollsite_port, ROLL_SITE_KEY, site_route, ROLL_PART_Id)
 
 
 
