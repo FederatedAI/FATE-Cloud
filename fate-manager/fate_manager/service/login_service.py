@@ -28,10 +28,10 @@ def fate_manager_activate(link, user_name):
     body = {"registrationLink": link}
     logger.info(f'start request cloud uri key UserActivate, body {body}')
     institutions_information = request_cloud_manager(uri_key="UserActivate",
-                                                            data={"fateManagerId": fate_manager_id,
-                                                                  "institutionName": institutions
-                                                                  },
-                                                            body=body, url=federated_url, active=True, )
+                                                     data={"fateManagerId": fate_manager_id,
+                                                           "institutionName": institutions
+                                                           },
+                                                     body=body, url=federated_url, active=True)
     logger.info(f'cloud return: {institutions_information}')
 
     # save account info

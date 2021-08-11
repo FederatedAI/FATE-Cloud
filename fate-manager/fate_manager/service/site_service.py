@@ -16,7 +16,7 @@ from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, 
 from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY
-from fate_manager.utils.request_cloud_utils import request_cloud_manager, get_old_signature_head
+from fate_manager.utils.request_cloud_utils import request_cloud_manager, SignatureHead
 from fate_manager.controller.roll_site import write_site_route
 
 def register_fate_site(request_data, token):
@@ -594,7 +594,7 @@ def check_site(request_data):
                                                    role=request_data.get("role"),
                                                    appKey=request_data.get("appKey"),
                                                    appSecret=request_data.get("appSecret"))
-        old_head = get_old_signature_head(uri, old_signature_item.to_dict(),
+        old_head = SignatureHead.old_signature_head(uri, old_signature_item.to_dict(),
                                           body=json.dumps({"partyId": request_data.get("srcPartyId")}, separators=(',', ':')))
         check_site_body = {
             "HTTP_BODY": {"partyId": request_data.get('srcPartyId')},
