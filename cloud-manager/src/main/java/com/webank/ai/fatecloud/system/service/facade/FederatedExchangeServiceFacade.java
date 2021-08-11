@@ -68,6 +68,10 @@ public class FederatedExchangeServiceFacade implements Serializable {
         }
         // check party ambiguity
         for (RollSiteAddBean rollSiteAddBean : exchangeAddQo.getRollSiteAddBeanList()) {
+            if (federatedExchangeService.queryExchange(new ExchangeQueryQo(rollSiteAddBean.getNetworkAccess())) == null) {
+                return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR, rollSiteAddBean.getNetworkAccess());
+            }
+
             List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
             for (PartyAddBean partyAddBean : partyAddBeanList) {
                 if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), null)){
@@ -257,6 +261,10 @@ public class FederatedExchangeServiceFacade implements Serializable {
         if (federatedExchangeService.findRollSite(rollSieAddQo.getNetworkAccess())) {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_EXIST_ERROR);
         }
+        if (federatedExchangeService.queryExchange(new ExchangeQueryQo(rollSieAddQo.getNetworkAccess())) == null) {
+            return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR, rollSieAddQo.getNetworkAccess());
+        }
+
         //check party
         if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true) || !ObjectUtil.matchNetworkAddress(rollSieAddQo.getNetworkAccessExit())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
