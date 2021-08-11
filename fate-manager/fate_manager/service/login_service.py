@@ -23,7 +23,7 @@ def fate_manager_activate(request_data):
     if not users:
         raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
 
-    DBOperator.update_entity(FateUserInfo, {"user_name": user_name, "is_delete": 0})
+    # DBOperator.update_entity(FateUserInfo, {"user_name": user_name, "is_delete": 0})
 
     institutions = request_data.get('institutions')
     institution = DBOperator.query_entity(FateSiteInfo, institutions=institutions)

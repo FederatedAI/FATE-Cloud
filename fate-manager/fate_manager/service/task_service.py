@@ -123,7 +123,6 @@ def apply_exchange_task():
         logger.info(f"request cloud success, return {resp}")
     except Exception as e:
         if "200" in str(e):
-            DBOperator.update_entity(FateUserInfo, {"user_name": account.user_name, "is_delete": 1})
             clear_table_data()
         raise Exception(e)
     logger.info(f"request cloud success, return {resp}")
