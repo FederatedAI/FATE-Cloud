@@ -1,8 +1,8 @@
 import json
-
+import requests
 from fate_manager.entity.status_code import SiteStatusCode
 from fate_manager.utils.base_utils import current_timestamp
-from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent,AccountInfo
+from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent,FateUserInfo
 from fate_manager.entity import item
 from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
     IsValidType, ToyTestOnlyType, DeployType, ProductType
@@ -123,6 +123,7 @@ def apply_exchange_task():
         logger.info(f"request cloud success, return {resp}")
     except Exception as e:
         if "200" in str(e):
+            DBOperator.update_entity(FateUserInfo, {"user_name": account.user_name, "is_delete": 1})
             clear_table_data()
         raise Exception(e)
     logger.info(f"request cloud success, return {resp}")

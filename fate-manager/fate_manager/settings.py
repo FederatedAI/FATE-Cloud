@@ -36,13 +36,15 @@ login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
 monitor_logger = log.getLogger('monitor_service')
 
+ROLL_SITE_KEY = "rollsite"
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
 
 FATE_FLOW_SETTINGS = {
-    "QueryJob": "/v1/job/query"
+    "QueryJob": "/v1/job/query",
+    "QueryFateVersion": "/v1/version/get"
 }
 
 HYPERION_SETTINGS = {
@@ -59,7 +61,7 @@ HYPERION_SETTINGS = {
 
 CLOUD_URL= {
     "SiteQueryUri": "/cloud-manager/api/site/findOneSite/fateManager",
-    "ActivateUri": "/cloud-manager/api/site/activate",
+    # "ActivateUri": "/cloud-manager/api/site/activate",
     "IpAcceptUri": "/cloud-manager/api/site/ip/accept",
     "IpQueryUri": "/cloud-manager/api/site/ip/query",
     "CheckUri": "/cloud-manager/api/site/checkUrl",
@@ -68,7 +70,7 @@ CLOUD_URL= {
     "CheckAuthorityUri": "/cloud-manager/api/site/checkAuthority/fateManager/v3",
     "CheckWebUri": "/cloud-manager/api/site/checkWeb",
     "SystemAddUri": "/cloud-manager/api/system/add",
-    "UserActivateUri": "/cloud-manager/api/fate/user/activate",
+    # "UserActivateUri": "/cloud-manager/api/fate/user/activate",
     "AuthorityInstitutions": "/cloud-manager/api/authority/institutions",
     "AuthorityApply": "/cloud-manager/api/authority/apply",
     "AuthorityApplied": "/cloud-manager/api/authority/applied",
@@ -82,14 +84,22 @@ CLOUD_URL= {
     "ProductVersionUri": "/cloud-manager/api/product/page/fatemanager",
     "ExchangeUri": "/cloud-manager/api/exchange/exchange/page/fatemanager",
     "GetApplyListUri": "/cloud-manager/api/authority/findPendingApply",
-    "ApplyLog": "/cloud-manager/api/authority/history/fateManager"
+    "ApplyLog": "/cloud-manager/api/authority/history/fateManager",
+    "OrganizationQueryUri": "/cloud-manager/api/fate/user/find/page",
+
+    "ActivateUri": "/cloud-manager/api/site/activate/v2",
+    "ActivateUriInfo": "/cloud-manager/api/site/activate/query/details",
+    "UserActivate": "/cloud-manager/api/fate/user/activate/v2",
+    "UpdateIpQueryUri": "/cloud-manager/api/site/ip/update/query",
 }
 
 CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUri", "UpdateVersionUri", "IpAcceptUri",
-                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri"]
+                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri","ActivateUriNew","ActivateUriInfo",]
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "MyApprovedUri", "OtherSiteUri",
                                "ExchangeUri", "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri",
-                               "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri"]
+                               "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri",
+                               "OrganizationQueryUri","UpdateIpQueryUri","UserActivate",
+                               ]
 
 # user token
 EXPIRE_TIME = 30 * 60 * 1000  # ms

@@ -7,14 +7,14 @@ from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.controller import version_controller
 from fate_manager.controller.apply import apply_result_task, allow_apply_task
 from fate_manager.db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, DeploySite, ChangeLog, TokenInfo, \
-    AccountSiteInfo, ApplyInstitutionsInfo, ApplySiteInfo
+    AccountSiteInfo, ApplyInstitutionsInfo, ApplySiteInfo,FateUserInfo
 from fate_manager.entity import item
 from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
     ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
 from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
-from fate_manager.settings import site_service_logger as logger, CLOUD_URL,ROLLSITE_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY
+from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY
 from fate_manager.utils.request_cloud_utils import request_cloud_manager, get_old_signature_head, request_cloud_manager_active
 from fate_manager.controller.roll_site import write_site_route
 
@@ -93,7 +93,7 @@ def register_fate_site(request_data, token):
         site_route = {exchangeName: {'default': [{'port': int(vipEntrance[1]), 'ip': vipEntrance[0]}]}}
         rollsite_info = request_data.get("rollsiteNetworkAccess").split(':')
         partyId = request_data.get("partyId")
-
+        logger.info(f'write rollsite info:{rollsite_info[0]}-{rollsite_info[1]}-{ROLL_SITE_KEY}-{site_route}-{partyId}')
         write_site_route(rollsite_info[0], rollsite_info[1], ROLL_SITE_KEY, site_route, partyId)
         logger.info(f"update rollsite info {partyId} success")
     except Exception as e:
@@ -234,7 +234,11 @@ def get_home_site_list():
     return federated_item_list
 
 
-def get_fate_manager_list():
+def get_fate_manager_list(request_data):
+    user_name = request_data.get('user_name')
+    user_is_delete = DBOperator.query_entity(FateUserInfo,user_name=user_name,is_delete=1)
+    if user_is_delete:
+        raise Exception(130, "The {} institution has deleted, please logout".format(user_name))
     account = SingleOperation.get_admin_info()
     allow_institutions_list = allow_apply_task(account)
     return allow_institutions_list
@@ -684,7 +688,7 @@ def update_version_or_rollsite(request_data):
 
 
     if UpdateRollSiteInfo:
-        res = check_rollsite_url(UpdateRollSiteInfo,site)
+        res = check_rollsite_url(UpdateRollSiteInfo)
         ip_succ = res.get('ip_succ')
         rollsite = ";".join(ip_succ)
         DBOperator.update_entity(FateSiteInfo, {"rollsite_network_access": rollsite, "federated_id": site.federated_id,
@@ -692,7 +696,7 @@ def update_version_or_rollsite(request_data):
         return res
 
 
-def check_rollsite_url(UpdateRollSiteInfo,site):
+def check_rollsite_url(UpdateRollSiteInfo):
 
     logger.info(f"start test connect rollsite, rollsite address:{UpdateRollSiteInfo}")
     rollsite_list = UpdateRollSiteInfo.split(';')[:-1]
