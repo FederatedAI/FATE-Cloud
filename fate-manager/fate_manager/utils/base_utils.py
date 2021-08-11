@@ -76,6 +76,7 @@ def deserialize_b64(src):
 
 
 def deserialize_b64_decode(src):
+    src = str(src).replace('\\r', '\r').replace('\\n', '\n')
     if src.startswith("http:"):
         url, info = src.split('?')
         name, id = info.split('=')[1].rsplit('_', 1)

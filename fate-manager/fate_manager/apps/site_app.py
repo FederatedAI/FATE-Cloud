@@ -1,11 +1,10 @@
 from flask import Flask, request
 from flask_cors import CORS
 
+from fate_manager.controller.site_controller import site_page
 from fate_manager.service import site_service
 from fate_manager.utils import detect_utils
 from fate_manager.utils.api_utils import server_error_response, get_json_result
-from fate_manager.utils.base_utils import deserialize_b64,deserialize_b64_decode
-from fate_manager.settings import login_service_logger as logger
 
 manager = Flask(__name__)
 CORS(manager, supports_credentials=True)
@@ -24,52 +23,25 @@ def register_site():
                                                                        'networkAccessExits','partyId',
                                                                        'registrationLink', 'role','siteName',
                                                                        'rollSiteNetworkAccess'])
-
     token = request.headers.get("token")
-    registrationLink = request_data.get("registrationLink")
-    url, institutions, id = deserialize_b64_decode(registrationLink)
-    logger.info(f'site registrationLink decode info:{url}--{institutions}--{id}')
-    request_data['federatedUrl'] = url
     data = site_service.register_fate_site(request_data, token)
     return get_json_result(data=data)
 
 
 @manager.route('/checkUrl', methods=['post'])
 def check_url():
-    conf = {}
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['link'])
-    link = request_data.get("link")
-    conf['federatedUrl'], conf['partyId'], conf['appKey'] = deserialize_b64_decode(link)
-    conf['registrationLink'] = link
-    logger.info(f'site checkUrl request info:{conf}')
-    data = site_service.get_site_part_info(conf)
+    data = site_service.check_register_url(request_data)
     return get_json_result(data=data)
 
 
 @manager.route('/', methods=['post'])
 def get_site():
     request_data = request.json
-    pageNum = int(request_data.get('pageNum', 1))
-    pageSize = int(request_data.get('pageSize', 10))
-
-    data = site_service.get_home_site_list()
-    total = len(data[0]['siteList'])
-    take_int = total // pageSize  # 取整
-    remainder = total % pageSize  # 取余
-    if pageNum <= take_int:
-        start_num = (pageNum-1) * pageSize
-        info = data[0]['siteList']
-        data_split = info[start_num:(start_num + pageSize)]
-
-    else:
-        info = data[0]['siteList']
-        # start_num = (pageNum - 1) * pageSize
-        data_split = info[-remainder:]
-    data[0]['siteList'] = data_split
-    res_data = {'data': data, 'total': total}
-    logger.info(f'get_site:{res_data}')
-    return get_json_result(data=res_data)
+    site_info = site_service.get_home_site_list()
+    data = site_page(site_info, int(request_data.get('pageSize', 10)), int(request_data.get('pageNum', 1)))
+    return get_json_result(data=data)
 
 
 @manager.route('/function', methods=['post'])

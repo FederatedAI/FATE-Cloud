@@ -11,7 +11,6 @@ from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
 from fate_manager.settings import site_service_logger as logger
-from fate_manager.utils.clear_data import clear_table_data
 
 
 def get_change_log_task():
@@ -107,24 +106,19 @@ def test_only_task():
 def apply_exchange_task():
     logger.info("get all institution")
     institution = DBOperator.query_entity(FederatedInfo)[0]
-    logger.info(f"start request cloud OrganizationQueryUri:{institution.institutions}")
+    logger.info(f"start request cloud UpdateIpQueryUri:{institution.institutions}")
     account = SingleOperation.get_admin_info()
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
                                                                appKey=account.app_key,
                                                                appSecret=account.app_secret,
                                                                ).to_dict()
     institution_signature_item.update({'institutions':institution.institutions})
-    try:
-        resp = request_cloud_manager(uri_key="UpdateIpQueryUri",
-                                     data=institution_signature_item,
-                                     body={},
-                                     url=None
-                                     )
-        logger.info(f"request cloud success, return {resp}")
-    except Exception as e:
-        if "200" in str(e):
-            clear_table_data()
-        raise Exception(e)
+
+    resp = request_cloud_manager(uri_key="UpdateIpQueryUri",
+                                 data=institution_signature_item,
+                                 body={},
+                                 url=None
+                                 )
     logger.info(f"request cloud success, return {resp}")
     if resp:
         federated_id = institution.federated_id
@@ -147,10 +141,8 @@ def apply_exchange_task():
                 site_info.update({"network_access_entrances_new": network_access_entrances_new})
             if network_access_exits_new:
                 site_info.update({"network_access_exits_new": network_access_exits_new})
-
             DBOperator.safe_save(FateSiteInfo, site_info)
             logger.info(f"update site exchange info {partyId} success")
-
     logger.info(f"update table {FateSiteInfo}  exchange info success")
 
 

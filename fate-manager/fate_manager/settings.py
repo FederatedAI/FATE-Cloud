@@ -36,12 +36,11 @@ login_service_logger = log.getLogger('login_service')
 user_logger = log.getLogger('user_service')
 monitor_logger = log.getLogger('monitor_service')
 
-ROLL_SITE_KEY = "rollsite"
-ROLL_PART_Id = "100"
-
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
+
+ROLL_SITE_KEY = "rollsite"
 
 FATE_FLOW_SETTINGS = {
     "QueryJob": "/v1/job/query",
@@ -95,7 +94,7 @@ CLOUD_URL= {
 }
 
 CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUri", "UpdateVersionUri", "IpAcceptUri",
-                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri","ActivateUriNew","ActivateUriInfo",]
+                        "CheckAuthorityUri", "IpQueryUri", "SystemHeartUri","ActivateUriInfo",]
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "MyApprovedUri", "OtherSiteUri",
                                "ExchangeUri", "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri",
                                "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri",
