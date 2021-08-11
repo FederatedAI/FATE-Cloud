@@ -234,11 +234,7 @@ def get_home_site_list():
     return federated_item_list
 
 
-def get_fate_manager_list(request_data):
-    user_name = request_data.get('user_name')
-    user_is_delete = DBOperator.query_entity(FateUserInfo,user_name=user_name,is_delete=1)
-    if user_is_delete:
-        raise Exception(130, "The {} institution has deleted, please logout".format(user_name))
+def get_fate_manager_list():
     account = SingleOperation.get_admin_info()
     allow_institutions_list = allow_apply_task(account)
     return allow_institutions_list
