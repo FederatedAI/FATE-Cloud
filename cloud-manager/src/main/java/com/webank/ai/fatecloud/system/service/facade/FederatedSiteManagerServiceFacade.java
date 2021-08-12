@@ -324,13 +324,13 @@ public class FederatedSiteManagerServiceFacade {
     public CommonResponse<SiteDetailDto> findOneSite(HttpServletRequest httpServletRequest) {
         //check authority
 //        boolean result = checkSignature.checkSignature(httpServletRequest, "", 2, 3);
-        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 2, 3);
+        boolean result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 1, 2, 3);
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
         }
 
         //check site in http body
-        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest.getHeader(Dict.APP_KEY), 2, 3);
+        SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(httpServletRequest.getHeader(Dict.PARTY_ID)), httpServletRequest.getHeader(Dict.APP_KEY), 1, 2, 3);
         if (site == null) {
             return new CommonResponse<>(ReturnCodeEnum.PARTYID_FIND_ERROR);
         }

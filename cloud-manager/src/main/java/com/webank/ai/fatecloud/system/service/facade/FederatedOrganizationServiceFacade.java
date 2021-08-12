@@ -68,9 +68,9 @@ public class FederatedOrganizationServiceFacade {
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 2,3);
+            result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 1, 2, 3);
         } else {
-            result = checkSignature.checkSignature(httpServletRequest, "", 2,3);
+            result = checkSignature.checkSignature(httpServletRequest, "", 2, 3);
         }
         if (!result) {
             return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
