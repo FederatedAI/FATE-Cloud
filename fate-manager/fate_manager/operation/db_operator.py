@@ -2,7 +2,7 @@ import operator
 import peewee
 
 from fate_manager.db.db_models import DB, FateSiteJobInfo, AccountInfo, FateUserInfo, ApplyInstitutionsInfo, \
-    FederatedInfo, ChangeLog, FateSiteInfo, backup_database_table
+    FederatedInfo, ChangeLog, FateSiteInfo, backup_database_table, init_database_tables
 from fate_manager.entity.status_code import UserStatusCode
 from fate_manager.entity.types import UserRole, LogDealType, IsValidType
 from fate_manager.settings import stat_logger
@@ -160,8 +160,9 @@ class DBOperator:
         return [item for item in instances]
 
     @classmethod
-    def clean(cls):
+    def recreate(cls):
         backup_database_table()
+        init_database_tables()
 
 
 class JointOperator:

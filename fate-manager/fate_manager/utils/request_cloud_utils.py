@@ -127,7 +127,10 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None, active=
             if not accounts:
                 raise Exception(UserStatusCode.NoFoundAccount, "no found account")
             data["account"] = accounts[0]
-        head = signature_head.site_signature_head(uri, data, body_json) if need_body else signature_head.active_site_head(uri, data, "{}")
+        if active:
+            head = signature_head.active_site_head(uri, data, body_json) if need_body else signature_head.active_site_head(uri, data, "{}")
+        else:
+            head =signature_head.site_signature_head(uri, data, body_json)
     else:
         head = {}
     if not url:
@@ -144,7 +147,7 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None, active=
         if not response.json().get('code') or response.json().get('code') in [127, 145]:
             return response.json().get('data')
         if response.json().get('code') == 200:
-            DBOperator.clean()
+            DBOperator.recreate()
             raise Exception(RequestCloudCode.InstitutionDelete, f'institution is deleted')
         else:
             raise Exception(RequestCloudCode.SignatureFailed, f'request cloud uri key {uri_key} failed: code {response.json().get("code")}, msg {response.json().get("msg")}')

@@ -103,7 +103,7 @@ def register_fate_site(request_data, token):
 
 def check_register_url(request_data):
     request_data = {'registrationLink': request_data.get("link")}
-    request_data['federatedUrl'], request_data['partyId'], request_data['appKey'] = deserialize_b64_decode(request_data.get("link"))
+    request_data['federatedUrl'], request_data['partyId'], request_data['appKey'] = deserialize_b64_decode(request_data.get("registrationLink"))
     logger.info(f'site checkUrl request info:{request_data}')
     body = {"registrationLink": request_data.get("registrationLink")}
     logger.info(f"start request cloud site info, body:{body}")
