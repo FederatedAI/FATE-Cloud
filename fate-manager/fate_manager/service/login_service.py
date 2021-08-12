@@ -14,6 +14,7 @@ from fate_manager.utils.request_cloud_utils import request_cloud_manager
 
 
 def fate_manager_activate(link, user_name):
+    link = str(link).replace('\\r', '\r').replace('\\n', '\n')
     logger.info(f"link: {link}, user_name: {user_name}")
     federated_url, institutions, fate_manager_id = deserialize_b64_decode(link)
     logger.info(f'federated_url {federated_url}, institutions {institutions}, fate_manager_id {fate_manager_id}')
@@ -42,10 +43,9 @@ def fate_manager_activate(link, user_name):
     saveAccountInfo["role"] = UserRole.ADMIN
     saveAccountInfo["status"] = IsValidType.YES
     saveAccountInfo["cloud_user"] = 1
-
-    saveAccountInfo["active_url"] = institutions_information.get("federatedUrl")
-    saveAccountInfo["institutions"] = institutions_information.get("institutions")
-    saveAccountInfo["fate_manager_id"] = institutions_information.get("fateManagerId")
+    saveAccountInfo["active_url"] = federated_url
+    saveAccountInfo["institutions"] = institutions
+    saveAccountInfo["fate_manager_id"] = fate_manager_id
     saveAccountInfo["user_name"] = user_name
 
     data = institutions_information.get('fate_manager_user').get('secretInfo')
