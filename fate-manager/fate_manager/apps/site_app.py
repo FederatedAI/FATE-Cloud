@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 
+from fate_manager.controller import site_controller
 from fate_manager.controller.site_controller import site_page
 from fate_manager.service import site_service
 from fate_manager.utils import detect_utils
@@ -33,6 +34,14 @@ def check_url():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['link'])
     data = site_service.check_register_url(request_data)
+    return get_json_result(data=data)
+
+
+@manager.route('/checkWeb', methods=['post'])
+def connect_test():
+    request_data = request.json
+    detect_utils.check_config(config=request_data, required_arguments=['ip', 'port'])
+    data = site_controller.connect_test(request_data.get('ip'), request_data.get('port'))
     return get_json_result(data=data)
 
 
