@@ -12,29 +12,33 @@ from fate_manager.db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, 
 from fate_manager.entity import item
 from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
-    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
+    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType, PollingType, SecureType
 from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY
 from fate_manager.utils.request_cloud_utils import request_cloud_manager, SignatureHead
 from fate_manager.controller.roll_site import write_site_route
 
-def register_fate_site(request_data, token):
+
+def register_fate_site(request_data):
     registrationLink = request_data.get("registrationLink")
     url, institutions, id = deserialize_b64_decode(registrationLink)
     logger.info(f'site registrationLink decode info:{url}--{institutions}--{id}')
     request_data['federatedUrl'] = url
-    token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
-    user_name = token_info_list[0].user_name
-    account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES})[0]
-    body = {"registrationLink": request_data.get("registrationLink"),
-            "networkAccessEntrances": request_data.get("networkAccessEntrances"),
-            "networkAccessExits": request_data.get("networkAccessExits"),
-            "rollSiteNetworkAccess": request_data.get("rollSiteNetworkAccess")
-            }
+    body = {
+        "pollingStatus": request_data.get("pollingStatus", PollingType.FALSE),
+        "secureStatus": request_data.get("secureStatus", SecureType.FALSE),
+        "registrationLink": request_data.get("registrationLink"),
+        "networkAccessEntrances": request_data.get("networkAccessEntrances"),
+        "networkAccessExits": request_data.get("rollSiteNetworkAccessExits")
+    }
 
+    logger.info("start save exchange info to rollsite")
+    # update_all_rollsite_info(request_data.get("network"), request_data.get("rollSiteNetworkAccess"),
+    #                          request_data.get("partyId"), is_secure=request_data.get("secureStatus", SecureType.FALSE),
+    #                          is_polling=request_data.get("pollingStatus", SecureType.FALSE))
+    logger.info(f"update rollsite info success")
     logger.info(f"start request cloud ActivateUri, data: {request_data}, body:{body}")
-
     request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"),
                           active=True, need_body=False)
     logger.info("request cloud success")
@@ -48,7 +52,6 @@ def register_fate_site(request_data, token):
     logger.info(f"start save federated info: {federated_info}")
     DBOperator.safe_save(FederatedInfo, federated_info)
     logger.info("save federated info success")
-
     site_info = {
         "federated_id": request_data.get("id"),
         "federated_organization": request_data.get("federatedOrganization"),
@@ -59,16 +62,17 @@ def register_fate_site(request_data, token):
         "app_key": request_data.get("appKey"),
         "app_secret": request_data.get("appSecret"),
         "registration_link": request_data.get("registrationLink"),
-        # site network conf
+
         "network_access_entrances": request_data.get("networkAccessEntrances"),
-        "network_access_exits": request_data.get("networkAccessExits"),
-        # rollsite conf
         "rollsite_network_access": request_data.get("rollSiteNetworkAccess"),
-        # old exchange conf
+        "rollsite_network_access_exits": request_data.get("rollSiteNetworkAccessExits"),
+        "polling_status": request_data.get("pollingStatus", PollingType.FALSE),
+        "secure_status": request_data.get("secureStatus", SecureType.FALSE),
+
         "exchange_name": request_data.get("exchangeName"),
         "vip_entrances": request_data.get("vipEntrance"),
-        "exchange_network_access_exits": request_data.get("exchangeNetworkAccessExits"),
-        "exchange_network_access": request_data.get("exchangeNetworkAccess"),
+        "exchange_network_access_exits": request_data.get("rollSiteNetworkAccessExitsList"),
+        "exchange_network_access": request_data.get("network"),
 
         "status": SiteStatusType.JOINED,
         "edit_status": EditType.YES,
@@ -83,16 +87,6 @@ def register_fate_site(request_data, token):
         "site_name": request_data.get("siteName")
     })
     logger.info("save site info success")
-
-    logger.info("start save exchange info to rollsite")
-    exchangeName = request_data.get('exchangeName')
-    vipEntrance = request_data.get('vipEntrance')
-    try:
-        rollSiteNetworkAccess = request_data.get("rollSiteNetworkAccess")
-        update_all_rollsite_info(exchangeName,vipEntrance,rollSiteNetworkAccess, request_data.get("partyId"))
-        logger.info(f"update rollsite info success")
-    except Exception as e:
-        logger.info(f"save exchange info faild {str(e)}")
 
     logger.info(f"start request cloud SiteQueryUri")
     data = request_cloud_manager(uri_key="SiteQueryUri", data=item.SiteSignatureItem(**request_data).to_dict(), body={},
@@ -389,7 +383,7 @@ def get_site_detail(request_data):
         "appSecret": site.app_secret,
         "componentVersion": site.component_version,
         "createTime": site.create_time,
-        "editStatus": item.IdPair(code=site.edit_status, desc=EditType.to_str(site.edit_status)).to_dict(),
+        "editStatus": item.IdPair(code=1, desc=EditType.to_str(1)).to_dict(),
         "fateServingVersion": site.fate_serving_version,
         "fateFlowIp": site.fate_flow_info,
         "fateVersion": site.fate_version,
@@ -402,7 +396,7 @@ def get_site_detail(request_data):
             "exchangeName": site.exchange_name,
             "vipEntrances": site.vip_entrances,
             "networkAccessEntrances": site.network_access_entrances,
-            "networkAccessExits": site.network_access_exits,
+            "networkAccessExits": site.rollsite_network_access_exits,
 
             "exchangeNetworkAccessExits": site.exchange_network_access_exits,
             "exchangeNetworkAccesss": site.exchange_network_access,
@@ -443,9 +437,7 @@ def get_site_detail(request_data):
 
         # update rollsite info：
         if site.vip_entrances_new:
-            update_all_rollsite_info(site.exchange_name_new, site.vip_entrances_new,
-                                     site.rollsite_network_access, site.party_id)
-
+            update_all_rollsite_info(site.vip_entrances_new, site.rollsite_network_access, site.party_id)
     else:
         if site.exchange_read_status == 1:
             add_info = {
@@ -492,7 +484,7 @@ def update_site(request_data):
     change_log_info = {
         "party_id": request_data.get("partyId"),
         "network_access_entrances": request_data.get("networkAccessEntrances"),
-        "network_access_exits": request_data.get("networkAccessExits"),
+        "rollsite_network_access_exits": request_data.get("networkAccessExits"),
         "status": LogDealType.NO,
         "federated_id": request_data.get("federatedId"),
         "federated_organization": request_data.get("federatedOrganization"),
@@ -699,16 +691,21 @@ def check_rollsite_url(UpdateRollSiteInfo):
     return connect_result
 
 
-def update_all_rollsite_info(exchange_name,exchange_ip, rollsite_network_access, party_id):
+def update_all_rollsite_info(exchange_address, rollsite_network_access, party_id, is_secure=False, is_polling=False):
     rollsite_network_access = rollsite_network_access.split(';')[:-1]
-    exchange_ip = exchange_ip.split(':')[0]
-    exchange_port = exchange_ip.split(':')[1]
+    exchange_ip = exchange_address.split(':')[0]
+    exchange_port = exchange_address.split(':')[1]
     for rollsite in rollsite_network_access:
         rollsite_ip = rollsite.split(':')[0]
         rollsite_port = rollsite.split(':')[1]
-        site_route = {exchange_name: {'default': [{'port': exchange_port, 'ip': exchange_ip}]}}
+        site_route = {'9999': {'default': [{'port': int(exchange_port), 'ip': exchange_ip, 'is_secure': is_secure,
+                                            "is_polling": is_polling}]}}
         logger.info(f"write rollsite info:ip {rollsite_ip}, port {rollsite_port},key {ROLL_SITE_KEY}, route: {site_route}")
-        ret = write_site_route(rollsite_ip, rollsite_port, ROLL_SITE_KEY, site_route, party_id)
+        try:
+            ret = write_site_route(rollsite_ip, rollsite_port, ROLL_SITE_KEY, site_route, party_id)
+        except Exception as e:
+            logger.exception(e)
+            raise Exception(f"failed to add routing table")
 
 
 

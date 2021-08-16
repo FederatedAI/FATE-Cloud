@@ -40,7 +40,7 @@ IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
 
-ROLL_SITE_KEY = "rollsite"
+ROLL_SITE_KEY = "fate"
 
 FATE_FLOW_SETTINGS = {
     "QueryJob": "/v1/job/query",

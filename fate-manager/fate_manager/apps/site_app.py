@@ -20,12 +20,13 @@ def internal_server_error(e):
 def register_site():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['appKey', 'appSecret', 'federatedOrganization',
-                                                                        'id', 'institutions','networkAccessEntrances',
-                                                                       'networkAccessExits','partyId',
-                                                                       'registrationLink', 'role','siteName',
-                                                                       'rollSiteNetworkAccess'])
-    token = request.headers.get("token")
-    data = site_service.register_fate_site(request_data, token)
+                                                                       'id', 'institutions','networkAccessEntrances',
+                                                                       'rollSiteNetworkAccessExits','partyId',
+                                                                       'rollSiteNetworkAccess', 'registrationLink',
+                                                                       'role','siteName', 'rollSiteNetworkAccess',
+                                                                       'pollingStatus', 'secureStatus', 'network',
+                                                                       'rollSiteNetworkAccessExitsList'])
+    data = site_service.register_fate_site(request_data)
     return get_json_result(data=data)
 
 

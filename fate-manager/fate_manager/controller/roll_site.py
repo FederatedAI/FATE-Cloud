@@ -4,16 +4,18 @@ import time
 
 import grpc
 
-from fate_manager.settings import DEFAULT_GRPC_TIMEOUT
+from fate_manager.settings import DEFAULT_GRPC_TIMEOUT, site_service_logger
 from fate_manager.utils.base_utils import json_loads
 from fate_manager.protobuf import proxy_pb2, proxy_pb2_grpc
 
 
 def write_site_route(roll_site_ip, roll_site_port, roll_site_key, site_route, party_id,
                      overall_timeout=DEFAULT_GRPC_TIMEOUT):
+    site_service_logger.info(f"get route table")
     route_table = roll_site_actuator(roll_site_ip, roll_site_port, roll_site_key, "", party_id,
                                      operator="get_route_table", overall_timeout=overall_timeout)
     route_table["route_table"].update(site_route)
+    site_service_logger.info(f"set route table")
     roll_site_actuator(roll_site_ip, roll_site_port, roll_site_key, route_table, party_id, "set_route_table",
                        overall_timeout=DEFAULT_GRPC_TIMEOUT)
 
@@ -24,6 +26,7 @@ def roll_site_actuator(roll_site_ip, roll_site_port, roll_site_key, content, par
     channel, stub = get_command_federation_channel(roll_site_ip, roll_site_port)
     _return, _call = stub.unaryCall.with_call(_packet, timeout=(overall_timeout/1000))
     channel.close()
+    site_service_logger.info(_return.body.value)
     if operator == "get_route_table":
         json_body = json_loads(_return.body.value)
         return json_body

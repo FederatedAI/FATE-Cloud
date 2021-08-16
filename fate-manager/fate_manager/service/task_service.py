@@ -53,8 +53,8 @@ def get_change_log_task():
                 "update_time": current_timestamp()
             }
             if resp.get("status") == LogDealType.AGREED:
-                if change_log.network_access_exits:
-                    site_info["network_access_exits"] = change_log.network_access_exits
+                if change_log.rollsite_network_access_exits:
+                    site_info["network_access_exits"] = change_log.rollsite_network_access_exits
                 if change_log.network_access_entrances:
                     site_info["network_access_entrances"] = change_log.network_access_entrances
             logger.info(f"start update site info: {site_info}")

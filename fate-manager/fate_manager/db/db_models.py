@@ -161,7 +161,8 @@ class ChangeLog(DataBaseModel):
     federated_organization = CharField(max_length=128, null=True, help_text='Federated Organization')
     party_id = IntegerField(null=True, help_text='party id')
     network_access_entrances = CharField(max_length=256, null=True, help_text='network access entrances')
-    network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
+    # network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
+    rollsite_network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
     status = SmallIntegerField(default=0, help_text='user status 0 unvalid，1 valid')
 
     class Meta:
@@ -409,19 +410,21 @@ class FateSiteInfo(DataBaseModel):
     app_secret = CharField(max_length=64, null=True, help_text='Federation secret')
     registration_link = TextField(help_text='registration link')
 
-    # old site network conf
-    network_access_entrances = CharField(null=True, help_text='network access entrances')
-    network_access_exits = CharField(null=True, help_text='network access exits')
-
-    # old exchange conf
+    # exchange
     exchange_name = CharField(null=True, help_text='exchange name')
     vip_entrances = CharField(null=True, help_text='vip entrances')
-    exchange_network_access_exits = CharField(null=True, help_text='exchange network access exits')
     exchange_network_access = CharField(null=True, help_text='exchange network access exits')
-    # rollsite conf
-    rollsite_network_access = CharField(null=True, help_text='rollsite Network Access')
+    exchange_network_access_exits = CharField(null=True, help_text='exchange network access exits')
 
-    # new site network conf
+    # roll site
+    network_access_entrances = CharField(null=True, help_text='network access entrances')
+    network_access_exits = CharField(null=True, help_text='network access exits')
+    rollsite_network_access = CharField(null=True, help_text='rollsite Network Access')
+    rollsite_network_access_exits = CharField(null=True, help_text='rollsite Network Access')
+
+    polling_status = SmallIntegerField(default=1, help_text='edit status,-1 unkonwn,1 unedit,2 edit')
+    secure_status = SmallIntegerField(default=1, help_text='edit status,-1 unkonwn,1 unedit,2 edit')
+
     network_access_entrances_new = CharField(null=True, help_text='network access entrances')
     network_access_exits_new = CharField(null=True, help_text='network access exits')
 
