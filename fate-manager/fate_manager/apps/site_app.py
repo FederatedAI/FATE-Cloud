@@ -20,12 +20,15 @@ def internal_server_error(e):
 def register_site():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['appKey', 'appSecret', 'federatedOrganization',
-                                                                       'id', 'institutions','networkAccessEntrances',
-                                                                       'rollSiteNetworkAccessExits','partyId',
-                                                                       'rollSiteNetworkAccess', 'registrationLink',
-                                                                       'role','siteName', 'rollSiteNetworkAccess',
-                                                                       'pollingStatus', 'secureStatus', 'network',
-                                                                       'rollSiteNetworkAccessExitsList'])
+                                                                       'id', 'institutions','partyId',
+                                                                       'registrationLink','role','siteName',
+                                                                        'networkAccessEntrances',
+                                                                       'fmRollSiteNetworkEntrances',
+                                                                       'fmRollSiteNetworkAccessExitsList',
+                                                                        'pollingStatus', 'secureStatus',
+                                                                        'vipEntrance', 'exchangeName',
+                                                                       'cmRollSiteNetworkAccessExitsList'])
+
     data = site_service.register_fate_site(request_data)
     return get_json_result(data=data)
 
@@ -35,6 +38,7 @@ def check_url():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['link'])
     data = site_service.check_register_url(request_data)
+    site_service.check_exists_site(data)
     return get_json_result(data=data)
 
 
@@ -64,7 +68,6 @@ def function():
 def fate_manager():
     allow_institutions_list = site_service.get_fate_manager_list()
     return get_json_result(data={"institutions": allow_institutions_list, "size": len(allow_institutions_list)})
-
 
 
 @manager.route('/other', methods=['post'])
@@ -124,18 +127,17 @@ def site_info():
 def update_site():
     request_data = request.json
     UpdateFateFlowInfo = request_data.get('UpdateFateFlowInfo', None)
-    UpdateRollSiteInfo = request_data.get('UpdateRollSiteInfo', None)
-    if UpdateFateFlowInfo or UpdateRollSiteInfo:
-        data = site_service.update_version_or_rollsite(request_data)
-        return get_json_result(data=data)
+    if UpdateFateFlowInfo:
+        data = site_service.update_version(request_data)
+        return get_json_result(retmsg=data.get('msg'))
     else:
         detect_utils.check_config(config=request_data, required_arguments=["federatedOrganization", "role", "appKey",
                                                                            "appSecret", "networkAccessEntrances",
-                                                                           "networkAccessExits", "federatedId",
-                                                                           "partyId"])
+                                                                           "networkAccessExits","pollingStatus",
+                                                                           "secureStatus","federatedId","partyId"])
 
-        site_service.update_site(request_data)
-        return get_json_result()
+        data = site_service.update_site(request_data)
+        return get_json_result(data)
 
 
 @manager.route('/telnet', methods=['post'])

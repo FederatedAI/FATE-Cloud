@@ -4,13 +4,15 @@ from fate_manager.entity.status_code import SiteStatusCode
 from fate_manager.utils.base_utils import current_timestamp
 from fate_manager.db.db_models import FederatedInfo, ChangeLog, FateSiteInfo, DeploySite, DeployComponent,FateUserInfo
 from fate_manager.entity import item
-from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, DeployStatus, \
+from fate_manager.entity.types import LogDealType, EditType, SiteStatusType, SiteRunStatusType, PollingSecureType, \
     IsValidType, ToyTestOnlyType, DeployType, ProductType
 from fate_manager.operation.db_operator import JointOperator, SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import stat_logger as logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
 from fate_manager.settings import site_service_logger as logger
+from fate_manager.service.site_service import update_all_rollsite_info
+
 
 
 def get_change_log_task():
@@ -45,7 +47,7 @@ def get_change_log_task():
             logger.info(f"start update change log: {change_log_info}")
             DBOperator.update_entity(ChangeLog, change_log_info)
 
-            site_info = {
+            add_info = {
                 "party_id": change_log.party_id,
                 "federated_id": change_log.federated_id,
                 "edit_status": EditType.YES,
@@ -54,12 +56,31 @@ def get_change_log_task():
             }
             if resp.get("status") == LogDealType.AGREED:
                 if change_log.rollsite_network_access_exits:
-                    site_info["network_access_exits"] = change_log.rollsite_network_access_exits
+                    add_info["fm_rollsite_exits_list"] = change_log.rollsite_network_access_exits
                 if change_log.network_access_entrances:
-                    site_info["network_access_entrances"] = change_log.network_access_entrances
-            logger.info(f"start update site info: {site_info}")
-            DBOperator.update_entity(FateSiteInfo, site_info)
+                    add_info["network_access_entrances"] = change_log.network_access_entrances
+                if change_log.network_access_entrances:
+                    add_info["polling_status"] = change_log.polling_status
+                if change_log.network_access_entrances:
+                    add_info["secure_status"] = change_log.secure_status
+
+                if site_info.fm_rollsite_network_entrances_new:
+                    add_info["fm_rollsite_network_entrances"] = site_info.fm_rollsite_network_entrances_new
+                    add_info["fm_rollsite_network_entrances_new"] = ""
+
+            logger.info(f"start update site info: {add_info}")
+            DBOperator.update_entity(FateSiteInfo, add_info)
             logger.info("update site info success")
+            try:
+                site = DBOperator.query_entity(FateSiteInfo, federated_id=change_log.federated_id,
+                                               party_id=change_log.party_id)[0]
+                update_all_rollsite_info(site.vip_entrances,
+                                         site.fm_rollsite_network_entrances,
+                                         change_log.party_id,
+                                         is_secure=PollingSecureType.to_bool(site.secure_status),
+                                         is_polling=PollingSecureType.to_bool(site.polling_status))
+            except Exception as e:
+                logger.info('update_all_rollsite_info faild' + str(e))
 
 
 def heart_task():
@@ -124,23 +145,27 @@ def apply_exchange_task():
         federated_id = institution.federated_id
         for site in resp:
             partyId = site.get("partyId")
-            exchange_name_new = site.get("exchangeName")
-            vip_entrances_new = site.get("vipEntrance")
-            network_access_entrances_new = site.get("networkAccessEntrances")
-            network_access_exits_new = site.get("networkAccessExits")
             site_info = {
                 "party_id": partyId,
                 "federated_id": federated_id,
                 "exchange_read_status": 1,
             }
+            exchange_name_new = site.get("exchangeName")
+            vip_entrances_new = site.get("vipEntrance")
+            polling_status_new = site.get("pollingStatus")
+            secure_status_new = site.get("secureStatus")
+            network_access_entrances_new = site.get("networkAccessEntrances")
+
             if exchange_name_new:
                 site_info.update({"exchange_name_new": exchange_name_new})
             if vip_entrances_new:
                 site_info.update({"vip_entrances_new": vip_entrances_new})
+            if polling_status_new:
+                site_info.update({"polling_status_new": polling_status_new})
+            if secure_status_new:
+                site_info.update({"secure_status_new": secure_status_new})
             if network_access_entrances_new:
                 site_info.update({"network_access_entrances_new": network_access_entrances_new})
-            if network_access_exits_new:
-                site_info.update({"network_access_exits_new": network_access_exits_new})
             DBOperator.safe_save(FateSiteInfo, site_info)
             logger.info(f"update site exchange info {partyId} success")
     logger.info(f"update table {FateSiteInfo}  exchange info success")

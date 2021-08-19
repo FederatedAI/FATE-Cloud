@@ -82,12 +82,12 @@ class SignatureHead:
         head = {}
         head["TIMESTAMP"] = str(int(time.time() * 1000))
         head["FATE_MANAGER_USER_ID"] = str(data.get("fateManagerId"))
-        head["FATE_MANAGER_USER_NAME"] = str(data.get("institutionName"))
+        # head["FATE_MANAGER_USER_NAME"] = str(data.get("institutionName"))
         head["NONCE"] = uuid.uuid1().hex
         if body == '{}':
             body = ""
-        sign_str = '{}\n{}\n{}\n{}\n{}\n{}'.format(head["TIMESTAMP"], head["FATE_MANAGER_USER_ID"],
-                                                   head["FATE_MANAGER_USER_NAME"], head["NONCE"], uri, body)
+        sign_str = '{}\n{}\n{}\n{}\n{}'.format(head["TIMESTAMP"], head["FATE_MANAGER_USER_ID"],
+                                                   head["NONCE"], uri, body)
         key = data.get("fateManagerId")
         sign = hash_hmac(key, sign_str)
         head["SIGNATURE"] = sign

@@ -45,5 +45,13 @@ class InstitutionStatusCode:
     Institution_Not_Allow_Activate = 30001
 
 
+class FateFlowInfoStatusCode:
+    FateFlow_Connect_Fail = 30001
+
+
+class RollsiteInfoStatusCode:
+    Write_RollSite_Fail = 30001
+
+
 
 

@@ -21,6 +21,11 @@ def fate_manager_activate(link, user_name):
     users = DBOperator.query_entity(FateUserInfo, user_name=user_name)
     if not users:
         raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
+
+    accounts = DBOperator.query_entity(AccountInfo, role=UserRole.ADMIN)
+    if accounts:
+        raise Exception(UserStatusCode.NoFoundAccount, f"activate failed: fate manager has been activated")
+
     institution = DBOperator.query_entity(FateSiteInfo, institutions=institutions)
     if institution:
         raise Exception(InstitutionStatusCode.Institution_Not_Allow_Activate,
