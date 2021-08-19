@@ -73,8 +73,14 @@ public class IpManagerListDto implements Serializable {
     @ApiModelProperty(value = "secure status")
     private Integer secureStatus;
 
+    @ApiModelProperty(value = "secure status new")
+    private Integer secureStatusNew;
+
     @ApiModelProperty(value = "polling status")
     private Integer pollingStatus;
+
+    @ApiModelProperty(value = "polling status new")
+    private Integer pollingStatusNew;
 
     @ApiModelProperty(value = "update time")
     private Long updateTime;

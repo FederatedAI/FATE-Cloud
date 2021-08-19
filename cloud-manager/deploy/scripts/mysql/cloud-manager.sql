@@ -21,6 +21,7 @@ create TABLE IF NOT EXISTS `t_federated_site_manager` (
   `network` varchar(256) not null COMMENT 'network of cloud manager',
   `encrypt_type` tinyint(4) not null COMMENT 'encrypt type of cloud manager: 1 yes, 2 no',
   `group_id` bigint(20) NOT NULL COMMENT 'group id',
+  `exchange_id` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'exchange id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE='utf8_general_ci' COMMENT='Federated SITE Manager';
 
@@ -107,8 +108,8 @@ create table IF NOT EXISTS `t_federated_site_authority`(
   `authority_id` bigint(20) NOT NULL auto_increment COMMENT 'authority id',
   `institutions` varchar(128) DEFAULT NULL COMMENT 'institution name',
   `authority_institutions` varchar(128) DEFAULT NULL COMMENT 'accessible institutions',
-  `create_time` timestamp NOT NULL  COMMENT 'Create Time',
-  `update_time` timestamp NOT NULL  COMMENT 'Update Time',
+  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+  `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update Time',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'authority status 1:pending, 2:approve, 3:reject, 4:cancel',
   `generation` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'the generation to work 1:current, 2:old',
   `sequence` bigint(20) NOT NULL  COMMENT 'authority apply sequence',

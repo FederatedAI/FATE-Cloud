@@ -3,22 +3,22 @@
 <mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.RollSiteMapper">
 
     <resultMap id="rollSiteMap" type="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
-        <id property="rollSiteId" column="roll_site_id"></id>
-        <result property="networkAccess" column="network_access"></result>
-        <result property="networkAccessExit" column="network_access_exit"></result>
-        <result property="createTime" column="create_time"></result>
-        <result property="updateTime" column="update_time"></result>
-        <result property="exchangeId" column="exchange_id"></result>
+        <id property="rollSiteId" column="roll_site_id"/>
+        <result property="networkAccess" column="network_access"/>
+        <result property="networkAccessExit" column="network_access_exit"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="exchangeId" column="exchange_id"/>
 
         <collection property="partyDos"
                     ofType="com.webank.ai.fatecloud.system.dao.entity.PartyDo"
                     javaType="java.util.List">
-            <id property="id" column="id"></id>
-            <result property="partyId" column="party_id"></result>
-            <result property="networkAccess" column="party_network_access"></result>
-            <result property="status" column="status"></result>
-            <result property="createTime" column="create_time"></result>
-            <result property="updateTime" column="update_time"></result>
+            <id property="id" column="id"/>
+            <result property="partyId" column="party_id"/>
+            <result property="networkAccess" column="party_network_access"/>
+            <result property="status" column="status"/>
+            <result property="createTime" column="party_create_time"/>
+            <result property="updateTime" column="party_update_time"/>
         </collection>
     </resultMap>
 
@@ -29,13 +29,13 @@
 
     <select id="findRollSitePage"
             resultMap="rollSiteMap">
-        select a.*,b.id,b.party_id,b.network_access party_network_access,b.status,b.create_time,b.update_time
+        select a.*,b.id,b.party_id,b.network_access party_network_access,b.status,b.create_time party_create_time,b.update_time party_update_time
         from (select * FROM t_roll_site
-                where exchange_id= #{rollSitePageQo.exchangeId}
-                order by update_time desc
-                limit #{startIndex}, #{rollSitePageQo.pageSize}) a,
-        t_party b, t_roll_site_party rsp
-        WHERE a.roll_site_id = rsp.roll_site_id AND b.party_id = rsp.party_id
+        where exchange_id = #{rollSitePageQo.exchangeId}
+        order by update_time desc
+        limit #{startIndex}, #{rollSitePageQo.pageSize}) a
+        LEFT JOIN t_roll_site_party rsp ON a.roll_site_id = rsp.roll_site_id
+        LEFT JOIN t_party b ON b.party_id = rsp.party_id
 
     </select>
 

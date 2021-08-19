@@ -24,6 +24,7 @@
         <result property="network" column="network"></result>
         <result property="encryptType" column="encrypt_type"></result>
         <result property="groupId" column="group_id"></result>
+        <result property="exchangeId" column="exchange_id"/>
         <association property="federatedGroupSetDo"
                      javaType="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo">
             <id property="groupId" column="group_id"></id>
@@ -200,7 +201,7 @@
 
     <select id="findInstitutionsByStatus" resultType="com.webank.ai.fatecloud.system.pojo.dto.InstitutionsDto">
 
-        SELECT fm.institutions,sm.count AS number FROM
+        SELECT fm.institutions,sm.count AS number,sm.total AS total FROM
 
         <if test="institutionQo.condition != null">
             (SELECT institutions
@@ -212,9 +213,8 @@
 
         t_fate_manager_user AS fm
         LEFT JOIN (
-        SELECT institutions, COUNT(1) AS count
+        SELECT institutions, COUNT(1) AS total, COUNT(case when STATUS = 2 then 0 ELSE null END) AS count
         FROM `t_federated_site_manager`
-        WHERE `status` = 2
         GROUP BY institutions
         ) sm
         ON fm.institutions = sm.institutions

@@ -255,7 +255,7 @@ public class FederatedFateManagerUserService {
 
         }
 
-        federatedCloudManagerUserDoQueryWrapper.in("status", 1, 2);
+        federatedCloudManagerUserDoQueryWrapper.in("status", 1, 2, 3);
         Integer count = federatedFateManagerUserMapper.selectCount(federatedCloudManagerUserDoQueryWrapper);
         PageBean<FederatedFateManagerUserDo> userListBean = new PageBean<>(fateManagerUserPagedQo.getPageNum(), fateManagerUserPagedQo.getPageSize(), count);
         long startIndex = userListBean.getStartIndex();
@@ -264,7 +264,12 @@ public class FederatedFateManagerUserService {
 
         // is it possible to reactivate
         for (FederatedFateManagerUserDo federatedFateManagerUserDo : pagedCloudUser) {
-            if (federatedFateManagerUserDo.getStatus() != null && federatedFateManagerUserDo.getStatus() == 2) {
+            if (federatedFateManagerUserDo.getStatus() != null && federatedFateManagerUserDo.getStatus() != 1) {
+                if (federatedFateManagerUserDo.getStatus() == 3){
+                    federatedFateManagerUserDo.setStatus(20);
+                    continue;
+                }
+
                 QueryWrapper<FederatedSiteManagerDo> siteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>()
                         .eq("institutions", federatedFateManagerUserDo.getInstitutions());
                 Integer integer = federatedSiteManagerMapper.selectCount(siteManagerDoQueryWrapper);

@@ -24,7 +24,6 @@ import com.webank.ai.fatecloud.common.*;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.exception.LogicException;
 import com.webank.ai.fatecloud.common.util.KeyAndSecretGenerate;
-import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.*;
 import com.webank.ai.fatecloud.system.dao.mapper.*;
@@ -43,6 +42,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -74,6 +74,16 @@ public class FederatedSiteManagerService {
 
     @Autowired
     FederatedExchangeService federatedExchangeService;
+
+    @Autowired
+    FederatedIpManagerMapper federatedIpManagerMapper;
+
+    @Autowired
+    FederatedFateSiteMonitorMapper federatedFateSiteMonitorMapper;
+
+    @Autowired
+    FateSiteDetailMapper fateSiteDetailMapper;
+
 
     @Value(value = "${cloud-manager.ip}")
     String ip;
@@ -169,29 +179,9 @@ public class FederatedSiteManagerService {
         FederatedGroupSetDo federatedGroupSetDoUpdate = new FederatedGroupSetDo();
         federatedGroupSetDoUpdate.setUsed(used);
         QueryWrapper<FederatedGroupSetDo> ew = new QueryWrapper<>();
-        ew.eq("group_id", groupId).ge("total", used);
+        ew.eq("group_id", groupId).lt("used", federatedGroupSetDo.getTotal());
         int update = federatedGroupSetMapper.update(federatedGroupSetDoUpdate, ew);
         if (update != 1) LogicException.throwInstance(ReturnCodeEnum.GROUP_DELETE_ERROR);
-
-        // add or update roll site.
-        PartyDetailsDto partyDetails = partyMapper.selectPartyDetails(siteAddQo.getPartyId());
-        PartyDo partyDo;
-        if (partyDetails == null) {
-            partyDo = new PartyDo();
-            partyDo.setStatus(0);
-            partyDo.setPartyId(siteAddQo.getPartyId() + "");
-            partyMapper.insert(partyDo);
-        } else {
-            if (partyDetails.getExchangeId() != null && !siteAddQo.getExchangeId().equals(partyDetails.getExchangeId())) {
-                LogicException.throwInstance(ReturnCodeEnum.SITE_PARTY_EXCHANGE_BIND_ERROR, partyDetails.getExchangeName());
-            }
-
-            partyDo = new PartyDo(partyDetails);
-            partyDo.setStatus(0);
-            partyDo.setUpdateTime(new Date());
-            partyMapper.updateById(partyDo);
-        }
-        federatedExchangeService.addToExchangeRollSite(partyDetails, partyDo.getPartyId(), siteAddQo.getExchangeId());
 
         return federatedSiteManagerDo.getId();
     }
@@ -200,6 +190,20 @@ public class FederatedSiteManagerService {
         FederatedSiteManagerDo site = federatedSiteManagerMapper.findSite(id);
         if (site != null) {
             PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId());
+            if (partyDetailsDto == null){
+                partyDetailsDto = new PartyDetailsDto();
+
+                // add exchange info
+                FederatedExchangeDo federatedExchangeDo = federatedExchangeService.findExchangeById(site.getExchangeId());
+                if (federatedExchangeDo != null) {
+                    partyDetailsDto.setVipEntrance(federatedExchangeDo.getVipEntrance());
+                    partyDetailsDto.setExchangeId(federatedExchangeDo.getExchangeId());
+                    partyDetailsDto.setExchangeName(federatedExchangeDo.getExchangeName());
+                }
+
+                // add roll site
+                partyDetailsDto.setRollSiteDoList(federatedExchangeService.findRollSiteByExchangeId(site.getExchangeId()));
+            }
             return new SiteDetailDto(site, partyDetailsDto);
         }
         return null;
@@ -227,19 +231,24 @@ public class FederatedSiteManagerService {
 
     @Transactional
     public void deleteSite(Long id) {
+        // delete party route table
+        FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectById(id);
+        if (federatedSiteManagerDo == null) return;
+        PartyDo partyDo = new PartyDo();
+        partyDo.setPartyId(federatedSiteManagerDo.getPartyId() + "");
+        federatedExchangeService.deleteParty(partyDo);
+
         //delete site
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
-        ew.eq("id", id);
-        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
-        federatedSiteManagerDo.setStatus(3);
-        federatedSiteManagerDo.setDetectiveStatus(1);
-        int update = federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
+        ew.eq("id", id).in("status", 1, 2);
+        FederatedSiteManagerDo updateFederatedSiteManagerDo = new FederatedSiteManagerDo();
+        updateFederatedSiteManagerDo.setStatus(3);
+        updateFederatedSiteManagerDo.setDetectiveStatus(1);
+        int update = federatedSiteManagerMapper.update(updateFederatedSiteManagerDo, ew);
         if (update < 1) return;
 
         //update group set
-        federatedSiteManagerDo = federatedSiteManagerMapper.selectById(id);
         Long groupId = federatedSiteManagerDo.getGroupId();
-
         FederatedGroupSetDo federatedGroupSetDo = federatedGroupSetMapper.selectById(groupId);
         Long used = federatedGroupSetDo.getUsed();
         FederatedGroupSetDo federatedGroupSetDoForUpdate = new FederatedGroupSetDo();
@@ -249,10 +258,8 @@ public class FederatedSiteManagerService {
         update = federatedGroupSetMapper.update(federatedGroupSetDoForUpdate, ewForUpdate);
         if (update != 1) LogicException.throwInstance(ReturnCodeEnum.GROUP_DELETE_ERROR);
 
-        // delete party route table
-        PartyDo partyDo = new PartyDo();
-        partyDo.setPartyId(federatedSiteManagerDo.getPartyId() + "");
-        federatedExchangeService.deleteParty(partyDo);
+        // clear party old history
+        clearPartyHistory(federatedSiteManagerDo.getPartyId());
     }
 
     @Transactional
@@ -303,16 +310,6 @@ public class FederatedSiteManagerService {
 
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
-        //update group joined used field
-        QueryWrapper<FederatedGroupSetDo> newGroupQWForAdd = new QueryWrapper<>();
-        newGroupQWForAdd.eq("group_id", siteUpdateQo.getGroupId());
-        FederatedGroupSetDo groupDoForAdd = federatedGroupSetMapper.selectOne(newGroupQWForAdd);
-
-        FederatedGroupSetDo federatedGroupSetDo = new FederatedGroupSetDo();
-        federatedGroupSetDo.setUsed(groupDoForAdd.getUsed() + 1);
-        newGroupQWForAdd.ge("total", federatedGroupSetDo.getUsed());
-        int update = federatedGroupSetMapper.update(federatedGroupSetDo, newGroupQWForAdd);
-
         //update group removed used field
         QueryWrapper<FederatedGroupSetDo> newGroupQWForRemove = new QueryWrapper<>();
         newGroupQWForRemove.eq("group_id", originGroupId);
@@ -321,25 +318,19 @@ public class FederatedSiteManagerService {
         FederatedGroupSetDo federatedGroupSetDoForRemove = new FederatedGroupSetDo();
         federatedGroupSetDoForRemove.setUsed(groupDoForRemove.getUsed() - 1);
         newGroupQWForRemove.gt("used", 0);
-        update += federatedGroupSetMapper.update(federatedGroupSetDoForRemove, newGroupQWForRemove);
+        int update = federatedGroupSetMapper.update(federatedGroupSetDoForRemove, newGroupQWForRemove);
+
+        //update group joined used field
+        QueryWrapper<FederatedGroupSetDo> newGroupQWForAdd = new QueryWrapper<>();
+        newGroupQWForAdd.eq("group_id", siteUpdateQo.getGroupId());
+        FederatedGroupSetDo groupDoForAdd = federatedGroupSetMapper.selectOne(newGroupQWForAdd);
+
+        FederatedGroupSetDo federatedGroupSetDo = new FederatedGroupSetDo();
+        federatedGroupSetDo.setUsed(groupDoForAdd.getUsed() + 1);
+        newGroupQWForAdd.lt("used", groupDoForAdd.getTotal());
+        update += federatedGroupSetMapper.update(federatedGroupSetDo, newGroupQWForAdd);
         if (update != 2) LogicException.throwInstance(ReturnCodeEnum.GROUP_DELETE_ERROR);
 
-        // update roll site
-        PartyDetailsDto partyDetails = partyMapper.selectPartyDetails(siteUpdateQo.getPartyId());
-        if (partyDetails != null) {
-            if (ObjectUtil.isEmpty(partyDetails.getNetworkAccess())) {
-                PartyDo partyDo = new PartyDo(partyDetails);
-                partyDo.setStatus(0);
-                partyDo.setUpdateTime(new Date());
-                partyDo.setPartyId(siteUpdateQo.getPartyId() + "");
-                partyMapper.updateById(partyDo);
-                federatedExchangeService.addToExchangeRollSite(partyDetails, partyDo.getPartyId(), siteUpdateQo.getExchangeId());
-            } else {
-                if (!siteUpdateQo.getExchangeId().equals(partyDetails.getExchangeId())) {
-                    LogicException.throwInstance(ReturnCodeEnum.SITE_PARTY_EXCHANGE_BIND_ERROR, partyDetails.getExchangeName());
-                }
-            }
-        }
     }
 
     public void activateSite(Long partyId, HttpServletRequest httpServletRequest) {
@@ -358,7 +349,7 @@ public class FederatedSiteManagerService {
         }
         federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
-        //update job statistics table todo
+        //update job statistics table
 //        QueryWrapper<FederatedSiteManagerDo> ewForSite = new QueryWrapper<>();
 //        ewForSite.eq("party_id", partyId).in("status", 2);
 //        List<FederatedSiteManagerDo> federatedSiteManagerDos = federatedSiteManagerMapper.selectList(ewForSite);
@@ -386,16 +377,18 @@ public class FederatedSiteManagerService {
     }
 
     public SiteDetailDto querySiteActivateDetails(long partyId) {
+        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
+        ew.eq("status", 1).eq("party_id", partyId);
+        FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectOne(ew);
+        SiteDetailDto siteDetailDto = findSite(federatedSiteManagerDo.getId());
+
+        // add organization info
         QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
         query.eq("status", 1);
         FederatedOrganizationDo federatedOrganizationDo = federatedOrganizationMapper.selectOne(query);
-
-        QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
-        ew.select("id").eq("status", 1).eq("party_id", partyId);
-        FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.selectOne(ew);
-        SiteDetailDto siteDetailDto = findSite(federatedSiteManagerDo.getId());
         siteDetailDto.setFederatedOrganizationId(federatedOrganizationDo.getId());
         siteDetailDto.setFederatedOrganization(federatedOrganizationDo.getName());
+
         return siteDetailDto;
     }
 
@@ -403,7 +396,10 @@ public class FederatedSiteManagerService {
     public void shortLinkActivateSite(SiteActivateShortQo siteActivateShortQo, long partyId, HttpServletRequest httpServletRequest) {
         QueryWrapper<FederatedSiteManagerDo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("party_id", partyId).in("status", 1, 2);
-        FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
+        List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(queryWrapper);
+        if (federatedSiteManagerDoList.size() != 1) LogicException.throwInstance(ReturnCodeEnum.PARTYID_UPDATE__ERROR);
+
+        FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerDoList.get(0);
         Date date = new Date();
         federatedSiteManagerDo.setStatus(2);
         federatedSiteManagerDo.setActivationTime(date);
@@ -416,17 +412,23 @@ public class FederatedSiteManagerService {
             federatedSiteManagerDo.setDetectiveStatus(2);
             federatedSiteManagerDo.setLastDetectiveTime(date);
         }
-        federatedSiteManagerMapper.update(federatedSiteManagerDo, queryWrapper);
+        federatedSiteManagerMapper.updateById(federatedSiteManagerDo);
 
         // add party scrolling sites to all scrolling sites under the exchange
-        boolean result = federatedExchangeService.updatePartyInfoAndRollSite(siteActivateShortQo.getRollSiteNetworkAccess(), partyId);
-        if (!result) {
-            throw new RuntimeException();
-        }
+        PartyDo partyDo = new PartyDo();
+        partyDo.setPartyId(partyId + "");
+        partyDo.setSecureStatus(siteActivateShortQo.getSecureStatus());
+        partyDo.setPollingStatus(siteActivateShortQo.getPollingStatus());
+        partyDo.setNetworkAccess(siteActivateShortQo.getNetworkAccessEntrances());
+        federatedExchangeService.syncPartyToExchangeRollSite(partyDo, federatedSiteManagerDo.getExchangeId());
     }
 
     @Transactional
     public boolean reactivateSite(SiteUpdateQo siteUpdateQo) {
+        if (!federatedExchangeService.resetParty(siteUpdateQo.getPartyId())) {
+            return false;
+        }
+
         QueryWrapper<FederatedSiteManagerDo> ew = new QueryWrapper<>();
         ew.eq("id", siteUpdateQo.getId()).eq("party_id", siteUpdateQo.getPartyId()).eq("status", 2);
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
@@ -435,11 +437,19 @@ public class FederatedSiteManagerService {
         federatedSiteManagerDo.setActivationTime(date);
         int update = federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
-        if (update == 1) {
-            return federatedExchangeService.resetParty(siteUpdateQo.getPartyId());
-        }
+        // clear history
+        clearPartyHistory(siteUpdateQo.getPartyId());
+        return update == 1;
+    }
 
-        return false;
+    private void clearPartyHistory(Long partyId) {
+        String party_id = "party_id";
+        // clear ip manage update history
+        federatedIpManagerMapper.delete(new QueryWrapper<FederatedIpManagerDo>().eq(party_id, partyId));
+
+        // clear old job
+        //fateSiteDetailMapper.delete(new QueryWrapper<FateSiteJobDetailDo>().eq("detail_party_id", partyId));
+        //federatedFateSiteMonitorMapper.delete(new QueryWrapper<FateSiteJobDo>().eq(party_id, partyId));
     }
 
     public int checkPartyId(SitePartyIdCheckQo sitePartyIdCheckQo) {
@@ -717,7 +727,10 @@ public class FederatedSiteManagerService {
 
         // get paged institutions and their numbers
         List<InstitutionsDto> institutions = federatedSiteManagerMapper.findInstitutionsByStatus(institutionQo, startIndex);
-        institutionsDtoPageBean.setList(institutions);
+        List<InstitutionsDto> dtoList = institutions.stream()
+                .filter(institutionsDto -> institutionsDto.getNumber() != null && institutionsDto.getTotal() > 0)
+                .collect(Collectors.toList());
+        institutionsDtoPageBean.setList(dtoList);
 
         return institutionsDtoPageBean;
 
@@ -879,9 +892,11 @@ public class FederatedSiteManagerService {
         Date updateTime = new Date();
         String institution = institutionStateQo.getInstitution();
 
-        // 1.update the information related to institution authorization
-        QueryWrapper<FederatedSiteAuthorityDo> saw = new QueryWrapper<FederatedSiteAuthorityDo>().eq("institutions", institution)
-                .eq("generation", 1).in("status", 1, 2);
+        // 1.update the information related to institution authorization todo 两边都行
+        QueryWrapper<FederatedSiteAuthorityDo> saw = new QueryWrapper<FederatedSiteAuthorityDo>()
+                .eq("generation", 1)
+                .in("status", 1, 2)
+                .and(q -> q.eq("institutions", institution).or().eq("authority_institutions", institution));
         List<FederatedSiteAuthorityDo> federatedSiteAuthorityDoList = federatedSiteAuthorityMapper.selectList(saw);
         for (FederatedSiteAuthorityDo federatedSiteAuthorityDo : federatedSiteAuthorityDoList) {
             federatedSiteAuthorityDo.setUpdateTime(updateTime);
@@ -893,6 +908,7 @@ public class FederatedSiteManagerService {
 
         // update old generation = 2
         FederatedSiteAuthorityDo federatedSiteAuthorityDo = new FederatedSiteAuthorityDo();
+        federatedSiteAuthorityDo.setCreateTime(updateTime);
         federatedSiteAuthorityDo.setUpdateTime(updateTime);
         federatedSiteAuthorityDo.setGeneration(2);
         federatedSiteAuthorityMapper.update(federatedSiteAuthorityDo, saw);

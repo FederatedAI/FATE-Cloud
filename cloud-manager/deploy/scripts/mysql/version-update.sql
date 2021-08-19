@@ -17,6 +17,11 @@ CREATE TABLE IF NOT EXISTS `t_roll_site_party` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;
+
+-- t_federated_site_manager add exchange_id field
+ALTER TABLE `t_federated_site_manager`
+	ADD COLUMN `exchange_id` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'exchange id' AFTER `group_id`;
+
 -- add t_federated_ip_manager history new field
 ALTER TABLE `t_federated_ip_manager`
 	ADD COLUMN `exchange_name` VARCHAR(256) NULL DEFAULT NULL AFTER `network_access_exits_old`,

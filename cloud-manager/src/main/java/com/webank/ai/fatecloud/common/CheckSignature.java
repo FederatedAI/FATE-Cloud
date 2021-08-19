@@ -245,14 +245,13 @@ public class CheckSignature {
             // check header parameters
             String signature = httpServletRequest.getHeader(Dict.SIGNATURE);
             String timestamp = httpServletRequest.getHeader(Dict.TIMESTAMP);
-            String fateManagerUser = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_NAME);
             String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
             String nonce = httpServletRequest.getHeader(Dict.NONCE);
             String httpURI = httpServletRequest.getRequestURI();
-            Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, timestamp, fateManagerUser, fateManagerUserId, nonce, httpURI));
+            Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, timestamp, fateManagerUserId, nonce, httpURI));
             log.info(
-                    "shortLinkActivateCheckSignature Head Information | timestamp:{},fateManagerUserId:{},fateManagerUser:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
-                    timestamp, fateManagerUserId, fateManagerUser, nonce, httpURI, httpBody, signature
+                    "shortLinkActivateCheckSignature Head Information | timestamp:{},fateManagerUserId:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                    timestamp, fateManagerUserId, nonce, httpURI, httpBody, signature
             );
 
             if (fateManagerUserStatus == null || 0 == fateManagerUserStatus.length) {
@@ -261,9 +260,7 @@ public class CheckSignature {
 
             // get data of the fate manager user
             FederatedFateManagerUserDo fateManagerUserDo = federatedFateManagerUserService.findFateManagerUser(fateManagerUserId);
-            if (fateManagerUserDo == null
-                    || !fateManagerUser.equals(fateManagerUserDo.getInstitutions())
-                    || !fateManagerUserId.equals(fateManagerUserDo.getFateManagerId())) {
+            if (fateManagerUserDo == null) {
                 return false;
             }
 
@@ -274,11 +271,11 @@ public class CheckSignature {
                 }
             }
 
-            String trueSignature = EncryptUtil.generateSignature(fateManagerUserId, timestamp, fateManagerUserId, fateManagerUser, nonce, httpURI, httpBody);
+            String trueSignature = EncryptUtil.generateSignature(fateManagerUserId, timestamp, fateManagerUserId, nonce, httpURI, httpBody);
 
             log.info(
-                    "shortLinkActivateCheckSignature True Information | timestamp:{},fateManagerUserId:{},fateManagerUser:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
-                    timestamp, fateManagerUserId, fateManagerUser, nonce, httpURI, httpBody, trueSignature
+                    "shortLinkActivateCheckSignature True Information | timestamp:{},fateManagerUserId:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                    timestamp, fateManagerUserId, nonce, httpURI, httpBody, trueSignature
             );
 
             return StringUtils.equals(signature, trueSignature);

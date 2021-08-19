@@ -28,7 +28,7 @@ public class PartyQueryQo {
     private String partyId;
 
     @ApiModelProperty(value = "rollSite id")
-    public Long rollSiteId;
+    private Long rollSiteId;
 
     @ApiModelProperty(value = "secure_status")
     private Integer secureStatus;

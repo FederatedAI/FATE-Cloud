@@ -17,6 +17,7 @@ package com.webank.ai.fatecloud.system.pojo.dto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.webank.ai.fatecloud.common.SecretInfo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
 import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
@@ -26,6 +27,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -71,16 +73,21 @@ public class SiteDetailDto implements Serializable {
         if (federatedSiteManagerDo.getFederatedGroupSetDo() != null) {
             this.groupName = federatedSiteManagerDo.getFederatedGroupSetDo().getGroupName();
         }
-
+        this.exchangeId = federatedSiteManagerDo.getExchangeId();
     }
 
     public SiteDetailDto(FederatedSiteManagerDo federatedSiteManagerDo, PartyDetailsDto partyDetailsDto) {
         this(federatedSiteManagerDo);
         if (partyDetailsDto != null) {
+            this.secureStatus = partyDetailsDto.getSecureStatus();
+            this.pollingStatus = partyDetailsDto.getPollingStatus();
             this.exchangeId = partyDetailsDto.getExchangeId();
             this.exchangeName = partyDetailsDto.getExchangeName();
             this.vipEntrance = partyDetailsDto.getVipEntrance();
-            this.rollSiteDoList = partyDetailsDto.getRollSiteDoList();
+            this.rollSiteNetworkAccessExits = partyDetailsDto.getRollSiteDoList()
+                    .stream()
+                    .map(RollSiteDo::getNetworkAccessExit)
+                    .collect(Collectors.joining(";", "", ";"));
         }
     }
 
@@ -156,6 +163,12 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "encrypt type")
     private Integer encryptType;
 
+    @ApiModelProperty(value = "secure status, 1 = false, 2 = true")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status, 1 = false, 2 = true")
+    private Integer pollingStatus;
+
     @ApiModelProperty(value = "exchange id")
     private Long exchangeId;
 
@@ -165,6 +178,6 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "exchange vip entrances")
     private String vipEntrance;
 
-    @ApiModelProperty(value = "contains the current party roll site list")
-    List<RollSiteDo> rollSiteDoList;
+    @ApiModelProperty(value = "current roll site exit list in under exchange")
+    private String rollSiteNetworkAccessExits;
 }

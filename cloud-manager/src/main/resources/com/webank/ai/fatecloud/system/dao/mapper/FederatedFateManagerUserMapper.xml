@@ -26,7 +26,7 @@
 
     <select id="findPagedFateManagerUser" resultMap="fateManagerUserMap">
         SELECT * FROM t_fate_manager_user
-        where `status` in(1,2)
+        where `status` in(1,2,3)
         <if test="fateManagerUserPagedQo.institutions!=null">
             and institutions like #{fateManagerUserPagedQo.institutions}
         </if>

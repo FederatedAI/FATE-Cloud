@@ -208,8 +208,9 @@ public class FederatedSiteManagerServiceFacade {
     }
 
     public CommonResponse<Void> shortLinkActivateSite(SiteActivateShortQo siteActivateShortQo, HttpServletRequest httpServletRequest) {
-        if (ObjectUtil.isEmpty(siteActivateShortQo.getRollSiteNetworkAccess(), siteActivateShortQo.getNetworkAccessEntrances(),
-                siteActivateShortQo.getNetworkAccessExits()) || !ObjectUtil.matchNetworkAddressNew(siteActivateShortQo.getRollSiteNetworkAccess())) {
+        if (ObjectUtil.isEmpty(siteActivateShortQo.getSecureStatus(), siteActivateShortQo.getPollingStatus()) ||
+                !ObjectUtil.matchNetworkAddressNew(siteActivateShortQo.getNetworkAccessEntrances()) ||
+                !ObjectUtil.matchNetworkAddressNew(siteActivateShortQo.getNetworkAccessExits())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 

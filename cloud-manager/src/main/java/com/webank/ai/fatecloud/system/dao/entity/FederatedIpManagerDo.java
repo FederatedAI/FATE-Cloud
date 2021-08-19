@@ -113,7 +113,7 @@ public class FederatedIpManagerDo implements Serializable  {
     @TableField(value = "polling_status_old")
     private Integer pollingStatusOld;
 
-    @ApiModelProperty(value = "log deal status,0:no deal,1:agreed,2:rejected")
+    @ApiModelProperty(value = "log deal status,0:no deal,1:agreed,2:rejected,3:manual changes,4:manual changes pulled done")
     @TableField(value = "status")
     private Integer status;
 

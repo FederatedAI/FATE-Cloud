@@ -4,10 +4,10 @@
 
     <select id="selectPartyDetails" parameterType="java.lang.Long" resultMap="rollSiteListMap">
         SELECT p.`*`, e.exchange_id, e.exchange_name, e.vip_entrance
-        FROM t_party p, t_roll_site s, t_roll_site_party rsp, t_federated_exchange e
-        WHERE p.party_id = rsp.party_id
-        AND rsp.roll_site_id = s.roll_site_id
+        FROM t_party p, t_federated_site_manager s, t_federated_exchange e
+        WHERE p.party_id = s.party_id
         AND s.exchange_id = e.exchange_id
+        AND s.status = 2
         AND p.party_id = #{partyId}
         LIMIT 1;
     </select>
@@ -43,17 +43,26 @@
     </select>
 
     <select id="selectExistByRollSiteId" parameterType="java.lang.Long" resultType="com.webank.ai.fatecloud.system.dao.entity.PartyDo">
-        SELECT p.*,(SELECT COUNT(1) FROM t_federated_site_manager WHERE party_id = p.party_id) exist
+        SELECT p.*,(SELECT COUNT(1) FROM t_federated_site_manager WHERE party_id = p.party_id AND `status` = 2) exist
         FROM t_party p, t_roll_site_party rp
         WHERE p.party_id = rp.party_id
         AND rp.roll_site_id = #{rollSiteId}
         ORDER BY CAST(p.party_id AS SIGNED)
     </select>
 
-    <select id="findSiteExistByRollSiteId" resultType="java.lang.Integer">
+    <select id="countSiteByRollSiteId" resultType="java.lang.Integer">
         SELECT COUNT(1) FROM t_roll_site_party rsp, t_federated_site_manager s
         WHERE rsp.party_id = s.party_id
+        AND s.`status` = 2
         AND rsp.roll_site_id = #{rollSiteId}
+    </select>
+
+    <select id="findAuthSyncParty" resultType="com.webank.ai.fatecloud.system.dao.entity.PartyDo">
+        SELECT p.`*`
+        FROM t_party p, t_federated_site_manager s
+        WHERE p.party_id = s.party_id
+        AND s.status = 2
+        AND s.exchange_id = #{exchangeId}
     </select>
 
     <delete id="deleteNotExistAssociateParty">

@@ -11,12 +11,15 @@ public class SiteActivateShortQo {
     @ApiModelProperty(value = "federated registration link")
     private String registrationLink;
 
-    @ApiModelProperty(value = "roll site address")
-    private String rollSiteNetworkAccess;
-
     @ApiModelProperty(value = "network access entrance")
     private String networkAccessEntrances;
 
-    @ApiModelProperty(value = "network access exit")
+    @ApiModelProperty(value = "party rollSite network exit")
     private String networkAccessExits;
+
+    @ApiModelProperty(value = "secure_status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling_status")
+    private Integer pollingStatus;
 }

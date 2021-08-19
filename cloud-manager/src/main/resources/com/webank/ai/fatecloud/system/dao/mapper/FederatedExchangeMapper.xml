@@ -26,4 +26,11 @@
 
     </select>
 
+    <select id="exchangeUsingCount" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM t_federated_site_manager s,t_federated_exchange e
+        WHERE s.exchange_id = e.exchange_id
+        AND s.`status` IN(1,2)
+        AND e.exchange_id = ${exchangeId}
+    </select>
+
 </mapper>

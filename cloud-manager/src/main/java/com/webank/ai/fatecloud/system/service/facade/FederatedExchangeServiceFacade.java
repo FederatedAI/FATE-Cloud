@@ -27,8 +27,10 @@ import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo;
 import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
 import com.webank.ai.fatecloud.system.pojo.dto.RollSitePageDto;
+import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import com.webank.ai.fatecloud.system.service.impl.FederatedExchangeService;
+import com.webank.ai.fatecloud.system.service.impl.FederatedSiteManagerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     @Autowired
     FederatedExchangeService federatedExchangeService;
+
+    @Autowired
+    FederatedSiteManagerService federatedSiteManagerService;
 
     @Autowired
     CheckSignature checkSignature;
@@ -66,16 +71,18 @@ public class FederatedExchangeServiceFacade implements Serializable {
         if (i == 3) {
             return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_NETWORK_REPEAT);
         }
-        // check party ambiguity
+
         for (RollSiteAddBean rollSiteAddBean : exchangeAddQo.getRollSiteAddBeanList()) {
             if (federatedExchangeService.queryExchange(new ExchangeQueryQo(rollSiteAddBean.getNetworkAccess())) == null) {
                 return new CommonResponse<>(ReturnCodeEnum.ROLLSITE_GRPC_ERROR, rollSiteAddBean.getNetworkAccess());
             }
 
+            // remove admin exchange party, check party ambiguity
             List<PartyAddBean> partyAddBeanList = rollSiteAddBean.getPartyAddBeanList();
+            partyAddBeanList.removeIf(partyAddBean -> federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId()));
             for (PartyAddBean partyAddBean : partyAddBeanList) {
-                if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), null)){
-                    return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXCHANGE_REPEAT_ERROR);
+                if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), null)) {
+                    return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXCHANGE_REPEAT_ERROR, partyAddBean.getPartyId());
                 }
             }
         }
@@ -96,7 +103,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return 1;
         }
 
-        if (StringUtils.isBlank(exchangeAddQo.getVipEntrance())) {
+        if (!ObjectUtil.matchNetworkAddress(exchangeAddQo.getVipEntrance())) {
             return 1;
         }
 
@@ -173,11 +180,14 @@ public class FederatedExchangeServiceFacade implements Serializable {
         HashSet<String> partyIds = new HashSet<>();
 
         for (PartyAddBean partyAddBean : partyAddBeanList) {
+            if (federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId())){
+                partyIds.add(partyAddBean.getPartyId());
+                continue;
+            }
+
             String networkAccess = partyAddBean.getNetworkAccess();
-            if (partyAddBean.getStatus() == null || partyAddBean.getStatus() != 0){
-                if (!ObjectUtil.matchNetworkAddressNew(networkAccess)) {
-                    return false;
-                }
+            if (!ObjectUtil.matchNetworkAddressNew(networkAccess) && !ObjectUtil.matchNetworkAddress(networkAccess)) {
+                return false;
             }
 
             //check secure status
@@ -193,7 +203,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             }
 
             String partyId = partyAddBean.getPartyId();
-            if (StringUtils.isBlank(partyId) || federatedExchangeService.checkExchangePartyId(partyId)) {
+            if (StringUtils.isBlank(partyId)) {
                 return false;
             }
             partyIds.add(partyId);
@@ -202,7 +212,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
                 Integer status = partyAddBean.getStatus();
 
                 HashSet<Integer> integers = new HashSet<>();
-                Collections.addAll(integers, 0,1,2,3);
+                Collections.addAll(integers, 1, 2, 3);
                 if (!integers.contains(status)) {
                     return false;
                 }
@@ -266,12 +276,15 @@ public class FederatedExchangeServiceFacade implements Serializable {
         }
 
         //check party
-        if (!this.checkPartyNetwork(rollSieAddQo.getPartyAddBeanList(), true) || !ObjectUtil.matchNetworkAddress(rollSieAddQo.getNetworkAccessExit())) {
+        List<PartyAddBean> partyAddBeanList = rollSieAddQo.getPartyAddBeanList();
+        if (!this.checkPartyNetwork(partyAddBeanList, true) || !ObjectUtil.matchNetworkAddress(rollSieAddQo.getNetworkAccessExit())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
-        // check party ambiguity
-        for (PartyAddBean partyAddBean : rollSieAddQo.getPartyAddBeanList()) {
-            if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), rollSieAddQo.getExchangeId())){
+
+        // remove admin exchange party, check party ambiguity
+        partyAddBeanList.removeIf(partyAddBean -> federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId()));
+        for (PartyAddBean partyAddBean : partyAddBeanList) {
+            if (federatedExchangeService.checkPartyExistInOtherExchange(partyAddBean.getPartyId(), rollSieAddQo.getExchangeId())) {
                 return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXCHANGE_REPEAT_ERROR);
             }
         }
@@ -293,9 +306,8 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        // exclude automatic management party
-        rollSiteUpdateQo.getPartyAddBeanList().removeIf(partyAddBean -> partyAddBean.getStatus() != null && partyAddBean.getStatus() == 0);
-
+        // exclude exchange admin party
+        rollSiteUpdateQo.getPartyAddBeanList().removeIf(partyAddBean -> federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId()));
         federatedExchangeService.updateRollSite(rollSiteUpdateQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
@@ -350,7 +362,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
     // v1.4
     public CommonResponse<List<PartyDo>> finPartyPage(PartyQueryQo partyQueryQo) {
-        if (ObjectUtil.isEmpty(partyQueryQo.getRollSiteId(), partyQueryQo.getPartyId())) {
+        if (ObjectUtil.isEmpty(partyQueryQo.getRollSiteId())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -385,7 +397,21 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        boolean result = federatedExchangeService.findPartyByPartyId(partyQueryQo.getPartyId()) != null;
-        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, result);
+        long parseInt;
+        try {
+            parseInt = Long.parseLong(partyQueryQo.getPartyId());
+        } catch (Exception e) {
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, true);
+        }
+
+        if (partyQueryQo.getRollSiteId() != null) {
+            List<PartyDo> partyByRollSiteId = federatedExchangeService.findPartyByRollSiteId(partyQueryQo.getRollSiteId());
+            if (partyByRollSiteId.stream().anyMatch(partyDo -> partyQueryQo.getPartyId().equals(partyDo.getPartyId()))) {
+                return new CommonResponse<>(ReturnCodeEnum.SUCCESS, Boolean.TRUE);
+            }
+        }
+
+        SiteDetailDto siteByPartyId = federatedSiteManagerService.findSiteByPartyId(parseInt, "", 2);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, siteByPartyId != null);
     }
 }

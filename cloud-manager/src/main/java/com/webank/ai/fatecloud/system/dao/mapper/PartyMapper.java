@@ -29,7 +29,9 @@ public interface PartyMapper extends BaseMapper<PartyDo> {
 
     List<PartyDo> selectExistByRollSiteId(@Param("rollSiteId") Long rollSiteId);
 
-    Integer findSiteExistByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+    Integer countSiteByRollSiteId(@Param("rollSiteId") Long rollSiteId);
 
     int deleteNotExistAssociateParty();
+
+    List<PartyDo> findAuthSyncParty(@Param("exchangeId") Long exchangeId);
 }
