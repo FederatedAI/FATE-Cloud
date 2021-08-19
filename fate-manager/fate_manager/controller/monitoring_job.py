@@ -2,7 +2,7 @@ import datetime
 import json
 import time
 
-from fate_manager.db.db_models import DeployComponent, FateSiteInfo, FateSiteCount, FateSiteJobInfo, ApplySiteInfo
+from fate_manager.db.db_models import FateSiteInfo, FateSiteCount, FateSiteJobInfo, ApplySiteInfo
 from fate_manager.entity import item
 from fate_manager.entity.types import SiteStatusType, FateJobEndStatus
 from fate_manager.operation.db_operator import DBOperator
@@ -16,14 +16,11 @@ class CountJob:
     def count_fate_flow_job(account):
         request_flow_logger.info("start count fate flow job")
         site_list = DBOperator.query_entity(FateSiteInfo, status=SiteStatusType.JOINED)
-        component_name = 'FATEFLOW'
         party_id_flow_url = {}
         for site in site_list:
             try:
-                deploy_fate_flow = DBOperator.query_entity(DeployComponent, party_id=site.party_id,
-                                                           component_name=component_name)
-                if deploy_fate_flow:
-                    query_job_url = "http://{}{}".format(deploy_fate_flow[0].address, FATE_FLOW_SETTINGS["QueryJob"])
+                if site.fate_flow_info:
+                    query_job_url = "http://{}{}".format(site.fate_flow_info, FATE_FLOW_SETTINGS["QueryJob"])
                     party_id_flow_url[site.party_id] = query_job_url
                     fate_site_count = DBOperator.query_entity(FateSiteCount, reverse=True, order_by="version")
                     now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -157,18 +154,17 @@ class CountJob:
 
     @staticmethod
     def get_job_type(dsl):
-        job_type = ''
+        intersect_include_cpn = ["reader", "dataio", "union", "intersection"]
         if isinstance(dsl, str):
             dsl = json.loads(dsl)
-        cpn = dsl['components'].keys()
-        cpn = list(cpn)[0]
-        if 'upload' in cpn:
+        job_cpn_list = CountJob.get_all_components(dsl)
+        if 'upload' in job_cpn_list:
             job_type = 'upload'
-        elif 'download' in cpn:
+        elif 'download' in job_cpn_list:
             job_type = 'download'
-        elif 'intersect' in cpn:
-            for j in dsl['components'].keys():
-                if 'intersect' not in j:
+        elif 'intersection' in job_cpn_list:
+            for job_cpn in job_cpn_list:
+                if job_cpn not in intersect_include_cpn:
                     job_type = 'modeling'
                     break
             else:
@@ -176,6 +172,10 @@ class CountJob:
         else:
             job_type = 'modeling'
         return job_type
+
+    @staticmethod
+    def get_all_components(dsl):
+        return [dsl['components'][component_name]['module'].lower() for component_name in dsl['components'].keys()]
 
     @staticmethod
     def job_adapter(site_job):
