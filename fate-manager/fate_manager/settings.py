@@ -41,7 +41,7 @@ PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
 API_VERSION = 'v1'
 
 ROLL_SITE_KEY = "fate"
-ROLL_SITE_FLAG = False
+ROLL_SITE_FLAG = True
 
 FATE_FLOW_SETTINGS = {
     "QueryJob": "/v1/job/query",

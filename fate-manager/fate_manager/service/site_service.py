@@ -462,7 +462,7 @@ def get_site_detail(request_data):
             if site.secure_status_new and site.secure_status_new != site.secure_status:
                 site_detail["ExchangeInfo"].update({"secureStatusNew": site.secure_status_new})
             if site.network_access_entrances_new and site.network_access_entrances != site.network_access_entrances_new:
-                site_detail["ExchangeInfo"].update({"networkAccessEntrances": site.network_access_entrances_new})
+                site_detail["ExchangeInfo"].update({"networkAccessEntrancesNew": site.network_access_entrances_new})
 
         deploy_site_list = DBOperator.query_entity(DeploySite, party_id=request_data.get("partyId"),
                                                    federated_id=request_data.get("federatedId"),
