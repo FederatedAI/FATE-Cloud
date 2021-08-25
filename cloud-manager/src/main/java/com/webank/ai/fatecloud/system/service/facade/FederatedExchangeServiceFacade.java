@@ -319,9 +319,9 @@ public class FederatedExchangeServiceFacade implements Serializable {
 
         }
 
-        if (federatedExchangeService.checkSiteExistByRollSite(rollSiteId)) {
+        /*if (federatedExchangeService.checkSiteExistByRollSite(rollSiteId)) {
             return new CommonResponse<>(ReturnCodeEnum.SITE_PARTY_EXIST_ERROR);
-        }
+        }*/
 
         federatedExchangeService.deleteRollSite(rollSiteDeleteQo);
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
@@ -397,11 +397,15 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
+        if (federatedExchangeService.checkExchangePartyId(partyQueryQo.getPartyId())){
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, Boolean.TRUE);
+        }
+
         long parseInt;
         try {
             parseInt = Long.parseLong(partyQueryQo.getPartyId());
         } catch (Exception e) {
-            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, true);
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS, Boolean.FALSE);
         }
 
         if (partyQueryQo.getRollSiteId() != null) {

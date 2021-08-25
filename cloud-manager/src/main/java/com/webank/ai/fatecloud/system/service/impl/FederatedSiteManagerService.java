@@ -189,7 +189,7 @@ public class FederatedSiteManagerService {
     public SiteDetailDto findSite(Long id) {
         FederatedSiteManagerDo site = federatedSiteManagerMapper.findSite(id);
         if (site != null) {
-            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId());
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId() + "");
             if (partyDetailsDto == null){
                 partyDetailsDto = new PartyDetailsDto();
 
@@ -212,7 +212,7 @@ public class FederatedSiteManagerService {
     public SiteDetailDto findSiteByPartyId(Long partyId, String secretInfo, Object... status) {
         FederatedSiteManagerDo site = federatedSiteManagerMapper.findSiteByPartyId(partyId, secretInfo, status);
         if (site != null) {
-            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId());
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(site.getPartyId() + "");
             return new SiteDetailDto(site, partyDetailsDto);
         }
         return null;
@@ -425,7 +425,7 @@ public class FederatedSiteManagerService {
 
     @Transactional
     public boolean reactivateSite(SiteUpdateQo siteUpdateQo) {
-        if (!federatedExchangeService.resetParty(siteUpdateQo.getPartyId())) {
+        if (!federatedExchangeService.resetParty(siteUpdateQo.getPartyId() + "")) {
             return false;
         }
 
@@ -892,7 +892,7 @@ public class FederatedSiteManagerService {
         Date updateTime = new Date();
         String institution = institutionStateQo.getInstitution();
 
-        // 1.update the information related to institution authorization todo 两边都行
+        // 1.update the information related to institution authorization
         QueryWrapper<FederatedSiteAuthorityDo> saw = new QueryWrapper<FederatedSiteAuthorityDo>()
                 .eq("generation", 1)
                 .in("status", 1, 2)

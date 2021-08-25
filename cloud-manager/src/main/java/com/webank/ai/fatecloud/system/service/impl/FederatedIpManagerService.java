@@ -83,6 +83,7 @@ public class FederatedIpManagerService {
 
             QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
             ew.eq("party_id", pagedSites.get(i).getPartyId());
+            ew.notIn("status", 3, 4);
             ew.orderByDesc("update_time");
             ew.last("limit 1");
             FederatedIpManagerDo federatedIpManagerDo = federatedIpManagerMapper.selectOne(ew);
@@ -118,8 +119,8 @@ public class FederatedIpManagerService {
                 ipManagerListDto.setHistory(0);
             }
 
-            // 1.4 party exchange info
-            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(pagedSites.get(i).getPartyId());
+            // party exchange info
+            PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(pagedSites.get(i).getPartyId() + "");
             if (partyDetailsDto != null) {
                 ipManagerListDto.setExchangeId(partyDetailsDto.getExchangeId());
                 ipManagerListDto.setExchangeName(partyDetailsDto.getExchangeName());
@@ -179,7 +180,7 @@ public class FederatedIpManagerService {
         IpManagerAcceptDto ipManagerAcceptDto = new IpManagerAcceptDto();
 
         FederatedSiteManagerDo federatedSiteManagerDo = federatedSiteManagerMapper.findSiteByPartyId(ipManagerAcceptQo.getPartyId(), appKey, 2);
-        PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(ipManagerAcceptQo.getPartyId());
+        PartyDetailsDto partyDetailsDto = partyMapper.selectPartyDetails(ipManagerAcceptQo.getPartyId() + "");
         if (federatedSiteManagerDo != null) {
             FederatedIpManagerDo federatedIpManagerDo = new FederatedIpManagerDo();
             federatedIpManagerDo.setPartyId(ipManagerAcceptQo.getPartyId());
@@ -223,7 +224,7 @@ public class FederatedIpManagerService {
 
     public List<FederatedIpManagerDo> queryIpModifyHistory(Long partyId) {
         QueryWrapper<FederatedIpManagerDo> ew = new QueryWrapper<>();
-        ew.eq(partyId != null, "party_id", partyId).in("status", 1, 2).orderByDesc("update_time");
+        ew.eq(partyId != null, "party_id", partyId).in("status", 1, 2, 3, 4).orderByDesc("update_time");
         return federatedIpManagerMapper.selectList(ew);
     }
 

@@ -15,14 +15,13 @@
  */
 package com.webank.ai.fatecloud.system.service.facade;
 
-import com.alibaba.fastjson.JSON;
 import com.webank.ai.fatecloud.common.CheckSignature;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
+import com.webank.ai.fatecloud.common.util.ObjectUtil;
 import com.webank.ai.fatecloud.system.pojo.dto.FederatedOrganizationDto;
 import com.webank.ai.fatecloud.system.pojo.dto.RegisteredOrganizationDto;
-import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
 import com.webank.ai.fatecloud.system.pojo.qo.FederatedOrganizationRegisterQo;
 import com.webank.ai.fatecloud.system.service.impl.FederatedOrganizationService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedSiteManagerService;
@@ -68,7 +67,11 @@ public class FederatedOrganizationServiceFacade {
         String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
         boolean result;
         if (StringUtils.isNotBlank(fateManagerUserId)) {
-            result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 1, 2, 3);
+            if (ObjectUtil.isEmpty(httpServletRequest.getHeader(Dict.PARTY_ID))) {
+                result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_MANAGER_USER, new int[]{2}, 1, 2, 3);
+            }else{
+                result = checkSignature.checkSignatureNew(httpServletRequest, "", Dict.FATE_SITE_USER, new int[]{2}, 1, 2, 3);
+            }
         } else {
             result = checkSignature.checkSignature(httpServletRequest, "", 2, 3);
         }

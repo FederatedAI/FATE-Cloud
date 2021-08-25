@@ -139,4 +139,8 @@ public class ObjectUtil {
             sb.append("    ");
         }
     }
+
+    public static <Object> Object notNull(Object object, Object transfer) {
+        return object == null ? transfer : object;
+    }
 }

@@ -23,7 +23,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface PartyMapper extends BaseMapper<PartyDo> {
-    PartyDetailsDto selectPartyDetails(@Param("partyId") Long partyId);
+    PartyDetailsDto selectPartyDetails(@Param("partyId") String partyId);
 
     List<PartyDo> selectByRollSiteId(@Param("rollSiteId") Long rollSiteId);
 
