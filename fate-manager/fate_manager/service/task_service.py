@@ -14,7 +14,6 @@ from fate_manager.settings import site_service_logger as logger
 from fate_manager.service.site_service import update_all_rollsite_info
 
 
-
 def get_change_log_task():
     change_log_list = SingleOperation.get_no_deal_list()
     for change_log in change_log_list:
@@ -22,7 +21,9 @@ def get_change_log_task():
         body = {"caseId": change_log.case_id, "partyId": change_log.party_id}
         logger.info(f"start request cloud IpQueryUri, body:{body}")
         site_info = DBOperator.query_entity(FateSiteInfo, **{"federated_id": change_log.federated_id,
-                                                             "party_id": change_log.party_id})
+                                                             "party_id": change_log.party_id,
+                                                             "status": 2,
+                                                             })
         if not site_info:
             DBOperator.update_entity(ChangeLog, {"federated_id": change_log.federated_id,
                                                  "party_id": change_log.party_id,
@@ -46,9 +47,9 @@ def get_change_log_task():
                                "status": resp.get("status")}
             logger.info(f"start update change log: {change_log_info}")
             DBOperator.update_entity(ChangeLog, change_log_info)
-
             add_info = {
                 "party_id": change_log.party_id,
+                "site_id": site_info.site_id,
                 "federated_id": change_log.federated_id,
                 "edit_status": EditType.YES,
                 "read_status": resp.get("status"),
@@ -67,18 +68,18 @@ def get_change_log_task():
                 if site_info.fm_rollsite_network_entrances_new:
                     add_info["fm_rollsite_network_entrances"] = site_info.fm_rollsite_network_entrances_new
                     add_info["fm_rollsite_network_entrances_new"] = ""
-
             logger.info(f"start update site info: {add_info}")
             DBOperator.update_entity(FateSiteInfo, add_info)
             logger.info("update site info success")
             try:
                 site = DBOperator.query_entity(FateSiteInfo, federated_id=change_log.federated_id,
-                                               party_id=change_log.party_id)[0]
+                                               party_id=change_log.party_id,site_id=site_info.site_id)[0]
+
                 update_all_rollsite_info(site.vip_entrances,
                                          site.fm_rollsite_network_entrances,
                                          change_log.party_id,
-                                         is_secure=PollingSecureType.to_bool(site.secure_status),
-                                         is_polling=PollingSecureType.to_bool(site.polling_status))
+                                         is_secure=site.secure_status,
+                                         is_polling=site.polling_status)
             except Exception as e:
                 logger.info('update_all_rollsite_info faild' + str(e))
 
@@ -145,8 +146,10 @@ def apply_exchange_task():
         federated_id = institution.federated_id
         for site in resp:
             partyId = site.get("partyId")
+            site_data = DBOperator.query_entity(FateSiteInfo,federated_id=federated_id,party_id=partyId,status=2)[0]
             site_info = {
                 "party_id": partyId,
+                "site_id": site_data.site_id,
                 "federated_id": federated_id,
                 "exchange_read_status": 1,
             }
@@ -166,6 +169,7 @@ def apply_exchange_task():
                 site_info.update({"secure_status_new": secure_status_new})
             if network_access_entrances_new:
                 site_info.update({"network_access_entrances_new": network_access_entrances_new})
+            logger.info(f'cm update site info：{site}')
             DBOperator.safe_save(FateSiteInfo, site_info)
             logger.info(f"update site exchange info {partyId} success")
     logger.info(f"update table {FateSiteInfo}  exchange info success")

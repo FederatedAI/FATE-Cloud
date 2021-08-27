@@ -92,6 +92,7 @@ CLOUD_URL= {
     "ActivateUriInfo": "/cloud-manager/api/site/activate/query/details",
     "UserActivate": "/cloud-manager/api/fate/user/activate/v2",
     "UpdateIpQueryUri": "/cloud-manager/api/site/ip/update/query",
+    "FederationInfoUri": "/cloud-manager/api/federation/findOrganization",
 }
 
 CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUri", "UpdateVersionUri", "IpAcceptUri",
@@ -99,7 +100,7 @@ CLOUD_SITE_SIGNATURE = ["CheckUri", "ActivateUri", "SiteQueryUri", "FederationUr
 CLOUD_INSTITUTION_SIGNATURE = ["UserActivateUri", "FunctionAllUri", "ApprovedUri", "MyApprovedUri", "OtherSiteUri",
                                "ExchangeUri", "AuthorityInstitutions", "AuthorityApply", "CheckPartyUri",
                                "AuthorityApplied", "GetApplyListUri", "ApplyLog", "MonitorPushUri",
-                               "OrganizationQueryUri","UpdateIpQueryUri","UserActivate",
+                               "OrganizationQueryUri","UpdateIpQueryUri","UserActivate","FederationInfoUri",
                                ]
 
 # user token
@@ -107,4 +108,4 @@ EXPIRE_TIME = 30 * 60 * 1000  # ms
 
 TASK_DETECTOR_INTERVAL = 30 * 1000  # ms
 JOB_DETECTOR_INTERVAL = 30 * 60 * 1000  # ms
-DEFAULT_GRPC_TIMEOUT = 30 * 1000  # ms
+DEFAULT_GRPC_TIMEOUT = 3 * 1000  # ms

@@ -11,6 +11,8 @@ export PYTHONPATH=$PROJECT_BASE
 log_dir=$PROJECT_BASE/logs
 module=fate_manager_server.py
 
+
+
 getpid() {
     sleep 2
     pid=`ps aux | grep ${module} | grep -v grep | awk '{print $2}'`

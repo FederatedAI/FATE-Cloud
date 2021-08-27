@@ -66,6 +66,8 @@ class PollingSecureType:
             return False
         elif status == 1:
             return True
+        else:
+            return None
 
 
 class ActivateStatus:

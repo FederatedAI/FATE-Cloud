@@ -20,7 +20,7 @@ def internal_server_error(e):
 def register_site():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['appKey', 'appSecret', 'federatedOrganization',
-                                                                       'id', 'institutions','partyId',
+                                                                       'id', 'institutions','partyId',"siteId",
                                                                        'registrationLink','role','siteName',
                                                                         'networkAccessEntrances',
                                                                        'fmRollSiteNetworkEntrances',
@@ -118,7 +118,7 @@ def apply_institutions():
 @manager.route('/info', methods=['post'])
 def site_info():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
+    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId", "siteId"])
     data = site_service.get_site_detail(request_data)
     return get_json_result(data=data)
 
@@ -133,19 +133,23 @@ def update_site():
     else:
         detect_utils.check_config(config=request_data, required_arguments=["federatedOrganization", "role", "appKey",
                                                                            "appSecret", "networkAccessEntrances",
-                                                                           "networkAccessExits","pollingStatus",
-                                                                           "secureStatus","federatedId","partyId"])
-
-        data = site_service.update_site(request_data)
-        return get_json_result(data)
+                                                                           'fmRollSiteNetworkAccessExitsList',
+                                                                           'fmRollSiteNetworkAccess',
+                                                                           "pollingStatus","secureStatus",
+                                                                           "federatedId","partyId","siteId",
+                                                                           ])
+        site_service.update_site(request_data)
+        return get_json_result()
 
 
 @manager.route('/telnet', methods=['post'])
 def telnet_site_ip():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["partyId", "ip", "port"])
-    site_service.telnet_ip(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data, required_arguments=["ip", "port"])
+    ip = request_data.get('ip')
+    port = request_data.get('port')
+    res = site_service.connect_test(ip, int(port))
+    return get_json_result(retmsg=res)
 
 
 @manager.route('/readmsg', methods=['post'])
@@ -159,9 +163,9 @@ def readmsg():
 @manager.route('/getmsg', methods=['post'])
 def getmsg():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
-    site_service.get_change_msg(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId", "siteId"])
+    ret = site_service.get_change_msg(request_data)
+    return get_json_result(data=ret)
 
 
 @manager.route('/updateVersion', methods=['post'])
@@ -200,4 +204,11 @@ def secret_info():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
     data = site_service.get_secret_info(request_data)
+    return get_json_result(data=data)
+
+
+@manager.route('/testrollsite', methods=['post'])
+def connect_rollsite():
+    request_data = request.json
+    data = site_service.test_rollsite_ip(request_data)
     return get_json_result(data=data)
