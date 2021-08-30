@@ -73,24 +73,17 @@
         </el-form>
       </div>
       <div class="info-box">
-        <div class="info">Exchange Info</div>
+        <div class="info">{{$t('Exchange Info')}}</div>
         <el-form ref="form" :model="form" label-position="left" label-width="280px">
             <el-row :gutter="140">
                 <el-col :span="12">
-                    <el-form-item  style="height:100%;" label="Exchange Name" >
+                    <el-form-item  style="height:100%;" :label="$t('Exchange Name')" >
                         {{form.exchangeName}}
-                    </el-form-item>
-                    <el-form-item  style="height:100%;" label="VIP Entrances" >
-                       {{form.vipEntrance}}
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item v-if="form.rollSiteDoList.length>0" style="height:100%;" :label="$t('Network Acess Exits')" >
-                        <span v-for="(item,index) in form.rollSiteDoList" :key='index'>
-                            <div style="width:100%;"  v-if="item" class="info-text ">
-                            {{item.networkAccessExit}}
-                            </div>
-                        </span>
+                    <el-form-item  style="height:100%;" label="VIP Entrances" >
+                       {{form.vipEntrance}}
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -99,9 +92,10 @@
       <div class="info-box">
         <div class="info">{{$t('Network configuration')}}</div>
         <el-form ref="form" :model="form" label-position="left" label-width="280px">
-            <el-row :gutter="140">
+            <div class="info-item" >{{$t('Site Network configuration')}}</div>
+            <el-row :gutter="140" style="margin-bottom:-18px">
                 <el-col :span="12">
-                    <el-form-item v-if="form.networkAccessEntrances" style="height:100%;" :label="$t('Network Acess Entrances')" >
+                    <el-form-item v-if="form.networkAccessEntrances" style="height:100%;" :label="$t('Network Access Entrances')" >
                         <span v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
                             {{item}}
@@ -109,13 +103,24 @@
                         </span>
                     </el-form-item>
                 </el-col>
-                <el-col :span="12">
-                    <el-form-item v-if="form.networkAccessExits" style="height:100%;" :label="$t('Network Acess Exits')" >
+                <!-- <el-col :span="12">
+                    <el-form-item v-if="form.networkAccessExits" style="height:100%;" :label="$t('Network Access Exits')" >
                         <span v-for="(item,index) in form.networkAccessExits.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
                             {{item}}
                             </div>
                         </span>
+                    </el-form-item>
+                </el-col> -->
+            </el-row>
+             <div class="info-item" style="font-size:14px">{{$t('Rollsite Network configuration')}}</div>
+            <el-row :gutter="140">
+                <el-col :span="12">
+                    <el-form-item :label="$t('Is Secure')" >
+                        {{form.secureStatus=== 1?$t('true'):$t('false')}}
+                    </el-form-item>
+                    <el-form-item :label="$t('Is Polling')" >
+                        {{form.pollingStatus=== 1?$t('true'):$t('false')}}
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -155,9 +160,17 @@ const local = {
         'Creation Time': '创建时间',
         'Activation Time': '激活时间',
         'Registration Link': '注册链接',
+        'Exchange Info': 'Exchange信息',
+        'Exchange Name': 'Exchange名称',
         'Network configuration': '网关设置',
-        'Network Acess Entrances': '网关入口',
-        'Network Acess Exits': '网关出口',
+        'Site Network configuration': '站点网关设置',
+        'Rollsite Network configuration': 'Rollsite网关设置',
+        'Is Secure': '加密传输',
+        'Is Polling': '单向模式',
+        'true': '是',
+        'false': '否',
+        'Network Access Entrances': '网关入口',
+        'Network Access Exits': '网关出口',
         'System version': '系统版本',
         'FATE version': 'FATE版本',
         'FATE Component': 'FATE服务组件',
@@ -174,9 +187,17 @@ const local = {
         'Creation Time': 'Creation Time',
         'Activation Time': 'Activation Time',
         'Registration Link': 'Registration Link',
+        'Exchange Info': 'Exchange Info',
+        'Exchange Name': 'Exchange Name',
         'Network configuration': 'Network configuration',
-        'Network Acess Entrances': 'Network Acess Entrances',
-        'Network Acess Exits': 'Network Acess Exits',
+        'Rollsite Network configuration': 'Rollsite Network configuration',
+        'Site Network configuration': 'Site Network configuration',
+        'Is Secure': 'Is Secure',
+        'Is Polling': 'Is Polling',
+        'true': 'True',
+        'false': 'False',
+        'Network Access Entrances': 'Network Access Entrances',
+        'Network Access Exits': 'Network Access Exits',
         'System version': 'System version',
         'FATE version': 'FATE version',
         'FATE Component': 'FATE Component',

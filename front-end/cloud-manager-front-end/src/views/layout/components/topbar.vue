@@ -159,6 +159,7 @@ export default {
     min-width: 95px !important;
     left: calc(100% - 235px) !important;
     padding: 5px;
+    background: #fff !important;
     .mane{
         cursor: pointer;
         font-size: 16px;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog :visible.sync="adddialog" :close-on-click-modal="false" :close-on-press-escape="false" class="add-dialog" width="520px">
+    <el-dialog :visible.sync="adddialog" :close-on-click-modal="false" :close-on-press-escape="false" class="add-dialog" width="480px">
       <div class="add-dialog-head">
           <el-button class="addUrl" :disabled="addDisabled" @click="addentrancesSelect" type="text">
               <i class="el-icon-circle-plus"></i>
@@ -18,7 +18,7 @@
                     <span v-if="!item.show">
                         <!-- <el-checkbox v-model="item.checked"></el-checkbox> -->
                         <span class="network-text">{{item.ip}}</span>
-                        <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent">{{$t('m.siteAdd.telnet')}}</span>
+                        <span v-if="networkacesstype!=='exit'" @click="testTelent(index)" class="telent">{{$t('m.siteAdd.telnet')}}</span>
                         <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
                     </span>
                     <el-input v-if="item.show"  autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" :placeholder="`${$t('m.siteAdd.typeLike')}: 127.0.0.1:8080` " >
@@ -47,8 +47,8 @@
             </div>
       </div>
       <div class="add-dialog-footer">
-        <el-button class="save-btn" :disabled="saveDisabled" type="primary" @click="saveAction">{{$t('m.common.save')}}</el-button>
-        <el-button class="cancel-btn" type="info"  @click="cancelAction" >{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" :disabled="saveDisabled" type="primary" @click="saveAction">{{$t('m.common.save')}}</el-button>
+        <el-button class="ok-btn" type="info"  @click="cancelAction" >{{$t('m.common.cancel')}}</el-button>
         <!-- <span  @mousedown="mouseDownAA"> Cancel</span> -->
       </div>
     </el-dialog>
@@ -161,10 +161,10 @@ export default {
                     this.addDisabled = true // 不可点击添加
                     this.invalidsuccess = true
                     this.showMes = 0.8
-                    setTimeout(() => {
-                        this.showMes = 0
-                        this.invalidsuccess = false
-                    }, 2000)
+                    // setTimeout(() => {
+                    //     this.showMes = 0
+                    //     this.invalidsuccess = false
+                    // }, 2000)
                 }
             }
         },
@@ -173,8 +173,8 @@ export default {
             let arr = [...new Set(this.entrancesSelect.map(item => `${item.ip};`))]
             let editType = {
                 'entrances': 'networkAccessEntrances',
-                'exit': 'networkAccessExits',
-                'rollsite': 'rollSiteNetworkAccess'
+                'exit': 'fmRollSiteNetworkAccessExitsList',
+                'rollsite': 'fmRollSiteNetworkEntrances'
             }
             let parameterName = editType[this.networkacesstype]
             if (parameterName) {

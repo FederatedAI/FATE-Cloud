@@ -72,8 +72,8 @@ export const m = {
         'valid': 'Valid',
         'invalid': 'Invalid',
         'toDeleted': 'To be deleted',
-        'true': 'true',
-        'false': 'false',
+        'true': 'True',
+        'false': 'False',
         'status': 'Status',
         'publish': 'publish',
         'revoke': 'revoke',
@@ -85,7 +85,8 @@ export const m = {
         'end': 'end',
         'unavailable': 'Unavailable',
         'available': 'Available',
-        'serchForPlaceholder': 'search for {type}'
+        'serchForPlaceholder': 'search for {type}',
+        'fieldInvalidInput': 'Field invalid input'
     },
     errorTips: {
         'This function doesnt work!': "This function of federal authorization doesn't work!",
@@ -102,7 +103,12 @@ export const m = {
         'There is an error when connect to the ip!': 'There is an error when connect to the ip!',
         'Institution reactivate fail, institution not activate or exist site!': 'Institution reactivate fail, institution not activate or exist site!',
         'Site reactivate fail, site not activate or deleted!': 'Site reactivate fail, site not activate or deleted!',
-        'There are using sites in the roll site!': 'There are using sites in the roll site!'
+        'There are using sites in the roll site!': 'There are using sites in the roll site!',
+        'The PartyID has been used!': 'The PartyID has been used!',
+        'The site has a binding exchange, but the selected switch is not this!': 'The site has a binding exchange, but the selected switch is not this!',
+        'Site party already exists in other exchange, cannot be added!': 'Site party already exists in other exchange, cannot be added!',
+        'Site roll site update error!': 'Site roll site update error!',
+        'This exchange name already exist!': 'This exchange name already exist!'
     },
     login: {
         'signTitle': 'Sign in to FATE Cloud',
@@ -194,7 +200,8 @@ export const m = {
         'networkAcessExitRequired': 'Network Acess Exit field is required.',
         'proxyNetworkAccessRequired': 'Proxy Network Access field is required',
         'proxyNetworkAccessInvalid': 'The Proxy Network Access field is invalid. Please enter again.',
-        'exchange': 'exchange'
+        'exchange': 'exchange',
+        'ExchangRequired': 'exchange field is required.'
     },
     ip: {
         'telnetFailed': 'Telnet Failed !',
@@ -209,14 +216,16 @@ export const m = {
         'from': 'from',
         'to': 'to',
         'appliesAcessExits': 'applies to change the Network Acess Exits',
+        'appliesChange': 'applies to change the {type}',
         'confirmUpdates': 'Do you confirm these updates?',
         'toChange': 'to change the',
-        'telent': 'telent',
+        'telnet': 'telnet',
         'siteNetworkAccess': 'Site Network Access',
         'routerNetworkAccess': 'Router Network Access',
         'rollsiteNetworkAccess': 'Rollsite Network Access',
         'isSecure': 'Is Secure',
         'isPolling': 'Is Polling',
+        'networkEntrances': 'Network Access Entrances',
         'entrances': 'entrances',
         'exit': 'exit',
         'sureWantSaveExchange': 'Are you sure you want to save this exchange?',
@@ -302,6 +311,7 @@ export const m = {
         'Status': 'Status',
         'Are you sure you want to delete this administrator?': 'Are you sure you want to delete this administrator?',
         'Add admin': 'Add admin',
+        'admin': 'admin',
         'To add': 'To add administrtor right to FATE Manager,please fill in the institution name to which the administrator belongs. Once filled in,it cannot be modified.',
         'senior admin': 'senior admin',
         'Maximum of 20 chatacters': 'Maximum of 20 chatacters',

@@ -48,10 +48,6 @@ export const constantRouterMap = [
                 name: 'register', //
                 hidden: true,
                 component: () => import('@/views/welcome/register')
-            }, {
-                name: 'activate', //
-                path: 'activate',
-                component: () => import('@/views/welcome/activate')
             }
         ]
     },
@@ -65,6 +61,11 @@ export const constantRouterMap = [
                 path: 'sitemanage',
                 name: 'sitemanage', //
                 component: () => import('@/views/home/sitemanage')
+            },
+            {
+                name: 'activate', //
+                path: 'activate',
+                component: () => import('@/views/welcome/activate')
             },
             {
                 path: 'index',

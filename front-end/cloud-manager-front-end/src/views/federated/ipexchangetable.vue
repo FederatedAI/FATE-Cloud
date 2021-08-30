@@ -10,7 +10,7 @@
             <el-table-column>
                 <el-table-column prop="" type="index" width="120" :label="$t('m.common.index')" ></el-table-column>
                 <el-table-column prop="networkAccess" :label="$t('m.ip.rollsiteNetworkAccess')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="networkAccessExit" :label="$t('m.site.networkExits')" show-overflow-tooltip></el-table-column>
+                <!-- <el-table-column prop="networkAccessExit" :label="$t('m.site.networkExits')" show-overflow-tooltip></el-table-column> -->
                 <el-table-column prop="" :label="$t('m.ip.routerNetworkAccess')" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span @click="toShowSiteNet(scope.row.partyDos)" style="color:#217AD9;cursor: pointer;">{{scope.row.partyDos && scope.row.partyDos.length}}</span>
@@ -21,7 +21,7 @@
                         {{$t('m.common.'+scope.row.status)}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="updateTime" :label="$t('m.common.updateTime')"  show-overflow-tooltip>
+                <el-table-column prop="updateTime" sortable :label="$t('m.common.updateTime')"  show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span>{{scope.row.updateTime | dateFormat}}</span>
                     </template>
@@ -55,21 +55,18 @@
             ></el-pagination>
         </div>
         <!-- 显示Site Network -->
-        <el-dialog :visible.sync="showSiteNet" class="show-site-dialog" width="780px">
-            <div class="site-net-title">
-                {{$t('m.ip.routerInfo')}}
-            </div>
+        <el-dialog :visible.sync="showSiteNet" :title="$t('m.ip.routerInfo')" class="show-site-dialog" width="880px">
             <div class="site-net-table">
                 <el-table
                     :data="siteNetData"
                     max-height="250" >
                     <el-table-column type="index" :label="$t('m.common.index')" width="80" >
                     </el-table-column>
-                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"  width="90">
+                    <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  width="120">
                     </el-table-column>
-                    <el-table-column  prop="networkAccess" :label="$t('m.ip.routerNetworkAccess')" width="165" show-overflow-tooltip>
+                    <el-table-column  prop="networkAccess" :label="$t('m.ip.routerNetworkAccess')" width="185" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column  prop="secureStatus" :label="$t('m.ip.isSecure')" width="80">
+                    <el-table-column  prop="secureStatus" :label="$t('m.ip.isSecure')" width="90">
                         <template slot-scope="scope">
                             <span>{{scope.row.secureStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                         </template>
@@ -79,7 +76,7 @@
                             <span>{{scope.row.pollingStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column  prop="updateTime" :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
+                    <el-table-column  prop="updateTime" sortable :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <span>{{scope.row.validTime | dateFormat}}</span>
                         </template>
@@ -88,7 +85,7 @@
             </div>
         </el-dialog>
          <!-- 删除 -->
-        <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
+        <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" :show-close="true" width="500px">
             <div class="line-text-one">{{$t('m.ip.sureWantDeleteRollsite')}}</div>
             <div class="dialog-footer">
                 <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
@@ -96,7 +93,7 @@
             </div>
         </el-dialog>
           <!-- 删除 -->
-        <el-dialog :visible.sync="publishdialog" class="sure-exchange-dialog" width="700px">
+        <el-dialog :visible.sync="publishdialog" class="sure-exchange-dialog" :show-close="true" width="500px">
             <div class="line-text-one">{{$t('m.ip.SureWantPublishRollsite')}} </div>
             <div class="line-text-two">{{$t('m.ip.updateToServer')}}</div>
             <div class="dialog-footer">

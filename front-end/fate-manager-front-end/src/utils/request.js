@@ -1,7 +1,7 @@
 import axios from 'axios'
 // import router from '@/router'
 import store from '@/store'
-import { getToken, getCookie } from '@/utils/auth'
+import { getToken, getCookie, removeCookie } from '@/utils/auth'
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 
@@ -27,12 +27,11 @@ const service = axios.create({
 const setErrorMsgToI18n = (msg) => {
     i18n.locale = getCookie('language') || store.getters.language
     let tipKey = ''
-    if (msg.indexOf('msg') > -1) {
+    if (msg && msg.indexOf('msg') > -1) {
         tipKey = msg.split('msg')[1].trim().replace("'", '')
     } else {
         tipKey = msg.replace("'", '')
     }
-    console.log(tipKey, 'tipKey')
     let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? tipKey : tipI18n.$t(`m.errorTips.${tipKey}`)
     let message = msg
     if (msg) {
@@ -81,7 +80,8 @@ let URL = [
     '/fate-manager/api/ansible/testlist',
     '/fate-manager/api/ansible/getcheck',
     '/fate-manager/api/ansible/installlist',
-    '/fate-manager/api/site/fatemanager'
+    '/fate-manager/api/site/fatemanager',
+    '/fate-manager/api/site/testrollsite'
 ]
 // request interceptor
 // 请求拦截
@@ -129,22 +129,22 @@ service.interceptors.response.use(
         };
         if (res.code === 0) {
             return res
-        } else if (res.code === 10066) {
-            store.dispatch('LogOut').then(() => {
-                this.$router.push({ path: '/welcome/login' })
-                location.reload() // 为了重新实例化vue-router对象 避免bug
-            }).catch(err => {
-                console.log(err)
-            })
+        } else if (res.code === 10066 || res.code === 130) {
+            // store.dispatch('clearCookie', '').then(r => {
+            //     location.reload() // 为了重新实例化vue-router对象 避免bug
+            // })
+            return Promise.reject(res)
+        } else if (res.code === 20002) {
+            setErrorMsgToI18n(res.msg) // 没有用户
+            // setTimeout(() => {
+            //     store.dispatch('clearCookie', '').then(r => {
+            //         location.reload() // 为了重新实例化vue-router对象 避免bug
+            //     })
+            // }, 3000)
         } else if (msgCode(res.code)) {
             return Promise.reject(res)
         } else {
             setErrorMsgToI18n(res.msg)
-            // Message({
-            //     message: `${res.msg ? res.msg : 'http reqest failed!'}`,
-            //     type: 'error',
-            //     duration: 5 * 1000
-            // })
             return Promise.reject(res)
         }
         function msgCode(code) {
@@ -156,22 +156,8 @@ service.interceptors.response.use(
     error => {
         // 关闭全局loading
         loading.style.display = 'none'
-        console.log(111)
-        setErrorMsgToI18n(error)
-        // Message({
-        //     message: `${error}`,
-        //     type: 'error',
-        //     duration: 5 * 1000
-        // })
-
-        // 服务端发生错误退出
-        // setTimeout(() => {
-        //     router.push({
-        //         path: '/welcome/login'
-        //     })
-        //     location.reload() // 为了重新实例化vue-router对象 避免bug
-        // }, 1500)
-
+        console.log(error, 'error')
+        // setErrorMsgToI18n(error)
         return Promise.reject(error)
     }
 )

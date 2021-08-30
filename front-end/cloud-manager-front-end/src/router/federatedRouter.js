@@ -26,12 +26,14 @@ export default {
             name: 'Add an Exchange', //
             path: 'ipexchange',
             component: () => import('@/views/federated/ipaddexchange')
-        }, {
-            name: 'Service Manage', //
-            path: 'sys',
-            hidden: true,
-            component: () => import('@/views/federated/system')
-        }, {
+        },
+        // {
+        //     name: 'Service Manage', //
+        //     path: 'sys',
+        //     hidden: true,
+        //     component: () => import('@/views/federated/system')
+        // },
+        {
             name: 'Site Monitor', //
             path: 'sitemonitor',
             hidden: true,

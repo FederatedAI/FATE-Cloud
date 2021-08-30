@@ -40,6 +40,15 @@ const user = {
         setSiteStatus: ({ commit }, data) => {
             commit('SET_STATUS', data)
         },
+        clearCookie: ({ commit }) => {
+            commit('ROLE', {})
+            commit('USER_Id', '')
+            commit('USER_NAME', '')
+            commit('PIL', '')
+            removeCookie('USER_Id')
+            removeCookie('USER_NAME')
+            removeToken()
+        },
         // 账号登录
         Login({ commit }, params) {
             return new Promise((resolve, reject) => {

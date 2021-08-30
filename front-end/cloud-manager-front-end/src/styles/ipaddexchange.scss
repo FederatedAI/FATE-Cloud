@@ -83,10 +83,22 @@
                     }
                 }
                 .edit-table{
+                    margin-top: 24px;
                     .el-table{
                         width: initial !important;
                         margin:0 !important;
                         border-radius: 4px;
+                        .caret-wrapper {
+                            position: absolute;
+                            top: 3px;
+                            height: 20px;
+                            .sort-caret.ascending {
+                                top: -3px;
+                            }
+                            .sort-caret.descending {
+                                bottom: 0px;
+                            }
+                        }
                         thead{
                             tr:nth-of-type(1){
                                 th{
@@ -114,6 +126,9 @@
                 }
                 .el-form-item__label{
                     width: 230px !important;
+                }
+                .el-form-item__content{
+                    margin-left: 230px !important;
                 }
                 .el-input{
                     width: 65%;
@@ -179,8 +194,10 @@
             margin: 30px 0;
             text-align: center;
             .ok-btn {
-                width: 180px;
+                width: 200px;
                 font-size: 18px;
+                height: 36px;
+                line-height: 36px;
             }
         }
     }
@@ -220,7 +237,7 @@
            color: #505765;
        }
        .edit-form{
-           margin:0 24px;
+           margin:24px;
            .el-input__inner{
                border: 0px;
                border-bottom: 1px solid #E6EBF0;
@@ -268,7 +285,7 @@
            }
        }
        .inline{
-           margin-bottom: 0;
+           margin-bottom: 15px;
            .el-form-item__label{
                padding-bottom: 3px;
                margin-right: 20px;
@@ -324,7 +341,7 @@
 
     //弹框居中
     .el-dialog {
-            height: 284px; //弹框宽度
+            height: 240px; //弹框宽度
             display: flex;
             flex-direction: column;
             margin: 0 !important;
@@ -337,25 +354,25 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px;
+            padding: 24px;
         }
 
         .el-dialog__header {
-            display: none;
+            // display: none;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #2D3642;
             margin-bottom: 24px
         }
 
         .line-text-two {
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
-            margin-bottom: 48px
+            margin-bottom: 36px
         }
 
         .sure-btn {

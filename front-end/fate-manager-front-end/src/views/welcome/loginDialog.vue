@@ -1,7 +1,6 @@
 <template>
     <div>
-        <el-dialog :visible.sync="activDialog" :close-on-click-modal="false" :close-on-press-escape="false" class="activ-dialog" width="1000px">
-            <div class="dialog-header">{{$t('m.welcome.adminActivation')}}</div>
+        <el-dialog :visible.sync="activDialog" :title="$t('m.welcome.adminActivation')" :close-on-click-modal="false" :close-on-press-escape="false" class="activ-dialog" width="600px">
             <div class="dialog-body">
                 <el-form ref="activteForm" :model="activteForm" :rules="activteRules" class="activte-form" label-position="left">
                     <div class="text-one">{{$t('m.welcome.enterLinkTip')}}</div>
@@ -22,11 +21,11 @@
                 </el-form>
             </div>
             <div class="dialog-footer">
-                <el-button class="sure-btn" type="primary" @click="toActivte">{{$t('m.common.OK')}}</el-button>
-                <el-button class="cancel-btn" type="info" @click="activDialog = false">{{$t('m.common.cancel')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="toActivte">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="activDialog = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
-        <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="ok-dialog">
+        <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" class="ok-dialog">
             <div class="icon">
                 <i v-if="activate" class="el-icon-success"></i>
                 <i v-else class="el-icon-warning"></i>
@@ -143,8 +142,8 @@ export default {
                     data.passWord = this.activteForm.passWord
                     console.log(data, 'data')
                     activateAct(data).then(res => {
-                        this.okdialog = true
-                        this.activate = true
+                        this.okdialog = res.code === 0
+                        this.activate = res.code === 0
                     }).catch(res => {
                         this.okdialog = true
                         this.activate = false

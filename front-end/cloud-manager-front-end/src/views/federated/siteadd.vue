@@ -12,7 +12,7 @@
         label-position="left"
         :rules="rules"
         label-width="250px">
-        <div class="basic-info">{{"$t('m.common.Basic Info')"}}</div>
+        <div class="basic-info">{{$t('m.siteAdd.Basic Info')}}</div>
         <el-form-item :label="$t('m.common.siteName')"  prop="siteName">
           <span v-if="type==='siteinfo'" class="info-text require">{{form.siteName}}</span>
           <el-input
@@ -109,11 +109,16 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item :label="$t('m.siteAdd.encryption')" prop="encryptType">
-                <span v-if="type==='siteinfo' && form.encryptType" class="info-text">{{form.encryptType===1 ? $t('m.siteAdd.encryptionType') : $t('m.siteAdd.unencrypted')}}</span>
-                <el-radio-group v-else  v-model="form.encryptType">
+                <span v-if="type==='siteinfo' && form.encryptType" class="info-text">{{form.encryptType===1? $t('m.siteAdd.encryptionType') : $t('m.siteAdd.unencrypted')}}</span>
+                <span v-else >
+                    <el-switch :width='35'  v-model="form.encryptType">
+                    </el-switch>
+                </span>
+
+                <!-- <el-radio-group v-else  v-model="form.encryptType">
                     <el-radio :label="1">{{$t('m.siteAdd.encryptionType')}}</el-radio>
                     <el-radio :label="2">{{$t('m.siteAdd.unencrypted')}}</el-radio>
-                </el-radio-group>
+                </el-radio-group> -->
             </el-form-item>
             <el-form-item :label="$t('m.siteAdd.proxyNetworkAccess')"  prop="network">
                 <span v-if="type==='siteinfo'" class="info-text">{{form.network}}</span>
@@ -132,14 +137,15 @@
             </el-form-item>
         </span>
         <div class="basic-info">{{$t('m.siteAdd.Exchange Info')}}</div>
-        <el-form-item label="Exchange"  prop="exchangeName">
+        <el-form-item label="Exchange"  prop="exchangeId">
             <span v-if="type==='siteinfo'" class="info-text">{{form.exchangeName}}</span>
             <el-select
                 v-else
-                @focus="cancelValid('exchangeName')"
-                v-model="form.exchangeName"
+                @focus="cancelValid('exchangeId')"
+                v-model="form.exchangeId"
+                filterable
                 :placeholder="$t('m.siteAdd.exchange')">
-                <el-option v-for="item in exchangeList" :key="item.value" :label="item.label" :value="item.label"></el-option>
+                <el-option v-for="item in exchangeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
         </el-form-item>
 
@@ -151,11 +157,11 @@
       </div>
     </div>
     <!-- 添加成功 -->
-    <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="ok-dialog">
+    <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :show-close="true" :close-on-press-escape="false" class="ok-dialog">
       <div class="icon">
         <i class="el-icon-success"></i>
       </div>
-      <div v-if="type==='siteadd'" class="line-text-one" >{{$t('m.siteAdd.addSuccessfully')}}</div>
+      <div v-if="type==='siteadd'" class="line-text-one">{{$t('m.siteAdd.addSuccessfully')}}</div>
       <div v-if="type==='siteUpdate'" class="line-text-one" >{{$t('m.siteAdd.modifySuccessfully')}}</div>
       <div class="line-text-two">{{$t('m.siteAdd.registrationLinkGenerated')}}</div>
       <div class="line-text-three">
@@ -174,12 +180,12 @@
       </div>
     </el-dialog>
     <!-- 是否离开 -->
-    <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="700px">
+    <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="500px">
       <div class="line-text-one">{{$t('m.siteAdd.sureLeavePage')}}</div>
       <div class="line-text-two">{{$t('m.siteAdd.notSavedTips')}}</div>
       <div class="dialog-footer">
-        <el-button class="sure-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
-        <el-button class="sure-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
     <siteaddip ref="siteaddip"/>
@@ -200,7 +206,7 @@ import { responseRange, requestRange } from '@/utils/idRangeRule'
 
 import Clipboard from 'clipboard'
 import siteaddip from './siteaddip'
-// import checkip from '@/utils/checkip'
+import { checkip } from '@/utils/checkip'
 
 export default {
     name: 'siteadd',
@@ -238,7 +244,7 @@ export default {
                 },
                 exits: '',
                 protocol: 'https://',
-                encryptType: 1,
+                encryptType: true,
                 registrationLink: '',
                 mode: 'short' // 1.4.0 版本修改
             },
@@ -311,17 +317,17 @@ export default {
                     required: true,
                     trigger: 'change',
                     validator: (rule, value, callback) => {
+                        console.log(value, 'value')
                         if (!value) {
                             callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessRequired')))
+                        } else if (!checkip(value)) {
+                            callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessInvalid')))
                         } else {
                             callback()
                         }
-                        // else if (!checkip(value)) {
-                        //     callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessInvalid')))
-                        // }
                     }
                 }],
-                exchangeName: [{ required: true, message: this.$t('m.siteAdd.institutionRrequired'), trigger: 'bulr' }]
+                exchangeId: [{ required: true, message: this.$t('m.siteAdd.ExchangRequired'), trigger: 'bulr' }]
             }
         }
     },
@@ -422,6 +428,9 @@ export default {
         submitAction() {
             // 去除前后空格
             this.form.siteName = this.form.siteName.trim()
+            if (typeof this.form.encryptType !== 'number') {
+                this.$set(this.form, 'encryptType', this.getStatus(this.form.encryptType))
+            }
             if (this.type === 'siteadd') {
                 this.$refs['infoform'].validate(async (valid) => {
                     if (valid) {
@@ -537,7 +546,7 @@ export default {
                 let resData = { ...res.data }
                 if (!res.data.protocol && !res.data.encryptType) {
                     resData.protocol = 'https://'
-                    resData.encryptType = 1
+                    resData.encryptType = true
                 }
                 this.form = resData
                 this.form.mode = 'short' // 1.4.0 版本修改 短连接
@@ -589,6 +598,14 @@ export default {
             resetNetwork().then(res => {
                 this.form.network = res.data.network
             })
+        },
+        getStatus(stauts) {
+            console.log(typeof stauts, 'typeof stauts')
+            if (typeof stauts === 'number') {
+                return stauts === 1
+            } else {
+                return stauts === true ? 1 : 2
+            }
         }
 
     }

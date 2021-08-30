@@ -7,12 +7,17 @@
         
     }
     .el-textarea{
+        textarea{
+            font-size: 16px;
+            font-family:initial;
+            height: 150px;
+        }
         .el-textarea__inner{
             padding: 5px 2px;
         }
         .el-input__count{
             background: none;
-            bottom:-10px
+            bottom: 0
         }
     }
     textarea::-webkit-input-placeholder {
@@ -117,35 +122,43 @@
     }
     .add-dialog {
         .el-dialog__header {
-            display: none;
+            padding: 0;
         }
 
         .el-dialog__body {
-            padding: 36px 48px;
+            padding: 64px 24px 24px;
         }
 
         .dialog-box {
             .title{
-                font-size: 24px;
-                color: #217AD9;
+                font-size: 18px;
+                color: #505765;
                 font-weight: bold;
-                height: 64px;
-                line-height: 64px;
+                position: absolute;
+                top: 24px;
+                left: 24px;
+            }
+            .inner-form{
+                padding: 0 24px;
             }
             .el-form-item__label:before{
                 display: none;
                 color: #fff;
             }
             .el-form-item__label{
-                font-size: 18px;
+                font-size: 16px;
                 color: #848C99
             }
             .el-form-item {
-                margin-bottom: 2px;
+                margin-bottom: 15px;
+                .el-button{
+                    line-height: 24px;
+                    height: 24px;
+                }
                 
                 .el-select {
                     color: #B8BFCC;
-                    width: 90%;
+                    width: 89%;
                     .el-input{
                         font-size: 16px;
                     }
@@ -171,17 +184,25 @@
                     }
                 }
                 .el-date-editor{
-                    width: 90%;
+                    width: 89%;
                     border-top: 0px;
                     border-right: 0px;
                     border-left: 0px;
+                    .el-range__icon {
+                        line-height: 12px;
+                    }
+                    .el-range-separator {
+                        line-height: 16px;
+                    }
                 }
                 .el-textarea{
                     font-size: 16px;
                     width: 90%;
                     .el-textarea__inner{
-                        min-height: 60px !important;
                         background-color: #FAFBFC;
+                        height: 150px !important;
+                        border: 0;
+                        resize: none;
                     }
                     
                 }
@@ -199,6 +220,7 @@
                     content: '*';
                     color: #FF9D00;
                     top: -10px;
+                    left: -15px;
                     position: absolute;
                 }
                 
@@ -212,18 +234,12 @@
         .dialog-foot {
             text-align: center;
             margin: 36px 0 12px 0;
-            .el-button {
-                height: 36px;
-                width: 200px;
-                padding: 0;
-                font-size: 18px;
-
-            }
+            
         }
     }
     .auto-dialog {
         .el-dialog__header {
-            display: none;
+            padding: 0;
         }
 
         .el-dialog__body {
@@ -231,10 +247,10 @@
         }
 
         .dialog-box {
-            padding: 36px;
+            padding: 10px 24px 24px;
 
             .line-text-one{
-                font-size: 24px;
+                font-size: 18px;
                 color: #4E5766;
                 text-align: center;
                 margin-top: 28px;
@@ -243,19 +259,12 @@
                 font-size: 16px;
                 color: #848C99;
                 text-align: center;
-                margin-top: 28px;
+                margin-top: 12px;
             }
             .dialog-foot {
                 text-align: center;
                 margin: 32px 0 12px 0;
 
-                .el-button {
-                    height: 36px;
-                    width: 200px;
-                    padding: 0;
-                    font-size: 18px;
-
-                }
             }
 
         }

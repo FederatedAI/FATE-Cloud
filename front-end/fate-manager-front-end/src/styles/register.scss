@@ -1,8 +1,5 @@
 
         .register {
-            .el-dialog__header{
-                padding: 0;
-            }
             .title {
                 text-align: left;
                 font-size: 18px;
@@ -10,9 +7,8 @@
                 font-weight: bold;
             }
             .organization {
-
+                padding: 0 12px 12px;
                 .name-tip {
-                    margin-top: 24px;
                     color: #848C99;
                     font-size: 14px;
                 }
@@ -57,17 +53,5 @@
             .btn{
                 text-align: center;
                 margin-top: 24px;
-                .OK-btn {
-                    height: 32px;
-                    padding: 0;
-                    width:130px;
-                    font-size: 14px
-                }
-                .Cancel-btn {
-                    height: 32px;
-                    padding: 0;
-                    width:130px;
-                    font-size: 14px;
-                }
             }
         }

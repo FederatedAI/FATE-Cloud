@@ -1,6 +1,6 @@
 <template>
   <div class="add-ip-box">
-    <el-dialog :visible.sync="adddialog" :close-on-click-modal="false" :close-on-press-escape="false" class="add-dialog" width="520px" >
+    <el-dialog :visible.sync="adddialog" :close-on-click-modal="false" :close-on-press-escape="false" class="add-dialog" width="480px" >
       <div class="add-dialog-head">
         <el-button class="addUrl" :disabled="addDisabled" @click="addentrancesSelect" type="text">
           <i class="el-icon-circle-plus"></i>
@@ -18,7 +18,7 @@
             <span v-if="!item.show">
               <el-checkbox v-model="item.checked"></el-checkbox>
               <span class="network-text">{{item.ip}}</span>
-              <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent" >{{$t('m.siteAdd.telnet')}}</span>
+              <span v-if="networkacesstype==='entrances'" @click="testTelnet(index)" class="telnet" >{{$t('m.siteAdd.telnet')}}</span>
               <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
             </span>
             <el-input v-if="item.show" autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)"
@@ -32,7 +32,7 @@
           <span v-if="telnetsuccess" class="tips">
             <img src="@/assets/success.png" />
             <span>
-              {{$t('m.sitemanage.telnetSuccess')}}
+              {{$t('m.ip.telnetSuccess')}}
               <span style="color:#4AA2FF">{{ipPost}}</span>
             </span>
           </span>
@@ -51,8 +51,8 @@
       </div>
 
       <div class="add-dialog-footer">
-        <el-button :disabled="saveDisabled" type="primary" @click.stop="saveAction">{{$t('m.common.save')}}</el-button>
-        <el-button type="primary" @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" :disabled="saveDisabled" type="primary" @click.stop="saveAction">{{$t('m.common.save')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -60,6 +60,7 @@
 
 <script>
 import { telnet } from '@/api/federated'
+import { checkip } from '@/utils/checkip'
 
 export default {
     name: 'ipeditadd',
@@ -96,7 +97,6 @@ export default {
     watch: {
         entrancesSelect: {
             handler: function(val) {
-                console.log(val, 'val')
                 this.addtotal = this.entrancesSelect.length
                 if (val.length >= 20) {
                     this.addDisabled = true
@@ -148,22 +148,23 @@ export default {
         },
         // 关闭
         closeEntrances(index) {
-            let RegExpVal = this.entrancesInput.split(':')
+            let RegExpVal = this.entrancesInput
             // ip正则校验
-            let ipReg = new RegExp(
-                /^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/
-            )
+            // let ipReg = new RegExp(
+            //     /^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/
+            // )
             // 域名正则校验
             // let domainReg = new RegExp(/[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/)
             // 端口正则校验
-            let portReg = new RegExp(
-                /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
-            )
+            // let portReg = new RegExp(
+            //     /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/
+            // )
             // 校验
+            console.log(checkip(RegExpVal), '验证')
             if (!this.entrancesInput) {
                 this.deleteEntrances(index)
             } else {
-                if (portReg.test(RegExpVal[1]) && ipReg.test(RegExpVal[0])) {
+                if (checkip(RegExpVal)) {
                     this.entrancesSelect[this.entrancesindex].show = false
                     this.entrancesSelect[this.entrancesindex].ip = this.entrancesInput
                     this.saveDisabled = false // 可点击保存
@@ -215,7 +216,7 @@ export default {
             this.showMes = 0 // 透明度为0
         },
         // 测试telnet
-        testTelent(index) {
+        testTelnet(index) {
             let data = {
                 partyId: parseInt(this.$route.query.partyId),
                 federatedId: parseInt(this.$route.query.federatedId),

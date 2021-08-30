@@ -19,10 +19,7 @@
           </template>
           <el-menu-item-group>
               <template v-for="(item, index) in menuFederatedList.children" >
-                  <span v-if='item.hidden' :key="index">
-                    <el-menu-item v-if="item.name!=='Service Manage'" :index="item.name">{{$t(`${item.name}`)}}</el-menu-item>
-                    <el-menu-item v-else-if="autostatus" :index="item.name">{{$t(`${item.name}`)}}</el-menu-item>
-                  </span>
+                    <el-menu-item v-if='item.hidden' :key="index" :index="item.name">{{$t(`${item.name}`)}}</el-menu-item>
               </template>
             <!-- <el-menu-item index="Site Manage">{{$t('Site Manage')}}</el-menu-item>
             <el-menu-item index="IP Manage">{{$t('IP Manage')}}</el-menu-item>

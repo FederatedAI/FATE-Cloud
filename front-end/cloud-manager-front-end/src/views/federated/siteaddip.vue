@@ -18,7 +18,7 @@
                     <span v-if="!item.show">
                         <!-- <el-checkbox v-model="item.checked"></el-checkbox> -->
                         <span class="network-text">{{item.ip}}</span>
-                        <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent">{{$t('m.siteAdd.telnet')}}</span>
+                        <span v-if="networkacesstype==='entrances'" @click="testTelnet(index)" class="telnet">{{$t('m.siteAdd.telnet')}}</span>
                         <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
                     </span>
                     <el-input v-if="item.show"  autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)" :placeholder="`${$t('m.siteAdd.typeLike')}: 127.0.0.1:8080` " >
@@ -57,6 +57,7 @@
 
 <script>
 import { telnet } from '@/api/federated'
+import { checkip } from '@/utils/checkip'
 
 export default {
     name: 'siteAddIp',
@@ -140,17 +141,18 @@ export default {
         },
         // 完成校验
         closeEntrances(index) {
-            let RegExpVal = this.entrancesInput.split(':')
+            let RegExpVal = this.entrancesInput
             // ip正则校验
-            let ipReg = new RegExp(/^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/)
+            // let ipReg = new RegExp(/^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/)
             // 域名正则校验
             // let domainReg = new RegExp(/[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/)
             // 端口正则校验
-            let portReg = new RegExp(/^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/)
+            // let portReg = new RegExp(/^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/)
+            console.log(!checkip.test(RegExpVal), 'check')
             if (this.entrancesInput === '') {
                 this.deleteEntrances(index)
             } else {
-                if (portReg.test(RegExpVal[1]) && ipReg.test(RegExpVal[0])) {
+                if (checkip(RegExpVal)) {
                     this.entrancesSelect[this.entrancesindex].show = false
                     this.entrancesSelect[this.entrancesindex].ip = this.entrancesInput
                     this.saveDisabled = false // 可点击保存
@@ -207,7 +209,7 @@ export default {
             this.adddialog = false // 关闭弹框
         },
         // 测试telnet
-        testTelent(index) {
+        testTelnet(index) {
             let data = {
                 ip: this.entrancesSelect[index].ip.split(':')[0],
                 port: parseInt(this.entrancesSelect[index].ip.split(':')[1])

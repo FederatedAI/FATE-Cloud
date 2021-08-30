@@ -266,7 +266,7 @@
             </el-dialog>
         </el-dialog>
         <!-- 确认删除 -->
-        <el-dialog class="sys-delete" width="700px" :visible.sync="deleteVisible">
+        <el-dialog class="sys-delete" width="500px" :show-close="true" :visible.sync="deleteVisible">
             <div class="title">
                 {{$t('Are you sure you want to delete it ?')}}
             </div>

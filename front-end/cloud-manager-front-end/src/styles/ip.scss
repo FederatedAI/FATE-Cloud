@@ -187,6 +187,14 @@
                     }
                 }
                 .collapse{
+                    .el-tooltip{
+                        width: 200px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        word-break: break-all;
+                        white-space: nowrap;
+                        margin-right: 15px;
+                    }
                     .el-collapse-item__header:hover{
                         background-color: rgb(74, 162, 255, 0.1);
                     }
@@ -328,7 +336,7 @@
         }
         .dialog-body{
             .el-form-item{
-                margin-bottom:0px;
+                margin-bottom:15px;
             }
             .el-button{
                 padding:0;
@@ -399,7 +407,7 @@
                     color: #848C99;
                     border: 0px;
                     width: 100% !important;
-                    border-bottom: 1px solid #E6EBF0;
+                    border-bottom: 1px solid #e6e6e6;
                     background: #fff;
                 }
                 .is-error .el-input__inner{
@@ -417,6 +425,17 @@
                     width: initial !important;
                     margin:0 !important;
                     border-radius: 4px;
+                    .caret-wrapper {
+                        position: absolute;
+                        top: 3px;
+                        height: 20px;
+                        .sort-caret.ascending {
+                            top: -3px;
+                        }
+                        .sort-caret.descending {
+                            bottom: 0px;
+                        }
+                    }
                     thead{
                         tr:nth-of-type(1){
                             th{
@@ -496,19 +515,19 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px;
+            padding: 30px 20px;
         }
 
         .el-dialog__header {
-            display: none;
+            // display: none;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 20px;
             color: #2D3642;
-            margin-bottom: 24px
+            margin-bottom: 18px
         }
 
         .line-text-two {
@@ -523,11 +542,13 @@
             max-height: 115px;
             background-color: #F5F8FA;
             overflow: auto;
-            font-size: 18px;
+            font-size: 16px;
             text-align: center;
 
             .rigth-box {
                 display: inline-block;
+                width: 46%;
+                text-align: left;
                 .from {
                     margin-right: 25px;
                     display: inline-block;
@@ -542,14 +563,15 @@
                     vertical-align: top;
                     span {
                         display: block;
+                        line-height: 24px;
                     }
                 }
             }
         }
 
         .ok-btn {
-            width: 180px;
-            font-size: 18px;
+            width: 140px;
+            font-size: 16px;
         }
 
     }
@@ -569,10 +591,10 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px 42px 20px;
+            padding: 0 20px 42px 20px;
         }
         .el-dialog__header {
-            padding :0
+            padding :24px;
         }
         .site-net-title{
             color: #217AD9;
@@ -586,6 +608,17 @@
             .el-table{
                 width:calc(100% - 48px) !important;
                 margin: 0 24px !important;
+                .caret-wrapper {
+                    position: absolute;
+                    top: 3px;
+                    height: 20px;
+                    .sort-caret.ascending {
+                        top: -3px;
+                    }
+                    .sort-caret.descending {
+                        bottom: 0px;
+                    }
+                }
                 th, td{
                         background-color: inherit  !important
                     }
@@ -608,7 +641,7 @@
         }
 
         .el-dialog__body {
-            padding: 0 20px 36px 20px;
+            padding: 24px 20px 36px 20px;
         }
         .el-dialog__header {
             // display: none;
@@ -632,7 +665,7 @@
             margin:0 24px;
             .el-input__inner{
                 border: 0px;
-                border-bottom: 1px solid #E6EBF0;
+                border-bottom: 1px solid #e6e6e6;
                 background: #fff;
             }
             .is-error .el-input__inner{
@@ -677,7 +710,7 @@
             }
         }
         .inline{
-            margin-bottom: 0;
+            margin-bottom: 15px;
             .el-form-item__label{
                 padding-bottom: 3px;
                 margin-right: 20px;
@@ -733,29 +766,24 @@
         .el-dialog__body{
             padding: 24px;
         }
-        .el-button{
-            padding: 0;
-            height: 36px;
-            line-height: 36px;
-        }
 
 
         .el-dialog__header {
-            display: none;
+            // display: none;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #4E5766;
             margin-bottom: 48px
         }
        
-        .ok-btn {
-            width: 180px;
-            font-size: 18px;
-        }
+        // .ok-btn {
+        //     width: 180px;
+        //     font-size: 18px;
+        // }
 
     }
 
@@ -764,12 +792,6 @@
     .el-dialog__body{
         padding: 40px;
     }
-    .el-button{
-        padding: 0;
-        height: 36px;
-        line-height: 36px;
-    }
-
 
     .el-dialog__header {
         // display: none;
@@ -778,22 +800,18 @@
 
     text-align: center;
     .line-text-one{
-        font-size: 24px;
+        font-size: 18px;
         color: #4E5766;
     }
     .line-text-two {
-        font-size: 18px;
+        font-size: 16px;
         color: #848C99;
-        margin-top: 36px;
+        margin-top: 12px;
 
     }
     .dialog-footer{
         margin-top: 30px;
         text-align: center;
-        .ok-btn {
-            width: 180px;
-            font-size: 18px;
-        }
     }
 }
 
@@ -820,7 +838,7 @@
             padding:0 10px;
            
             .inline{
-                margin-bottom: 0;
+                margin-bottom: 15px;
                 .el-form-item__label{
                     padding-bottom: 3px;
                     margin-right: 20px;
@@ -867,7 +885,7 @@
                 }
                 .el-input__inner {
                     border: 0;
-                    border-bottom: 1px solid #e9e9e9;
+                    border-bottom: 1px solid #e6e6e6;
                     border-radius: 0;
                     padding-left: 0;
                     height: 24px;

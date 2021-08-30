@@ -6,20 +6,20 @@
             <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization || ''}`" :placement="'top'"/>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('m.common.institution',{type:'i'})}}</span>
-            <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
+            <span class="title">{{$t('m.sitemanage.size')}}</span>
+            <div class="text"> {{myInstitution.size}} </div>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('m.sitemanage.organizationSize')}}</span>
-            <div class="text"> {{myInstitution.size}} </div>
+            <span class="title">{{$t('m.common.institution',{type:'I'})}}</span>
+            <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
         </div>
         <div class="site-item-text">
             <span class="title">{{$t('m.sitemanage.creationTime')}}</span>
             <div style="color:#4E5766;">{{myInstitution.createTime | dateFormat}}</div>
         </div>
-        <div class="site-title">
+        <!-- <div class="site-title">
             <span class="site-tiem-view" @click="togetexchangeList">{{$t('m.sitemanage.viewExchange')}}</span>
-        </div>
+        </div> -->
     </div>
     <div class="sitemanage-box">
         <div class="add-site">
@@ -185,18 +185,18 @@
                     <span>{{scope.row.status | getSiteStatus}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')" >
+            <!-- <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')" >
                 <template slot-scope="scope">
                     <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="role.desc" :label="$t('m.common.role')" >
                 <template slot-scope="scope">
                     <span>{{scope.row.role | getSiteType}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="partyId" :label="$t('m.common.partyID')" ></el-table-column>
-            <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
+            <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')" ></el-table-column>
+            <el-table-column prop="activationTime" sortable :label="$t('m.sitemanage.activationTime')">
                 <template slot-scope="scope">
                     <span>{{scope.row.activationTime | dateFormat}}</span>
                 </template>
@@ -241,17 +241,17 @@
                             <span>{{scope.row.status | getSiteStatus}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')">
+                    <!-- <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')">
                         <template slot-scope="scope">
                             <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                     <el-table-column prop="role.desc" :label="$t('m.common.role')">
                         <template slot-scope="scope">
                             <span>{{scope.row.role | getSiteType}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"></el-table-column>
+                    <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"></el-table-column>
                     <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
                         <template slot-scope="scope">
                             <span>{{scope.row.activationTime | dateFormat}}</span>
@@ -297,50 +297,46 @@
         </div>
     </el-dialog>
      <!-- 审批不通过查看弹框 -->
-    <el-dialog :visible.sync="applynotpass" class="apply-not-pass" width="700px">
+    <el-dialog :visible.sync="applynotpass" class="apply-not-pass" :show-close="true" width="500px">
         <span v-if='agreedList.length>0'>
-            <div class="line-text-one">{{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}</div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}
                 <span class="span" v-for="(item, index) in agreedList" :key="index">
                     <span v-if="index===agreedList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
 
          <span v-if='rejectList.length>0'>
-            <div class="line-text-one">
-                <span v-if='agreedList.length>0'>{{$t('m.common.and')}}</span>
-                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject')})}}
-            </div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                <span v-if='agreedList.length>0'>,{{$t('m.common.and')}}</span>
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.rejected')})}}
                 <span class="span" v-for="(item, index) in rejectList" :key="index">
                     <span v-if="index===rejectList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
         <span v-if='cancelList.length>0'>
-            <div class="line-text-one">
-                <span v-if='rejectList.length>0'>{{$t('m.common.and')}}</span>
-                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
-            </div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                <span v-if='rejectList.length>0'>,{{$t('m.common.and')}}</span>
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.canceled')})}}
                 <span class="span" v-for="(item, index) in cancelList" :key="index">
                     <span v-if="index===cancelList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
         <div class="dialog-footer">
             <el-button class="ok-btn" type="primary" @click="toapplynotpass">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
-      <!-- Exchange弹框 -->
-    <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
+    <!-- Exchange弹框 -->
+    <!-- <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
         <div class="vip-box">
             <div class="dialog-title">{{$t('m.sitemanage.exchangeInfo')}}</div>
             <el-table
@@ -356,7 +352,7 @@
                 <el-table-column prop="vip" label="VIP"></el-table-column>
             </el-table>
         </div>
-    </el-dialog>
+    </el-dialog> -->
     <!-- 注册弹框 -->
     <siteregister ref="siteregister"/>
   </div>
@@ -397,29 +393,29 @@ export default {
             rejectList: [], // 拒绝列表
             cancelList: [], // 取消列表
             siteHistoryList: [], // 历史审批记录
-            exchangedialog: false,
+            // exchangedialog: false,
             exchangeList: { },
             chartTimer: null, // 轮询定时器
             siteTotal: 0,
             otherTotal: 0,
             historyTotal: 0,
             otherPageData: {
-                pageSize: 2,
+                pageSize: 10,
                 pageNum: 1
             },
             sitePageData: {
-                pageSize: 2,
+                pageSize: 10,
                 pageNum: 1
             },
             historyPageData: {
-                pageSize: 2,
+                pageSize: 10,
                 pageNum: 1
             }
 
         }
     },
     computed: {
-        ...mapGetters(['role', 'siteState']),
+        ...mapGetters(['role', 'siteState', 'userName']),
         hostListText() {
             return this.viewContent.hostInstuList.length > 0 ? this.viewContent.hostInstuList.join(',') : this.$t('m.common.noData')
         },
@@ -489,7 +485,12 @@ export default {
             })
         },
         otherApplys() {
-            fatemanagerList().then(res => {
+            fatemanagerList({ 'user_name': this.userName }).then(res => {
+                if (res.code === 20002 || res.code === 30002) {
+                    this.clearPollingTimer()
+                    console.log(res, 'fatemanagerList-130')
+                    return
+                }
                 // res.data = []
                 let data = res.data.institutions || []
                 let scenarioType = data.scenarioType
@@ -529,12 +530,12 @@ export default {
             })
         },
         // 获取exchangeList 列表
-        togetexchangeList() {
-            this.exchangedialog = true
-            getexchangeList().then(res => {
-                this.exchangeList = res.data || []
-            })
-        },
+        // togetexchangeList() {
+        //     this.exchangedialog = true
+        //     getexchangeList().then(res => {
+        //         this.exchangeList = res.data || []
+        //     })
+        // },
         // 添加站点
         toAddSite() {
             // 前往注册
@@ -546,7 +547,7 @@ export default {
             this.$router.push({
                 name: 'siteinfo',
                 path: '/siteinfo/index',
-                query: { federatedId: row.federatedId, partyId: row.partyId }
+                query: { federatedId: row.federatedId, partyId: row.partyId, siteId: row.siteId }
             })
         },
         // 获取申请弹框列表

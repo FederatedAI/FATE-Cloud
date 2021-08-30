@@ -1,7 +1,7 @@
 
 import moment from 'moment'
 import map from '@/utils/map'
-console.log(map.roleType, 'map')
+import { getCookie } from '@/utils/auth'
 let timeFormat = (timeStamp) => {
     let secondTime = parseInt(timeStamp / 1000)
     let min = 0
@@ -44,7 +44,15 @@ let getServiceStatus = (value) => {
 let getSiteType = (value) => {
     if (!value) return ''
     let code = value.code ? value.code : value
+    map.setLanguage(getCookie('language'))
     let maps = map['siteType'].filter(item => item.value === `${code}`)[0]
+    return maps ? maps.label : value.desc
+}
+
+let getBollen = (value) => {
+    if (!value) return ''
+    let code = value.code ? value.code : value
+    let maps = map['statusBollen'].filter(item => item.value === `${code}`)[0]
     return maps ? maps.label : value.desc
 }
 
@@ -54,5 +62,6 @@ export {
     getRoleType,
     getSiteStatus,
     getServiceStatus,
-    getSiteType
+    getSiteType,
+    getBollen
 }

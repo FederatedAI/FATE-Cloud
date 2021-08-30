@@ -48,7 +48,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="creator" :label="$t('m.sitemanage.creator')" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="createTime" :label="$t('m.common.createTime')" >
+                <el-table-column prop="createTime" sortable :label="$t('m.common.createTime')" >
                     <template slot-scope="scope">
                         <span >{{scope.row.createTime | dateFormat}}</span>
                     </template>
