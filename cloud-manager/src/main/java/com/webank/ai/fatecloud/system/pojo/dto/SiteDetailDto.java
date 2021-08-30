@@ -20,11 +20,14 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.webank.ai.fatecloud.common.SecretInfo;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -53,7 +56,7 @@ public class SiteDetailDto implements Serializable {
         this.detectiveStatus = federatedSiteManagerDo.getDetectiveStatus();
         this.network = federatedSiteManagerDo.getNetwork();
         this.protocol = federatedSiteManagerDo.getProtocol();
-        this.encryptType=federatedSiteManagerDo.getEncryptType();
+        this.encryptType = federatedSiteManagerDo.getEncryptType();
         if (federatedSiteManagerDo.getCreateTime() != null) {
             this.createTime = federatedSiteManagerDo.getCreateTime().getTime();
         }
@@ -70,7 +73,22 @@ public class SiteDetailDto implements Serializable {
         if (federatedSiteManagerDo.getFederatedGroupSetDo() != null) {
             this.groupName = federatedSiteManagerDo.getFederatedGroupSetDo().getGroupName();
         }
+        this.exchangeId = federatedSiteManagerDo.getExchangeId();
+    }
 
+    public SiteDetailDto(FederatedSiteManagerDo federatedSiteManagerDo, PartyDetailsDto partyDetailsDto) {
+        this(federatedSiteManagerDo);
+        if (partyDetailsDto != null) {
+            this.secureStatus = partyDetailsDto.getSecureStatus();
+            this.pollingStatus = partyDetailsDto.getPollingStatus();
+            this.exchangeId = partyDetailsDto.getExchangeId();
+            this.exchangeName = partyDetailsDto.getExchangeName();
+            this.vipEntrance = partyDetailsDto.getVipEntrance();
+            this.rollSiteNetworkAccessExits = partyDetailsDto.getRollSiteDoList()
+                    .stream()
+                    .map(RollSiteDo::getNetworkAccessExit)
+                    .collect(Collectors.joining(";", "", ";"));
+        }
     }
 
     @ApiModelProperty(value = "primary key")
@@ -79,10 +97,10 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "site name")
     private String siteName;
 
-    @ApiModelProperty(value = "site partyid")
+    @ApiModelProperty(value = "site party id")
     private Long partyId;
 
-    @ApiModelProperty(value = "site appkey && secret")
+    @ApiModelProperty(value = "site app key && secret")
     private SecretInfo secretInfo;
 
     @ApiModelProperty(value = "federated registration link")
@@ -133,9 +151,33 @@ public class SiteDetailDto implements Serializable {
     @ApiModelProperty(value = "group name")
     private String groupName;
 
+    @ApiModelProperty(value = "federated organization name")
+    private String federatedOrganization;
+
+    @ApiModelProperty(value = "federated organization id")
+    private Long federatedOrganizationId;
+
     @ApiModelProperty(value = "site detective status")
     private Integer detectiveStatus;
 
     @ApiModelProperty(value = "encrypt type")
     private Integer encryptType;
+
+    @ApiModelProperty(value = "secure status, 1 = false, 2 = true")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status, 1 = false, 2 = true")
+    private Integer pollingStatus;
+
+    @ApiModelProperty(value = "exchange id")
+    private Long exchangeId;
+
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
+
+    @ApiModelProperty(value = "exchange vip entrances")
+    private String vipEntrance;
+
+    @ApiModelProperty(value = "current roll site exit list in under exchange")
+    private String rollSiteNetworkAccessExits;
 }

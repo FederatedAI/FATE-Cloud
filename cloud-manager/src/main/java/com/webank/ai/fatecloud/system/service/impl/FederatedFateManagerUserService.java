@@ -17,10 +17,8 @@ package com.webank.ai.fatecloud.system.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.Dict;
 import com.webank.ai.fatecloud.common.EncryptUtil;
-import com.webank.ai.fatecloud.common.Enum.ReturnCodeEnum;
 import com.webank.ai.fatecloud.common.util.KeyAndSecretGenerate;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
@@ -31,6 +29,7 @@ import com.webank.ai.fatecloud.system.dao.mapper.FederatedOrganizationMapper;
 import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
 import com.webank.ai.fatecloud.system.pojo.qo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -60,7 +59,8 @@ public class FederatedFateManagerUserService {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         federatedFateManagerUserDo.setFateManagerId(uuid);
 
-        federatedFateManagerUserDo.setInstitutions(fateManagerUserAddQo.getInstitutions());
+        String institutions = fateManagerUserAddQo.getInstitutions();
+        federatedFateManagerUserDo.setInstitutions(institutions);
 
         String appKey = KeyAndSecretGenerate.getAppKey();
         String appSecret = KeyAndSecretGenerate.getAppSecret(appKey);
@@ -82,11 +82,14 @@ public class FederatedFateManagerUserService {
         String userInfo = JSON.toJSONString(stringObjectHashMap);
         String network = fateManagerUserAddQo.getNetwork();
 
+        String mode = fateManagerUserAddQo.getMode();
         String fateUserRegistrationUrl = "";
-        if ("http://".equals(fateManagerUserAddQo.getProtocol())) {
-            fateUserRegistrationUrl = "http://" + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        String protocol = "http://".equals(fateManagerUserAddQo.getProtocol()) ? "http://" : "https://";
+        if (StringUtils.isNotBlank(mode) && "short".equals(mode)) {
+            //fateUserRegistrationUrl = protocol + network + prefix + "/api/fate/user/activate" + "?st=" + institutions + "_" + uuid;
+            fateUserRegistrationUrl = protocol + network + "?stl=" + institutions + "_" + uuid;
         } else {
-            fateUserRegistrationUrl = "https://" + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = protocol + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
@@ -106,8 +109,10 @@ public class FederatedFateManagerUserService {
 
 
     public FederatedFateManagerUserDo updateFateManagerUser(FateManagerUserUpdateQo fateManagerUserUpdateQo) throws UnsupportedEncodingException {
+        String institution = fateManagerUserUpdateQo.getInstitution();
+        String fateManagerId = fateManagerUserUpdateQo.getFateManagerId();
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
-        federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", fateManagerUserUpdateQo.getFateManagerId());
+        federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", fateManagerId);
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
         if (federatedFateManagerUserDos.size() <= 0) {
             return null;
@@ -115,8 +120,8 @@ public class FederatedFateManagerUserService {
         FederatedFateManagerUserDo federatedFateManagerUserDoOld = federatedFateManagerUserDos.get(0);
 
         FederatedFateManagerUserDo federatedFateManagerUserDo = new FederatedFateManagerUserDo();
-        federatedFateManagerUserDo.setFateManagerId(fateManagerUserUpdateQo.getFateManagerId());
-        federatedFateManagerUserDo.setInstitutions(fateManagerUserUpdateQo.getInstitution());
+        federatedFateManagerUserDo.setFateManagerId(fateManagerId);
+        federatedFateManagerUserDo.setInstitutions(institution);
         federatedFateManagerUserDo.setSecretInfo(federatedFateManagerUserDoOld.getSecretInfo());
 
         HashMap<String, Object> stringObjectHashMap = new HashMap<>();
@@ -131,10 +136,12 @@ public class FederatedFateManagerUserService {
         String network = fateManagerUserUpdateQo.getNetwork();
 
         String fateUserRegistrationUrl = "";
-        if ("http://".equals(fateManagerUserUpdateQo.getProtocol())) {
-            fateUserRegistrationUrl = "http://" + network + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+        String mode = fateManagerUserUpdateQo.getMode();
+        String protocol = "http://".equals(fateManagerUserUpdateQo.getProtocol()) ? "http://" : "https://";
+        if (StringUtils.isNotBlank(mode) && "short".equals(mode)) {
+            fateUserRegistrationUrl = protocol + network + "?stl=" + institution + "_" + fateManagerId;
         } else {
-            fateUserRegistrationUrl = "https://" + network + prefix + "/api/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
+            fateUserRegistrationUrl = protocol + network + prefix + "/api/fate/user/activate" + "?st=" + userInfo.replace("\"{", "{").replace("}\"", "}").replace("\\", "").replace("\"", "\\\"");
         }
 
         String encodedFateUserRegistrationUrl = EncryptUtil.encode(fateUserRegistrationUrl);
@@ -180,8 +187,23 @@ public class FederatedFateManagerUserService {
         FederatedFateManagerUserDo federatedFateManagerUserDo = new FederatedFateManagerUserDo();
         federatedFateManagerUserDo.setStatus(2);
         federatedFateManagerUserMapper.update(federatedFateManagerUserDo, federatedFateManagerUserDoQueryWrapper);
+    }
 
+    public HashMap<String, Object> shortActivateFateManagerUser(HttpServletRequest httpServletRequest) {
+        activateFateManagerUser(httpServletRequest);
+        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+        federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID));
+        FederatedFateManagerUserDo federatedFateManagerUserDo = federatedFateManagerUserMapper.selectOne(federatedFateManagerUserDoQueryWrapper);
 
+        HashMap<String, Object> stringObjectHashMap = new HashMap<>();
+        stringObjectHashMap.put("fateManagerUser", federatedFateManagerUserDo);
+
+        QueryWrapper<FederatedOrganizationDo> query = new QueryWrapper<>();
+        query.select("id", "name", "institution", "create_time").eq("status", 1);
+        FederatedOrganizationDo federatedOrganizationDo = federatedOrganizationMapper.selectOne(query);
+        stringObjectHashMap.put("federatedOrganization", federatedOrganizationDo);
+
+        return stringObjectHashMap;
     }
 
     public FederatedFateManagerUserDo findFateManagerUser(String fateManagerId) {
@@ -233,11 +255,29 @@ public class FederatedFateManagerUserService {
 
         }
 
+        federatedCloudManagerUserDoQueryWrapper.in("status", 1, 2, 3);
         Integer count = federatedFateManagerUserMapper.selectCount(federatedCloudManagerUserDoQueryWrapper);
         PageBean<FederatedFateManagerUserDo> userListBean = new PageBean<>(fateManagerUserPagedQo.getPageNum(), fateManagerUserPagedQo.getPageSize(), count);
         long startIndex = userListBean.getStartIndex();
 
         List<FederatedFateManagerUserDo> pagedCloudUser = federatedFateManagerUserMapper.findPagedFateManagerUser(fateManagerUserPagedQo, startIndex);
+
+        // is it possible to reactivate
+        for (FederatedFateManagerUserDo federatedFateManagerUserDo : pagedCloudUser) {
+            if (federatedFateManagerUserDo.getStatus() != null && federatedFateManagerUserDo.getStatus() != 1) {
+                if (federatedFateManagerUserDo.getStatus() == 3){
+                    federatedFateManagerUserDo.setStatus(20);
+                    continue;
+                }
+
+                QueryWrapper<FederatedSiteManagerDo> siteManagerDoQueryWrapper = new QueryWrapper<FederatedSiteManagerDo>()
+                        .eq("institutions", federatedFateManagerUserDo.getInstitutions());
+                Integer integer = federatedSiteManagerMapper.selectCount(siteManagerDoQueryWrapper);
+                if (integer != null && integer > 0) {
+                    federatedFateManagerUserDo.setStatus(20);
+                }
+            }
+        }
 
         userListBean.setList(pagedCloudUser);
         return userListBean;
@@ -274,8 +314,8 @@ public class FederatedFateManagerUserService {
 //        registrationLink = registrationLink.replaceAll("[\\s*\t\n\r]", " ");
 
         if (!linkeInput.equals(registrationLink)) {
-            log.error("linkeInput     :{}",linkeInput);
-            log.error("linkeInDateBase:{}",registrationLink);
+            log.error("linkeInput     :{}", linkeInput);
+            log.error("linkeInDateBase:{}", registrationLink);
             return false;
         }
 
@@ -285,7 +325,7 @@ public class FederatedFateManagerUserService {
     public List<String> findAllInstitutions() {
 
         QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
-        federatedFateManagerUserDoQueryWrapper.select("institutions");
+        federatedFateManagerUserDoQueryWrapper.select("institutions").in("status", 1, 2);
         List<FederatedFateManagerUserDo> federatedFateManagerUserDos = federatedFateManagerUserMapper.selectList(federatedFateManagerUserDoQueryWrapper);
 
         LinkedList<String> institutionsList = new LinkedList<>();
@@ -293,5 +333,28 @@ public class FederatedFateManagerUserService {
             institutionsList.add(federatedFateManagerUserDo.getInstitutions());
         }
         return institutionsList;
+    }
+
+    public boolean reactivateFateManagerUser(FateManagerUserUpdateQo fateManagerUserUpdateQo) {
+        boolean result;
+        QueryWrapper<FederatedFateManagerUserDo> federatedFateManagerUserDoQueryWrapper = new QueryWrapper<>();
+        federatedFateManagerUserDoQueryWrapper.eq("fate_manager_id", fateManagerUserUpdateQo.getFateManagerId());
+        FederatedFateManagerUserDo fateManagerUserDo = federatedFateManagerUserMapper.selectOne(federatedFateManagerUserDoQueryWrapper);
+
+        if (result = (fateManagerUserDo != null && fateManagerUserDo.getStatus() == 2)) {
+            QueryWrapper<FederatedSiteManagerDo> smw = new QueryWrapper<>();
+            smw.eq("institutions", fateManagerUserDo.getInstitutions());
+            List<FederatedSiteManagerDo> federatedSiteManagerDoList = federatedSiteManagerMapper.selectList(smw);
+
+            if (result = (federatedSiteManagerDoList.isEmpty())) {
+                // reset fate manager user status
+                FederatedFateManagerUserDo federatedFateManagerUserDo = new FederatedFateManagerUserDo();
+                federatedFateManagerUserDo.setStatus(1);
+                federatedFateManagerUserDo.setUpdateTime(new Date());
+                int update = federatedFateManagerUserMapper.update(federatedFateManagerUserDo, federatedFateManagerUserDoQueryWrapper);
+                result = update == 1;
+            }
+        }
+        return result;
     }
 }

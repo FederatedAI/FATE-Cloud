@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -98,6 +99,22 @@ public class FederatedFateManagerUserServiceFacade {
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
     }
 
+    public CommonResponse<HashMap<String, Object>> shortLinkActivateFateManagerUser(SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        boolean result = checkSignature.shortLinkActivateCheckSignature(httpServletRequest, JSON.toJSONString(siteActivateQo), Dict.FATE_MANAGER_USER, new int[]{1});
+        if (!result) {
+            return new CommonResponse<>(ReturnCodeEnum.AUTHORITY_ERROR);
+        }
+
+        boolean urlResult = federatedFateManagerUserService.checkUrl(siteActivateQo, httpServletRequest);
+        if (!urlResult) {
+            return new CommonResponse<>(ReturnCodeEnum.FATE_MANAGER_URL_ERROR);
+
+        }
+
+        HashMap<String, Object> stringObjectHashMap = federatedFateManagerUserService.shortActivateFateManagerUser(httpServletRequest);
+        return new CommonResponse<>(ReturnCodeEnum.SUCCESS, stringObjectHashMap);
+    }
+
 
     public CommonResponse deleteFateManagerUser(FateManagerUserDeleteQo fateManagerUserDeleteQo) {
         federatedFateManagerUserService.deleteFateManagerUser(fateManagerUserDeleteQo);
@@ -119,5 +136,14 @@ public class FederatedFateManagerUserServiceFacade {
     public CommonResponse<List<String>> findAllInstitutions() {
         List<String> allFateManagerUser = federatedFateManagerUserService.findAllInstitutions();
         return new CommonResponse<>(ReturnCodeEnum.SUCCESS, allFateManagerUser);
+    }
+
+    public CommonResponse<Boolean> reactivateFateManagerUser(FateManagerUserUpdateQo fateManagerUserUpdateQo) {
+        boolean result = federatedFateManagerUserService.reactivateFateManagerUser(fateManagerUserUpdateQo);
+        if (result) {
+            return new CommonResponse<>(ReturnCodeEnum.SUCCESS);
+        } else {
+            return new CommonResponse<>(ReturnCodeEnum.INSTITUTIONS_REACTIVATE_ERROR);
+        }
     }
 }

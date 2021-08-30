@@ -37,4 +37,10 @@ public class IpManagerAcceptQo implements Serializable {
 
     @ApiModelProperty(value = "network access exits")
     private String networkAccessExits;
+
+    @ApiModelProperty(value = "secure status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer pollingStatus;
 }

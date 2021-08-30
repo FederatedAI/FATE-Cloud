@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -68,9 +69,29 @@ public class FederatedFateManagerUserController {
     @PostMapping(value = "/activate")
     @ApiOperation(value = "activate fate manager user")
     public CommonResponse activateFateManagerUser(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
-        log.info("request for activate fate manager, header:{} | body:{}", httpServletRequest,siteActivateQo);
+        log.info("request for activate fate manager, header:{} | body:{}", httpServletRequest, siteActivateQo);
         CommonResponse commonResponse = federatedFateManagerUserServiceFacade.activateFateManagerUser(siteActivateQo, httpServletRequest);
-        log.info("response for activate fate manager :{}",commonResponse);
+        log.info("response for activate fate manager :{}", commonResponse);
+        return commonResponse;
+
+    }
+
+    @PostMapping(value = "/activate/v2")
+    @ApiOperation(value = "activate fate manager user")
+    public CommonResponse<HashMap<String, Object>> shortLinkActivateFateManagerUser(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        log.info("request for short activate fate manager, header:{} | body:{}", httpServletRequest, siteActivateQo);
+        CommonResponse<HashMap<String, Object>> commonResponse = federatedFateManagerUserServiceFacade.shortLinkActivateFateManagerUser(siteActivateQo, httpServletRequest);
+        log.info("response for short activate fate manager :{}", commonResponse);
+        return commonResponse;
+
+    }
+
+    @PostMapping(value = "/reactivate")
+    @ApiOperation(value = "activate fate manager user")
+    public CommonResponse<Boolean> reactivateFateManagerUser(@RequestBody FateManagerUserUpdateQo fateManagerUserUpdateQo) {
+        log.info("request for reactivate fate manager, body:{}", fateManagerUserUpdateQo);
+        CommonResponse<Boolean> commonResponse = federatedFateManagerUserServiceFacade.reactivateFateManagerUser(fateManagerUserUpdateQo);
+        log.info("response for activate fate manager :{}", commonResponse);
         return commonResponse;
 
     }

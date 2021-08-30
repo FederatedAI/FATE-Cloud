@@ -15,8 +15,6 @@
  */
 package com.webank.ai.fatecloud.system.pojo.qo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -44,4 +42,7 @@ public class FateManagerUserUpdateQo implements Serializable {
 
     @ApiModelProperty(value = "primary key")
     private String fateManagerId;
+
+    @ApiModelProperty("generate registration link pattern, long or short")
+    private String mode;
 }

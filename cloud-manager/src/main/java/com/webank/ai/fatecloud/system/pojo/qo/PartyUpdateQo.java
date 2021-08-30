@@ -17,31 +17,32 @@ package com.webank.ai.fatecloud.system.pojo.qo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
-
-import java.io.Serializable;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-@ApiModel(value = "institutions info for page")
-public class InstitutionQo implements Serializable {
+@ApiModel(value = "exchange routing party info update")
+public class PartyUpdateQo {
+    @ApiModelProperty(value = "primary key")
+    private Long id;
 
-    @ApiModelProperty("page number")
-    private Integer pageNum = 1;
+    @ApiModelProperty(value = "party id value")
+    private Long partyId;
 
-    @ApiModelProperty("page size")
-    private Integer pageSize = 10;
+    @ApiModelProperty(value = "network access entrances")
+    private String networkAccessEntrances;
 
-    @ApiModelProperty(value = "party id,site name")
-    private String condition;
+    @ApiModelProperty(value = "network access exits")
+    private String networkAccessExits;
 
-    @ApiModelProperty(value = "2: Using, 3: Deleted")
+    @ApiModelProperty(value = "exchange id")
+    private Long exchangeId;
+
+    @ApiModelProperty(value = "secure status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer pollingStatus;
+
+    @ApiModelProperty(value = "status")
     private Integer status;
-
-    @ApiModelProperty(value = "institutions")
-    private String[] institutionsArray;
-
 }

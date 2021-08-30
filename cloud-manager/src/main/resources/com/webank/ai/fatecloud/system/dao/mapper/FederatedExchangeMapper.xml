@@ -10,8 +10,8 @@
     <select id="findExchangeCountForFateManager"
             parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangePageForFateManagerQo"
             resultType="int">
-        select count(1) from (select a.exchange_id FROM t_federated_exchange a, t_roll_site b, t_party c
-        where a.exchange_id = b.exchange_id and b.roll_site_id = c.roll_site_id
+        select count(1) from (select a.exchange_id FROM t_federated_exchange a, t_roll_site b, t_party c, t_roll_site_party rsp
+        where a.exchange_id = b.exchange_id and b.roll_site_id = rsp.roll_site_id AND rsp.party_id = c.party_id
         and c.party_id in (select party_id from t_federated_site_manager where institutions=#{institutions})
         group by a.exchange_id ) temp
     </select>
@@ -19,11 +19,18 @@
 
     <select id="findExchangePageForFateManager" resultType="com.webank.ai.fatecloud.system.dao.entity.FederatedExchangeDo">
 
-        select a.* FROM t_federated_exchange a, t_roll_site b, t_party c
-        where a.exchange_id = b.exchange_id and b.roll_site_id = c.roll_site_id
+        select a.* FROM t_federated_exchange a, t_roll_site b, t_party c, t_roll_site_party rsp
+        where a.exchange_id = b.exchange_id and b.roll_site_id = rsp.roll_site_id AND rsp.party_id = c.party_id
         and c.party_id in  (select party_id from t_federated_site_manager where institutions=#{exchangePageForFateManagerQo.institutions})
         group by a.exchange_id order by a.update_time desc limit #{startIndex}, #{exchangePageForFateManagerQo.pageSize}
 
+    </select>
+
+    <select id="exchangeUsingCount" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM t_federated_site_manager s,t_federated_exchange e
+        WHERE s.exchange_id = e.exchange_id
+        AND s.`status` IN(1,2)
+        AND e.exchange_id = ${exchangeId}
     </select>
 
 </mapper>

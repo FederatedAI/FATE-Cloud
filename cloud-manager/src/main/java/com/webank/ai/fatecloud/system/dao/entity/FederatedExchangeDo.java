@@ -44,9 +44,9 @@ public class FederatedExchangeDo implements Serializable {
     @TableField(value = "exchange_name")
     private String exchangeName;
 
-    @ApiModelProperty(value = "vip address access ")
-    @TableField(value = "vip")
-    private String vip;
+    @ApiModelProperty(value = "vip entrance address access ")
+    @TableField(value = "vip_entrance")
+    private String vipEntrance;
 
 //    @ApiModelProperty(value = "status")
 //    @TableField(value = "status")

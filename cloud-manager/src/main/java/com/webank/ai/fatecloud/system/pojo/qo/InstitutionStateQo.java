@@ -19,29 +19,16 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
-import java.io.Serializable;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "institutions info for page")
-public class InstitutionQo implements Serializable {
+@ApiModel(value = "institutions state")
+public class InstitutionStateQo {
+    @ApiModelProperty("institution name")
+    private String institution;
 
-    @ApiModelProperty("page number")
-    private Integer pageNum = 1;
-
-    @ApiModelProperty("page size")
-    private Integer pageSize = 10;
-
-    @ApiModelProperty(value = "party id,site name")
-    private String condition;
-
-    @ApiModelProperty(value = "2: Using, 3: Deleted")
+    @ApiModelProperty("institution status: 1 not activated, 2 activated, 3 deleted")
     private Integer status;
-
-    @ApiModelProperty(value = "institutions")
-    private String[] institutionsArray;
-
 }

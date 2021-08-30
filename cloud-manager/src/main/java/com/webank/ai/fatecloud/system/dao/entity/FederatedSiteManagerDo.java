@@ -42,6 +42,7 @@ public class FederatedSiteManagerDo  implements Serializable {
         this.institutions=siteAddQo.getInstitutions();
         this.partyId=siteAddQo.getPartyId();
         this.groupId=siteAddQo.getGroupId();
+        this.exchangeId= siteAddQo.getExchangeId();
         this.networkAccessEntrances=siteAddQo.getNetworkAccessEntrances();
         this.networkAccessExits=siteAddQo.getNetworkAccessExits();
     }
@@ -129,6 +130,10 @@ public class FederatedSiteManagerDo  implements Serializable {
     @ApiModelProperty(value = "party id  group")
     @TableField(value = "group_id")
     private Long groupId;
+
+    @ApiModelProperty(value = "party bind exchange")
+    @TableField(value = "exchange_id")
+    private Long exchangeId;
 
     @TableField(exist = false)
     private FederatedGroupSetDo federatedGroupSetDo;

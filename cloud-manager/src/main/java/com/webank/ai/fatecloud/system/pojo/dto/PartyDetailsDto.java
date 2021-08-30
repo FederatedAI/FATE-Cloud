@@ -13,54 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.ai.fatecloud.system.dao.entity;
+package com.webank.ai.fatecloud.system.pojo.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
+import com.webank.ai.fatecloud.system.dao.entity.RollSiteDo;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@ApiModel(value = "roll site details")
-@TableName("t_roll_site")
-public class RollSiteDo implements Serializable {
-
+public class PartyDetailsDto {
     @ApiModelProperty(value = "primary key")
-    @TableId(value = "roll_site_id", type = IdType.AUTO)
-    private Long rollSiteId;
+    private Long id;
+
+    @ApiModelProperty(value = "party id value")
+    private String partyId;
 
     @ApiModelProperty(value = "network access ")
-    @TableField(value = "network_access")
     private String networkAccess;
 
-    @ApiModelProperty(value = "network access exit")
-    @TableField(value = "network_access_exit")
-    private String networkAccessExit;
+    @ApiModelProperty(value = "secure status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer pollingStatus;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer status;
 
     @ApiModelProperty(value = "create time")
-    @TableField(value = "create_time")
     private Date createTime;
 
     @ApiModelProperty(value = "update time")
-    @TableField(value = "update_time")
     private Date updateTime;
 
+    @ApiModelProperty(value = "valid time")
+    private Date validTime;
+
+    @ApiModelProperty(value = "contains the current party roll site list")
+    private List<RollSiteDo> rollSiteDoList;
+
     @ApiModelProperty(value = "exchange id")
-    @TableId(value = "exchange_id")
     private Long exchangeId;
 
-    @TableField(exist = false)
-    private List<PartyDo> partyDos;
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
 
+    @ApiModelProperty(value = "vip address access entrance")
+    private String vipEntrance;
 }

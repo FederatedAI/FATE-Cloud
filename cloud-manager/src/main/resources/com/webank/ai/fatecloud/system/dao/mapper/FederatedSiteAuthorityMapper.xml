@@ -3,18 +3,18 @@
 <mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteAuthorityMapper">
 
     <resultMap id="authorityMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedSiteAuthorityDo">
-        <id property="authorityId" column="id"></id>
-        <result property="institutions" column="site_name"></result>
-        <result property="authorityInstitutions" column="party_id"></result>
-        <result property="createTime" column="secret_info"></result>
-        <result property="updateTime" column="registration_link"></result>
-        <result property="status" column="network_access_entrances"></result>
+        <id property="authorityId" column="id"/>
+        <result property="institutions" column="site_name"/>
+        <result property="authorityInstitutions" column="party_id"/>
+        <result property="createTime" column="secret_info"/>
+        <result property="updateTime" column="registration_link"/>
+        <result property="status" column="network_access_entrances"/>
     </resultMap>
 
     <insert id="insertAllStatus" parameterType="java.util.List">
         INSERT INTO `t_federated_site_authority`
-        (`authority_id`, `institutions`, `authority_institutions`, `create_time`, `update_time`, `status`, `generation`, `sequence`)
-        SELECT null, tmp.institutions, tmp.authorityInstitutions, null, tmp.updateTime, tmp.status, tmp.generation, tmp.current_sequence
+        (`authority_id`, `institutions`, `authority_institutions`, `update_time`, `status`, `generation`, `sequence`)
+        SELECT null, tmp.institutions, tmp.authorityInstitutions, tmp.updateTime, tmp.status, tmp.generation, tmp.current_sequence
         FROM (SELECT t.current_sequence,t1.* FROM
         (SELECT MAX(`sequence`) + 1 as current_sequence  FROM t_federated_site_authority) t ,
         <foreach collection="federatedSiteAuthorityDos" item="authorityDo" open="(" separator=" UNION ALL " close=")">
@@ -65,17 +65,17 @@
 
     <resultMap id="authorityHistoryMap" type="com.webank.ai.fatecloud.system.pojo.dto.AuthorityHistoryDto">
 
-        <result property="institutions" column="institutions"></result>
-        <result property="createTime" column="create_time"></result>
-        <result property="updateTime" column="update_time"></result>
+        <result property="institutions" column="institutions"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
 
-        <result property="sequence" column="sequence"></result>
+        <result property="sequence" column="sequence"/>
 
         <collection property="authorityApplyReceivers"
                     ofType="com.webank.ai.fatecloud.system.pojo.dto.AuthorityApplyReceiver">
-            <result property="authorityId" column="authority_id"></result>
-            <result property="authorityInstitutions" column="authority_institutions"></result>
-            <result property="status" column="status"></result>
+            <result property="authorityId" column="authority_id"/>
+            <result property="authorityInstitutions" column="authority_institutions"/>
+            <result property="status" column="status"/>
         </collection>
 
     </resultMap>

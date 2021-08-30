@@ -16,6 +16,7 @@
 package com.webank.ai.fatecloud.system.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -41,55 +42,87 @@ public class FederatedIpManagerDo implements Serializable  {
     private Long id;
 
     @ApiModelProperty(value = "case id")
-    @TableId(value = "case_id")
+    @TableField(value = "case_id")
     private String caseId;
 
     @ApiModelProperty(value = "site name")
-    @TableId(value = "site_name")
+    @TableField(value = "site_name")
     private String siteName;
 
     @ApiModelProperty(value = "group_id")
-    @TableId(value = "group_id")
+    @TableField(value = "group_id")
     private Long groupId;
 
     @ApiModelProperty(value = "site belongs to institutions")
-    @TableId(value = "institutions")
+    @TableField(value = "institutions")
     private String institutions;
 
     @ApiModelProperty(value = "site partyid")
-    @TableId(value = "party_id")
+    @TableField(value = "party_id")
     private Long partyId;
 
     @ApiModelProperty(value = "role,1:guest,2:host")
-    @TableId(value = "role")
+    @TableField(value = "role")
     private Integer role;
 
     @ApiModelProperty(value = "network access entrances")
-    @TableId(value = "network_access_entrances")
+    @TableField(value = "network_access_entrances")
     private String networkAccessEntrances;
 
     @ApiModelProperty(value = "network access exits")
-    @TableId(value = "network_access_exits")
+    @TableField(value = "network_access_exits")
     private String networkAccessExits;
 
     @ApiModelProperty(value = "network access entrances_old")
-    @TableId(value = "network_access_entrances_old")
+    @TableField(value = "network_access_entrances_old")
     private String networkAccessEntrancesOld;
 
     @ApiModelProperty(value = "network access exits_old")
-    @TableId(value = "network_access_exits_old")
+    @TableField(value = "network_access_exits_old")
     private String networkAccessExitsOld;
 
-    @ApiModelProperty(value = "log deal status,0:no deal,1:agreed,2:rejected")
-    @TableId(value = "status")
+    @ApiModelProperty(value = "exchange name")
+    @TableField(value = "exchange_name")
+    private String exchangeName;
+
+    @ApiModelProperty(value = "network access exits_old")
+    @TableField(value = "exchange_name_old")
+    private String exchangeNameOld;
+
+    @ApiModelProperty(value = "exchange vip entrance")
+    @TableField(value = "vip_entrance")
+    private String vipEntrance;
+
+    @ApiModelProperty(value = "exchange vip entrance old")
+    @TableField(value = "vip_entrance_old")
+    private String vipEntranceOld;
+
+    @ApiModelProperty(value = "site party secure status")
+    @TableField(value = "secure_status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "site party secure status old")
+    @TableField(value = "secure_status_old")
+    private Integer secureStatusOld;
+
+    @ApiModelProperty(value = "site party polling status")
+    @TableField(value = "polling_status")
+    private Integer pollingStatus;
+
+    @ApiModelProperty(value = "site party polling status old")
+    @TableField(value = "polling_status_old")
+    private Integer pollingStatusOld;
+
+    @ApiModelProperty(value = "log deal status,0:no deal,1:agreed,2:rejected,3:manual changes,4:manual changes pulled done")
+    @TableField(value = "status")
     private Integer status;
 
     @ApiModelProperty(value = "create time")
-    @TableId(value = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     @ApiModelProperty(value = "update time")
-    @TableId(value = "update_time")
+    @TableField(value = "update_time")
     private Date updateTime;
 
 }
