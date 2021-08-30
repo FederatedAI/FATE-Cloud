@@ -199,6 +199,15 @@
                 color: #FF9D00;
                 font-size: 14px
             }
+            .el-switch__core{
+                height: 16px;
+                
+            }
+            .el-switch__core:after {
+                top:0;
+                width: 14px;
+                height: 14px;
+            }
         }
 
         .Submit {
@@ -217,7 +226,7 @@
 
         //弹框居中
         .el-dialog {
-            width: 700px;
+            width: 550px;
             display: flex;
             flex-direction: column;
             margin: 0 !important;
@@ -233,31 +242,30 @@
             }
 
             .icon {
-                font-size: 80px;
+                font-size: 50px;
                 color: #217AD9;
             }
 
             .line-text-one {
                 font-size: 32px;
-                margin-top: 15px;
                 margin-bottom: 35px;
                 color: #217AD9;
                 font-weight: 700;
             }
 
             .line-text-two {
-                font-size: 18px;
+                font-size: 16px;
                 margin-bottom: 12px;
             }
 
             .line-text-three {
-                font-size: 18px;
+                font-size: 16px;
                 color: #217AD9;
                 margin-bottom: 48px;
                 vertical-align: middle;
                 .copy-link{
                     display:inline-block;
-                    width: 530px;
+                    width: 330px;
                     white-space: nowrap; //文本强制不换行；
                     text-overflow:ellipsis; //文本溢出显示省略号；
                     overflow:hidden; //溢出的部分隐藏；
@@ -269,9 +277,10 @@
                 }
             }
             .ok-btn {
-                width: 200px;
-                font-size: 18px;
-                margin-bottom: 34px;
+                width: 180px;
+                font-size: 16px;
+                height: 24px;
+                line-height: 24px;
             }
         }
     }
@@ -280,7 +289,7 @@
 
         //弹框居中
         .el-dialog {
-            height: 284px; //弹框宽度
+            height: 220px; //弹框宽度
             display: flex;
             flex-direction: column;
             margin: 0 !important;
@@ -293,23 +302,23 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px;
+            padding: 10px 24px;
         }
 
         .el-dialog__header {
-            display: none;
+            // display: none;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #2D3642;
             margin-bottom: 24px
         }
 
         .line-text-two {
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
             margin-bottom: 48px
         }

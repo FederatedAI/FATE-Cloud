@@ -45,7 +45,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="institutions" :label="$t('m.common.institution')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"  class-name="cell-td-td"></el-table-column>
+                    <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  class-name="cell-td-td"></el-table-column>
                     <el-table-column prop="federatedGroupSetDo" :label="$t('m.common.role')" class-name="cell-td-td" >
                         <template slot-scope="scope">
                             <span>{{scope.row.federatedGroupSetDo.role===1 ? $t('m.common.guest') : $t('m.common.host') }}</span>

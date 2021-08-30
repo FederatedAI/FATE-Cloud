@@ -5,6 +5,18 @@
         width: 100%;
         background: #F5F8FA;
         overflow: auto;
+        .is-required label{
+            position: relative;
+        }
+        .is-required label::after{
+            content: "*";
+            font-size: 18px;
+            color: #FF9D00;
+            top: 50%;
+            left: -15px;
+            transform: translate(2px,-50%);
+            position: absolute;
+        }
 
         .add-info {
             width: 1200px;
@@ -44,7 +56,7 @@
                         text-overflow: ellipsis; // 文本溢出显示省略号；
                         overflow: hidden; //溢出的部分隐藏；
                         width: 95%;
-                        height: 30px;
+                        height: 35px;
                     }
                     //添加ip
                     .plus {

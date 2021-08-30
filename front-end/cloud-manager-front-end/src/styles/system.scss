@@ -330,9 +330,6 @@
                     
                     padding: 40px;
                 }
-                .el-dialog__header {
-                    display: none;
-                }
                 .title{
                     font-size: 18px;
                     color: #2D3642;
@@ -341,13 +338,6 @@
                 .dialog-footer {           
                     margin-top: 30px;
                     text-align: center;
-                    .el-button{
-                        width: 180px;
-                        font-size: 18px;
-                        padding: 0;
-                        height: 36px;
-                        line-height: 36px;
-                    }
                 }
             }
         }

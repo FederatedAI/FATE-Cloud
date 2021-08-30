@@ -11,5 +11,7 @@ export const mp = {
     'unpublished': 'Unpublished',
     'unknown': 'Unknown',
     'avaiable': 'Avaiable',
-    'unavaiable': 'Unavaiable'
+    'unavaiable': 'Unavaiable',
+    'true': 'True',
+    'false': 'False'
 }

@@ -69,7 +69,7 @@
             ></el-pagination>
         </div>
     </div>
-    <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" width="700px">
+    <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" :show-close="true" width="500px">
         <div class="line-text-one">{{$t('Are you sure you want to delete')}} "{{groupName}}"?</div>
         <div class="line-text-two">{{$t(`You can't undo this action`)}} </div>
         <div class="dialog-footer">

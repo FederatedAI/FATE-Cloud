@@ -10,6 +10,7 @@ const i18n = new VueI18n({
     locale: getCookie('language') || 'zh',
     messages
 })
+
 const tipI18n = new Vue({ i18n })
 
 const map = {
@@ -81,8 +82,20 @@ const map = {
             label: tipI18n.$t('mp.avaiable')
         }
     ],
+    statusBollen: [
+        {
+            value: '1',
+            name: 'true',
+            label: tipI18n.$t('mp.true')
+        },
+        {
+            value: '2',
+            name: 'false',
+            label: tipI18n.$t('mp.false')
+        }
+    ],
     setLanguage(val, selectType) {
-        console.log(val)
+        // console.log(val)
         let _self = this
         i18n.locale = val
         if (selectType) {

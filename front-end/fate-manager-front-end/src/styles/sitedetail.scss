@@ -42,7 +42,7 @@
                 }
                 
                 .el-form-item {
-                    margin-bottom: 10px;
+                    margin-bottom: 20px;
                     height:42px;
                     min-width: 260px;
                    
@@ -87,7 +87,7 @@
                         }
     
                         .el-input__inner {
-                            background: #fff;
+                            background: transparent;
                             font-size: 18px;
                             color: #2D3642;
                             padding: 0 0;
@@ -264,6 +264,11 @@
                     font-family: Product Sans;
                     margin-left: 16px
                 }
+            }
+            .complete-tips{
+                font-size: 16px;
+                color: #848C99;
+                padding: 10px 0;
             }
             
             .info {
@@ -442,7 +447,7 @@
                 }
 
                 .text {
-                    line-height: 30px;
+                    line-height: 24px;
                     display: inline-block;
                     color: #217AD9;
                     vertical-align: top;
@@ -526,6 +531,7 @@
         }
     }
 }
+
 
 .change-dialog{
     .el-dialog__headerbtn{

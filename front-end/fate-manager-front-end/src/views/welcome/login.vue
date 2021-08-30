@@ -82,8 +82,8 @@ export default {
     data() {
         return {
             contactdialog: false, // 连接失败
-            placeholderUsername: this.$t('m.welcome.userNameTips'), // 兼容edge浏览器 光标不在中间
-            placeholderPassword: this.$t('m.welcome.passWordTips'), // 兼容edge浏览器 光标不在中间
+            // placeholderUsername: this.$t('m.welcome.userNameTips'), // 兼容edge浏览器 光标不在中间
+            // placeholderPassword: this.$t('m.welcome.passWordTips'), // 兼容edge浏览器 光标不在中间
             loginForm: {
                 username: '',
                 password: ''
@@ -145,7 +145,14 @@ export default {
             }
         }
     },
-    computed: {},
+    computed: {
+        placeholderUsername() {
+            return this.$t('m.welcome.userNameTips')
+        },
+        placeholderPassword() {
+            return this.$t('m.welcome.passWordTips')
+        }
+    },
     created() {
     },
     mounted() {

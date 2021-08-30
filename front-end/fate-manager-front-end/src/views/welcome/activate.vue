@@ -5,7 +5,7 @@
             <div class="title">
                 <span>{{$t('m.welcome.activateSite')}}</span>
             </div>
-            <el-form ref="infoform" :rule="rules" :model="form" label-position="left" label-width="250px" >
+            <el-form ref="infoform" :rules="formRules" :model="form" label-position="left" label-width="250px" >
                 <!-- <el-form-item label="Federated Organization" prop="stiename">
                     <span class="info-text">{{form.federatedOrganization}}</span>
                 </el-form-item> -->
@@ -41,7 +41,7 @@
                     </el-popover>
                 </el-form-item>
                 <div class="module-title">{{$t('m.sitemanage.siteNetworkConf')}}</div>
-                <el-form-item class="ip-input" :label="$t('m.sitemanage.networkEntrances')" prop="networkAccessEntrances">
+                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.networkEntrances')" style="margin-bottom:22px" prop="networkAccessEntrances">
                     <el-input
                     class="plus-text"
                     @focus="addShow('entrances')"
@@ -51,26 +51,32 @@
                     <i slot="suffix" @click="addShow('entrances')" class="el-icon-plus plus" />
                 </el-input>
                 </el-form-item>
-                <el-form-item class="ip-input" :label="$t('m.sitemanage.networkExits')"  prop="networkAccessExits">
+                <div class="module-title">{{$t('m.sitemanage.rollsiteNetworkConf')}}</div>
+                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.rollSiteNetworkAccess')" prop="fmRollSiteNetworkEntrances">
+                    <el-input
+                        @focus="addShow('rollsite')"
+                        @blur="cancelValid('fmRollSiteNetworkEntrances')"
+                        class="plus-text"
+                        v-model="form.fmRollSiteNetworkEntrances"
+                        placeholder>
+                        <i slot="suffix" @click="addShow('rollsite')" class="el-icon-plus plus" />
+                    </el-input>
+                </el-form-item>
+                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.networkExits')"  prop="fmRollSiteNetworkAccessExitsList">
                     <el-input
                         @focus="addShow('exit')"
-                        @blur="cancelValid('networkAccessExits')"
+                        @blur="cancelValid('fmRollSiteNetworkAccessExitsList')"
                         class="plus-text"
-                        v-model="form.networkAccessExits"
+                        v-model="form.fmRollSiteNetworkAccessExitsList"
                         placeholder>
                         <i slot="suffix" @click="addShow('exit')" class="el-icon-plus plus" />
                     </el-input>
                 </el-form-item>
-                <div class="module-title">{{$t('m.sitemanage.rollsiteNetworkConf')}}</div>
-                <el-form-item class="ip-input" :label="$t('m.sitemanage.rollsiteNetworkAccess')"  prop="rollSiteNetworkAccess">
-                    <el-input
-                        @focus="addShow('rollsite')"
-                        @blur="cancelValid('rollsiteNetworkAccess')"
-                        class="plus-text"
-                        v-model="form.rollSiteNetworkAccess"
-                        placeholder>
-                        <i slot="suffix" @click="addShow('rollsite')" class="el-icon-plus plus" />
-                    </el-input>
+                <el-form-item class="inline" :label="$t('m.siteAdd.isSecure')" prop="secureStatus" >
+                    <el-switch v-model="form.secureStatus"></el-switch>
+                </el-form-item>
+                <el-form-item class="inline" :label="$t('m.siteAdd.isPolling')" prop="pollingStatus" >
+                    <el-switch v-model="form.pollingStatus"></el-switch>
                 </el-form-item>
             </el-form>
             <div class="Submit">
@@ -108,13 +114,50 @@ export default {
             confirmdialog: false, //
             form: {
                 networkAccessEntrances: '',
-                networkAccessExits: '',
-                rollSiteNetworkAccess: ''
+                fmRollSiteNetworkAccessExitsList: '',
+                fmRollSiteNetworkEntrances: ''
             },
-            rules: {
-                networkAccessEntrances: [{ required: true, message: this.$t('m.siteAdd.networkAcessEntrancesRequired'), trigger: 'bulr' }],
-                networkAccessExits: [{ required: true, message: this.$t('m.siteAdd.networkAcessExitRequired'), trigger: 'bulr' }],
-                rollsiteNetworkAccess: [{ required: true, message: this.$t('m.siteAdd.rollsiteNetworkAccessRequired'), trigger: 'bulr' }]
+            rollSiteNetworkAccesswarnshow: false,
+            formRules: {
+                networkAccessEntrances: [{
+                    required: true,
+                    trigger: 'bulr',
+                    validator: (rule, value, callback) => {
+                        value = value || ''
+                        let val = value.trim()
+                        if (!val) {
+                            callback(new Error(this.$t('m.siteAdd.networkAcessEntrancesRequired')))
+                        } else {
+                            callback()
+                        }
+                    }
+                }],
+                fmRollSiteNetworkAccessExitsList: [{
+                    required: true,
+                    trigger: 'bulr',
+                    validator: (rule, value, callback) => {
+                        value = value || ''
+                        let val = value.trim()
+                        if (!val) {
+                            callback(new Error(this.$t('m.siteAdd.networkAcessExitRequired')))
+                        } else {
+                            callback()
+                        }
+                    }
+                }],
+                fmRollSiteNetworkEntrances: [{
+                    required: true,
+                    trigger: 'bulr',
+                    validator: (rule, value, callback) => {
+                        value = value || ''
+                        let val = value.trim()
+                        if (!val) {
+                            callback(new Error(this.$t('m.siteAdd.rollSiteNetworkAccessRequired')))
+                        } else {
+                            callback()
+                        }
+                    }
+                }]
             }
 
         }
@@ -129,7 +172,14 @@ export default {
         // this.$store.dispatch('selectEnum')
     },
     mounted() {
-        let obj = this.$route.query.data
+        let obj = {}
+        // 此处需要添加缓存，避免刷新导致数据丢失
+        if (this.$route.query.data !== '[object Object]') {
+            obj = this.$route.query.data
+            localStorage.setItem('activateData', JSON.stringify(obj))
+        } else {
+            obj = JSON.parse(localStorage.getItem('activateData'))
+        }
         console.log(obj, 'obj')
         let fromObj = {}
         fromObj.appKey = obj.secretInfo.key
@@ -138,16 +188,21 @@ export default {
         fromObj.federatedOrganization = obj.federatedOrganization
         fromObj.id = obj.federatedOrganizationId
         fromObj.institutions = obj.institutions
-        fromObj.networkAccessEntrances = obj.networkAccessEntrances
-        fromObj.networkAccessExits = obj.networkAccessExits
-        fromObj.rollSiteNetworkAccess = obj.rollSiteNetworkAccess
+        fromObj.networkAccessEntrances = ''
+        fromObj.fmRollSiteNetworkAccessExitsList = ''
+        fromObj.fmRollSiteNetworkEntrances = ''
         fromObj.partyId = obj.partyId
         fromObj.role = obj.role
         fromObj.siteName = obj.siteName
+        fromObj.cmRollSiteNetworkAccessExitsList = obj.rollSiteNetworkAccessExits === ';' ? '' : obj.rollSiteNetworkAccessExits
+        fromObj.pollingStatus = false
+        fromObj.secureStatus = false
         fromObj.exchangeName = obj.exchangeName
         fromObj.vipEntrance = obj.vipEntrance
-        fromObj.exchangeNetworkAccess = ''
-        fromObj.exchangeNetworkAccessExits = ''
+        fromObj.siteId = obj.id
+        // fromObj.exchangeNetworkAccess = ''
+        // fromObj.exchangeNetworkAccessExits = ''
+        // fromObj.network = obj.network
         if (obj.rollSiteDoList && obj.rollSiteDoList.length > 0) {
             fromObj.exchangeNetworkAccess = obj.rollSiteDoList.map(item => item.networkAccess).join(';')
             fromObj.exchangeNetworkAccessExits = obj.rollSiteDoList.map(item => item.networkAccessExit).join(';')
@@ -161,8 +216,8 @@ export default {
             this.$refs['siteaddip'].adddialog = true
             let editType = {
                 'entrances': 'networkAccessEntrances',
-                'exit': 'networkAccessExits',
-                'rollsite': 'rollSiteNetworkAccess'
+                'exit': 'fmRollSiteNetworkAccessExitsList',
+                'rollsite': 'fmRollSiteNetworkEntrances'
             }
             let parameterName = editType[type]
             if (this.form[parameterName]) {
@@ -188,15 +243,23 @@ export default {
         },
         modifyAction() {
             let data = { ...this.form }
+            let secureStatus = this.getStatus(data.secureStatus)
+            let pollingStatus = this.getStatus(data.pollingStatus)
+            data.secureStatus = secureStatus
+            data.pollingStatus = pollingStatus
             console.log(data, 'sub-data')
-            register(data).then((res) => {
-                this.confirmdialog = true
-                this.$store.dispatch('setSiteStatus', 'registered')
-                console.log('激活成功并注册')
-                this.$router.push({
-                    name: 'sitemanage',
-                    path: 'sitemanage'
-                })
+            this.$refs['infoform'].validate((valid) => {
+                if (valid) {
+                    register(data).then((res) => {
+                        this.confirmdialog = true
+                        this.$store.dispatch('setSiteStatus', 'registered')
+                        console.log('激活成功并注册')
+                        this.$router.push({
+                            name: 'sitemanage',
+                            path: 'sitemanage'
+                        })
+                    })
+                }
             })
         },
         // OK
@@ -209,6 +272,14 @@ export default {
                     partyId: this.form.partyId
                 }
             })
+        },
+        getStatus(stauts) {
+            console.log(typeof stauts, 'typeof stauts')
+            if (typeof stauts === 'number') {
+                return stauts === 1
+            } else {
+                return stauts === true ? 1 : 2
+            }
         }
     }
 }

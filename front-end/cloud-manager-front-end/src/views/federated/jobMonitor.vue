@@ -341,13 +341,15 @@ export default {
         // 站点枚举
         async getSiteSelectList() {
             this.$set(this.searchData, 'site', '')
-            let res = await getSiteAll({ institutions: this.searchData.institutions })
-            this.sitesSelectList = res.data.map(item => {
-                return {
-                    value: item,
-                    label: item
-                }
-            })
+            if (this.searchData.institutions !== '') {
+                let res = await getSiteAll({ institutions: this.searchData.institutions })
+                this.sitesSelectList = res.data.map(item => {
+                    return {
+                        value: item,
+                        label: item
+                    }
+                })
+            }
         },
         changeInstitution() {
             this.getSiteSelectList()

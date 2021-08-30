@@ -45,19 +45,19 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="certificateType" :label="$t('Certificate Type')"  width="150px" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="validity" :label="$t('Validity')"  width="190px"></el-table-column>
+                <el-table-column prop="validity" sortable :label="$t('Validity')"  width="190px"></el-table-column>
                 <el-table-column prop="institution"  :label="$t('Institution')"  show-overflow-tooltip></el-table-column>
                 <el-table-column prop="siteAuthority"  :label="$t('Site Authority')"  show-overflow-tooltip >
                     <template slot-scope="scope">
                         <span>{{scope.row.siteAuthority ?scope.row.siteAuthority :'-' }}</span>
                     </template>
                 </el-table-column>
-                 <el-table-column prop="createDate" :label="$t('Create Time')"  width="160px">
+                 <el-table-column prop="createDate" sortable :label="$t('Create Time')"  width="160px">
                     <template slot-scope="scope">
                         <span>{{scope.row.createDate | dateFormat}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="updateDate" :label="$t('Update Time')"  width="160px">
+                <el-table-column prop="updateDate" sortable :label="$t('Update Time')"  width="160px">
                     <template slot-scope="scope">
                         <span>{{scope.row.updateDate | dateFormat}}</span>
                     </template>
@@ -121,20 +121,20 @@
         </div>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="adddialog" class="add-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="adddialog" class="add-dialog" width="600px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
             <div class="title">
                 <span v-if="type==='add'">{{$t('Add Certificate')}}</span>
                 <span v-else> {{$t('Edit Certificate')}} </span>
             </div>
-            <el-form label-position="left" ref="addfrom" class="inner-form" :rules="editRules"   label-width="164px"  :model="addfrom">
+            <el-form label-position="left" ref="addfrom" class="inner-form" :rules="editRules"  label-width="154px"  :model="addfrom">
                 <el-form-item v-if="addfrom.status=='Valid'" label="Certificate ID" prop="serialNumber" >
                     <span style="font-size: 16px;color:#4E5766">{{addfrom.serialNumber}}</span>
                 </el-form-item>
                 <el-form-item label="" prop="typeId" >
                     <span slot="label">
-                        <span>{{$t('Certificate Type')}}</span>
                         <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        <span>{{$t('Certificate Type')}}</span>
                     </span>
                     <span v-if="addfrom.status==='Valid'">{{addfrom.certificateType}}</span>
                     <el-select v-else @focus="$refs['addfrom'].clearValidate('typeId')" v-model="addfrom.typeId" filterable :placeholder="$t('Certificate Type')">
@@ -151,8 +151,8 @@
                 </el-form-item>
                 <el-form-item label="Validity" prop="validity" >
                     <span slot="label">
-                        <span>{{$t('Validity')}}</span>
                         <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        <span>{{$t('Validity')}}</span>
                     </span>
                     <span v-if="addfrom.status==='Valid'">{{addfrom.validity}}</span>
                     <el-date-picker v-else
@@ -168,8 +168,8 @@
                 </el-form-item>
                 <el-form-item label="Institution" prop="institution" >
                     <span slot="label">
-                        <span>{{$t('Institution')}}</span>
                         <i style="margin-left: 3px;" class="el-icon-star-on"></i>
+                        <span>{{$t('Institution')}}</span>
                     </span>
                     <span v-if="addfrom.status==='Valid'">{{addfrom.institution}}</span>
                     <el-select v-else v-model="addfrom.institution" @change="togetSite" filterable @focus="$refs['addfrom'].clearValidate('institution')"  :placeholder="$t('Institution')">
@@ -198,7 +198,6 @@
                     <el-input
                         type="textarea"
                         autosize
-                        maxlength="200"
                         :rows="3"
                         :placeholder="$t('Notes')"
                         show-word-limit
@@ -208,12 +207,12 @@
             </el-form>
       </div>
        <div class="dialog-foot">
-          <el-button type="primary" @click="toSave">{{$t('m.common.save')}}</el-button>
-          <el-button type="info" @click="toCancel">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="toSave">{{$t('m.common.save')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="toCancel">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
     <!-- 删除弹框 -->
-    <el-dialog :visible.sync="deletedialog" class="auto-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="deletedialog" class="auto-dialog" :show-close="true" width="500px" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
         <div class="line-text-one">
           {{$t('m.certificate.sureTodo',{type:$t(`m.common.${dialogType}`)})}}
@@ -225,8 +224,8 @@
             {{$t('m.site.cantUndo')}}
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
-          <el-button type="info" @click="deletedialog=false">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="deletedialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>

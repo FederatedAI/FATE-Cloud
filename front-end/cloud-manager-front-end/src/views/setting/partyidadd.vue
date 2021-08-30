@@ -6,23 +6,24 @@
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
+      :show-close="true"
       :before-close="cancelAction"
     >
       <el-form
         ref="groudform"
         :model="partidform"
         :rules="rules"
-        label-position="left"
+        label-position="top"
         label-width="128px"
       >
-        <el-form-item :label="$t('Name')" prop="groupName">
+        <el-form-item :label="$t('Name')+'：'" prop="groupName">
           <el-input :class="{ 'edit-text': true, 'groupNamewarn': groupNamewarn }"
           @blur="toCheckGroupName"
           @focus="cancelValid('groupName')"
           v-model.trim="partidform.groupName">
           </el-input>
         </el-form-item>
-        <el-form-item  :label="$t('Type')"  prop="role">
+        <el-form-item  :label="$t('Type')+'：'"  prop="role">
           <el-select
             v-if="title!=='Edit'"
             class="edit-text select"
@@ -70,8 +71,8 @@
         </el-form-item>
       </el-form>
       <div class="dialog-footer">
-        <el-button type="primary" style="margin-right:14px" :disabled="submitbtn" @click="submitAction">{{$t('m.common.submit')}}</el-button>
-        <el-button type="info" @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" type="primary" style="margin-right:14px" :disabled="submitbtn" @click="submitAction">{{$t('m.common.submit')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
   </div>

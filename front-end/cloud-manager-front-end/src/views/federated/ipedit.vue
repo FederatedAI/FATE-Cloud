@@ -40,7 +40,7 @@
                             <i slot="suffix" @click="addShow('entrances')" class="el-icon-plus plus" />
                         </el-input>
                     </el-form-item>
-                    <el-form-item :label="$t('m.site.networkExits')+'：'" style="height:100%;" prop="networkAccessExits" >
+                    <!-- <el-form-item :label="$t('m.site.networkExits')+'：'" style="height:100%;" prop="networkAccessExits" >
                         <el-input
                             @focus="addShow('exit')"
                             @blur="cancelValid('networkAccessExits')"
@@ -49,9 +49,9 @@
                             placeholder >
                             <i slot="suffix" @click="addShow('exit')" class="el-icon-plus plus" />
                         </el-input>
-                    </el-form-item>
-                    <el-form-item label="Exchange :" style="height:100%;" prop="networkAccessExits">
-                        <el-select class="sel-role input-placeholder" v-model="tempSiteNet.exchangeId" clearable placeholder="">
+                    </el-form-item> -->
+                    <el-form-item label="Exchange :" style="height:100%;" prop="exchangeId">
+                        <el-select class="sel-role input-placeholder" filterable v-model="tempSiteNet.exchangeId" clearable placeholder="">
                             <el-option
                                 v-for="item in exchangeSelect"
                                 :key="item.value"
@@ -110,16 +110,15 @@ export default {
         rowData: {
             handler: function(val) {
                 if (val) {
-                    console.log(val, 'watch-rowData')
                     const {
                         partyId,
                         networkAccessEntrancesOld: networkAccessEntrances,
-                        networkAccessExitsOld: networkAccessExits,
+                        // networkAccessExitsOld: networkAccessExits,
                         exchangeId,
                         secureStatus,
                         pollingStatus,
                         id } = val
-                    this.tempSiteNet = { partyId, networkAccessEntrances, networkAccessExits, exchangeId, secureStatus, pollingStatus, id }
+                    this.tempSiteNet = { partyId, networkAccessEntrances, exchangeId, secureStatus, pollingStatus, id }
                     this.tempSiteNet.secureStatus = this.getStuts(secureStatus)
                     this.tempSiteNet.pollingStatus = this.getStuts(pollingStatus)
                     this.cacheTempSiteNet = JSON.parse(JSON.stringify(this.tempSiteNet)) // 缓存数据
@@ -138,7 +137,7 @@ export default {
             tempSiteNet: {
                 partyId: '',
                 networkAccessEntrances: '',
-                networkAccessExits: '',
+                // networkAccessExits: '',
                 exchangeId: '',
                 secureStatus: true,
                 pollingStatus: true,
@@ -146,7 +145,7 @@ export default {
             },
             cacheTempSiteNet: {},
             networkAccessEntranceswarnshow: false,
-            networkAccessExitswarnshow: false,
+            // networkAccessExitswarnshow: false,
             sureEdit: false,
             exchangeSelect: [],
             siteEditRules: {
