@@ -38,7 +38,7 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | pbase           |默认：/data/projects              |部署mysql的安装根目录     |
 | pname           |默认：soft-common                  |安装python和mysql文件夹名  |
 | lbase           |默认：/data/projects/logs         |日志文件路径             |
-| mysql_path      |默认：soft-common/mysql           |mysql安装子目录           |
+| mysql_path      |默认：soft-common/mysql           |mysql安装子目录(用户选择部署本组件提供的mysql，此处填相对路径)|
 | mysql_admin_user |默认：root                       |mysql登入账号            |
 | mysql_admin_pass |默认：fate_dev                   |mysql登入密码             |
 | mysql_port      |默认：3308                         |mysql服务监听端口        |
@@ -83,7 +83,7 @@ cd fate_manager-install && sh common-deploy/common-deploy.sh fate-manager
 
 | 配置参数              | 说明                        |
 | --------             |  -------------------------|
-| mysql_path           |mysql的安装路径，绝对路劲  |
+| mysql_path           |mysql的安装路径(用户选择提供自己的mysql，此处填写提供绝对路径)  |
 | mysql_admin_user     |mysql用户名            |
 | mysql_admin_pass     |mysql密码              |
 | mysql_port           |mysql端口         |

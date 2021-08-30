@@ -161,7 +161,11 @@ class ChangeLog(DataBaseModel):
     federated_organization = CharField(max_length=128, null=True, help_text='Federated Organization')
     party_id = IntegerField(null=True, help_text='party id')
     network_access_entrances = CharField(max_length=256, null=True, help_text='network access entrances')
-    # network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
+    network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
+
+    secure_status = CharField(max_length=256, null=True, help_text='network access exits')
+    polling_status = CharField(max_length=256, null=True, help_text='network access exits')
+
     rollsite_network_access_exits = CharField(max_length=256, null=True, help_text='network access exits')
     status = SmallIntegerField(default=0, help_text='user status 0 unvalid，1 valid')
 
@@ -410,30 +414,25 @@ class FateSiteInfo(DataBaseModel):
     app_secret = CharField(max_length=64, null=True, help_text='Federation secret')
     registration_link = TextField(help_text='registration link')
 
-    # exchange
+    # fm
+    network_access_entrances = CharField(null=True, help_text='network access entrances')
+    fm_rollsite_network_entrances = CharField(null=True, help_text='rollsite Network Access')
+    fm_rollsite_exits_list = CharField(null=True, help_text='rollsite Network Access')
+    polling_status = SmallIntegerField(default=1, help_text='edit status,1 true,2 false')
+    secure_status = SmallIntegerField(default=1, help_text='edit status,1 true,2 false')
+    fm_rollsite_network_entrances_new = CharField(null=True, help_text='new rollsite Network Access')
+    # cm
     exchange_name = CharField(null=True, help_text='exchange name')
     vip_entrances = CharField(null=True, help_text='vip entrances')
-    exchange_network_access = CharField(null=True, help_text='exchange network access exits')
-    exchange_network_access_exits = CharField(null=True, help_text='exchange network access exits')
-
-    # roll site
-    network_access_entrances = CharField(null=True, help_text='network access entrances')
-    network_access_exits = CharField(null=True, help_text='network access exits')
-    rollsite_network_access = CharField(null=True, help_text='rollsite Network Access')
-    rollsite_network_access_exits = CharField(null=True, help_text='rollsite Network Access')
-
-    polling_status = SmallIntegerField(default=1, help_text='edit status,-1 unkonwn,1 unedit,2 edit')
-    secure_status = SmallIntegerField(default=1, help_text='edit status,-1 unkonwn,1 unedit,2 edit')
-
-    network_access_entrances_new = CharField(null=True, help_text='network access entrances')
-    network_access_exits_new = CharField(null=True, help_text='network access exits')
+    cm_rollsite_exits_list = CharField(null=True, help_text='exchange network access exits')
 
     # new exchange conf
-    exchange_name_new = CharField(null=True, help_text='exchange name update')
-    vip_entrances_new = CharField(null=True, help_text='vip entrances')
-    exchange_network_access_exits_new = CharField(null=True, help_text='exchange network access exits')
-    exchange_exits_new = CharField(null=True, help_text='exchange network access exits')
     exchange_read_status = SmallIntegerField(default=0, help_text='edit status,0 unupdate,1 unedit,2 edit')
+    exchange_name_new = CharField(null=True, help_text='exchange name new')
+    vip_entrances_new = CharField(null=True, help_text='vip entrances')
+    polling_status_new = SmallIntegerField(null=True, help_text='edit status,1 true,2 false')
+    secure_status_new = SmallIntegerField(null=True, help_text='edit status,1 true,2 false')
+    network_access_entrances_new = CharField(null=True, help_text='network access entrances')
 
     fate_flow_info = CharField(null=True, help_text='fate flow ip and port')
     fate_version = CharField(max_length=10, null=True, help_text='fate version')
@@ -448,7 +447,7 @@ class FateSiteInfo(DataBaseModel):
 
     class Meta:
         db_table = "t_fate_site_info"
-        primary_key = CompositeKey('party_id', 'federated_id')
+        primary_key = CompositeKey('party_id', 'federated_id', 'site_id')
 
 
 class TokenInfo(DataBaseModel):
