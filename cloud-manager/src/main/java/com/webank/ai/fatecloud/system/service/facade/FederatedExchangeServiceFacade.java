@@ -180,7 +180,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
         HashSet<String> partyIds = new HashSet<>();
 
         for (PartyAddBean partyAddBean : partyAddBeanList) {
-            if (federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId())){
+            if (federatedExchangeService.checkExchangePartyId(partyAddBean.getPartyId())) {
                 partyIds.add(partyAddBean.getPartyId());
                 continue;
             }
@@ -373,7 +373,8 @@ public class FederatedExchangeServiceFacade implements Serializable {
     // v1.4
     public CommonResponse<Void> updateIpManagerPartyInfo(PartyUpdateQo partyUpdateQo) {
         if (ObjectUtil.isEmpty(partyUpdateQo.getId(), partyUpdateQo.getPartyId(), partyUpdateQo.getExchangeId(),
-                partyUpdateQo.getPollingStatus(), partyUpdateQo.getSecureStatus())) {
+                partyUpdateQo.getPollingStatus(), partyUpdateQo.getSecureStatus()) ||
+                !ObjectUtil.matchNetworkAddressNew(partyUpdateQo.getNetworkAccessEntrances())) {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
@@ -397,7 +398,7 @@ public class FederatedExchangeServiceFacade implements Serializable {
             return new CommonResponse<>(ReturnCodeEnum.PARAMETERS_ERROR);
         }
 
-        if (federatedExchangeService.checkExchangePartyId(partyQueryQo.getPartyId())){
+        if (federatedExchangeService.checkExchangePartyId(partyQueryQo.getPartyId())) {
             return new CommonResponse<>(ReturnCodeEnum.SUCCESS, Boolean.TRUE);
         }
 

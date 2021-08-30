@@ -46,12 +46,14 @@ public class ObjectUtil {
 
     public static boolean matchNetworkAddress(String address) {
         if (address == null) return false;
-        return address.matches("[\\d]{1,3}(\\.[\\d]{1,3}){3}:[0-9]{1,5}");
+        //return address.matches("[\\d]{1,3}(\\.[\\d]{1,3}){3}:[0-9]{1,5}");
+        return address.matches("[0-9a-zA-Z.*-]+:[0-9]{1,5}");
     }
 
     public static boolean matchNetworkAddressNew(String address) {
         if (address == null) return false;
-        return address.matches("([\\d]{1,3}(\\.[\\d]{1,3}){3}:[0-9]{1,5};)+");
+        //return address.matches("([\\d]{1,3}(\\.[\\d]{1,3}){3}:[0-9]{1,5};)+");
+        return address.matches("([0-9a-zA-Z.*-]+:[0-9]{1,5};)+");
     }
 
     /**
