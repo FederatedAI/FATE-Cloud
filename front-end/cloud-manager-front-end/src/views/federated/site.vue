@@ -29,7 +29,7 @@
             <el-button class="go" @click="toSearch" type="primary">{{$t('m.common.go')}}</el-button>
         </div>
         <div class="collapse" >
-            <el-collapse v-model="activeName" v-for="(itm, index) in institutionsItemList" :key="index" >
+            <el-collapse v-model="activeName" v-for="(itm, index) in institutionsItemList" :key="index"  @change="changeCollapse">
                 <el-collapse-item  :name="itm.institutions">
                     <template slot="title">
                         <span class="ins">{{itm.institutions}}</span>
@@ -151,11 +151,9 @@
             </div>
         </div>
         <!-- 审批弹框 -->
-         <el-dialog :visible.sync="tipsVisible" class="add-author-dialog" width="700px">
+         <el-dialog :visible.sync="tipsVisible" class="add-author-dialog" :show-close="true" width="550px">
             <div class="line-text-one"> {{$t('m.site.fateManeger')}}
-                " <span style="color:#217AD9">{{tipstempData.institutions}}</span> "
-            </div>
-            <div class="line-text-one">
+                "{{tipstempData.institutions}}"
                 {{$t('m.site.appliedView',
                 {type:tipstempData.scenarioType==='1' ? '' :
                 tipstempData.scenarioType==='2' ? $t('m.common.guest') : $t('m.common.host')})}}{{$t('m.site.sitesOfPlaceHodler')}}
@@ -163,8 +161,6 @@
                 <span v-if="tipstempData.scenarioType==='2'">{{$t('m.common.guest')}}</span>
                 <span v-if="tipstempData.scenarioType==='3'">{{$t('m.common.host')}}</span> -->
 
-            </div>
-            <div class="line-text-one" style="color:#217AD9">
                 <span v-for="(item, index) in tipstempData.insList" :key="index">
                     <span v-if="index===tipstempData.insList.length-1">{{item}}</span>
                     <span v-else> {{item}},</span>
@@ -172,8 +168,6 @@
             </div>
             <div class="line-text-two">
                 {{$t('m.site.selectApprove')}}
-            </div>
-            <div class="line-text-two">
                 {{$t('m.site.authorizationReject')}}
             </div>
 
@@ -188,16 +182,14 @@
                 </el-checkbox-group>
             </div>
             <div class="dialog-footer" style="margin-top:20px">
-                <el-button class="ok-btn" type="primary" @click="totipsAction">{{$t('m.common.sure')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="totipsAction">{{$t('m.common.agree')}}</el-button>
                 <el-button class="ok-btn" type="info" @click="tipsVisible = false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
         <!-- 取消授权申请 -->
-        <el-dialog :visible.sync="cancelAuthorVisible" class="cancel-author-dialog" width="700px">
-            <div class="line-text-one">{{$t('m.site.selectCancel')}}</div>
-            <div class="line-text-one">{{$t('m.site.theAuthorization')}}
-                <span style="color:#217AD9">{{canceltempData.institutions}}</span>
-                {{$t('m.site.authorizationTo')}}
+        <el-dialog :visible.sync="cancelAuthorVisible" class="cancel-author-dialog" :show-close="true" width="550px">
+            <div class="line-text-one">{{$t('m.site.selectCancel')}}
+                {{$t('m.site.theAuthorization')}} {{canceltempData.institutions}} {{$t('m.site.authorizationTo')}}
             </div>
             <!-- 1.all | 2.横向(guest) | 3.纵向(guest,host) -->
             <span v-if="canceltempData.scenarioType==='3' && canceltempData.hostboxList.length > 0">
@@ -251,7 +243,7 @@
             </div>
         </el-dialog>
         <!-- 删除机构 -->
-        <el-dialog :visible.sync="delInstitutions" class="del-institutions-dialog" width="700px">
+        <el-dialog :visible.sync="delInstitutions" class="del-institutions-dialog" width="500px">
             <div class="line-text-one">
                 {{$t('m.site.Are you sure you want to delete this institution')}}?
             </div>
@@ -296,8 +288,8 @@ export default {
         sitetable
     },
     filters: {
-        dateFormat(vaule) {
-            return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '--'
+        dateFormat(value) {
+            return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--'
         }
     },
     data() {
@@ -317,7 +309,7 @@ export default {
                 insList: [], //
                 scenarioType: ''// host或者gest类型或者混合型
             },
-            siteState: '', // 是否显示Site-Authorization
+            siteState: false, // 是否显示Site-Authorization 1 为开启 2为关闭
             historyList: [],
             cancelAuthorVisible: false, // 取消弹框授权
             canceltempData: {
@@ -361,15 +353,17 @@ export default {
         activeName: {
             handler(newvalue) {
                 localStorage.setItem('activeName', newvalue) // 保存折叠记录缓存
+                // this.$refs['sitelist'].getTable()
             }
         }
     },
 
     created() {
         this.$nextTick(() => {
-            this.info()
+            this.info().then(res => {
+                this.getinitinstitutions()
+            })
             this.getinsSelectList()
-            this.getinitinstitutions()
             if (localStorage.getItem('activeName').length > 0) {
                 this.activeName = localStorage.getItem('activeName').split(',').filter(item => item) // 缓存记录取折叠记录
             }
@@ -380,16 +374,16 @@ export default {
     methods: {
 
         // 初始化信息和权限
-        info() {
+        async info() {
             // 获取sit-auto 状态
-            switchState().then(res => {
-                this.siteState = ''
-                res.data && res.data.forEach(item => {
-                    if (item.functionName === 'Site-Authorization') {
-                        this.siteState = item.status === 1
-                    }
-                })
+            let res = await switchState()
+            this.siteState = false // 清空状态
+            res.data && res.data.forEach(item => {
+                if (item.functionName === 'Site-Authorization') {
+                    this.siteState = item.status === 1
+                }
             })
+            return true
         },
         // 站点下拉接口
         async getinsSelectList() {
@@ -421,32 +415,37 @@ export default {
                 this.total = resl.data && resl.data.totalRecord
                 this.institutionsItemList = [] // 清空记录
                 let arrTemp = []
-                resl.data.list.length > 0 && resl.data.list.forEach(async (item, index) => {
+                resl.data.list.length > 0 ? resl.data.list.forEach(async (item, index) => {
                     item.historyList = []
                     item.visible = false // 历史记录弹框 (点击方式)
                     arrTemp.push(item)
                     // this.activeName.push(item.institutions) //默认全部展开
-                    // 获取institutions中cancel授权信息
-                    let paramsAuthority = {
-                        institutions: item.institutions
+                    if (this.siteState) {
+                        // 获取institutions中cancel授权信息
+                        let paramsAuthority = {
+                            institutions: item.institutions
+                        }
+                        let resAuthor = await authorityPermiss(paramsAuthority)
+                        item.authoritylist = resAuthor.data
+                        // 获取历史记录
+                        let paramsHistory = {
+                            institutions: item.institutions,
+                            pageNum: 1,
+                            pageSize: 100
+                        }
+                        item.historyList = await this.institutionsHistory(paramsHistory)
                     }
-                    let resAuthor = await authorityPermiss(paramsAuthority)
-                    item.authoritylist = resAuthor.data
-                    let paramsHistory = {
-                        institutions: item.institutions,
-                        pageNum: 1,
-                        pageSize: 100
-                    }
-                    // 获取历史记录
-                    item.historyList = await this.institutionsHistory(paramsHistory)
+
                     if (resl.data.list.length - 1 === index) {
                         this.institutionsItemList = [...arrTemp]
-                        this.setMsg()
+                        if (this.siteState) {
+                            this.setMsg()
+                        }
                         this.loadingFalse()
                     }
-                })
+                }) : this.loadingFalse()
             }).catch(res => {
-                loading.style.display = 'none' // 关闭loading
+                this.loadingFalse()
             })
 
             return this.institutionsItemList
@@ -496,6 +495,20 @@ export default {
                     this.$set(this.institutionsItemList[i], 'tooltip', r.data.length > 0)
                 })
             })
+        },
+        // 点击展开与关闭
+        changeCollapse(value) {
+            // console.log('value', value[value.length - 1])
+            // console.log('value', value.length)
+            // console.log('localStorage.length==>>', localStorage.getItem('activeName').split(',').length)
+
+            if (value.length >= localStorage.getItem('activeName').split(',').length) {
+                this.institutionsItemList.forEach((item, index) => {
+                    if (value[value.length - 1] === item.institutions) {
+                        this.$refs['sitelist'][index].initList()
+                    }
+                })
+            }
         },
         // 点击显示机构历史记录 (历史操作记录变为hover)
         // gethistory(index) {
@@ -681,6 +694,9 @@ export default {
             if (this.activeName.length > 0) {
                 this.activeName = []
             } else {
+                this.institutionsItemList.forEach((item, index) => {
+                    this.$refs['sitelist'][index].initList()
+                })
                 this.activeName = this.institutionsItemList.map(item => item.institutions)
             }
         },

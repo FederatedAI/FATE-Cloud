@@ -229,41 +229,19 @@
         }
     }
     .apply-not-pass{
-         .el-dialog__body{
-            padding: 40px;
-        }
-        .el-button{
-            padding: 0;
-            height: 36px;
-            line-height: 36px;
-        }
-
-
-        .el-dialog__header {
-            display: none;
-        }
-
         text-align: center;
-
+        .el-dialog__body{
+            padding: 10px 24px 24px;
+        }
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #4E5766;
-            line-height: 48px;
-            // margin-bottom: 18px;
-            .span{
-                color: #217AD9
-            }
+            line-height: 1.5;
         }
         .line-text-two{
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
             margin: 24px;
-        }
-
-        .ok-btn {
-            margin-top: 12px;
-            width: 180px;
-            font-size: 18px;
         }
     }
     .exchange-dialog{

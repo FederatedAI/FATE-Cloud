@@ -26,7 +26,7 @@
                         <span v-else class="todetail">{{scope.row.siteName}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="partyId" :label="$t('m.common.partyID')"></el-table-column>
+                <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"></el-table-column>
                 <el-table-column prop="networkAccessEntrances" :label="$t('m.site.networkEntrances')"  width="220">
                     <template slot-scope="scope">
                         <div v-if="scope.row.networkAccessEntrancesArr.length>2">
@@ -46,25 +46,25 @@
                         <div  v-else>{{scope.row.networkAccessEntrances && scope.row.networkAccessEntrances.split(';')[0]}}</div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="networkAccessExits" :label="$t('m.site.networkExits')"  width="200">
-                <template slot-scope="scope">
-                    <div v-if="scope.row.networkAccessExitsArr.length>2">
-                        <el-popover
-                            placement="bottom"
-                            popper-class="scope"
-                            :visible-arrow="false"
-                            :offset="-30"
-                            trigger="hover">
-                            <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessExitsArr" :key="index" >{{item}}</div>
-                            <div slot="reference" class="icon-caret">
-                                <span>{{`${scope.row.networkAccessExitsArr[0]}...`}}</span>
-                                <i class="el-icon-caret-bottom" />
-                            </div>
-                        </el-popover>
-                    </div>
-                    <div v-else>{{scope.row.networkAccessExits && scope.row.networkAccessExits.split(';')[0]}}</div>
-                </template>
-                </el-table-column>
+                <!-- <el-table-column prop="networkAccessExits" :label="$t('m.site.networkExits')"  width="200">
+                    <template slot-scope="scope">
+                        <div v-if="scope.row.networkAccessExitsArr.length>2">
+                            <el-popover
+                                placement="bottom"
+                                popper-class="scope"
+                                :visible-arrow="false"
+                                :offset="-30"
+                                trigger="hover">
+                                <div style="line-height: 25px;" v-for="(item, index) in scope.row.networkAccessExitsArr" :key="index" >{{item}}</div>
+                                <div slot="reference" class="icon-caret">
+                                    <span>{{`${scope.row.networkAccessExitsArr[0]}...`}}</span>
+                                    <i class="el-icon-caret-bottom" />
+                                </div>
+                            </el-popover>
+                        </div>
+                        <div v-else>{{scope.row.networkAccessExits && scope.row.networkAccessExits.split(';')[0]}}</div>
+                    </template>
+                </el-table-column> -->
                 <el-table-column
                     :filters="roleTypeSelect"
                     :filter-multiple="false"
@@ -98,7 +98,7 @@
                     prop="fateServingVersion"
                     label="FATE Serving"
                     min-width="110" show-overflow-tooltip></el-table-column> -->
-                <el-table-column prop="activationTime" :label="$t('m.site.activationTime')" min-width="125" show-overflow-tooltip>
+                <el-table-column prop="activationTime" sortable :label="$t('m.site.activationTime')" min-width="125" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span>{{scope.row.activationTime | dateFormat}}</span>
                     </template>
@@ -153,8 +153,8 @@
             ></el-pagination>
         </div>
         <!-- 删除弹框 -->
-        <el-dialog :visible.sync="dialogVisible" class="site-delete-dialog" width="700px">
-            <div class="line-text-one">{{$t('m.site.sureDelete')}}"{{ delSitename }}"?</div>
+        <el-dialog :visible.sync="dialogVisible" :show-close="true" class="site-delete-dialog" width="500px">
+            <div class="line-text-one">{{$t('m.site.sureDelete')}}" <span class="wait-delete-name">{{ delSitename }}</span> "?</div>
             <div class="line-text-two">{{$t('m.site.cantUndo')}}</div>
             <div class="dialog-footer">
                 <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.OK')}}</el-button>
@@ -162,10 +162,10 @@
             </div>
         </el-dialog>
         <!-- 恢复弹框 -->
-        <el-dialog :visible.sync="reactivateDialog" class="del-institutions-dialog" width="700px">
-            <div class="line-text-one">{{$t('m.site.Are you sure you want to reactivate this site')}}"?  </div>
+        <el-dialog :visible.sync="reactivateDialog" :show-close="true" class="del-institutions-dialog" width="500px">
+            <div class="line-text-one">{{$t('m.site.Are you sure you want to reactivate this site')}}?  </div>
             <div class="line-text-two">
-                {{$t('m.site.Stautus of the site will be reset to unjoined')}}."
+                {{$t('m.site.Stautus of the site will be reset to unjoined')}}.
             </div>
             <div class="dialog-footer">
                 <el-button class="ok-btn" type="primary" @click="reactivateSite" >{{$t('m.common.sure')}}</el-button>
@@ -251,7 +251,11 @@ export default {
     },
     created() {
         this.$nextTick(res => {
-            this.initList()
+            this.getTable()
+
+            // if (localStorage.getItem('activeName').length > 0) {
+            //      localStorage.getItem('activeName').split(',').filter(item => item) // 缓存记录取折叠记录
+            // }
         })
     },
     methods: {
@@ -263,7 +267,11 @@ export default {
             this.currentPage = 1
             this.initList()
         },
-
+        getTable() {
+            if (localStorage.getItem('activeName').split(',').includes(this.institutions)) {
+                this.initList()
+            }
+        },
         // 初始化表格
         initList() {
             this.tableData = []

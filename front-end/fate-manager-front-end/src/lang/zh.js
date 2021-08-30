@@ -35,6 +35,7 @@ export const m = {
         'total': '总共',
         'save': '保存',
         'cancel': '取消',
+        'canceled': '取消',
         'sure': '确定',
         'host': '数据源',
         'guest': '应用方',
@@ -56,6 +57,7 @@ export const m = {
         'agreed': '同意',
         'agree': '同意',
         'reject': '拒绝',
+        'rejected': '拒绝',
         'apply': '申请',
         'unactivated': '未激活',
         'updateTime': '更新时间',
@@ -111,7 +113,9 @@ export const m = {
         'login failed:user name or password error': '登录失败:用户名或密码错误',
         'Authority failure!': '鉴权失败',
         'The PartyID has been used!': '该partyId已经被使用',
-        'Site roll site update error!': '更新rollsite发生错误'
+        'Site roll site update error!': '更新rollsite发生错误',
+        'Incorrect padding': '输入参数有误',
+        'no found account': '没有这个用户'
     },
     welcome: {
         'activateSite': '激活站点',
@@ -143,6 +147,7 @@ export const m = {
         'canSignInWithAccount': '现在你可以使用该管理员账号登录FATE Cloud',
         'activatedFailed': '激活失败!',
         'pleaseRe-enter': '请重新填写激活信息'
+
     },
     sitemanage: {
         'apply': '站点申请',
@@ -180,7 +185,8 @@ export const m = {
         'exit': '出口',
         'networkEntrances': '网关入口',
         'networkExits': '网关出口',
-        'rollsiteNetworkAccess': 'Rollsite网关入口',
+        'rollSiteNetworkAccess': 'Rollsite网关入口',
+        'rollSiteNetworkAccessExits': 'Rollsite网关出口',
         'systemVersion': '系统版本',
         'FATEversion': 'FATE版本',
         'FATEComponent': 'FATE服务组件',
@@ -226,11 +232,14 @@ export const m = {
         'hasBeenUpdated': '你的{type}信息已经更新。',
         'connectionFailedRollsite': '下列rollsite连接失败：',
         'pleaseRetryRollsite': '请核对您的 rollsite 地址并重试。',
-        'pleaseRetryFlow': '请核对您的FATE Flow地址并重试。',
+        'pleaseRetryIp': '请核对您的{type}地址并重试。',
         'cloudManagerDidChangesTitle': 'Cloud Manager 对站点进行了以下更改：',
         'changeThe': '{type} 产生了如下变更',
         'rollsiteWillUpdated': '您的rollsite信息将被更新。',
-        'noConfiguration': '无配置'
+        'noConfiguration': '未配置',
+        'completeClusterConfigurationFirst': '请先完成集群网络配置。',
+        'changedConfigurationStatusFailed': '更改网络配置失败！',
+        'changedConfigurationStatusSuccess': '成功更改网络配置！'
     },
     siteAdd: {
         'addSite': '添加站点',
@@ -271,8 +280,10 @@ export const m = {
         'networkAcessEntrancesRequired': '网关入口字段为必填字段',
         'networkAcessExitRequired': '网关出口字段为必填字段',
         'proxyNetworkAccessRequired': '代理网关字段为必填项',
-        'rollsiteNetworkAccessRequired': 'Rollsite字段为必填项',
-        'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。'
+        'rollSiteNetworkAccessRequired': 'Rollsite字段为必填项',
+        'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。',
+        'isSecure': '加密传输',
+        'isPolling': '单向模式'
 
     },
     monitor: {

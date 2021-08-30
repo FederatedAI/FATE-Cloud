@@ -18,7 +18,7 @@
             <span v-if="!item.show">
               <el-checkbox v-model="item.checked"></el-checkbox>
               <span class="network-text">{{item.ip}}</span>
-              <span v-if="networkacesstype==='entrances'" @click="testTelent(index)" class="telent" >{{$t('m.sitemanage.telnet')}}</span>
+              <span v-if="networkacesstype!=='rolliste'" @click="testTelent(index)" class="telent" >{{$t('m.sitemanage.telnet')}}</span>
               <i @click="deleteEntrances(index)" class="el-icon-close del"></i>
             </span>
             <el-input v-if="item.show" autocomplete="off" class="input-show" id="close" v-model="entrancesInput" @blur="closeEntrances(index)"
@@ -183,8 +183,8 @@ export default {
             let arr = [...new Set(this.entrancesSelect.map(item => `${item.ip};`))]
             let editType = {
                 'entrances': 'networkAccessEntrances',
-                'exit': 'networkAccessExits',
-                'rollsite': 'rollsiteNetworkAccess'
+                'exit': 'fmRollSiteNetworkAccessExitsList',
+                'rollsite': 'fmRollSiteNetworkAccess'
             }
             let parameterName = editType[this.networkacesstype]
             if (parameterName) {
@@ -203,8 +203,8 @@ export default {
         cancelAction() {
             let editType = {
                 'entrances': 'networkAccessEntrances',
-                'exit': 'networkAccessExits',
-                'rollsite': 'rollsiteNetworkAccess'
+                'exit': 'fmRollSiteNetworkAccessExitsList',
+                'rollsite': 'fmRollSiteNetworkAccess'
             }
             let parameterName = editType[this.networkacesstype]
             this.entrancesSelect = []

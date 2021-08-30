@@ -15,7 +15,7 @@
                         <i style="margin-right: 3px;" class="el-icon-star-on"></i>
                         <span>VIP Entrance :</span>
                     </span>
-                    <el-input @blur="cancelValid('vip')" @focus="cancelValid('vip')" v-model.trim="exchangeData.vipEntrance"></el-input>
+                    <el-input @blur="cancelValid('vipEntrance')" @focus="cancelValid('vipEntrance')"  v-model.trim="exchangeData.vipEntrance"></el-input>
                 </el-form-item>
                 <div class="edit-text">
                     <span>{{$t('m.ip.rollsiteAndRouterInfo')}}</span>
@@ -35,18 +35,24 @@
                             <span>{{$t('m.ip.rollsiteNetworkAccess')}}</span>
                         </span>
                         <el-input :class="{inputwarn: item.networkAccessWarnshow }"
-                            @focus="item.warnshow = false"
-                            v-model.trim="item.networkAccess">
+                            @focus="item.networkAccessWarnshow = false"
+                            v-model.trim="item.networkAccess"
+                        >
                         </el-input>
                     </el-form-item>
-                    <el-form-item :label="$t('m.site.networkExits')" prop="networkAccessExit" >
+                    <el-form-item
+                        :label="$t('m.site.networkExits')"
+                        :key="index"
+                        :prop="item.networkAccessExit"
+                    >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
                             <span>{{$t('m.site.networkExits')}}</span>
                         </span>
                         <el-input :class="{inputwarn: item.networkExitsWarnshow }"
-                            @focus="item.warnshow = false"
-                            v-model.trim="item.networkAccessExit">
+                            @focus="cancelValid('networkAccessExit')"
+                            v-model.trim="item.networkAccessExit"
+                            >
                         </el-input>
                     </el-form-item>
 
@@ -56,7 +62,7 @@
                                 <template slot="header" slot-scope="scope">
                                     <div class="router-info">
                                         <span>{{$t('m.ip.routerInfo')}}</span>
-                                        <el-button type="text" :disabled="!item.networkAccess" @click="toAcquire(index)" icon="el-icon-refresh-right"></el-button>
+                                        <el-button type="text" :disabled="!item.networkAccess" @click="toAcquire(index,scope)" icon="el-icon-refresh-right"></el-button>
                                         <el-button type="text" :disabled="!item.networkAccess" @click="showAddSiteNet(index)" icon="el-icon-circle-plus"></el-button>
                                         <!-- <el-input class="search-input" clearable v-model.trim="rollsiteList[index].partyAddBeanList.partyId" :placeholder="$t('m.common.serchForPlaceholder',{type:$t('m.common.partyID')})">
                                             <i slot="prefix" @click="toSearch" class="el-icon-search search" />
@@ -66,7 +72,7 @@
                                 </template>
                                 <el-table-column type="index" :label="$t('m.common.index')" width="65"  >
                                 </el-table-column>
-                                <el-table-column prop="partyId" :label="$t('m.common.partyID')"  width="75" show-overflow-tooltip>
+                                <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  width="90" show-overflow-tooltip>
                                 </el-table-column>
                                 <el-table-column prop="networkAccess"  :label="$t('m.ip.routerNetworkAccess')"  width="180" show-overflow-tooltip>
                                 </el-table-column>
@@ -96,7 +102,7 @@
                                 <el-table-column prop="" align="center" :label="$t('m.common.action')" >
                                     <template slot-scope="scope">
                                         <span v-if="scope.row.partyId==='default'">
-                                            <el-button type="text" >
+                                            <el-button type="text" :disabled="scope.row.using">
                                                 <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
                                             </el-button>
                                             <el-button disabled type="text" >
@@ -105,11 +111,11 @@
                                         </span>
                                     <span v-else>
                                             <span v-if="scope.row.status===1 || scope.row.status===2">
-                                                <el-button type="text" >
+                                                <el-button type="text" :disabled="scope.row.using">
                                                     <i @click="toEditSiteNet(scope)" class="el-icon-edit"></i>
                                                 </el-button>
-                                                <el-button type="text" >
-                                                    <i @click="siteNetIndex = scope.$index;scope.row.status=3"  class="el-icon-close"></i>
+                                                <el-button type="text" :disabled="scope.row.using">
+                                                    <i @click="siteNetIndex = scope.$index;if(!scope.row.using)scope.row.status=3"  class="el-icon-close"></i>
                                                 </el-button>
                                             </span>
                                             <el-button v-if="scope.row.status===3" @click="toRecover(scope)" type="text">
@@ -130,7 +136,7 @@
             </div>
         </div>
 
-         <!-- 添加site NetWork -->
+        <!-- 添加site NetWork -->
         <!-- <el-dialog :visible.sync="addSiteNet" :show-close="true" class="add-site-dialog" width="560px" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="site-net-title">
                 {{$t('m.ip.siteNetworkAccess')}}
@@ -184,10 +190,7 @@
                 </div>
             </div>
         </el-dialog> -->
-        <el-dialog :visible.sync="addSiteNet" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
-            <div class="site-net-title">
-                {{$t('m.ip.routerNetworkAccess')}}
-            </div>
+        <el-dialog :visible.sync="addSiteNet" :title="$t('m.ip.routerNetworkAccess')" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="site-net-table">
                 <el-form ref="siteNetform" class="edit-form" :rules="siteEditRules"  label-width="200px" label-position="top" :model="tempSiteNet">
                     <el-form-item class="inline" :class="{'inline':tempSiteNet.partyId === 'default'}" label="" prop="partyId">
@@ -200,6 +203,7 @@
                         </span>
                         <el-input v-else
                             @blur="checkParty"
+                            onkeyup="this.value = this.value.replace(/[^\d.:]/g,'');"
                             @focus="$refs['siteNetform'].clearValidate('partyId')"
                             v-model.trim="tempSiteNet.partyId" ></el-input>
                     </el-form-item>
@@ -247,12 +251,12 @@
             </div>
         </el-dialog>
         <!-- 弹框离开 -->
-        <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="700px">
+        <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" :show-close="true" width="450px">
             <div class="line-text-one">{{$t('m.siteAdd.sureLeavePage')}}</div>
             <div class="line-text-two">{{$t('m.siteAdd.notSavedTips')}}</div>
             <div class="dialog-footer">
-                <el-button class="sure-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
-                <el-button class="sure-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
             </div>
         </el-dialog>
         <ipeditadd ref="ipeditadd" @updateIp="updateIp" :formName="formName" />
@@ -262,7 +266,7 @@
 <script>
 import { addIpchange, getNetworkAccessList, searchByPartyId, checkParty } from '@/api/federated'
 import moment from 'moment'
-// import checkip from '@/utils/checkip'
+import { checkip } from '@/utils/checkip'
 import ipeditadd from './ipeditadd'
 
 export default {
@@ -315,13 +319,11 @@ export default {
                         // } else if (this.partyIdList.includes(val) && val !== this.tempPartyId) {
                         } else if (this.checkResult) {
                             callback(new Error(this.$t('m.ip.partyIDAssigned')))
+                        } else if (val !== 'default' && !(/(^[1-9]\d*$)/).test(val)) { // 取消只能输入数字校验
+                            callback(new Error(this.$t('m.common.fieldInvalidInput')))
                         } else {
                             callback()
                         }
-                        // 取消只能输入数字校验
-                        // else if (val !== 'default' && !(/(^[1-9]\d*$)/).test(val)) {
-                        //     callback(new Error('The party ID invalid input'))
-                        // }
                     }
                 }],
                 networkAccess: [
@@ -333,6 +335,8 @@ export default {
                             let val = value.trim()
                             if (!val) {
                                 callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.ip.routerNetworkAccess') })))
+                            } else if (!checkip(val)) {
+                                callback(new Error(this.$t('m.common.invalidInput')))
                             } else {
                                 callback()
                             }
@@ -345,7 +349,7 @@ export default {
                 ]
             },
             editRules: {
-                exchangeName: [{ required: true, message: ' ', trigger: 'bulr' }],
+                exchangeName: [{ required: true, message: this.$t('m.common.requiredfieldWithType', { type: 'exchange' }), trigger: 'bulr' }],
                 vipEntrance: [ {
                     required: true,
                     trigger: 'bulr',
@@ -354,6 +358,8 @@ export default {
                         let val = value.trim()
                         if (!val) {
                             callback(new Error(this.$t('m.ip.vipRequired')))
+                        } else if (!checkip(val)) {
+                            callback(new Error(this.$t('m.common.invalidInput')))
                         } else {
                             callback()
                         }
@@ -362,7 +368,28 @@ export default {
                         //     callback(new Error(' '))
                         // }
                     }
-                } ]
+                } ],
+                networkAccessExit: [
+                    {
+                        required: true,
+                        trigger: 'bulr',
+                        validator: (rule, value, callback) => {
+                            value = value || ''
+                            let val = value.trim()
+                            if (!val) {
+                                callback(new Error(this.$t('m.siteAdd.networkAcessExitRequired')))
+                            } else if (!checkip(val)) {
+                                callback(new Error(this.$t('m.common.invalidInput')))
+                            } else {
+                                callback()
+                            }
+                            // 取消检验ip
+                            // else if (!checkip(val)) {
+                            //     callback(new Error('The router network access invalid input '))
+                            // }
+                        }
+                    }
+                ]
             }
         }
     },
@@ -384,6 +411,19 @@ export default {
         })
     },
     methods: {
+        validator(rule, value, callback) {
+            return function(rule, value, callback) {
+                value = value || ''
+                let val = value.trim()
+                if (!val) {
+                    callback(new Error(this.$t('m.siteAdd.networkAcessExitRequired')))
+                } else if (!checkip(val)) {
+                    callback(new Error(this.$t('m.common.invalidInput')))
+                } else {
+                    callback()
+                }
+            }
+        },
         addShow(type) {
             this.$refs['ipeditadd'].networkacesstype = type
             this.$refs['ipeditadd'].adddialog = true
@@ -410,7 +450,7 @@ export default {
         },
         // 添加循环
         addRollsite() {
-            this.rollsiteList.unshift({ warnshow: false, networkAccess: '', partyAddBeanList: [] })
+            this.rollsiteList.unshift({ networkAccessWarnshow: false, networkExitsWarnshow: false, networkAccess: '', partyAddBeanList: [] })
         },
         // 显示添加siteNet弹框
         showAddSiteNet(index) {
@@ -432,24 +472,34 @@ export default {
         toaction() {
             let passAdd = true
             let msgshow = true
+            let exitwarn = true
             let Arr = []
             let arr = []
             this.rollsiteList.forEach((item, index) => {
                 // if (!item.networkAccess || !checkip(item.networkAccess)) {
                 //     this.rollsiteList[index].warnshow = true
                 // }
-                if (!item.networkAccess) {
-                    this.rollsiteList[index].warnshow = true
-                }
+                item.networkAccessWarnshow = !item.networkAccess
+                item.networkExitsWarnshow = !item.networkAccessExit
+                // if (!item.networkAccess) {
+                //     item.networkAccessWarnshow = !item.networkAccess
+                // }
+                // if (!item.networkAccessExit) {
+                //     item.networkExitsWarnshow = true
+                // }
                 if (item.partyAddBeanList.length === 0) {
                     passAdd = false
+                }
+                if (!item.networkAccessExit) {
+                    exitwarn = false
                 }
                 Arr.push(item.networkAccess)
                 arr = [...new Set(Arr)]
                 // 重复提示弹框
                 if (Arr.length !== arr.length) {
                     msgshow = false
-                    this.rollsiteList[index].warnshow = true
+                    item.networkAccessWarnshow = true
+                    item.networkExitsWarnshow = true
                 }
             })
 
@@ -461,12 +511,18 @@ export default {
                 this.$message.error(this.$t('m.ip.rollsiteNetworkExists'))
                 return
             }
+            if (!exitwarn) {
+                this.$message.error(this.$t('m.siteAdd.networkAcessExitRequired'))
+                return
+            }
+            console.log(this.rollsiteList, 'rollsiteList')
             this.$refs['editform'].validate((valid) => {
+                console.log(valid, 'valid')
                 if (valid && passAdd && msgshow) {
                     let data = {
                         exchangeName: this.exchangeData.exchangeName.trim(),
-                        rollSiteAddBeanList: this.rollsiteList,
-                        vipEntrance: this.exchangeData.vipEntrance
+                        vipEntrance: this.exchangeData.vipEntrance.trim(),
+                        rollSiteAddBeanList: this.rollsiteList
                     }
                     addIpchange(data).then(res => {
                         this.isleave = true
@@ -529,6 +585,7 @@ export default {
         },
         // 编辑siteNet
         toEditSiteNet(scope) {
+            if (scope.row.using) return
             this.siteNetType = 'edit'
             this.addSiteNet = true
             this.tempSiteNet = { ...scope.row }
@@ -601,7 +658,8 @@ export default {
         checkParty() {
             let self = this
             let partyId = self.tempSiteNet.partyId
-            checkParty({ partyId }).then(res => {
+            let rollSiteId = null
+            checkParty({ partyId, rollSiteId }).then(res => {
                 if (res.data === true) {
                     this.checkResult = res.data
                     this.$refs['siteNetform'].validateField('partyId', valid => {})

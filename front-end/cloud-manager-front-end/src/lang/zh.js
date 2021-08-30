@@ -58,7 +58,7 @@ export const m = {
         'updateTime': '更新时间',
         'activated': '已激活',
         'pleaseSelect': '请选择',
-        'invalidInput': '输入无效',
+        'invalidInput': '参数格式错误',
         'fieldRequired': '必填字段不能为空',
         'requiredfieldWithType': '{type}为必填字段',
         'correctVersion': '请输入正确的版本!',
@@ -84,7 +84,8 @@ export const m = {
         'end': '结束日期',
         'unavailable': '不可用',
         'available': '可用的',
-        'serchForPlaceholder': '根据{type}搜索'
+        'serchForPlaceholder': '根据{type}搜索',
+        'fieldInvalidInput': '字段格式错误'
     },
     errorTips: {
         'This function doesnt work!': '联邦授权这个功能未开启!',
@@ -101,7 +102,12 @@ export const m = {
         'There is an error when connect to the ip!': '连接ip时出现错误！',
         'Institution reactivate fail, institution not activate or exist site!': '机构重新激活失败，机构未激活或存在站点！',
         'Site reactivate fail, site not activate or deleted!': '站点重新激活失败，站点未激活或已删除！',
-        'There are using sites in the roll site!': '该rollsite中有正在使用的站点!'
+        'There are using sites in the roll site!': '该rollsite中有正在使用的站点!',
+        'The PartyID has been used!': 'PartyID 已被使用！',
+        'The site has a binding exchange, but the selected switch is not this!': '选择的不是该站点已经绑定的exchange！',
+        'Site party already exists in other exchange, cannot be added!': '部分站点存在于其他exchange，无法添加！',
+        'Site roll site update error!': '更新rollsite失败',
+        'This exchange name already exist!': '这个exchange名称已被使用'
     },
     login: {
         'signTitle': '登录FATE Cloud',
@@ -145,7 +151,7 @@ export const m = {
         'cantUndo': '您无法撤消此操作。',
         'including': '包括',
         'In Use': '使用中机构',
-        'Historic Uses': '历史中机构',
+        'Historic Uses': '历史机构',
         'reactivate': '重新激活',
         'Are you sure you want to reactivate this site': '是否确实要重新激活',
         'Stautus of the site will be reset to unjoined': '站点的状态将重置为未加入',
@@ -194,7 +200,8 @@ export const m = {
         'networkAcessExitRequired': '网关出口字段为必填字段',
         'proxyNetworkAccessRequired': '代理网关字段为必填项',
         'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。',
-        'exchange': '请选择Exchange'
+        'exchange': '请选择Exchange',
+        'ExchangRequired': 'exchange字段为必填项'
 
     },
     ip: {
@@ -210,14 +217,16 @@ export const m = {
         'from': '由',
         'to': '更改为',
         'appliesAcessExits': '网关出口',
+        'appliesChange': '{type}',
         'confirmUpdates': '是否确认此更新？',
         'toChange': '更改',
-        'telent': '测试连接',
+        'telnet': '测试连接',
         'siteNetworkAccess': '站点网关',
         'routerNetworkAccess': '路由网关',
         'rollsiteNetworkAccess': 'Rollsite网关',
         'isSecure': '加密传输',
         'isPolling': '单向模式',
+        'networkEntrances': '网关入口',
         'entrances': '入口',
         'exit': '出口',
         'sureWantSaveExchange': '确定要保存这个Exchange吗?',
@@ -303,6 +312,7 @@ export const m = {
         'Status': '状态',
         'Are you sure you want to delete this administrator?': '确认删除此管理账号吗?',
         'Add admin': '添加管理员',
+        'admin': '管理员名称',
         'To add': '为FATE Manager添加管理员权限，需要填写管理员所属的FATE Manager机构名以完成匹配，信息填写后不允许更改。',
         'senior admin': '高级管理员',
         'Maximum of 20 chatacters': '不超过20个字符',
@@ -315,8 +325,8 @@ export const m = {
         'Search for Institution': '搜索机构名称',
         'Search for Name': '搜索用户名',
         'reset to default': '恢复默认',
-        'Cloud Manager': '云端管理',
-        'FATE Manager': '联邦管理',
+        'Cloud Manager': 'Cloud Manager',
+        'FATE Manager': 'FATE Manager',
         'Are you sure you want to reactivate this institution': '您确定要重新激活此机构吗',
         'Status of the institution will be reset to unactivated': '机构的状态将重置为未激活',
         'reactivate': '重新激活',

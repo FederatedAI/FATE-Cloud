@@ -53,8 +53,8 @@
             </div>
       </div>
       <div class="add-dialog-footer">
-        <el-button class="save-btn" :disabled="saveDisabled" type="primary" @click="saveAction">{{$t('m.common.save')}}</el-button>
-        <el-button class="cancel-btn" type="info"  @click="cancelAction" >{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" :disabled="saveDisabled" type="primary" @click="saveAction">{{$t('m.common.save')}}</el-button>
+        <el-button class="ok-btn" type="info"  @click="cancelAction" >{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
 </div>

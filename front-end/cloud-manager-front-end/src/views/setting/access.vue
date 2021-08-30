@@ -28,9 +28,13 @@
         <div v-if="radio === 'Cloud Manager'" class="table">
             <el-table :data="cloudtableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
                 <el-table-column prop="name" :label="$t('m.access.Name')" ></el-table-column>
-                <el-table-column prop="adminLevel" :label="$t('m.access.Admin-level')"    align="center" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="adminLevel" :label="$t('m.access.Admin-level')" align="center" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span>{{scope.row.adminLevel === 1 ? $t('m.access.senior admin') : scope.row.adminLevel}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="creator" :label="$t('m.access.Creator')"   align="center"></el-table-column>
-                <el-table-column prop="createTime"  :label="$t('m.access.Create Time')"  align="center">
+                <el-table-column prop="createTime" sortable :label="$t('m.access.Create Time')"  align="center">
                     <template slot-scope="scope">
                     <span>{{scope.row.createTime | dateFormat}}</span>
                     </template>
@@ -48,9 +52,11 @@
         <div v-else class="table">
             <el-table :data="managertableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
                 <el-table-column prop="institutions"  :label="$t('m.access.Institution')" show-overflow-tooltip></el-table-column>
+                <!-- 解决不显示问题 -->
+                <el-table-column v-show="false" prop="" label=""  width="10"></el-table-column>
                 <el-table-column prop="fateManagerId" :label="$t('m.access.Admin ID')"  show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creator" :label="$t('m.access.Creator')" ></el-table-column>
-                <el-table-column prop="createTime" :label="$t('m.access.Create Time')" >
+                <el-table-column prop="createTime" sortable :label="$t('m.access.Create Time')" >
                     <template slot-scope="scope">
                     <span>{{scope.row.createTime | dateFormat}}</span>
                     </template>
@@ -81,18 +87,15 @@
         </div>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="adddialog" class="auto-dialog" width="690px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="adddialog" :title="$t('m.access.Add admin')" label-position="top" class="auto-dialog" :class="dialogClass" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
-        <div class="dialog-title">
-            {{$t('m.access.Add admin')}}
-        </div>
         <div  v-if='radio === "FATE Manager"' class="dialog-line">
             {{$t('m.access.To add')}}
         </div>
-        <el-form ref="managerForm" :model="managerForm" label-position="left" class="add-input" :rules="editRules" label-width="260px">
+        <el-form ref="managerForm" :model="managerForm" label-position="left" class="add-input" :rules="editRules">
             <el-form-item prop="institutionName">
                 <span slot="label" class="input-title">
-                    <span  v-if='radio === "Cloud Manager"'>{{$t('m.access.Name')}}</span>
+                    <span  v-if='radio === "Cloud Manager"'>{{$t('m.access.admin')}}</span>
                     <span  v-if='radio === "FATE Manager"'>{{$t('m.access.Institution')}}</span>
                 </span>
                 <el-input v-model="managerForm.institutionName" @focus="$refs['managerForm'].clearValidate('institutionName')" :placeholder="$t('m.access.Maximum of 20 chatacters')"></el-input>
@@ -120,27 +123,27 @@
             </span>
         </el-form>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toOK">{{$t('m.common.OK')}}</el-button>
-          <el-button type="info" @click="adddialog=false;$refs['managerForm'].clearValidate()">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="toOK">{{$t('m.common.OK')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="closeDialog">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>
     <!-- 删除弹框 -->
-    <el-dialog :visible.sync="deletedialog" class="auto-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="deletedialog" class="auto-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
         <div class="line-text-one">
             {{$t('m.access.Are you sure you want to delete this administrator?')}}
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
-          <el-button type="info" @click="deletedialog=false">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="deletedialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>
     <!-- 修改弹框 -->
-    <el-dialog :visible.sync="addSuccessdialog"  class="add-success-dialog" width="700px">
+    <el-dialog :visible.sync="addSuccessdialog"  class="add-success-dialog" :show-close="true" width="720px">
         <div class="line-text-two">{{$t('m.access.the administrator')}}</div>
-          <el-form ref="showForm" :model="managerForm" label-position="left"  class="add-input" :rules="editRules" label-width="235px">
+          <el-form ref="showForm" :model="managerForm" label-position="left"  class="add-input" :rules="editRules" :label-width="labelWidth">
                 <span class="registration-box">
                     <el-form-item  label="" prop="">
                         <span slot="label">
@@ -152,11 +155,10 @@
                     </el-form-item>
                     <el-form-item :label="$t('m.access.Proxy Network Access')"  prop="network">
                         <span >{{managerForm.network}}</span>
-
                     </el-form-item>
                 </span>
-                <el-form-item>
-                    <span  slot="label" class="input-title" style="margin-left:30px">{{$t('m.access.Invitation Link')}}</span>
+                <el-form-item class="link-area">
+                    <span  slot="label" class="input-title">{{$t('m.access.Invitation Link')+'：'}}</span>
                     <span class="line-text-three">
                         <el-popover
                             placement="top"
@@ -175,9 +177,8 @@
             <el-button class="ok-btn" type="info" v-if="managerForm.status===1" @click="modifyDialog=true" >{{$t('m.common.modify')}}</el-button>
         </div>
     </el-dialog>
-    <!-- 进入弹框 -->
-    <el-dialog :visible.sync="modifyDialog"  class="add-success-dialog"  width="700px">
-        <div class="line-text-two">{{$t('m.access.Invitation Link Setting')}}</div>
+    <!-- 修改弹框 -->
+    <el-dialog :visible.sync="modifyDialog" :title="$t('m.access.Invitation Link Setting')"  class="add-success-dialog"  width="720px">
           <el-form ref="showForm" :model="managerForm" label-position="left"  class="add-input" :rules="editRules" label-width="240px">
             <el-form-item :label="$t('m.access.Link Type')"  prop="protocol">
                 <el-radio-group  v-model="managerForm.protocol">
@@ -196,7 +197,7 @@
         </div>
     </el-dialog>
     <!-- 恢复弹框 -->
-    <el-dialog :visible.sync="reactivateDialog" class="res-institutions-dialog" width="700px">
+    <el-dialog :visible.sync="reactivateDialog" class="res-institutions-dialog" width="500px">
         <div class="line-text-one">
             {{$t('m.access.Are you sure you want to reactivate this institution')}}?
         </div>
@@ -219,11 +220,12 @@ import Clipboard from 'clipboard'
 import { mapGetters } from 'vuex'
 import { accessCloudList, accessManagerList, addManager, addCloud, deleteCloud, updataManager, reactivateUser } from '@/api/setting'
 import { resetNetwork } from '@/api/federated'
-// import checkip from '@/utils/checkip'
+// import popupdialog from '@/components/dialog'
+// import {checkip} from '@/utils/checkip'
 
 export default {
     name: 'access',
-    components: {},
+    components: { },
     filters: {
         dateFormat(vaule) {
             return vaule ? moment(vaule).format('YYYY-MM-DD HH:mm:ss') : '--'
@@ -238,12 +240,12 @@ export default {
             addSuccessdialog: false,
             reactivateDialog: false,
             radio: 'Cloud Manager',
+            dialogClass: 'cm',
             currentPage: 1, // 当前页
             total: 0, // 表格条数
             managertableData: [],
             cloudtableData: [],
             historydata: [], // 历史记录
-
             managerForm: {
                 addSuccessText: '', // 连接
                 institutionName: '',
@@ -297,11 +299,16 @@ export default {
                     pageSize: 20
                 }
                 this.initList()
+                this.dialogClass = val === 'FATE Manager' ? 'fm' : 'cm'
+                this.dialogWidth = val === 'FATE Manager' ? '690px' : '490px'
             }
         }
     },
     computed: {
-        ...mapGetters(['getInfo', 'loginName'])
+        ...mapGetters(['getInfo', 'loginName', 'language']),
+        labelWidth() {
+            return this.language === 'en' ? '235px' : ''
+        }
     },
     created() {
         this.initList()
@@ -314,6 +321,13 @@ export default {
 
     },
     methods: {
+        updateAddVisible(val) {
+            this.adddialog = !val
+        },
+        closeDialog() {
+            this.adddialog = false
+            this.$refs['managerForm'].clearValidate()
+        },
         // 初始化表格
         initList() {
             // 去除空参数
@@ -353,7 +367,6 @@ export default {
                         })
                     } else {
                         let data = {
-
                             creator: this.loginName, // 当前登录用户
                             institutions: this.managerForm.institutionName.trim(),
                             protocol: this.managerForm.protocol,
@@ -364,6 +377,7 @@ export default {
                             this.managerForm.addSuccessText = JSON.stringify(res.data.registrationLink).replace(new RegExp('"', 'g'), '')
                             this.managerForm.fateManagerId = res.data.fateManagerId
                             this.managerForm.protocol = res.data.protocol
+                            this.managerForm.status = res.data.status
                             this.adddialog = false
                             this.initList()
                             this.addSuccessdialog = true
@@ -389,6 +403,7 @@ export default {
         },
         // 添加
         toAdd() {
+            this.toResetNetwork()
             this.managerForm.institutionName = ''
             this.adddialog = true
             this.managerForm.protocol = 'https://'

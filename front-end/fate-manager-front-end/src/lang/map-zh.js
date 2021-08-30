@@ -11,5 +11,8 @@ export const mp = {
     'unpublished': '未发布',
     'unknown': '未知',
     'avaiable': '可用',
-    'unavaiable': '不可用'
+    'unavaiable': '不可用',
+    'true': '是',
+    'false': '否'
+
 }

@@ -296,3 +296,12 @@ export function getNoticeapplysite(data) {
         data
     })
 }
+
+// 测试rollsite
+export function testrollsite(data) {
+    return request({
+        url: `/${urlType}/api/site/testrollsite`,
+        method: 'post',
+        data
+    })
+}

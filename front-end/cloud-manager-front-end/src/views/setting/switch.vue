@@ -1,22 +1,8 @@
 <template>
 
   <div class="switch-box">
-        <div class="card" v-if="!sortSwitch">
-                <div class="card-title">{{$t('Site-Authorization')}}</div>
-                <div class="card-switch"  @click="toswitch('site')">
-                    <el-switch v-model="sitestatus"></el-switch>
-                </div>
-                <div class="card-text">{{$t("Control whether a FATE Manager can view other FATE Manager's sites")}}</div>
-                <div class="desc">
-                    <!-- 丛向 -->
-                    <span v-if="descriptions==='3'">{{$t('Hetero federation only')}}</span>
-                    <!-- 横向 -->
-                    <span v-if="descriptions==='2'">{{$t('Homo federation only')}}</span>
-                    <!-- 混合 -->
-                    <span v-if="descriptions==='1'">{{$t('Hetero federation and homo federation')}}</span>
-                </div>
-        </div>
-        <div class="card">
+
+        <!-- <div class="card"  >
                 <div class="card-title">{{$t('Auto-deploy')}}</div>
                 <div class="card-switch" @click="toswitch('auto')">
                     <el-switch v-model="autostatus" ></el-switch>
@@ -24,23 +10,38 @@
                 <div class="card-text">
                     {{$t('Manage the automated deployment and upgrade of the site')}}
                 </div>
+        </div> -->
+        <div class="card">
+            <div class="card-title">{{$t('Site-Authorization')}}</div>
+            <div class="card-switch"  @click="toswitch('site')">
+                <el-switch v-model="sitestatus"></el-switch>
+            </div>
+            <div class="card-text">{{$t("Control whether a FATE Manager can view other FATE Manager's sites")}}</div>
+            <div class="desc">
+                <!-- 丛向 -->
+                <span v-if="descriptions==='3'">{{$t('Hetero federation only')}}</span>
+                <!-- 横向 -->
+                <span v-if="descriptions==='2'">{{$t('Homo federation only')}}</span>
+                <!-- 混合 -->
+                <span v-if="descriptions==='1'">{{$t('Hetero federation and homo federation')}}</span>
+            </div>
         </div>
-        <div class="card" v-if="sortSwitch">
-                <div class="card-title">{{$t('Site-Authorization')}}</div>
-                <div class="card-switch"  @click="toswitch('site')">
-                    <el-switch v-model="sitestatus"></el-switch>
-                </div>
-                <div class="card-text">{{$t("Control whether a FATE Manager can view other FATE Manager's sites")}}</div>
-                <div class="desc">
-                    <!-- 丛向 -->
-                    <span v-if="descriptions==='3'">{{$t('Hetero federation only')}}</span>
-                    <!-- 横向 -->
-                    <span v-if="descriptions==='2'">{{$t('Homo federation only')}}</span>
-                    <!-- 混合 -->
-                    <span v-if="descriptions==='1'">{{$t('Hetero federation and homo federation')}}</span>
-                </div>
-        </div>
-        <el-dialog :visible.sync="switchVisible" class="switch-dialog" width="700px">
+        <popupdialog
+            dialogTitle=" "
+            :visible.sync="switchVisible"
+            @updateVisible="updateSwitchVisible"
+            @resetPopupData="cancelAction"
+            @submitPopupData="okAction"
+            @handleClose="cancelAction"
+            :dialogWidth="'500px'"
+            :buttons="{
+                sure: {
+                    text:$t('m.common.sure'),
+                },
+                cancel: $t('m.common.cancel'),
+                reject: null,
+            }"
+        >
             <div class="line-text-one">
                 <span v-if="$t('zh')==='en'">
                     Are you sure you want to turn {{ status }} the function of
@@ -96,49 +97,70 @@
                     </span>
                 </span>
             </div>
-            <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="okAction">{{$t('Sure')}}</el-button>
-                <el-button class="cancel-btn" type="info" @click="cancelAction">{{$t('Cancel')}}</el-button>
-            </div>
-        </el-dialog>
-        <el-dialog :visible.sync="selectVisible" class="select-dialog" width="700px">
-            <div class="select-title">
+        </popupdialog>
+        <popupdialog
+            dialogTitle=" "
+            :visible.sync="selectVisible"
+            @updateVisible="updateRadioVisible"
+            @submitPopupData="sureVisible"
+            @resetPopupData="cancelAction"
+            @handleClose="cancelAction"
+            :dialogWidth="'500px'"
+            :buttons="{
+                sure: {
+                    text:$t('m.common.sure'),
+                    disabled:!selectRadio
+                },
+                cancel: $t('m.common.cancel'),
+                reject: null,
+            }"
+        >
+            <div class="dialog-title">
                 {{$t('Please select the supported federated scenario')}}
             </div>
-                <el-radio-group v-model="selectRadio">
+            <el-radio-group v-model="selectRadio">
+                <div class="select-item">
+                    <el-radio :label="'3'">{{$t('Hetero federation only')}}</el-radio>
+                </div>
                     <div class="select-item">
-                        <el-radio :label="'3'">{{$t('Hetero federation only')}}</el-radio>
-                    </div>
-                     <div class="select-item">
-                        <el-radio :label="'2'">{{$t('Homo federation only')}}</el-radio>
-                    </div>
-                     <div class="select-item">
-                        <el-radio :label="'1'">{{$t('Hetero federation and homo federation')}}</el-radio>
-                    </div>
-                </el-radio-group>
-            <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" :disabled="!selectRadio" @click="sureVisible = true">{{$t('Sure')}}</el-button>
-                <el-button class="cancel-btn" type="info" @click="cancelAction">{{$t('Cancel')}}</el-button>
+                    <el-radio :label="'2'">{{$t('Homo federation only')}}</el-radio>
+                </div>
+                    <div class="select-item">
+                    <el-radio :label="'1'">{{$t('Hetero federation and homo federation')}}</el-radio>
+                </div>
+            </el-radio-group>
+        </popupdialog>
+        <popupdialog
+            dialogTitle=" "
+            :visible.sync="sureVisible"
+            @updateVisible="updateSureVisible"
+            @submitPopupData="selectSure"
+            @resetPopupData="cancelAction"
+            @handleClose="cancelAction"
+            :dialogWidth="'400px'"
+            :buttons="{
+                sure: {
+                    text:$t('m.common.sure'),
+                    disabled: false
+                },
+                cancel: $t('m.common.cancel'),
+                reject: null,
+            }"
+        >
+            <div class="main-tips">
+                {{$t('Please confirm the option again.')}}
             </div>
-        </el-dialog>
-         <el-dialog :visible.sync="sureVisible" class="select-dialog" width="700px">
-            <div class="select-title">
-                {{$t('Please confirm the option again. Once selected, it cannot be modified.')}}
+            <div class="gray-tips">
+                {{$t('Once selected, it cannot be modified.')}}
             </div>
-            <div class="el-radio-group">
-
-            </div>
-            <div class="dialog-footer">
-                <el-button class="ok-btn" type="primary" @click="selectSure">{{$t('m.common.sure')}}</el-button>
-                <el-button class="cancel-btn" type="info" @click="sureVisible = false">{{$t('m.common.cancel')}}</el-button>
-            </div>
-        </el-dialog>
+        </popupdialog>
   </div>
 
 </template>
 
 <script>
 import { switchState, updateSwitch, siteUpdateStatus } from '@/api/setting'
+import popupdialog from '@/components/dialog'
 // import { mapGetters } from 'vuex'
 // 国际化
 const local = {
@@ -154,7 +176,8 @@ const local = {
         'Hetero federation only': '仅支持纵向联邦',
         'Homo federation only': '仅支持横向联邦',
         'Hetero federation and homo federation': '同时支持纵向及横向联邦',
-        'Please confirm the option again. Once selected, it cannot be modified.': '请确认所选场景是否有误。联邦场景选择后，无法再做更改。'
+        'Please confirm the option again.': '请确认所选场景是否有误。',
+        'Once selected, it cannot be modified.': '联邦场景选择后，无法再做更改。'
     },
     en: {
         'Auto-deploy': 'Auto-deploy',
@@ -168,14 +191,14 @@ const local = {
         'Hetero federation only': 'Hetero federation only',
         'Homo federation only': 'Homo federation only',
         'Hetero federation and homo federation': 'Hetero federation and homo federation',
-        'Please confirm the option again. Once selected, it cannot be modified.': 'Please confirm the option again. Once selected, it cannot be modified.'
+        'Please confirm the option again.': 'Please confirm the option again. ',
+        'Once selected, it cannot be modified.': 'Once selected, it cannot be modified.'
 
     }
 }
-// import { mapGetters } from 'vuex'
 export default {
     name: 'switchsys',
-    components: {},
+    components: { popupdialog },
     // computed: {
     //     ...mapGetters(['autostatus','sitestatus'])
     // },
@@ -190,7 +213,6 @@ export default {
             selectRadio: '',
             autostatus: false, // 是否打开，默认关闭
             sitestatus: false, // 是否打开，默认关闭
-            sortSwitch: this.autostatus,
             itmetext: '',
             itmeline: '',
             descriptions: '',
@@ -211,6 +233,15 @@ export default {
 
     },
     methods: {
+        updateSwitchVisible(val) {
+            this.switchVisible = !val
+        },
+        updateRadioVisible(val) {
+            this.selectVisible = !val
+        },
+        updateSureVisible(val) {
+            this.sureVisible = !val
+        },
         init() {
             switchState().then(res => {
                 res.data.forEach(item => {
@@ -229,9 +260,7 @@ export default {
                             this.descriptions = ''
                         }
                     }
-                    this.sortSwitch = this.autostatus
                 })
-                console.log(this.functionIdObj, 'functionIdObj')
             })
         },
         // 确定改变状态
@@ -248,7 +277,6 @@ export default {
             updateSwitch(this.paramsData).then(res => {
                 this.switchVisible = false
                 this.init()
-                this.sortSwitch = this.autostatus
             }).catch(res => {
                 this.cancelAction()
             })
@@ -257,6 +285,7 @@ export default {
         cancelAction() {
             this.switchVisible = false
             this.selectVisible = false
+            this.sureVisible = false
             this.init()
         },
         // 确定选中

@@ -39,7 +39,7 @@
                             <el-table-column prop="" type="index"  :label="$t('m.common.index')" class-name="cell-td-td" width="70"></el-table-column>
                             <el-table-column prop="siteName"  :label="$t('m.common.siteName')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
                             <el-table-column prop="institutions" :label="$t('m.common.institutionName')"  class-name="cell-td-td" min-width="90" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="partyId" :label="$t('m.common.partyID')"  class-name="cell-td-td" ></el-table-column>
+                            <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  class-name="cell-td-td" ></el-table-column>
                             <el-table-column prop="role" :label="$t('m.common.role')" class-name="cell-td-td">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.role===1? $t('m.common.guest') : $t('m.common.host')}}</span>
@@ -51,12 +51,12 @@
                                         :class="{ 'cell-td': scope.row.networkAccessEntrancesOld.split(';').length>=scope.row.networkAccessExitsOld.split(';').length?false:true }">
                                             <div  v-for="(item,index) in scope.row.networkAccessEntrancesOld.split(';')" :key="index">
                                                 <span class="iptext" v-if="item">{{item}}</span>
-                                                <span class="telnet"  @click="testTelent(item)" v-if="item">{{$t('m.ip.telent')}}</span>
+                                                <span class="telnet"  @click="testTelnet(item)" v-if="item">{{$t('m.ip.telnet')}}</span>
                                             </div>
                                         </span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="networkAccessExits" :label="$t('m.site.networkExits')"  min-width="150">
+                                <!-- <el-table-column prop="networkAccessExits" :label="$t('m.site.networkExits')"  min-width="150">
                                     <template slot-scope="scope" class="td">
                                         <span v-if="scope.row.networkAccessExitsOld"
                                         :class="{ 'cell-td': scope.row.networkAccessEntrancesOld.split(';').length<=scope.row.networkAccessExitsOld.split(';').length?false:true }">
@@ -65,7 +65,7 @@
                                             </div>
                                         </span>
                                     </template>
-                                </el-table-column>
+                                </el-table-column> -->
                                 <el-table-column prop="exchangeName" label="Exchange"  class-name="cell-td-td" ></el-table-column>
                                 <el-table-column prop="isSecure" :label="$t('m.ip.isSecure')"  class-name="cell-td-td" >
                                     <template slot-scope="scope">
@@ -77,7 +77,7 @@
                                         <span>{{scope.row.pollingStatus === 1 ? $t('m.common.true') :  $t('m.common.false')}}</span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="updateTime" show-overflow-tooltip :label="$t('m.common.updateTime')"  class-name="cell-td-td" min-width="100px">
+                                <el-table-column prop="updateTime" sortable show-overflow-tooltip :label="$t('m.common.updateTime')"  class-name="cell-td-td" min-width="100px">
                                 <template slot-scope="scope">
                                     <span>{{scope.row.updateTime | dateFormat}}</span>
                                 </template>
@@ -92,11 +92,9 @@
                                         <el-button v-else type="text" :disabled="scope.row.status === 1" style="margin-right:10px;" class="delete">
                                             <img class="edit-img" src="@/assets/refresh_disable.png" alt="" >
                                         </el-button>
-                                        <!-- :disabled="scope.row.status === 1" -->
-                                        <el-button class="edit" type="text" @click="editData(scope.row)" style="margin-right:10px;margin-left:0" >
-                                            <!-- v-if="scope.row.status!==1" -->
-                                            <img class="edit-img" src="@/assets/edit_click.png" alt="" >
-                                            <!-- <img v-else class="edit-img" src="@/assets/edit_disable.png" alt="" > -->
+                                        <el-button class="edit" type="text" :disabled="scope.row.status === 0" @click="editData(scope.row)" style="margin-right:10px;margin-left:0" >
+                                            <img v-if="scope.row.status === 0" class="edit-img" src="@/assets/edit_disable.png" alt="" >
+                                            <img v-else class="edit-img" src="@/assets/edit_click.png" alt="" >
                                         </el-button>
                                         <el-popover
                                             v-if="scope.row.history === 1"
@@ -114,60 +112,33 @@
                                                     <div class="tiltle-history">{{$t('m.common.history')}}</div>
                                                 </div>
                                                 <div class="content-loop">
-                                                    <div class="loop" v-for="(item, index) in scope.row.historylist" :key="index">
+                                                    <div class="loop" v-for="(val, idx) in scope.row.historylist" :key="idx">
                                                         <div class="time">
-                                                            <div class="time-text">{{item.updateTime | dateFormat}}</div>
+                                                            <div class="time-text">{{val.updateTime | dateFormat}}</div>
                                                         </div>
                                                         <div class="history">
-                                                            <!-- status===1同意 -->
-                                                            <div v-if="item.status===1 && item.networkAccessEntrances !== item.networkAccessEntrancesOld" class="line">
-                                                                {{$t('m.common.agree')}}{{$t('m.ip.toChange')}}{{$t('m.site.networkEntrances')}}
-                                                            </div>
-                                                            <!-- status===2拒绝 -->
-                                                            <div v-if="item.status===2 && item.networkAccessEntrances !== item.networkAccessEntrancesOld"  class="line">
-                                                                {{$t('m.common.reject')}}{{$t('m.ip.toChange')}}{{$t('m.site.networkEntrances')}}
-                                                            </div>
-                                                            <!-- 入口 -->
-                                                            <div v-if="item.networkAccessEntrances !==item.networkAccessEntrancesOld" class="content-box">
-                                                                <div class="from-tiltle">{{$t('m.ip.from')}}</div>
-                                                                <div class="from-text">
-                                                                    <div v-for="(item,index) in item.networkAccessEntrancesOld.split(';')" :key="index">
-                                                                        {{item}}
-                                                                    </div>
+                                                            <div v-for="(item, index) in val.components" :key="index">
+                                                                <div class="line" >
+                                                                    <span v-if="index > 0"> {{$t('m.common.and')}} </span>
+                                                                    <span v-if="item.status===1 || item.status===2">{{$t(`m.common.${item.status===1 ? 'agree':'reject'}`)}}</span>{{$t('m.ip.toChange')}}{{item.name === 'exchange' ? item.name : $t(`m.ip.${item.name}`)}}
                                                                 </div>
-                                                                <div style="margin-left: 50px;" class="from-tiltle" >{{$t('m.ip.to')}}</div>
-                                                                <div class="from-text">
-                                                                    <div v-for="(item,index) in item.networkAccessEntrances.split(';')" :key="index">
-                                                                        {{item}}
+                                                                <div class="content-box">
+                                                                    <div class="from-tiltle">{{$t('m.ip.from')}}</div>
+                                                                    <div class="from-text">
+                                                                        <div v-for="(item,i) in item.old" :key="i">
+                                                                            {{item}}
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </div>
-                                                            <!-- status===1同意 -->
-                                                            <div v-if="item.status===1 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
-                                                                <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> {{$t('m.common.and')}} </span>
-                                                                {{$t('m.common.agree')}}{{$t('m.ip.toChange')}}{{$t('m.site.networkExits')}}
-                                                            </div>
-                                                            <!-- status===2拒绝 -->
-                                                            <div v-if="item.status===2 && item.networkAccessExits !== item.networkAccessExitsOld"  class="line">
-                                                                <span v-if="item.networkAccessEntrances !== item.networkAccessEntrancesOld"> {{$t('m.common.and')}} </span>
-                                                                {{$t('m.common.reject')}}{{$t('m.ip.toChange')}}{{$t('m.site.networkExits')}}
-                                                            </div>
-                                                            <!-- 出口 -->
-                                                            <div v-if="item.networkAccessExitsOld !==item.networkAccessExits" class="content-box">
-                                                                <div class="from-tiltle">{{$t('m.ip.from')}}</div>
-                                                                <div class="from-text">
-                                                                    <div v-for="(item,index) in item.networkAccessExitsOld.split(';')" :key="index">
-                                                                        {{item}}
-                                                                    </div>
-                                                                </div>
-                                                                <div style="margin-left: 50px;" class="from-tiltle" >{{$t('m.ip.to')}}</div>
-                                                                <div class="from-text">
-                                                                    <div v-for="(item,index) in item.networkAccessExits.split(';')" :key="index">
-                                                                        {{item}}
+                                                                    <div style="margin-left: 30px;" class="from-tiltle" >{{$t('m.ip.to')}}</div>
+                                                                    <div class="from-text">
+                                                                        <div v-for="(item,i) in item.new" :key="i">
+                                                                            {{item}}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -197,23 +168,24 @@
                     <ipexchange/>
                 </span>
             </div>
-            <el-dialog :visible.sync="dialogVisible" class="ip-delete-dialog" width="700px">
+            <el-dialog :visible.sync="dialogVisible" class="ip-delete-dialog" width="550px">
                 <div class="line-text-one">{{$t('m.ip.federatedSite')}}
                     "<span style="color:#217AD9">{{dialogData.siteName}}</span>"
                     {{$t('m.ip.fedSite')}}
                 </div>
+                <!-- 入口变更 -->
                 <div class="line-text-one" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
                     {{$t('m.ip.appliesAcessEntrances')}}
                 </div>
-                    <div class="line-text" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
+                <div class="line-text" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
                     <div class="entrances">
-                    <div class="rigth-box" style="margin-right: 70px">
+                    <div class="rigth-box" style="margin-right: 0px">
                         <div class="from">{{$t('m.ip.from')}}</div>
                         <div class="text">
                         <span v-for="(item, index) in dialogData.oldEntrancesData.split(';')" :key="index">{{item}}</span>
                         </div>
                     </div>
-                    <div class="rigth-box" style="margin-left: 70px">
+                    <div class="rigth-box" style="margin-left: 0px">
                         <div class="from">{{$t('m.ip.to')}}</div>
                         <div class="text">
                         <span v-for="(item, index) in dialogData.newEntrancesData.split(';')" :key="index">{{item}}</span>
@@ -221,21 +193,62 @@
                     </div>
                     </div>
                 </div>
-                    <div class="line-text-one" style="margin-top: 24px;" v-if="dialogData.newExitsData!==dialogData.oldExitsData">
+                <!-- 出口变更 -->
+                <div class="line-text-one" style="margin-top: 24px;" v-if="dialogData.newExitsData!==dialogData.oldExitsData">
                     {{$t('m.ip.appliesAcessExits')}}
-                    </div>
-                    <div class="line-text" v-if="dialogData.newExitsData!==dialogData.oldExitsData">
+                </div>
+                <div class="line-text" v-if="dialogData.newExitsData!==dialogData.oldExitsData">
                     <div class="entrances">
-                    <div class="rigth-box" style="margin-right: 70px">
+                    <div class="rigth-box" style="margin-right: 0px">
                         <div class="from">{{$t('m.ip.from')}}</div>
                         <div class="text">
                         <span v-for="(item, index) in dialogData.oldExitsData.split(';')" :key="index">{{item}}</span>
                         </div>
                     </div>
-                    <div class="rigth-box" style="margin-left: 70px">
+                    <div class="rigth-box" style="margin-left: 0px">
                         <div class="from">{{$t('m.ip.to')}}</div>
                         <div class="text">
                         <span v-for="(item, index) in dialogData.newExitsData.split(';')" :key="index">{{item}}</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <!-- 单双向模式变更 -->
+                <div class="line-text-one" style="margin-top: 24px;" v-if="dialogData.pollingStatusNew !== null && dialogData.pollingStatus !== dialogData.pollingStatusNew">
+                    {{$t('m.ip.appliesChange',{type:$t('m.ip.isPolling')})}}
+                </div>
+                <div class="line-text"  v-if="dialogData.pollingStatusNew !== null && dialogData.pollingStatus !== dialogData.pollingStatusNew">
+                    <div class="entrances">
+                    <div class="rigth-box" style="margin-right: 0px">
+                        <div class="from">{{$t('m.ip.from')}}</div>
+                        <div class="text">
+                            <span>{{dialogData.pollingStatus}}</span>
+                        </div>
+                    </div>
+                    <div class="rigth-box" style="margin-left: 0px">
+                        <div class="from">{{$t('m.ip.to')}}</div>
+                        <div class="text">
+                            <span>{{dialogData.pollingStatusNew}}</span>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <!-- 加密类型变更 -->
+                <div class="line-text-one" style="margin-top: 24px;" v-if="dialogData.secureStatusNew !== null && dialogData.secureStatus !== dialogData.secureStatusNew">
+                    {{$t('m.ip.appliesChange',{type:$t('m.ip.isSecure')})}}
+                </div>
+                <div class="line-text" v-if="dialogData.secureStatusNew !== null && dialogData.secureStatus !== dialogData.secureStatusNew">
+                    <div class="entrances">
+                    <div class="rigth-box" style="margin-right: 0px">
+                        <div class="from">{{$t('m.ip.from')}}</div>
+                        <div class="text">
+                            <span>{{dialogData.secureStatus}}</span>
+                        </div>
+                    </div>
+                    <div class="rigth-box" style="margin-left: 0px">
+                        <div class="from">{{$t('m.ip.to')}}</div>
+                        <div class="text">
+                            <span>{{dialogData.secureStatusNew}}</span>
                         </div>
                     </div>
                     </div>
@@ -335,6 +348,61 @@ export default {
                         item.visible = false// 历史记录表格弹框
                         iphistory({ partyId: item.partyId }).then(res => {
                             item.historylist = [...res.data]
+                            // 格式化历史数据
+                            item.historylist.map(k => {
+                                let historyData = k
+                                historyData.components = []
+                                if (
+                                    (historyData.networkAccessEntrancesOld !== null && historyData.networkAccessEntrances !== null) &&
+                                historyData.networkAccessEntrancesOld !== historyData.networkAccessEntrances
+                                ) {
+                                    historyData.components.push({
+                                        status: historyData.status,
+                                        name: 'networkEntrances',
+                                        old: historyData.networkAccessEntrancesOld.split(';'),
+                                        new: historyData.networkAccessEntrances.split(';')
+                                    })
+                                }
+
+                                if (
+                                    (historyData.exchangeNameOld !== null && historyData.exchangeName !== null) &&
+                                historyData.exchangeNameOld !== historyData.exchangeName
+                                ) {
+                                    historyData.components.push({
+                                        status: historyData.status,
+                                        name: 'exchange',
+                                        old: [historyData.exchangeNameOld],
+                                        new: [historyData.exchangeName]
+                                    })
+                                }
+
+                                if (
+                                    (historyData.secureStatusOld !== null && historyData.secureStatus !== null) &&
+                                historyData.secureStatusOld !== historyData.secureStatus
+                                ) {
+                                    historyData.components.push({
+                                        status: historyData.status,
+                                        name: 'isSecure',
+                                        old: [this.getStatus(historyData.secureStatusOld)],
+                                        new: [this.getStatus(historyData.secureStatus)]
+                                    })
+                                }
+
+                                if (
+                                    (historyData.pollingStatusOld !== null && historyData.pollingStatus !== null) &&
+                                historyData.pollingStatusOld !== historyData.pollingStatus
+                                ) {
+                                    historyData.components.push({
+                                        status: historyData.status,
+                                        name: 'isPolling',
+                                        old: [this.getStatus(historyData.pollingStatusOld)],
+                                        new: [this.getStatus(historyData.pollingStatus)]
+                                    })
+                                }
+                                k = historyData
+                            })
+
+                            console.log(item.historylist, 'historyDataList')
                         })
                     }
                     return item
@@ -366,6 +434,7 @@ export default {
         },
         upDate(row, type) {
             this.dialogVisible = true
+            console.log(row, 'row')
             this.dialogData = {
                 caseId: row.caseId,
                 partyId: row.partyId,
@@ -373,7 +442,11 @@ export default {
                 newEntrancesData: row.networkAccessEntrances,
                 oldEntrancesData: row.networkAccessEntrancesOld,
                 newExitsData: row.networkAccessExits,
-                oldExitsData: row.networkAccessExitsOld
+                oldExitsData: row.networkAccessExitsOld,
+                secureStatusNew: this.getStatus(row.secureStatusNew),
+                secureStatus: this.getStatus(row.secureStatus),
+                pollingStatusNew: this.getStatus(row.pollingStatusNew),
+                pollingStatus: this.getStatus(row.pollingStatus)
             }
         },
         // 确定更改
@@ -406,8 +479,8 @@ export default {
         cancelAction() {
             this.dialogVisible = false
         },
-        // 测试Telent
-        testTelent(ipport) {
+        // 测试Telnet
+        testTelnet(ipport) {
             let data = {
                 ip: ipport.split(':')[0],
                 port: parseInt(ipport.split(':')[1])
@@ -440,6 +513,9 @@ export default {
                     this.initList()
                 }
             })
+        },
+        getStatus(status) {
+            return status === 1 ? this.$t('m.common.true') : this.$t('m.common.false')
         }
         // gethistory(row) {
         //     // this.sth = 'height:300px;'
@@ -473,11 +549,11 @@ export default {
             font-weight: bold;
             margin-bottom: 12px;
             .tiltle-time{
-                width: 30%;
+                width: 26%;
                 display:inline-block;
             }
             .tiltle-history{
-                width: 70%;
+                width: 73%;
                 display:inline-block;
             }
         }
@@ -487,7 +563,7 @@ export default {
             .loop{
                 margin:0 36px;
                 .time{
-                    width: 30%;
+                    width: 26%;
                     display:inline-block;
                     vertical-align: top;
                     .time-text{
@@ -496,7 +572,7 @@ export default {
                     }
                 }
                 .history{
-                    width: 70%;
+                    width: 73%;
                     display:inline-block;
                     .line{
                         color: #2D3642;

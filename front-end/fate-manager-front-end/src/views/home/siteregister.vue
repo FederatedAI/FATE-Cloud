@@ -1,6 +1,5 @@
 <template>
-    <el-dialog  class="register" :visible.sync="registerVisible" width="700px" >
-        <div class="title">{{$t('m.sitemanage.register')}}</div>
+    <el-dialog  class="register" :title="$t('m.sitemanage.register')" :visible.sync="registerVisible" width="500px" >
         <div class="organization">
         <div class="name-tip">
             <span>{{$t('m.sitemanage.pleaseEnterRegistration')}}</span>
@@ -14,9 +13,9 @@
             </el-form-item>
         </el-form>
         </div>
-        <div class="btn">
-            <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="okAction">{{$t('m.common.OK')}}</el-button>
-            <el-button class="Cancel-btn" type="info"  @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
+        <div class="dialog-footer btn">
+            <el-button class="ok-btn" :type="type" :disabled="disabledbtn" @click="okAction">{{$t('m.common.OK')}}</el-button>
+            <el-button class="ok-btn" type="info"  @click="cancelAction">{{$t('m.common.cancel')}}</el-button>
         </div>
     </el-dialog>
 </template>

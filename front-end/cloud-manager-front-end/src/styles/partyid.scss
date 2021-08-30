@@ -67,7 +67,6 @@
 
         //弹框居中
         .el-dialog {
-            height: 283px;
             display: flex;
             flex-direction: column;
             margin: 0 !important;
@@ -80,31 +79,27 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px;
+            padding: 24px;
         }
 
         .el-dialog__header {
-            display: none;
+            padding: 0;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #2D3642;
-            margin-bottom: 24px
+            margin-bottom: 12px
         }
 
         .line-text-two {
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
-            margin-bottom: 48px
+            margin-bottom: 36px
         }
 
-        .ok-btn {
-            width: 180px;
-            font-size: 18px;
-        }
 
     }
 }

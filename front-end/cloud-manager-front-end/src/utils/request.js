@@ -26,7 +26,12 @@ const service = axios.create({
 
 const setErrorMsgToI18n = (msg) => {
     i18n.locale = getCookie('language') || store.getters.language
-    let tipKey = msg.replace("'", '')
+    let tipKey = ''
+    if (msg && msg.indexOf('msg') > -1) {
+        tipKey = msg.split('msg')[1].trim().replace("'", '')
+    } else {
+        tipKey = msg.replace("'", '')
+    }
     let tipText = tipI18n.$t(`m.errorTips.${tipKey}`).indexOf('m.errorTips') > -1 ? msg : tipI18n.$t(`m.errorTips.${tipKey}`)
     Vue.prototype.$message.error({
         message: `${msg ? tipText : tipI18n.$t('m.errorTips.reqestFailed')}`,
@@ -43,7 +48,6 @@ let URL = [
     '/cloud-manager/api/authority/status',
     '/cloud-manager/api/site/institutions/status/dropdown',
     '/cloud-manager/api/site/institutions',
-    '/cloud-manager/api/site/page/cloudManager',
     '/cloud-manager/api/dropdown/version',
     '/cloud-manager/api/function/find/all'
 

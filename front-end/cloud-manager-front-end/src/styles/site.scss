@@ -158,6 +158,17 @@
                     width: 100%;
                     .el-table {
                         margin: 0px 0px ;
+                        .caret-wrapper {
+                            position: absolute;
+                            top: 3px;
+                            height: 20px;
+                            .sort-caret.ascending {
+                                top: -3px;
+                            }
+                            .sort-caret.descending {
+                                bottom: 0px;
+                            }
+                        }
                         th{
                             padding: 7px 0;
                         }
@@ -180,6 +191,10 @@
                             color: #217AD9;
                             font-size: 16px;
                             vertical-align: middle;
+                        }
+                        .el-icon-delete-solid {
+                            height: 20px;
+                            margin-right: 20px;
                         }
     
                         .el-input__inner {
@@ -215,62 +230,55 @@
     .site-delete-dialog {
 
         .el-dialog__body {
-            padding: 64px 20px;
-        }
-
-        .el-dialog__header {
-            display: none;
+            padding: 10px 24px 24px;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
-            color: #2D3642;
-            margin-bottom: 24px;
-            white-space: nowrap; //文本强制不换行；
-            text-overflow:ellipsis; //文本溢出显示省略号；
-            overflow:hidden; //溢出的部分隐藏；
-        }
-
-        .line-text-two {
             font-size: 18px;
-            color: #848C99;
-            margin-bottom: 48px
-        }
-        
-        .ok-btn {
-            width: 126px;
-            font-size: 18px;
-            line-height: inherit;
-            height: 38px;
-        }
-
-    }
-    .add-author-dialog{
-        .el-dialog__body {
-            padding: 64px 20px;
-        }
-
-        .el-dialog__header {
-            display: none;
-        }
-
-        text-align: center;
-
-        .line-text-one {
-            font-size: 24px;
             color: #2D3642;
             margin-bottom: 12px;
             white-space: nowrap; //文本强制不换行；
             text-overflow:ellipsis; //文本溢出显示省略号；
             overflow:hidden; //溢出的部分隐藏；
+            .wait-delete-name{
+                color: #217AD9;
+            }
         }
 
         .line-text-two {
+            font-size: 16px;
+            color: #848C99;
+            margin-bottom: 36px
+        }
+
+    }
+    .add-author-dialog{
+        .el-dialog__body {
+            padding: 10px 24px 24px;
+        }
+
+        .el-dialog__header {
+            // display: none;
+        }
+
+        text-align: center;
+
+        .line-text-one {
             font-size: 18px;
+            color: #2D3642;
+            margin-bottom: 36px;
+            line-height: 1.5;
+            padding: 0 24px;
+        }
+
+        .line-text-two {
+            font-size: 16px;
             color: #848C99;
             margin-bottom: 8px;
+            line-height: 1.5;
+            padding: 0 24px;
         }
         .dialog-main{
             text-align: left;
@@ -293,32 +301,23 @@
                 }
             }
         }
-        .ok-btn {
-            width: 126px;
-            font-size: 18px;
-            line-height: inherit;
-            height: 38px;
-        }
     }
     .cancel-author-dialog{
         .el-dialog__body {
-            padding: 48px 20px 24px 20px;;
+            padding: 10px 20px 24px 20px;
         }
 
-        .el-dialog__header {
-            display: none;
-        }
         .line-text-one {
-            font-size: 24px;
+            font-size: 18px;
             color: #2D3642;
             margin-bottom: 24px;
             text-align: center;
-            white-space: nowrap; //文本强制不换行；
-            text-overflow:ellipsis; //文本溢出显示省略号；
-            overflow:hidden; //溢出的部分隐藏；
+            padding: 0 24px;
+            line-height: 1.5;
         }
         .siteType{
             margin:0 24px;
+            color: #4E5766;
         }
         .dialog-main{
             padding: 12px 24px;
@@ -358,18 +357,12 @@
         }
         .dialog-footer{
             text-align: center;
-            .ok-btn {
-                width: 126px;
-                font-size: 18px;
-                line-height: inherit;
-                height: 38px;
-            }
         }   
        
     }
     .del-institutions-dialog{
         .el-dialog__body {
-            padding: 12px 20px 24px 20px;;
+            padding: 10px 24px 24px;
         }
 
         // .el-dialog__header {
@@ -380,7 +373,7 @@
             font-weight:bold;
             font-size: 16px;
             color: #4E5766;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
             text-align: center;
             white-space: nowrap; //文本强制不换行；
             text-overflow:ellipsis; //文本溢出显示省略号；
@@ -395,14 +388,7 @@
             text-overflow:ellipsis; //文本溢出显示省略号；
             overflow:hidden; //溢出的部分隐藏；
         }
-        .dialog-footer{
-            .ok-btn {
-                width: 126px;
-                font-size: 18px;
-                line-height: inherit;
-                height: 38px;
-            }
-        }  
+        
     }
 }
 .scope{

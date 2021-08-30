@@ -27,8 +27,11 @@ export default {
     watch: {
         $route: {
             handler() {
+                let name = this.$route.name
+                console.log(name, 'router-name-1')
                 this.toPath()
-            }
+            },
+            immediate: true
         }
     },
 
@@ -38,7 +41,7 @@ export default {
     methods: {
         toPath() {
             let name = this.$route.name
-            if (name === 'sitemanage' || name === 'siteinfo') {
+            if (name === 'sitemanage' || name === 'siteinfo' || name === 'activate') {
                 this.path = ['Manage', 'Site Manage']
             } else if (name === 'access') {
                 this.path = ['Manage', 'User Access']

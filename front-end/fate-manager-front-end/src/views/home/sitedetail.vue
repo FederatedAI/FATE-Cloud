@@ -67,19 +67,19 @@
                     <el-form-item :label="$t('m.sitemanage.exchangeName')+'：'">
                         <span class="info-text">{{form.ExchangeInfo.exchangeName}}</span>
                     </el-form-item>
+                </el-col>
+                <el-col :span="12">
                     <el-form-item  label="VIP Entrances：" >
                         <span class="info-text">{{form.ExchangeInfo.vipEntrances}}</span>
                     </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item>
+                    <!-- <el-form-item>
                         <div class="info-text placehodler-div" ></div>
-                    </el-form-item>
-                    <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" label-width="250px">
+                    </el-form-item> -->
+                    <!-- <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" label-width="250px">
                         <span class="info-text" v-if="form.ExchangeInfo.exchangeNetworkAccessExits">
                             <div v-for="(item,index) in form.ExchangeInfo.exchangeNetworkAccessExits.split(';')" :key="index" >{{item}}</div>
                         </span>
-                    </el-form-item>
+                    </el-form-item> -->
                 </el-col>
             </el-row>
             </el-form>
@@ -129,7 +129,7 @@
                                 </el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="12">
+                        <!-- <el-col :span="12">
                             <el-form-item :label="$t('m.sitemanage.networkExits')+'：'" style="height:100%;" prop="networkAccessExits" >
                                 <span class="info-text" v-if="editSubmitted!==2 && form.networkAccessExits">
                                     <div v-for="(item,index) in form.networkAccessExits.split(';')" :key="index" >{{item}}</div>
@@ -144,13 +144,13 @@
                                     <i slot="suffix" @click="addShow('exit')" class="el-icon-edit plus" />
                                 </el-input>
                             </el-form-item>
-                        </el-col>
+                        </el-col> -->
                     </el-row>
                 </div>
                 <!-- site network end -->
                 <!-- rollsite network start -->
                 <div class="plate">
-                    <div class="plate-title">
+                    <!-- <div class="plate-title">
                         <span class="title-text">{{$t('m.sitemanage.rollsiteNetworkConf')}}</span>
                         <span  v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
                             <div class="info-del">
@@ -165,22 +165,44 @@
                                 <el-button v-if="rollSiteEditSubmitted === 2" @click="cancel('rollsite')" type="info">{{$t('m.common.cancel')}}</el-button>
                             </div>
                         </span>
-                    </div>
+                    </div> -->
                     <el-row :gutter="140">
                         <el-col :span="12">
-                            <el-form-item :label="$t('m.sitemanage.rollsiteNetworkAccess')+'：'" style="height:100%;" prop="rollsiteNetworkAccess" >
-                                <span class="info-text" v-if="rollSiteEditSubmitted!==2 && form.rollsiteNetworkAccess">
-                                    <div v-for="(item,index) in form.rollsiteNetworkAccess.split(';')" :key="index" >{{item}}</div>
+                            <el-form-item :label="$t('m.sitemanage.rollSiteNetworkAccess')+'：'" style="height:100%;" prop="fmRollSiteNetworkAccess" >
+                                <span class="info-text" v-if="editSubmitted!==2 && form.fmRollSiteNetworkAccess">
+                                    <div v-for="(item,index) in form.fmRollSiteNetworkAccess.split(';')" :key="index" >{{item}}</div>
                                 </span>
                                 <el-input
-                                    v-if="rollSiteEditSubmitted===2"
+                                    v-if="editSubmitted===2"
                                     @focus="addShow('rollsite')"
-                                    @blur="cancelValid('rollsiteNetworkAccess')"
-                                    :class="{ 'edit-text': true, 'plus-text':true,'Network-text':true,'exitwarn': rollsiteNetworkAccesswarnshow }"
-                                    v-model="form.rollsiteNetworkAccess"
+                                    @blur="cancelValid('fmRollSiteNetworkAccess')"
+                                    :class="{ 'edit-text': true, 'plus-text':true,'Network-text':true,'exitwarn': fmRollSiteNetworkAccesswarnshow }"
+                                    v-model="form.fmRollSiteNetworkAccess"
                                     placeholder >
                                     <i slot="suffix" @click="addShow('rollsite')" class="el-icon-edit plus" />
                                 </el-input>
+                            </el-form-item>
+                            <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" >
+                                 <span class="info-text" v-if="editSubmitted!==2 && form.fmRollSiteNetworkAccessExitsList">
+                                    <div v-for="(item,index) in form.fmRollSiteNetworkAccessExitsList.split(';')" :key="index" >{{item}}</div>
+                                </span>
+                                <el-input
+                                    v-if="editSubmitted===2"
+                                    @focus="addShow('exit')"
+                                    @blur="cancelValid('fmRollSiteNetworkAccessExitsList')"
+                                    :class="{ 'edit-text': true, 'plus-text':true,'Network-text':true,'exitwarn': fmRollSiteNetworkAccessExitsListwarnshow }"
+                                    v-model="form.fmRollSiteNetworkAccessExitsList"
+                                    placeholder >
+                                    <i slot="suffix" @click="addShow('exit')" class="el-icon-edit plus" />
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item class="inline" :label="$t('m.siteAdd.isSecure')" prop="secureStatus" >
+                                <span class="info-text" v-if="editSubmitted!==2">{{form.secureStatus | getBollen}}</span>
+                                <el-switch v-else v-model="form.secureStatus"></el-switch>
+                            </el-form-item>
+                            <el-form-item class="inline" :label="$t('m.siteAdd.isPolling')" prop="pollingStatus" >
+                                <span class="info-text" v-if="editSubmitted!==2">{{form.pollingStatus | getBollen}}</span>
+                                <el-switch v-else v-model="form.pollingStatus"></el-switch>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -230,7 +252,7 @@
             <div class="info">
                 <span>{{$t('m.sitemanage.systemVersion')}}</span>
             </div>
-            <el-form ref="FATEVersionForm" label-position="left" >
+            <el-form v-if="form.fateVersion" ref="FATEVersionForm" label-position="left" >
                 <el-row :gutter="140">
                     <el-col :span="12">
                         <el-form-item :label="$t('m.sitemanage.FATEVersion')+'：'">
@@ -239,6 +261,7 @@
                     </el-col>
                 </el-row>
             </el-form>
+            <div v-else class="complete-tips">{{$t('m.sitemanage.completeClusterConfigurationFirst')}}</div>
         </div>
         <div  class="Basic"  v-if="role.roleName==='Admin'">
             <div class="info">
@@ -262,7 +285,7 @@
     </div>
     <!-- 审批完成弹框 -->
     <el-dialog :visible.sync="noticedialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
-      <div class="line-text-one">{{noticedesc}}</div>
+      <div class="line-text-one">{{$t(`m.sitemanage.changedConfigurationStatus${noticedesc}`)}}</div>
       <div class="dialog-footer">
         <el-button class="ok-btn" type="primary" @click="notice">{{$t('m.common.OK')}}</el-button>
       </div>
@@ -279,9 +302,10 @@
     <!-- 确定更改ip弹框 -->
     <el-dialog
         :visible.sync="changedialog"
-        v-if="networkAccessEntrancesOld && networkAccessExitsOld"
+        v-if="networkAccessEntrancesOld"
         class="ip-delete-dialog"
         width="700px">
+        <!-- 网关入口变更 -->
         <div class="line-text-one">{{$t('m.sitemanage.sureWantTo')}}</div>
         <div class="line-text-one" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkEntrances')})}}</div>
         <div class="line-text" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">
@@ -306,22 +330,62 @@
             </div>
             </div>
         </div>
-        <div style="margin:36px 0;font-size:24px;color:#2D3642" v-if="form.networkAccessExits!==networkAccessExitsOld" >{{$t('m.sitemanage.and')}}{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkExits')})}}</div>
-        <div class="line-text" v-if="form.networkAccessExits!==networkAccessExitsOld">
+        <!-- rollsite网关出口变更 -->
+        <div class="line-text-one" v-if="form.fmRollSiteNetworkAccessExitsList!==fmRollSiteNetworkAccessExitsListOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.rollSiteNetworkAccessExits')})}}</div>
+        <div class="line-text" v-if="form.fmRollSiteNetworkAccessExitsList!==fmRollSiteNetworkAccessExitsListOld">
             <div class="entrances">
             <div class="rigth-box" style="margin-right: 70px">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
-                <span v-for="(item, index) in networkAccessExitsOld.split(';')" :key="index">{{item}}</span>
+                <span
+                    v-for="(item, index) in fmRollSiteNetworkAccessExitsListOld.split(';')"
+                    :key="index"
+                >{{item}}</span>
                 </div>
             </div>
             <div class="rigth-box" style="margin-left: 70px">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span
-                    v-for="(item, index) in form.networkAccessExits.split(';')"
+                    v-for="(item, index) in form.fmRollSiteNetworkAccessExitsList.split(';')"
                     :key="index"
                 >{{item}}</span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!-- 安全类型变更 -->
+        <div class="line-text-one" v-if="secureStatus!==secureStatusOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.siteAdd.isSecure')})}}</div>
+        <div class="line-text" v-if="secureStatus!==secureStatusOld">
+            <div class="entrances">
+            <div class="rigth-box" style="margin-right: 70px">
+                <div class="from">{{$t('m.sitemanage.from')}}</div>
+                <div class="text">
+                <span>{{secureStatusOld | getBollen}}</span>
+                </div>
+            </div>
+            <div class="rigth-box" style="margin-left: 70px">
+                <div class="from">{{$t('m.sitemanage.to')}}</div>
+                <div class="text">
+                <span>{{secureStatus | getBollen}}</span>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!-- 单双向模式变更 -->
+        <div class="line-text-one" v-if="pollingStatus!==pollingStatusOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.siteAdd.isPolling')})}}</div>
+        <div class="line-text" v-if="pollingStatus!==pollingStatusOld">
+            <div class="entrances">
+            <div class="rigth-box" style="margin-right: 70px">
+                <div class="from">{{$t('m.sitemanage.from')}}</div>
+                <div class="text">
+                <span>{{pollingStatusOld | getBollen}}</span>
+                </div>
+            </div>
+            <div class="rigth-box" style="margin-left: 70px">
+                <div class="from">{{$t('m.sitemanage.to')}}</div>
+                <div class="text">
+                <span>{{pollingStatus | getBollen}}</span>
                 </div>
             </div>
             </div>
@@ -352,7 +416,7 @@
                     <li class="list-item" v-for="(item,index) in failedList" :key="index">{{item}}</li>
                 </ul>
             </div>
-            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryFlow')}}</div>
+            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryIp',{type:$t('m.sitemanage.rollSiteNetworkAccess')})}}</div>
             <el-button class="ok-btn" type="primary" @click="rollsiteOk">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
@@ -371,7 +435,7 @@
 
         <div class="failed-section" v-if="flowConnectionStatus === 3">
             <div class="dialog-title">{{$t('m.sitemanage.connectingStatus',{type:$t('m.common.failed')})}}</div>
-            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryFlow')}}</div>
+            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryIp',{type:'Fate flow'})}}</div>
             <el-button class="ok-btn" type="primary" @click="flowOk">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
@@ -401,8 +465,53 @@
             </div>
         </div>
 
+        <div class="change-section" v-if="changes.secureStatusList.hasChange && changes.secureStatusList.new">
+            <div class="dialog-title">
+                <span v-if="changes.exchangeList.hasChange">{{$t('m.common.and')}}</span>
+               <span>{{$t('m.sitemanage.changeThe',{type:$t('m.siteAdd.isSecure')})}}</span>
+            </div>
+            <div class="change-rollsite-list" style="height:50px">
+                <div class="link-area">
+                    <div>{{$t('m.sitemanage.from')}}</div>
+                    <ul>
+                        <li class="list-item">{{changes.secureStatusList.old | getBollen}}</li>
+                    </ul>
+                </div>
+                <div class="link-area">
+                    <div>{{$t('m.sitemanage.to')}}</div>
+                     <ul>
+                        <li class="list-item">{{changes.secureStatusList.new | getBollen}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="change-section" v-if="changes.pollingStatusList.hasChange && changes.pollingStatusList.new">
+            <div class="dialog-title">
+                <span v-if="changes.secureStatusList.hasChange || changes.exchangeList.hasChange">{{$t('m.common.and')}}</span>
+               <span>{{$t('m.sitemanage.changeThe',{type:$t('m.siteAdd.isPolling')})}}</span>
+            </div>
+            <div class="change-rollsite-list" style="height:50px">
+                <div class="link-area">
+                    <div>{{$t('m.sitemanage.from')}}</div>
+                    <ul>
+                        <li class="list-item">{{changes.pollingStatusList.old | getBollen}}</li>
+                    </ul>
+                </div>
+                <div class="link-area">
+                    <div>{{$t('m.sitemanage.to')}}</div>
+                     <ul>
+                        <li class="list-item">{{changes.pollingStatusList.new | getBollen}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="change-section" v-if="changes.entrancesList.hasChange && changes.entrancesList.new.length > 0">
-            <div class="dialog-title">{{$t('m.sitemanage.changeThe',{type:$t('m.sitemanage.networkEntrances')})}}</div>
+            <div class="dialog-title">
+                <span v-if="changes.pollingStatusList.hasChange || changes.secureStatusList.hasChange || changes.exchangeList.hasChange">{{$t('m.common.and')}}</span>
+                <span>{{$t('m.sitemanage.changeThe',{type:$t('m.sitemanage.networkEntrances')})}}</span>
+            </div>
             <div class="change-rollsite-list">
                 <div class="link-area">
                     <div>{{$t('m.sitemanage.from')}}</div>
@@ -419,26 +528,8 @@
             </div>
         </div>
 
-        <div class="change-section" v-if="changes.exitsList.hasChange && changes.exitsList.new.length > 0">
-            <div class="dialog-title">{{$t('m.sitemanage.changeThe',{type:$t('m.sitemanage.networkExits')})}}</div>
-            <div class="change-rollsite-list">
-                <div class="link-area">
-                    <div>{{$t('m.sitemanage.from')}}</div>
-                    <ul>
-                        <li class="list-item" v-for="(item,index) in changes.exitsList.old" :key="index">{{item}}</li>
-                    </ul>
-                </div>
-                <div class="link-area">
-                    <div>{{$t('m.sitemanage.to')}}</div>
-                    <ul>
-                        <li class="list-item" v-for="(item,index) in changes.exitsList.new" :key="index">{{item}}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <div class="dialog-text">{{$t('m.sitemanage.rollsiteWillUpdated')}}</div>
-        <el-button class="ok-btn" type="primary" @click="initInfo(1)">{{$t('m.common.OK')}}</el-button>
+        <el-button class="ok-btn" type="primary" @click="updateNew()">{{$t('m.common.OK')}}</el-button>
 
     </el-dialog>
     <!-- 审核结构弹窗 -->
@@ -465,7 +556,8 @@ import {
     update,
     readmsg,
     getmsg,
-    siteInfoList
+    siteInfoList,
+    testrollsite
     // getClusterList,
     // getFateboardList,
     // getFateflowList,
@@ -499,12 +591,16 @@ export default {
             editVersion: 1, // 是否可编辑版本
             getmsgtimeless: null,
             networkAccessEntranceswarnshow: false, // 是否显示警告样式
-            networkAccessExitswarnshow: false, // 是否显示警告样式
-            rollsiteNetworkAccesswarnshow: false,
+            fmRollSiteNetworkAccessExitsListwarnshow: false, // 是否显示警告样式
+            fmRollSiteNetworkAccesswarnshow: false,
             fateFlowIpwarnshow: false,
             networkAccessEntrancesOld: '', // 缓存入口
             networkAccessExitsOld: '', // 缓存出口
-            rollsiteNetworkAccessOld: '', // 缓存rollsite
+            rollSiteNetworkAccessOld: '', // 缓存rollsite
+            secureStatus: '',
+            secureStatusOld: '', // 缓存安全类型
+            pollingStatus: '',
+            pollingStatusOld: '', // 缓存方向状态
             fateFlowIpOld: '', // 缓存fateflow
             formVersion: {}, // 更新版本号集合
             tempobject: {}, // 编辑版本临时数据
@@ -523,8 +619,8 @@ export default {
             showApplyResult: false,
             form: {
                 networkAccessEntrances: '',
-                networkAccessExits: '',
-                rollsiteNetworkAccess: '',
+                fmRollSiteNetworkAccess: '',
+                fmRollSiteNetworkAccessExitsList: '',
                 fateFlowIp: '',
                 ExchangeInfo: {}
             },
@@ -540,12 +636,16 @@ export default {
                     new: '',
                     old: ''
                 },
-                exitsList: {
+                secureStatusList: {
+                    hasChange: false,
+                    new: '',
+                    old: ''
+                },
+                pollingStatusList: {
                     hasChange: false,
                     new: '',
                     old: ''
                 }
-
             },
             rules: {
                 networkAccessEntrances: [
@@ -568,39 +668,39 @@ export default {
                         }
                     }
                 ],
-                networkAccessExits: [
+                fmRollSiteNetworkAccessExitsList: [
                     {
                         required: true,
                         trigger: 'change',
                         validator: (rule, value, callback) => {
                             if (!value) {
-                                this.networkAccessExitswarnshow = true
+                                this.fmRollSiteNetworkAccessExitsListwarnshow = true
                                 callback(
                                     new Error(
                                         this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.networkExits') })
                                     )
                                 )
                             } else {
-                                this.networkAccessExitswarnshow = false
+                                this.fmRollSiteNetworkAccessExitsListwarnshow = false
                                 callback()
                             }
                         }
                     }
                 ],
-                rollsiteNetworkAccess: [
+                fmRollSiteNetworkAccess: [
                     {
                         required: true,
                         trigger: 'change',
                         validator: (rule, value, callback) => {
                             if (!value) {
-                                this.rollsiteNetworkAccesswarnshow = true
+                                this.fmRollSiteNetworkAccesswarnshow = true
                                 callback(
                                     new Error(
-                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.rollsiteNetworkAccess') })
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.rollSiteNetworkAccess') })
                                     )
                                 )
                             } else {
-                                this.rollsiteNetworkAccesswarnshow = false
+                                this.fmRollSiteNetworkAccesswarnshow = false
                                 callback()
                             }
                         }
@@ -630,6 +730,7 @@ export default {
     },
     computed: {
         ...mapGetters(['role', 'version'])
+
     },
     watch: {
         'form.fateFlowIp': {
@@ -638,6 +739,21 @@ export default {
                     let len = val.length || 0
                     this.tosubmit = len === 0
                 }
+            },
+            immediate: true
+        },
+        'form.secureStatus': {
+            handler: function(val) {
+                this.tosubmit = this.getStatus(val) === this.secureStatusOld
+            },
+            immediate: true
+        },
+        'form.pollingStatus': {
+            handler: function(val) {
+                // console.log(val, 'val-pollingStatus')
+                // console.log(this.pollingStatusOld, 'pollingStatusOld')
+                // console.log(this.getStatus(val), 'this.getStatus(pollingStatus)')
+                this.tosubmit = this.getStatus(val) === this.pollingStatusOld
             },
             immediate: true
         }
@@ -651,35 +767,48 @@ export default {
         window.clearTimeout(this.getmsgtimeless)
     },
     methods: {
-        initInfo(isMark) {
+        initInfo(updateMark) {
+            console.log(updateMark, 'updateMark')
             let data = {
                 partyId: parseInt(this.$route.query.partyId),
-                federatedId: parseInt(this.$route.query.federatedId)
+                federatedId: parseInt(this.$route.query.federatedId),
+                siteId: parseInt(this.$route.query.siteId)
             }
-            if (isMark === 1) {
-                data.updateMark = isMark
-                this.showChanges = false
+            if (updateMark) {
+                data.updateMark = 1
             }
             getSiteInfo(data).then(res => {
-                // 初次请求
-                this.form = Object.assign({}, res.data, {
-                    'networkAccessEntrances': res.data.ExchangeInfo.networkAccessEntrances,
-                    'networkAccessExits': res.data.ExchangeInfo.networkAccessExits
-                })
-                console.log(this.form, 'form')
-                this.networkAccessEntrancesOld = this.form.ExchangeInfo.networkAccessEntrances // 旧ip入口
-                this.networkAccessExitsOld = this.form.ExchangeInfo.networkAccessExits // 旧ip出口
-                // TO DO
-                this.rollsiteNetworkAccessOld = this.form.rollsiteNetworkAccess || '' // 缓存rollsite
-                this.fateFlowIpOld = this.form.fateFlowIp || ''
-                if (res.data.editStatus.code === 1) {
-                    this.editSubmitted = 3
-                } else if (res.data.editStatus.code === 2) {
-                    this.editSubmitted = 1
-                }
-                // 展示来自cm的exchange变更提示弹窗
-                if (this.form.exchangeRreadStatus === 1 && isMark !== 1) {
-                    this.setExchange()
+                if (updateMark !== 1) {
+                    // 初次请求
+                    this.form = Object.assign({}, res.data, {
+                        'networkAccessEntrances': res.data.ExchangeInfo.networkAccessEntrances,
+                        'fmRollSiteNetworkAccessExitsList': res.data.ExchangeInfo.fmRollSiteNetworkAccessExitsList,
+                        'fmRollSiteNetworkAccess': res.data.ExchangeInfo.fmRollSiteNetworkAccess,
+                        'secureStatus': res.data.ExchangeInfo.secureStatus,
+                        'pollingStatus': res.data.ExchangeInfo.pollingStatus
+                    })
+                    console.log(this.form, 'form')
+                    // 缓存数据，取消编辑还原
+                    let exchangeInfo = this.form.ExchangeInfo
+                    this.networkAccessEntrancesOld = exchangeInfo.networkAccessEntrances || '' // 旧ip入口
+                    // this.networkAccessExitsOld = exchangeInfo.networkAccessExits || '' // 旧ip出口
+                    this.fmRollSiteNetworkAccessExitsListOld = exchangeInfo.fmRollSiteNetworkAccessExitsList || '' // 旧ip出口
+                    this.fmRollSiteNetworkAccessOld = exchangeInfo.fmRollSiteNetworkAccess || '' // 缓存rollsite
+                    this.secureStatusOld = exchangeInfo.secureStatus
+                    this.secureStatus = this.secureStatusOld
+                    this.pollingStatusOld = exchangeInfo.pollingStatus
+                    this.pollingStatus = this.pollingStatusOld
+                    this.fateFlowIpOld = this.form.fateFlowIp || ''
+                    if (res.data.editStatus.code === 1 || res.data.editStatus.code === -1) {
+                        this.togetMsg()
+                        this.editSubmitted = 3
+                    } else if (res.data.editStatus.code === 2) {
+                        this.editSubmitted = 1
+                    }
+                    // 展示来自cm的exchange变更提示弹窗
+                    if (this.form.exchangeReadStatus === 1) {
+                        this.setExchange()
+                    }
                 }
             })
             // 获取uesrid列表
@@ -690,24 +819,55 @@ export default {
                 this.siteList = res.data || []
             })
         },
+        updateNew() {
+            let ExchangeInfo = this.form.ExchangeInfo
+            if (ExchangeInfo.exchangeNameNew && ExchangeInfo.exchangeNameNew.length > 0) {
+                this.$set(this.form.ExchangeInfo, 'exchangeName', ExchangeInfo.exchangeNameNew)
+            }
+            if (ExchangeInfo.networkAccessEntrancesNew && ExchangeInfo.networkAccessEntrancesNew.length > 0) {
+                this.$set(this.form.ExchangeInfo, 'networkAccessEntrances', ExchangeInfo.networkAccessEntrancesNew)
+                this.form.networkAccessEntrances = ExchangeInfo.networkAccessEntrancesNew
+            }
+            if (ExchangeInfo.secureStatusNew) {
+                this.$set(this.form.ExchangeInfo, 'secureStatus', ExchangeInfo.secureStatusNew)
+                this.form.secureStatus = ExchangeInfo.secureStatusNew
+            }
+            if (ExchangeInfo.pollingStatusNew) {
+                this.$set(this.form.ExchangeInfo, 'secureStatus', ExchangeInfo.pollingStatusNew)
+                this.form.pollingStatus = ExchangeInfo.pollingStatusNew
+            }
+            if (ExchangeInfo.vipEntrancesNew && ExchangeInfo.vipEntrancesNew.length > 0) {
+                this.$set(this.form.ExchangeInfo, 'vipEntrances', ExchangeInfo.vipEntrancesNew)
+            }
+            console.log(this.form, 'form')
+            this.$nextTick(() => {
+                this.initInfo(1)
+                this.showChanges = false
+            })
+        },
         setExchange() {
             let exchangeInfo = this.form.ExchangeInfo
             this.changes.ExchangeInfo = exchangeInfo
             console.log(exchangeInfo, 'exchangeInfo')
-            if (exchangeInfo.exchangeNameNew && exchangeInfo.exchangeNameNew.length > 0) {
+            if (exchangeInfo.exchangeNameNew && exchangeInfo.exchangeNameNew !== exchangeInfo.exchangeName) {
                 this.changes.exchangeList.hasChange = true
                 this.changes.exchangeList.new = exchangeInfo.exchangeNameNew
                 this.changes.exchangeList.old = exchangeInfo.exchangeName
             }
-            if (exchangeInfo.NetworkAccessExitsNew && exchangeInfo.NetworkAccessExitsNew.length > 0) {
-                this.changes.exitsList.hasChange = true
-                this.changes.exitsList.new = exchangeInfo.NetworkAccessExitsNew.split(';')
-                this.changes.exitsList.old = exchangeInfo.networkAccessExits.split(';')
-            }
-            if (exchangeInfo.NetworkAccessEntrancesNew && exchangeInfo.NetworkAccessEntrancesNew.length > 0) {
+            if (exchangeInfo.networkAccessEntrancesNew && exchangeInfo.networkAccessEntrancesNew !== exchangeInfo.networkAccessEntrances) {
                 this.changes.entrancesList.hasChange = true
-                this.changes.entrancesList.new = exchangeInfo.NetworkAccessEntrancesNew.split(';')
+                this.changes.entrancesList.new = exchangeInfo.networkAccessEntrancesNew.split(';')
                 this.changes.entrancesList.old = exchangeInfo.networkAccessEntrances.split(';')
+            }
+            if (exchangeInfo.secureStatusNew && exchangeInfo.secureStatusNew !== exchangeInfo.secureStatus) {
+                this.changes.secureStatusList.hasChange = true
+                this.changes.secureStatusList.new = exchangeInfo.secureStatusNew
+                this.changes.secureStatusList.old = exchangeInfo.secureStatus
+            }
+            if (exchangeInfo.pollingStatusNew && exchangeInfo.pollingStatusNew !== exchangeInfo.pollingStatus) {
+                this.changes.pollingStatusList.hasChange = true
+                this.changes.pollingStatusList.new = exchangeInfo.pollingStatusNew
+                this.changes.pollingStatusList.old = exchangeInfo.pollingStatus
             }
             this.showChanges = true
         },
@@ -718,18 +878,21 @@ export default {
                 'rollsite': 'rollSiteEditSubmitted',
                 'cluster': 'clusterEditSubmitted'
             }
+            if (type === 'site') {
+                this.form.secureStatus = this.getStatus(this.form.secureStatus)
+                this.form.pollingStatus = this.getStatus(this.form.pollingStatus)
+            }
+            this.tosubmit = true
             this[edit[type]] = 2
         },
         // 取消编辑
         cancel(type) {
             let param = {
-                'site': ['networkAccessEntrances', 'networkAccessExits'],
-                'rollsite': 'rollsiteNetworkAccess',
+                'site': ['fmRollSiteNetworkAccess', 'fmRollSiteNetworkAccessExitsList', 'networkAccessEntrances', 'secureStatus', 'pollingStatus'],
                 'cluster': 'fateFlowIp'
             }
             let edit = {
                 'site': 'editSubmitted',
-                'rollsite': 'rollSiteEditSubmitted',
                 'cluster': 'clusterEditSubmitted'
             }
             let paramName = param[type]
@@ -740,6 +903,11 @@ export default {
             } else {
                 this.$set(this.form, `${paramName}`, this[`${paramName}Old`])
             }
+            if (type === 'site') {
+                this.secureStatus = this.secureStatusOld
+                this.pollingStatus = this.pollingStatusOld
+            }
+
             this[edit[type]] = 1
             this.shouldtosubmit(paramName)
             this.$nextTick(() => {
@@ -750,31 +918,33 @@ export default {
         submit(name) {
             const self = this
             let param = {
-                'site': ['networkAccessEntrances', 'networkAccessExits'],
-                'rollsite': 'rollsiteNetworkAccess',
+                'site': ['fmRollSiteNetworkAccess', 'fmRollSiteNetworkAccessExitsList', 'networkAccessEntrances', 'secureStatus', 'pollingStatus'],
                 'cluster': 'fateFlowIp'
             }
             // this.changedialog = true
             let paramName = param[name]
             validateForm(paramName)
             function validateForm(paramName) {
-                if (paramName.map) {
+                if (name === 'cluster') {
+                    self.$refs['form'].validateField(`${paramName}`, valid => {})
+                    self.showCheckFlowConnection = true // fateFlow弹窗
+                    self.flowCanClose = false
+                    self.flowConnectionStatus = 1
+                    self.updateFateflow()
+                } else if (name === 'site') {
                     paramName.every(item => {
                         self.$refs['form'].validateField(`${item}`, valid => {})
                     })
-                    self.changedialog = true // 站点出入口网关弹窗
-                } else {
-                    self.$refs['form'].validateField(`${paramName}`, valid => {})
-                    if (name === 'rollsite') {
-                        self.showCheckRollsiteConnection = true // rollsite弹窗
-                        self.rollsiteConnectionStatus = 1
-                        self.rollsiteCanClose = false
-                        self.updateRollsite()
-                    } else if (name === 'cluster') {
-                        self.showCheckFlowConnection = true // fateFlow弹窗
-                        self.flowCanClose = false
-                        self.flowConnectionStatus = 1
-                        self.updateFateflow()
+                    if (typeof self.form.secureStatus !== 'number') {
+                        self.secureStatus = self.getStatus(self.form.secureStatus)
+                    }
+                    if (typeof self.form.pollingStatus !== 'number') {
+                        self.pollingStatus = self.getStatus(self.form.pollingStatus)
+                    }
+                    if (self.form.fmRollSiteNetworkAccess !== self.fmRollSiteNetworkAccessOld) {
+                        self.testrollsite() // rollsite存在修改则先验证rollsite
+                    } else {
+                        self.changedialog = true // 待审核内容修改确认弹窗
                     }
                 }
             }
@@ -783,6 +953,10 @@ export default {
         okAction() {
             let data = { ...this.form }
             data.role = this.form.role.code
+            data.networkAccessExits = data.fmRollSiteNetworkAccessExitsList
+            data.secureStatus = this.secureStatus
+            data.pollingStatus = this.pollingStatus
+            console.log(data, 'data')
             update(data).then(res => {
                 this.changedialog = false
                 this.initInfo()
@@ -790,22 +964,17 @@ export default {
         },
         // 更新rollsite
         updateRollsite() {
-            let param = {
-                federatedId: this.form.federatedId,
-                partyId: this.form.partyId,
-                UpdateRollSiteInfo: this.form.rollsiteNetworkAccess
-            }
+            let param = { ...this.form }
+            param.UpdateRollSiteInfo = 1
+            param.secureStatus = this.getStatus(param.secureStatus)
+            param.pollingStatus = this.getStatus(param.pollingStatus)
+            console.log(param, 'param')
             try {
                 update(param).then(res => {
-                    console.log(res, 'updateRollsite')
-                    this.failedList = []
-                    if (res && res.data && res.data.ip_faild.length > 0) {
-                        this.rollsiteConnectionStatus = 3
-                        this.failedList = res.data.ip_faild
-                    } else {
-                        this.rollsiteConnectionStatus = 2
-                    }
-                    this.rollsiteCanClose = true
+                    this.$nextTick(() => {
+                        this.rollSiteEditSubmitted = 1
+                    })
+                    this.initInfo()
                 }).catch(res => {
                     this.showCheckRollsiteConnection = false
                 })
@@ -818,13 +987,17 @@ export default {
             let param = {
                 federatedId: this.form.federatedId,
                 partyId: this.form.partyId,
-                UpdateFateFlowInfo: this.form.fateFlowIp
+                UpdateFateFlowInfo: this.form.fateFlowIp,
+                siteId: this.form.siteId
             }
             try {
                 update(param).then(res => {
                     console.log(res, 'updateFateflow')
                     if (res && res.code === 0 && res.msg === 'success') {
                         this.flowConnectionStatus = 2
+                        this.flowCanClose = true
+                    } else if (res && res.code === 0 && res.msg === 'failed') {
+                        this.flowConnectionStatus = 3
                         this.flowCanClose = true
                     }
                 }).catch(res => {
@@ -841,10 +1014,11 @@ export default {
 
             let editType = {
                 'entrances': 'networkAccessEntrances',
-                'exit': 'networkAccessExits',
-                'rollsite': 'rollsiteNetworkAccess'
+                'exit': 'fmRollSiteNetworkAccessExitsList',
+                'rollsite': 'fmRollSiteNetworkAccess'
             }
             let parameterName = editType[type]
+            console.log(this.form, 'form')
             if (this.form[parameterName]) {
                 let tempArr = []
                 this.form[parameterName].split(';').forEach(item => {
@@ -883,8 +1057,8 @@ export default {
         // 已读通知
         notice() {
             let data = {
-                partyId: parseInt(this.$route.query.partyId),
-                federatedId: parseInt(this.$route.query.federatedId),
+                partyId: parseInt(this.form.partyId),
+                federatedId: parseInt(this.form.federatedId),
                 readStatus: 3
             }
             readmsg(data).then(res => {
@@ -896,33 +1070,70 @@ export default {
         },
         async togetMsg() {
             let data = {
-                partyId: parseInt(this.$route.query.partyId),
-                federatedId: parseInt(this.$route.query.federatedId)
+                partyId: parseInt(this.form.partyId),
+                federatedId: parseInt(this.form.federatedId),
+                siteId: this.form.siteId
             }
             let res = await getmsg(data)
             if (res.data.editStatus.code === 2) {
                 if (res.data.readStatus.code > 0 && res.data.readStatus.code !== 3) {
                     this.noticedialog = true
-                    this.noticedesc = res.data.readStatus.desc
+                    this.noticedesc = res.data.readStatus.desc.indexOf('Successfully') > -1 ? 'Success' : 'Failed'
                 } else if (res.data.readStatus.code === 3) {
                     this.noticedialog = false
                 }
             } else {
                 this.getmsgtimeless = setTimeout(() => {
                     this.togetMsg()
-                }, 1500)
+                }, 3000)
             }
         },
         updateIp(data) {
             console.log(data, 'data')
             this.$set(this.form, `${data.name}`, data.data)
         },
+        testrollsite() {
+            let param = {
+                partyId: this.form.partyId,
+                fmRollSiteNetworkAccess: this.form.fmRollSiteNetworkAccess
+            }
+            if (this.form.fmRollSiteNetworkAccess.length < 1) return
+            this.showCheckRollsiteConnection = true // rollsite弹窗
+            this.rollsiteConnectionStatus = 1
+            this.rollsiteCanClose = false
+            try {
+                testrollsite(param).then(res => {
+                    console.log(res, 'updateRollsite')
+                    this.failedList = []
+                    if (res && res.data && res.data.failed.length > 0) {
+                        this.rollsiteConnectionStatus = 3
+                        this.failedList = res.data.failed
+                    } else {
+                        this.rollsiteConnectionStatus = 2
+                    }
+                    this.rollsiteCanClose = true
+                }).catch(res => {
+                    this.showCheckRollsiteConnection = false
+                })
+            } catch {
+                this.showCheckRollsiteConnection = false
+            }
+        },
         rollsiteOk() {
             if (this.rollsiteConnectionStatus === 2) {
                 this.$nextTick(() => {
                     this.rollSiteEditSubmitted = 1
                 })
-                this.initInfo()
+                if (
+                    this.form.fmRollSiteNetworkAccessExitsList !== this.fmRollSiteNetworkAccessExitsListOld ||
+                        this.form.networkAccessEntrances !== this.networkAccessEntrancesOld ||
+                        this.secureStatus !== this.secureStatusOld ||
+                        this.pollingStatus !== this.pollingStatusOld
+                ) {
+                    this.changedialog = true
+                } else {
+                    this.updateRollsite()
+                }
             }
             this.showCheckRollsiteConnection = false
             this.$nextTick(() => {
@@ -940,109 +1151,17 @@ export default {
             this.$nextTick(() => {
                 this.$refs['form'].clearValidate()
             })
+        },
+        getStatus(stauts) {
+            console.log(stauts, 'stauts')
+            console.log(typeof stauts, 'typeof stauts')
+            // return status === 1 ? this.$t('m.common.true') : this.$t('m.common.false')
+            if (typeof stauts === 'number') {
+                return stauts === 1
+            } else {
+                return stauts === true ? 1 : 2
+            }
         }
-        // 编辑版本
-        // toEditVersion() {
-        //     let object = JSON.parse(JSON.stringify(this.form.componentVersion))
-        //     this.tempobject = object
-        //     function getres (res, setl) {
-        //         return res.data && res.data.forEach(item => {
-        //             let o = {}
-        //             o.label = item
-        //             o.value = item
-        //             setl.push(o)
-        //         })
-        //     }
-        //     this.form.componentVersion = object.map(item => {
-        //         let setl = []
-        //         if (item.label === 'clustermanager') {
-        //             getClusterList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         } else if (item.label === 'fateboard') {
-        //             getFateboardList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         } else if (item.label === 'mysql') {
-        //             getMysqlList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         } else if (item.label === 'nodemanager') {
-        //             getNodeList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         } else if (item.label === 'rollsite') {
-        //             getrollsiteList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         } else if (item.label === 'fateflow') {
-        //             getFateflowList().then(res => {
-        //                 getres(res, setl)
-        //             })
-        //         }
-
-        //         item.setl = setl
-        //         return item
-        //     })
-        //     this.fateServingVersionList = []
-        //     getFateservingList().then(res => {
-        //         res.data && res.data.forEach(item => {
-        //             let obj = {}
-        //             obj.label = item
-        //             obj.value = item
-        //             this.fateServingVersionList.push(obj)
-        //         })
-        //     })
-
-        //     this.editVersion = 2
-        // },
-        // 取消编辑版本
-        // toCanceleditVersion() {
-        //     this.form.componentVersion = this.tempobject
-        //     this.editVersion = 1
-        // },
-        // 确定更新
-        // sureVersion() {
-        //     let data = {
-        //         fateServingVersion: this.fateServingVersion,
-        //         fateVersion: this.fateVersion,
-        //         componentVersion: JSON.stringify(this.formVersion),
-        //         partyId: parseInt(this.$route.query.partyId),
-        //         federatedId: parseInt(this.$route.query.federatedId)
-        //     }
-        //     updateVersion(data).then(res => {
-        //         this.versiondialog = false
-        //         this.editVersion = 1
-        //         this.initInfo()
-        //     })
-        // },
-        // 自动更新版本
-        // toRefresh() {
-
-        // },
-        // 获取子版本
-        // togetcomponentVersion(val) {
-        //     let data = {
-        //         fateVersion: val
-        //     }
-        //     getcomponentversion(data).then(res => {
-        //         let object = JSON.parse(res.data)
-        //         let arr = []
-        //         for (const key in object) {
-        //             let obj = {}
-        //             obj.label = key
-        //             obj.version = object[key]
-        //             arr.push(obj)
-        //         }
-        //         this.form.componentVersion = arr
-        //         let OBJ = {}
-        //         this.form.componentVersion.forEach(item => {
-        //             OBJ[item.label] = item['version']
-        //         })
-        //         this.formVersion = { ...OBJ }
-        //     })
-        // }
-
     }
 }
 </script>

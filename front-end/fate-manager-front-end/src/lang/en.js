@@ -36,13 +36,14 @@ export const m = {
         'total': 'total',
         'save': 'Save',
         'cancel': 'Cancel',
+        'canceled': 'canceled',
         'sure': 'Sure',
         'host': '{type}ost',
         'guest': '{type}uest',
         'go': 'GO',
         'add': 'add',
         'edit': 'edit',
-        'and': 'and',
+        'and': 'and ',
         'delete': 'delete',
         'noData': 'No Data',
         'password': 'Password',
@@ -57,6 +58,7 @@ export const m = {
         'agreed': 'agreed',
         'agree': 'Agree',
         'reject': 'Reject',
+        'rejected': 'rejected',
         'apply': 'Apply',
         'unactivated': 'unactivated',
         'updateTime': 'Update Time',
@@ -112,7 +114,9 @@ export const m = {
         'login failed:user name or password error': 'login failed:user name or password error',
         'Authority failure!': 'Authority failure!',
         'The PartyID has been used!': 'The PartyID has been used!',
-        'Site roll site update error!': 'Site roll site update error!'
+        'Site roll site update error!': 'Site roll site update error!',
+        'Incorrect padding': 'Incorrect padding',
+        'no found account': 'no found account'
     },
     welcome: {
         'activateSite': 'Activate my site',
@@ -141,9 +145,10 @@ export const m = {
         'usernameRequired': 'The username is required',
         'passwordRequired': 'The password is required',
         'activatedSuccessfully': 'Activated Successfully !',
-        'canSignInWithAccount.': 'Now you can sign in FATE Cloud with your administrator account.',
+        'canSignInWithAccount': 'Now you can sign in FATE Cloud with your administrator account.',
         'activatedFailed': 'Activated Failed!',
         'pleaseRe-enter': 'Please re-enter'
+
     },
     sitemanage: {
         'apply': 'Apply',
@@ -180,7 +185,8 @@ export const m = {
         'exit': 'exit',
         'networkEntrances': 'Network Access Entrances',
         'networkExits': 'Network Access Exits',
-        'rollsiteNetworkAccess': 'Rollsite Network Access ',
+        'rollSiteNetworkAccess': 'Rollsite Network Access ',
+        'rollSiteNetworkAccessExits': 'Rollsite Network Access Exits',
         'systemVersion': 'System version',
         'FATEversion': 'FATE version',
         'FATEComponent': 'FATE Component',
@@ -226,11 +232,14 @@ export const m = {
         'hasBeenUpdated': 'Your {type} info has been updated.',
         'connectionFailedRollsite': 'Connection failed to rollsite as follows:',
         'pleaseRetryRollsite': 'Please confirm your rollsite network access and retry.',
-        'pleaseRetryFlow': 'Please confirm your FATE Flow address and retry.',
+        'pleaseRetryIp': 'Please confirm your {type} address and retry.',
         'cloudManagerDidChangesTitle': 'Cloud Manager did following changes to the site:',
         'changeThe': 'change the {type}',
         'rollsiteWillUpdated': 'Your rollsite(s) will be updated.',
-        'noConfiguration': 'no configuration'
+        'noConfiguration': 'no configuration',
+        'completeClusterConfigurationFirst': 'Please complete the cluster network configuration first.',
+        'changedConfigurationStatusFailed': 'Changed the Network configuration failed!',
+        'changedConfigurationStatusSuccess': 'Successfully changed the Network configuration!'
     },
     siteAdd: {
         'addSite': 'Add a site',
@@ -270,8 +279,10 @@ export const m = {
         'networkAccessEntrancesRequired': 'Network Access Entrances field is required.',
         'networkAccessExitRequired': 'Network Access Exit field is required.',
         'proxyNetworkAccessRequired': 'Proxy Network Access field is required',
-        'rollsiteNetworkAccessRequired': 'Rollsite Network Access field is required',
-        'proxyNetworkAccessInvalid': 'The Proxy Network Access field is invalid. Please enter again.'
+        'rollSiteNetworkAccessRequired': 'Rollsite Network Access field is required',
+        'proxyNetworkAccessInvalid': 'The Proxy Network Access field is invalid. Please enter again.',
+        'isSecure': 'Is Secure',
+        'isPolling': 'Is Polling'
     },
     monitor: {
         'todayActiveData': 'Today’s active data',
