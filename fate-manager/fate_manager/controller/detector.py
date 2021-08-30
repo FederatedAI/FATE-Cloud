@@ -27,7 +27,6 @@ class TaskDetector(cron.Cron):
     def run_do(self):
         admin_info = SingleOperation.get_admin_info()
         self.site_status_task()
-        # self.ip_manager_task()
         self.heart_task()
         self.apply_result_task(admin_info)
         self.allow_apply_task(admin_info)
