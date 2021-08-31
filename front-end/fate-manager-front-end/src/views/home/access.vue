@@ -4,12 +4,12 @@
         <div class="partyid-header">
             <el-button class="add" type="text" @click="addRoleUser">
                 <img src="@/assets/add_user.png">
-                <span>{{$t('m.common.add')}}</span>
+                <span>{{$t('m.common.add',{type:'a'})}}</span>
             </el-button>
             <el-input class="input " clearable v-model.trim="data.userName" :placeholder="$t('m.sitemanage.name')">
                 <i slot="prefix" @click="getList" class="el-icon-search search el-input__icon" />
             </el-input>
-            <el-select class="sel-institutions" v-model="data.partyId" :placeholder="$t('m.common.site')">
+            <el-select class="sel-institutions" v-model="data.partyId" filterable :placeholder="$t('m.common.site')">
                 <el-option
                     v-for="item in partyIdSiteList"
                     :key="item.value"
@@ -87,7 +87,7 @@
         </div>
     </div>
     <!-- 删除 -->
-    <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
+    <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" :show-close="true" width="400px">
         <div class="line-text-one">{{$t('m.sitemanage.sureToDeleteUser')}}</div>
         <div class="dialog-footer">
         <el-button class="ok-btn" type="primary" @click="toDelet">{{$t('m.common.sure')}}</el-button>
@@ -95,11 +95,11 @@
         </div>
     </el-dialog>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="adddialog" class="access-add-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="adddialog" class="access-add-dialog" width="500px" :close-on-click-modal="false" :close-on-press-escape="false">
       <div class="dialog-box">
           <el-form :model="siteTemp" :rules="rules" ref="ruleForm">
             <div class="dialog-title">
-                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add') }}</span>{{$t('m.sitemanage.user')}}
+                <span>{{typetitle==='Edit'? $t('m.common.edit') : $t('m.common.add',{type:'A'})}}</span> {{$t('m.sitemanage.user')}}
             </div>
             <el-form-item class="add-input" prop="userName">
                 <span class="input-title">
@@ -126,7 +126,7 @@
                 <span v-else style="font-size: 16px;">{{siteTemp.userName}}</span>
                 <!-- <div v-if='userWarn' class="text-warn" >The User Name field is required.</div> -->
             </el-form-item>
-             <el-form-item class="add-input"  prop="roleId">
+             <el-form-item class="add-input role-select"  prop="roleId">
                 <span class="input-title">{{$t('m.common.role')}}</span>
                 <el-radio-group v-model="siteTemp.roleId">
                     <el-radio
@@ -137,13 +137,13 @@
                     </el-radio>
                 </el-radio-group>
             </el-form-item>
-            <el-form-item v-if="!sitedisable" class="add-input" prop="siteName">
-                 <span class="input-title">{{$t('m.common.site')}}</span>
+            <el-form-item v-show="!sitedisable" class="add-input" prop="siteName">
+                <span class="input-title">{{$t('m.common.site')}}</span>
                 <el-select v-model="siteTemp.siteName"
                     :disabled="sitedisable"
                     @change="sitechange"
                     @focus="toclearValid('siteName')"
-                    filterable remote
+                    filterable
                     placeholder="">
                     <el-option
                         v-for="item in siteList"
@@ -171,8 +171,8 @@
             </span>
         </div>
         <div class="dialog-foot">
-          <el-button type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
-          <el-button type="info" @click="adddialog=false">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="toSure">{{$t('m.common.sure')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="adddialog=false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </div>
     </el-dialog>

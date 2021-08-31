@@ -391,7 +391,8 @@
         }
 
     }
-    .ip-delete-dialog {
+    .ip-sure-dialog {
+        text-align: center;
         //弹框居中
         .el-dialog {
             // height: 284px; //弹框宽度
@@ -407,69 +408,67 @@
         }
 
         .el-dialog__body {
-            padding: 64px 20px;
+            padding: 24px;
         }
 
         .el-dialog__header {
-            display: none;
+            padding: 24px 24px 0;
         }
 
-        text-align: center;
-
         .line-text-one {
-            font-size: 24px;
-            color: #2D3642;
-            margin-bottom: 24px
+            font-size: 16px;
+            color: #4E5766;
+            margin-bottom: 12px
         }
 
         .line-text-two {
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
             margin-top: 36px;
             margin-bottom: 48px
         }
 
         .entrances {
-            padding: 10px 0;
+            padding: 10px 12px;
             max-height: 115px;
             background-color: #F5F8FA;
             overflow: auto;
             font-size: 18px;
             text-align: center;
+            margin-bottom: 12px;
 
             .rigth-box {
                 display: inline-block;
+                text-align: left;
+                width: 49%;
+                font-size: 16px;
                 .from {
                     margin-right: 25px;
                     display: inline-block;
                     vertical-align: top;
-                    color: #2D3642;
+                    color: #848C99;
                 }
 
                 .text {
                     line-height: 24px;
                     display: inline-block;
-                    color: #217AD9;
+                    color: #4E5766;
                     vertical-align: top;
                     span {
                         display: block;
                     }
                 }
             }
-
-
-
-
         }
-
-        .ok-btn {
-            width: 160px;
-            font-size: 18px;
-            // height: 36px;
-        }
-
     }
 
+}
+.site-finish-dialog{
+    text-align: center;
+    .line-text-one{
+        font-size: 14px;
+        font-weight: bold;
+    }
 }
 
 .connection-dialog{
@@ -502,10 +501,10 @@
         padding-bottom: 20px;
     }
     .ok-btn{
-        width: 240px;
-        height: 32px;
+        width: 180px;
+        height: 24px;
         line-height: 22px;
-        padding: 5px 0;
+        padding: 0;
         background: #217AD9;
         border-radius: 2px;
         margin-top: 16px;
@@ -540,7 +539,7 @@
         right: 15px;
     }
     .el-dialog__body {
-        padding: 20px 24px;
+        padding: 10px 24px 24px;
     }
 
     .main-title{
@@ -568,10 +567,10 @@
     }
     .ok-btn{
         display: block;
-        width: 240px;
-        height: 32px;
+        width: 180px;
+        height: 24px;
         line-height: 22px;
-        padding: 5px 0;
+        padding: 0;
         background: #217AD9;
         border-radius: 2px;
         margin: 0 auto;

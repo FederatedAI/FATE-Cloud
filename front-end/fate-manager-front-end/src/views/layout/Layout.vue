@@ -37,7 +37,7 @@
       </el-main>
     </el-container>
     <!-- Site-Authorization开关状态-->
-    <el-dialog :visible.sync="siteAuth" class="siteAuth-dialog" width="600px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="siteAuth" class="siteAuth-dialog" :show-close="true" width="600px" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="line-text-two">
             “{{title}}”has been turned off,
         </div>

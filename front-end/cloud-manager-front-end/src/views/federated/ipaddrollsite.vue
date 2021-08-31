@@ -10,7 +10,7 @@
                     <el-form-item label="" prop="networkAccess" >
                         <span slot="label">
                             <i v-if="rollsiteType==='add'" style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.ip.rollsiteNetworkAccess')}}</span>
+                            <span>{{$t('m.ip.rollsiteEntrances')}}</span>
                         </span>
                         <span v-if="rollsiteType==='edit'">{{exchangeData.networkAccess}}</span>
                         <el-input  v-else
@@ -278,7 +278,7 @@ export default {
                             value = value || ''
                             let val = value.trim()
                             if (!val) {
-                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.ip.rollsiteNetworkAccess') })))
+                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.ip.rollsiteEntrances') })))
                             } else if (!checkip(val)) {
                                 callback(new Error(this.$t('m.common.invalidInput')))
                             } else {

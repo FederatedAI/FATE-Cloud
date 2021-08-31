@@ -9,7 +9,7 @@
             max-height="250">
             <el-table-column>
                 <el-table-column prop="" type="index" width="120" :label="$t('m.common.index')" ></el-table-column>
-                <el-table-column prop="networkAccess" :label="$t('m.ip.rollsiteNetworkAccess')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="networkAccess" :label="$t('m.ip.rollsiteEntrances')" show-overflow-tooltip></el-table-column>
                 <!-- <el-table-column prop="networkAccessExit" :label="$t('m.site.networkExits')" show-overflow-tooltip></el-table-column> -->
                 <el-table-column prop="" :label="$t('m.ip.routerNetworkAccess')" show-overflow-tooltip>
                     <template slot-scope="scope">

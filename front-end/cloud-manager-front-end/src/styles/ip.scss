@@ -498,7 +498,7 @@
         }
         
     }
-    .ip-delete-dialog {
+    .ip-sure-dialog {
 
         //弹框居中
         .el-dialog {
@@ -515,7 +515,7 @@
         }
 
         .el-dialog__body {
-            padding: 30px 20px;
+            padding: 10px 24px 24px;
         }
 
         .el-dialog__header {
@@ -525,16 +525,17 @@
         text-align: center;
 
         .line-text-one {
-            font-size: 20px;
-            color: #2D3642;
-            margin-bottom: 18px
+            font-size: 16px;
+            color: #4E5766;
+            margin-bottom: 12px;
+            word-break: normal;
         }
 
         .line-text-two {
-            font-size: 18px;
+            font-size: 16px;
             color: #848C99;
             margin-top: 36px;
-            margin-bottom: 48px
+            margin-bottom: 36px
         }
 
         .entrances {
@@ -553,13 +554,13 @@
                     margin-right: 25px;
                     display: inline-block;
                     vertical-align: top;
-                    color: #2D3642;
+                    color: #848C99;
                 }
 
                 .text {
                     line-height: 30px;
                     display: inline-block;
-                    color: #217AD9;
+                    color: #4E5766;
                     vertical-align: top;
                     span {
                         display: block;
@@ -570,7 +571,7 @@
         }
 
         .ok-btn {
-            width: 140px;
+            width: 100px;
             font-size: 16px;
         }
 
@@ -928,7 +929,7 @@
         word-break: break-all;
 
         .dialog-title{
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             line-height: 20px;
             color: #505765;

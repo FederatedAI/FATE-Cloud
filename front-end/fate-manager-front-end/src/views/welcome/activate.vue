@@ -52,7 +52,7 @@
                 </el-input>
                 </el-form-item>
                 <div class="module-title">{{$t('m.sitemanage.rollsiteNetworkConf')}}</div>
-                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.rollSiteNetworkAccess')" prop="fmRollSiteNetworkEntrances">
+                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.rollsiteEntrances')" prop="fmRollSiteNetworkEntrances">
                     <el-input
                         @focus="addShow('rollsite')"
                         @blur="cancelValid('fmRollSiteNetworkEntrances')"
@@ -83,7 +83,7 @@
                 <el-button type="primary" @click="modifyAction">{{$t('m.welcome.confirmAndActivate')}}</el-button>
             </div>
             </div>
-            <el-dialog :visible.sync="confirmdialog" class="site-toleave-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+            <el-dialog :visible.sync="confirmdialog" class="site-toleave-dialog" width="550px" :close-on-click-modal="false" :close-on-press-escape="false">
                 <i class="el-icon-success"></i>
                 <div class="line-text-success">{{$t('m.welcome.activateSuccessfully')}}</div>
                 <div class="line-text-one">{{$t('m.welcome.activateSuccessfully')}}</div>
@@ -126,7 +126,7 @@ export default {
                         value = value || ''
                         let val = value.trim()
                         if (!val) {
-                            callback(new Error(this.$t('m.siteAdd.networkAcessEntrancesRequired')))
+                            callback(new Error(this.$t('m.siteAdd.networkAccessEntrancesRequired')))
                         } else {
                             callback()
                         }
@@ -139,7 +139,7 @@ export default {
                         value = value || ''
                         let val = value.trim()
                         if (!val) {
-                            callback(new Error(this.$t('m.siteAdd.networkAcessExitRequired')))
+                            callback(new Error(this.$t('m.siteAdd.networkAccessExitRequired')))
                         } else {
                             callback()
                         }

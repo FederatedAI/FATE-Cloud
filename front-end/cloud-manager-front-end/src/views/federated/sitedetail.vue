@@ -95,7 +95,7 @@
             <div class="info-item" >{{$t('Site Network configuration')}}</div>
             <el-row :gutter="140" style="margin-bottom:-18px">
                 <el-col :span="12">
-                    <el-form-item v-if="form.networkAccessEntrances" style="height:100%;" :label="$t('Network Access Entrances')" >
+                    <el-form-item v-if="form.networkAccessEntrances" style="height:100%;" :label="$t('Network Entrances')" >
                         <span v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
                             {{item}}
@@ -104,7 +104,7 @@
                     </el-form-item>
                 </el-col>
                 <!-- <el-col :span="12">
-                    <el-form-item v-if="form.networkAccessExits" style="height:100%;" :label="$t('Network Access Exits')" >
+                    <el-form-item v-if="form.networkAccessExits" style="height:100%;" :label="$t('Network Exits')" >
                         <span v-for="(item,index) in form.networkAccessExits.split(';')" :key='index'>
                             <div style="width:100%;"  v-if="item" class="info-text ">
                             {{item}}
@@ -169,8 +169,8 @@ const local = {
         'Is Polling': '单向模式',
         'true': '是',
         'false': '否',
-        'Network Access Entrances': '网关入口',
-        'Network Access Exits': '网关出口',
+        'Network Entrances': '网关入口',
+        'Network Exits': '网关出口',
         'System version': '系统版本',
         'FATE version': 'FATE版本',
         'FATE Component': 'FATE服务组件',
@@ -196,8 +196,8 @@ const local = {
         'Is Polling': 'Is Polling',
         'true': 'True',
         'false': 'False',
-        'Network Access Entrances': 'Network Access Entrances',
-        'Network Access Exits': 'Network Access Exits',
+        'Network Entrances': 'Network Entrances',
+        'Network Exits': 'Network Exits',
         'System version': 'System version',
         'FATE version': 'FATE version',
         'FATE Component': 'FATE Component',

@@ -15,7 +15,7 @@
                     <el-form-item :label="$t('m.common.siteName')+'：'">
                         <span class="info-text">{{form.siteName}}</span>
                     </el-form-item>
-                    <el-form-item :label="$t('m.common.institution',{type:'i'})+'：'">
+                    <el-form-item :label="$t('m.common.institution',{type:'I'})+'：'">
                         <span class="info-text">{{form.institutions}}</span>
                     </el-form-item>
                     <el-form-item  :label="$t('m.common.role')+'：'" >
@@ -61,27 +61,27 @@
             <div class="info">
                 <span>{{$t('m.sitemanage.exchangeInfo')}}</span>
             </div>
-            <el-form ref="exchangeForm" :model="form" label-position="left" label-width="180px">
-            <el-row :gutter="140">
-                <el-col :span="12">
-                    <el-form-item :label="$t('m.sitemanage.exchangeName')+'：'">
-                        <span class="info-text">{{form.ExchangeInfo.exchangeName}}</span>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item  label="VIP Entrances：" >
-                        <span class="info-text">{{form.ExchangeInfo.vipEntrances}}</span>
-                    </el-form-item>
-                    <!-- <el-form-item>
-                        <div class="info-text placehodler-div" ></div>
-                    </el-form-item> -->
-                    <!-- <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" label-width="250px">
-                        <span class="info-text" v-if="form.ExchangeInfo.exchangeNetworkAccessExits">
-                            <div v-for="(item,index) in form.ExchangeInfo.exchangeNetworkAccessExits.split(';')" :key="index" >{{item}}</div>
-                        </span>
-                    </el-form-item> -->
-                </el-col>
-            </el-row>
+            <el-form ref="exchangeForm" :model="form" label-position="left" label-width="200px">
+                <el-row :gutter="140">
+                    <el-col :span="12">
+                        <el-form-item :label="$t('m.sitemanage.exchangeName')+'：'">
+                            <span class="info-text">{{form.ExchangeInfo.exchangeName}}</span>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item  :label="$t('m.sitemanage.networkEntrances')+'：'" >
+                            <span class="info-text">{{form.ExchangeInfo.vipEntrances}}</span>
+                        </el-form-item>
+                        <!-- <el-form-item>
+                            <div class="info-text placehodler-div" ></div>
+                        </el-form-item> -->
+                        <!-- <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" label-width="250px">
+                            <span class="info-text" v-if="form.ExchangeInfo.exchangeNetworkAccessExits">
+                                <div v-for="(item,index) in form.ExchangeInfo.exchangeNetworkAccessExits.split(';')" :key="index" >{{item}}</div>
+                            </span>
+                        </el-form-item> -->
+                    </el-col>
+                </el-row>
             </el-form>
         </div>
         <div class="Basic">
@@ -89,7 +89,7 @@
                 <span>{{$t('m.sitemanage.networkConfiguration')}}</span>
 
             </div>
-            <el-form ref="form" :model="form" label-position="left" :rules="rules" label-width="260px">
+            <el-form ref="form" :model="form" label-position="left" :rules="rules" label-width="200px">
                 <!-- site network start -->
                 <div class="plate">
                     <div class="plate-title">
@@ -168,7 +168,7 @@
                     </div> -->
                     <el-row :gutter="140">
                         <el-col :span="12">
-                            <el-form-item :label="$t('m.sitemanage.rollSiteNetworkAccess')+'：'" style="height:100%;" prop="fmRollSiteNetworkAccess" >
+                            <el-form-item :label="$t('m.sitemanage.rollsiteEntrances')+'：'" style="height:100%;" prop="fmRollSiteNetworkAccess" >
                                 <span class="info-text" v-if="editSubmitted!==2 && form.fmRollSiteNetworkAccess">
                                     <div v-for="(item,index) in form.fmRollSiteNetworkAccess.split(';')" :key="index" >{{item}}</div>
                                 </span>
@@ -182,7 +182,7 @@
                                     <i slot="suffix" @click="addShow('rollsite')" class="el-icon-edit plus" />
                                 </el-input>
                             </el-form-item>
-                            <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" >
+                            <el-form-item :label="$t('m.sitemanage.rollsiteExits')+'：'" style="height:100%;" >
                                  <span class="info-text" v-if="editSubmitted!==2 && form.fmRollSiteNetworkAccessExitsList">
                                     <div v-for="(item,index) in form.fmRollSiteNetworkAccessExitsList.split(';')" :key="index" >{{item}}</div>
                                 </span>
@@ -284,7 +284,7 @@
 
     </div>
     <!-- 审批完成弹框 -->
-    <el-dialog :visible.sync="noticedialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
+    <el-dialog :visible.sync="noticedialog" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="true" class="site-finish-dialog" width="400px">
       <div class="line-text-one">{{$t(`m.sitemanage.changedConfigurationStatus${noticedesc}`)}}</div>
       <div class="dialog-footer">
         <el-button class="ok-btn" type="primary" @click="notice">{{$t('m.common.OK')}}</el-button>
@@ -303,38 +303,41 @@
     <el-dialog
         :visible.sync="changedialog"
         v-if="networkAccessEntrancesOld"
-        class="ip-delete-dialog"
-        width="700px">
+        class="ip-sure-dialog"
+        :show-close="true"
+        width="600px">
         <!-- 网关入口变更 -->
-        <div class="line-text-one">{{$t('m.sitemanage.sureWantTo')}}</div>
-        <div class="line-text-one" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkEntrances')})}}</div>
+        <div class="line-text-one">
+            {{$t('m.sitemanage.sureWantTo')}}
+            <span class="line-text-one" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.networkEntrances')})}}</span>
+        </div>
         <div class="line-text" v-if="form.networkAccessEntrances!==networkAccessEntrancesOld">
             <div class="entrances">
-            <div class="rigth-box" style="margin-right: 70px">
-                <div class="from">{{$t('m.sitemanage.from')}}</div>
-                <div class="text">
-                <span
-                    v-for="(item, index) in networkAccessEntrancesOld.split(';')"
-                    :key="index"
-                >{{item}}</span>
+                <div class="rigth-box" >
+                    <div class="from">{{$t('m.sitemanage.from')}}</div>
+                    <div class="text">
+                    <span
+                        v-for="(item, index) in networkAccessEntrancesOld.split(';')"
+                        :key="index"
+                    >{{item}}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="rigth-box" style="margin-left: 70px">
-                <div class="from">{{$t('m.sitemanage.to')}}</div>
-                <div class="text">
-                <span
-                    v-for="(item, index) in form.networkAccessEntrances.split(';')"
-                    :key="index"
-                >{{item}}</span>
+                <div class="rigth-box">
+                    <div class="from">{{$t('m.sitemanage.to')}}</div>
+                    <div class="text">
+                    <span
+                        v-for="(item, index) in form.networkAccessEntrances.split(';')"
+                        :key="index"
+                    >{{item}}</span>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
         <!-- rollsite网关出口变更 -->
-        <div class="line-text-one" v-if="form.fmRollSiteNetworkAccessExitsList!==fmRollSiteNetworkAccessExitsListOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.rollSiteNetworkAccessExits')})}}</div>
+        <div class="line-text-one" v-if="form.fmRollSiteNetworkAccessExitsList!==fmRollSiteNetworkAccessExitsListOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.sitemanage.rollsiteExits')})}}</div>
         <div class="line-text" v-if="form.fmRollSiteNetworkAccessExitsList!==fmRollSiteNetworkAccessExitsListOld">
             <div class="entrances">
-            <div class="rigth-box" style="margin-right: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
                 <span
@@ -343,7 +346,7 @@
                 >{{item}}</span>
                 </div>
             </div>
-            <div class="rigth-box" style="margin-left: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span
@@ -358,13 +361,13 @@
         <div class="line-text-one" v-if="secureStatus!==secureStatusOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.siteAdd.isSecure')})}}</div>
         <div class="line-text" v-if="secureStatus!==secureStatusOld">
             <div class="entrances">
-            <div class="rigth-box" style="margin-right: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
                 <span>{{secureStatusOld | getBollen}}</span>
                 </div>
             </div>
-            <div class="rigth-box" style="margin-left: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span>{{secureStatus | getBollen}}</span>
@@ -376,13 +379,13 @@
         <div class="line-text-one" v-if="pollingStatus!==pollingStatusOld">{{$t('m.sitemanage.changeNetworkAccess',{type:$t('m.siteAdd.isPolling')})}}</div>
         <div class="line-text" v-if="pollingStatus!==pollingStatusOld">
             <div class="entrances">
-            <div class="rigth-box" style="margin-right: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
                 <span>{{pollingStatusOld | getBollen}}</span>
                 </div>
             </div>
-            <div class="rigth-box" style="margin-left: 70px">
+            <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
                 <span>{{pollingStatus | getBollen}}</span>
@@ -416,7 +419,7 @@
                     <li class="list-item" v-for="(item,index) in failedList" :key="index">{{item}}</li>
                 </ul>
             </div>
-            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryIp',{type:$t('m.sitemanage.rollSiteNetworkAccess')})}}</div>
+            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryIp',{type:$t('m.sitemanage.rollsiteEntrances')})}}</div>
             <el-button class="ok-btn" type="primary" @click="rollsiteOk">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
@@ -696,7 +699,7 @@ export default {
                                 this.fmRollSiteNetworkAccesswarnshow = true
                                 callback(
                                     new Error(
-                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.rollSiteNetworkAccess') })
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.rollsiteEntrances') })
                                     )
                                 )
                             } else {
@@ -744,7 +747,7 @@ export default {
         },
         'form.secureStatus': {
             handler: function(val) {
-                this.tosubmit = this.getStatus(val) === this.secureStatusOld
+                this.tosubmit = (this.getStatus(val) === this.secureStatusOld && this.getStatus(this.form.pollingStatus) === this.pollingStatusOld)
             },
             immediate: true
         },
@@ -753,7 +756,7 @@ export default {
                 // console.log(val, 'val-pollingStatus')
                 // console.log(this.pollingStatusOld, 'pollingStatusOld')
                 // console.log(this.getStatus(val), 'this.getStatus(pollingStatus)')
-                this.tosubmit = this.getStatus(val) === this.pollingStatusOld
+                this.tosubmit = (this.getStatus(val) === this.pollingStatusOld && this.getStatus(this.form.secureStatus) === this.pollingStatusOld)
             },
             immediate: true
         }

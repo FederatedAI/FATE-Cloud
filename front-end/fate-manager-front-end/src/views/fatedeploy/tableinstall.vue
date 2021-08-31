@@ -101,7 +101,7 @@
 
 <script>
 import { getInstallList, updateIp, installStart, toClick, tofateboard } from '@/api/fatedeploy'
-import checkip from '@/utils/checkip'
+import { checkip } from '@/utils/checkip'
 import { toLog } from '@/api/deploy'
 import log from './log'
 import event from '@/utils/event'

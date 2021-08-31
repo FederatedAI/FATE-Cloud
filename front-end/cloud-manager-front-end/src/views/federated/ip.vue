@@ -129,8 +129,8 @@
                                                                             {{item}}
                                                                         </div>
                                                                     </div>
-                                                                    <div style="margin-left: 30px;" class="from-tiltle" >{{$t('m.ip.to')}}</div>
-                                                                    <div class="from-text">
+                                                                    <div style="margin-left: 30px;" class="to-tiltle" >{{$t('m.ip.to')}}</div>
+                                                                    <div class="to-text">
                                                                         <div v-for="(item,i) in item.new" :key="i">
                                                                             {{item}}
                                                                         </div>
@@ -168,15 +168,16 @@
                     <ipexchange/>
                 </span>
             </div>
-            <el-dialog :visible.sync="dialogVisible" class="ip-delete-dialog" width="550px">
+            <el-dialog :visible.sync="dialogVisible" class="ip-sure-dialog" width="550px">
                 <div class="line-text-one">{{$t('m.ip.federatedSite')}}
-                    "<span style="color:#217AD9">{{dialogData.siteName}}</span>"
+                    "{{dialogData.siteName}}"
                     {{$t('m.ip.fedSite')}}
+                     <span class="line-text-one" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
+                    {{$t('m.ip.appliesAcessEntrances')}}
+                </span>
                 </div>
                 <!-- 入口变更 -->
-                <div class="line-text-one" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
-                    {{$t('m.ip.appliesAcessEntrances')}}
-                </div>
+
                 <div class="line-text" v-if="dialogData.newEntrancesData!==dialogData.oldEntrancesData">
                     <div class="entrances">
                     <div class="rigth-box" style="margin-right: 0px">
@@ -301,19 +302,25 @@ export default {
             tableData: [],
             value: '',
             institutionsSelectList: [], // 机构名称
-            typeSelect: [{
-                value: 1,
-                label: this.$t('m.common.guest')
-            },
-            {
-                value: 2,
-                label: this.$t('m.common.host')
-            }],
+
             data: {
                 pageNum: 1,
                 pageSize: 20
             }
 
+        }
+    },
+    computed: {
+        typeSelect() {
+            return [
+                {
+                    value: 1,
+                    label: this.$t('m.common.guest')
+                }, {
+                    value: 2,
+                    label: this.$t('m.common.host')
+                }
+            ]
         }
     },
     created() {
@@ -582,7 +589,7 @@ export default {
                     .content-box{
                         padding: 12px;
                         background-color: #F5F8FA;
-                        .from-tiltle{
+                        .from-tiltle,.to-tiltle{
                             color: #848C99;
                             display:inline-block;
                             width: 42px;
@@ -590,7 +597,10 @@ export default {
                             text-align: right;
                             margin-right: 10px;
                         }
-                        .from-text{
+                        .from-tiltle{
+                            width: 25px;
+                        }
+                        .from-text,.to-text{
                             color: #217AD9;
                             display:inline-block;
                             // width: 30%;
