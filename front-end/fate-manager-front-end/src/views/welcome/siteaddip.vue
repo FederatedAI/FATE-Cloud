@@ -4,7 +4,7 @@
       <div class="add-dialog-head">
           <el-button class="addUrl" :disabled="addDisabled" @click="addentrancesSelect" type="text">
               <i class="el-icon-circle-plus"></i>
-                <span>{{$t('m.common.add')}}</span>
+                <span>{{$t('m.common.add',{type:'a'})}}</span>
           </el-button>
           <!-- <el-button class="deleteAll"  type="text" @click="deleteAll" >
               <i class="el-icon-delete-solid" ></i>
@@ -28,22 +28,24 @@
                 </div>
             </div>
             <div class="message-add" :style="{ opacity: showMes,transition:'all 0.2s ease' }">
-                <span v-if="telnetsuccess" class="tips" >
-                    <img src="@/assets/success.png">
-                    <span>{{$t('m.siteAdd.telnetSuccess')}}!
-                        <span style="color:#4AA2FF">{{ipPost}}</span>
+                 <div v-if="telnetType === 1" class="tips success">
+                    <img src="@/assets/success.png" />
+                    <div>{{$t('m.sitemanage.telnetSuccess')}}</div>
+                    <div style="color:#4AA2FF">{{ipPost}}</div>
+                </div>
+                <!-- <div v-if="invalidsuccess" class="tips"> -->
+                <div v-if="telnetType === 2" class="tips">
+                    <img src="@/assets/failed.png" />
+                    <div>{{$t('m.common.invalidInput')}}</div>
+                </div>
+                <!-- <div v-if="telnetfail" class="tips success"> -->
+                <div v-if="telnetType === 3" class="tips success">
+                    <img src="@/assets/failed.png" />
+                    <span>
+                    {{$t('m.sitemanage.unableConnect')}}
+                    <div style="color:#4AA2FF">{{ipPost}}</div>
                     </span>
-                </span>
-                <span v-if="invalidsuccess" class="tips" >
-                    <img src="@/assets/failed.png">
-                    <span>{{$t('m.siteAdd.invalidInput')}}!</span>
-                </span>
-                <span v-if="telnetfail" class="tips" >
-                    <img src="@/assets/failed.png">
-                    <span>{{$t('m.siteAdd.unableConnect')}}!
-                        <span style="color:#4AA2FF">{{ipPost}}</span>
-                    </span>
-                </span>
+                </div>
             </div>
       </div>
       <div class="add-dialog-footer">
@@ -57,6 +59,7 @@
 
 <script>
 import { telnet } from '@/api/welcomepage'
+import { checkip } from '@/utils/checkip'
 
 export default {
     name: 'siteAddIp',
@@ -71,9 +74,7 @@ export default {
             // 新加ip数组
             entrancesSelect: [],
             addtotal: '', //
-            telnetsuccess: false, // 测试成功后提示
-            telnetfail: false, // 测试成功后提示
-            invalidsuccess: false, // 无效输入
+            telnetType: '', // 测试成功后提示
             saveDisabled: false, // 是否可点击保存
             addDisabled: false, // 是否可点击添加
             canEdit: true, // 是否可双击编辑
@@ -140,17 +141,18 @@ export default {
         },
         // 完成校验
         closeEntrances(index) {
-            let RegExpVal = this.entrancesInput.split(':')
-            // ip正则校验
-            let ipReg = new RegExp(/^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/)
-            // 域名正则校验
-            // let domainReg = new RegExp(/[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/)
-            // 端口正则校验
-            let portReg = new RegExp(/^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/)
+            // let RegExpVal = this.entrancesInput.split(':')
+            // // ip正则校验
+            // let ipReg = new RegExp(/^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/)
+            // // 域名正则校验
+            // // let domainReg = new RegExp(/[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/)
+            // // 端口正则校验
+            // let portReg = new RegExp(/^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/)
+            let RegExpVal = this.entrancesInput
             if (this.entrancesInput === '') {
                 this.deleteEntrances(index)
             } else {
-                if (portReg.test(RegExpVal[1]) && ipReg.test(RegExpVal[0])) {
+                if (checkip(RegExpVal)) {
                     this.entrancesSelect[this.entrancesindex].show = false
                     this.entrancesSelect[this.entrancesindex].ip = this.entrancesInput
                     this.saveDisabled = false // 可点击保存
@@ -159,12 +161,12 @@ export default {
                 } else {
                     this.saveDisabled = true // 不可点击保存
                     this.addDisabled = true // 不可点击添加
-                    this.invalidsuccess = true
+                    this.telnetType = 3
                     this.showMes = 0.8
-                    // setTimeout(() => {
-                    //     this.showMes = 0
-                    //     this.invalidsuccess = false
-                    // }, 2000)
+                    setTimeout(() => {
+                        this.showMes = 0
+                        this.telnetType = ''
+                    }, 2000)
                 }
             }
         },
@@ -213,19 +215,19 @@ export default {
             this.ipPost = this.entrancesSelect[index].ip
             telnet(data).then(res => {
                 if ((res.code === 0)) {
-                    this.telnetsuccess = true
+                    this.telnetType = 1
                     this.showMes = 0.8
                     setTimeout(() => {
-                        this.telnetsuccess = false
+                        this.telnetType = ''
                         this.showMes = 0
                     }, 2000)
                 }
             }).catch(res => {
                 if (res.code === 109) {
-                    this.telnetfail = true
+                    this.telnetType = 2
                     this.showMes = 0.8
                     setTimeout(() => {
-                        this.telnetfail = false
+                        this.telnetType = ''
                         this.showMes = 0
                     }, 2000)
                 }

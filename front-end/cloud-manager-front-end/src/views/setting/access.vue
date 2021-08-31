@@ -50,25 +50,24 @@
             </el-table>
         </div>
         <div v-else class="table">
-            <el-table :data="managertableData" ref="table" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
-                <el-table-column prop="institutions"  :label="$t('m.access.Institution')" show-overflow-tooltip></el-table-column>
-                <!-- 解决不显示问题 -->
-                <el-table-column v-show="false" prop="" label=""  width="10"></el-table-column>
-                <el-table-column prop="fateManagerId" :label="$t('m.access.Admin ID')"  show-overflow-tooltip></el-table-column>
-                <el-table-column prop="creator" :label="$t('m.access.Creator')" ></el-table-column>
-                <el-table-column prop="createTime" sortable :label="$t('m.access.Create Time')" >
+            <!-- 添加KEY解决偶现某个字段无法显示或表格显示错乱问题 -->
+            <el-table :data="managertableData" :key="1" ref="managertable" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
+                <el-table-column prop="institutions" :label="$t('m.access.Institution')" show-overflow-tooltip width="200px"></el-table-column>
+                <el-table-column prop="fateManagerId" :label="$t('m.access.Admin ID')" width="600px"></el-table-column>
+                <el-table-column prop="creator" :label="$t('m.access.Creator')" width="120px"></el-table-column>
+                <el-table-column prop="createTime" sortable :label="$t('m.access.Create Time')" width="350px">
                     <template slot-scope="scope">
                     <span>{{scope.row.createTime | dateFormat}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="status"  :label="$t('m.access.Status')"  >
-                    <template slot-scope="scope">
+                <el-table-column prop="status" :label="$t('m.access.Status')">
+                   <template slot-scope="scope">
                         <span v-if="scope.row.status===1" type="text">{{$t('m.common.unactivated')}}</span>
                         <span v-if="scope.row.status===2" type="text">{{$t('m.common.activated')}}</span>
                         <span v-if="scope.row.status===20" type="text">{{$t('m.common.activated')}}</span>
                     </template>
                 </el-table-column>
-                 <el-table-column prop=""  :label="$t('m.access.Action')"  align="center" >
+                <el-table-column prop=""  :label="$t('m.access.Action')"  align="center" >
                     <template slot-scope="scope">
                         <span>
                             <el-button @click="toactivat(scope.row)" type="text">{{$t('m.access.detail')}}</el-button>

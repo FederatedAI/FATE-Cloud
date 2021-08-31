@@ -136,11 +136,18 @@
                 border-radius: 24px;
                 padding: 0 8px;
                 color: rgba(255, 255, 255, .9);
+                .success{
+                    width: 280px;
+                }
                 .tips{
+                    display: flex;
+                    align-items: center;
+                    span{
+                        flex-shrink: 0;
+                    }
                     img{
-                        vertical-align: middle;
+                        flex-shrink: 0;
                         margin-right: 12px;
-                        margin-bottom: 2px;
                         height: 14px;
                         width: 14px;
                     }

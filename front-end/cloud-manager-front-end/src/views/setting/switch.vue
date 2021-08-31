@@ -102,7 +102,7 @@
             dialogTitle=" "
             :visible.sync="selectVisible"
             @updateVisible="updateRadioVisible"
-            @submitPopupData="sureVisible"
+            @submitPopupData="openVisible"
             @resetPopupData="cancelAction"
             @handleClose="cancelAction"
             :dialogWidth="'500px'"
@@ -241,6 +241,9 @@ export default {
         },
         updateSureVisible(val) {
             this.sureVisible = !val
+        },
+        openVisible() {
+            this.sureVisible = true
         },
         init() {
             switchState().then(res => {

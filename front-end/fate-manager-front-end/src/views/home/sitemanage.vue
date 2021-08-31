@@ -27,7 +27,7 @@
                 <el-tooltip effect="dark" :content="$t('m.sitemanage.addNewSiteJoinOrganization')" placement="top">
                     <div  class="add" @click="toAddSite">
                         <img src="@/assets/add_site.png">
-                        <span>{{$t('m.common.add')}}</span>
+                        <span>{{$t('m.common.add',{type:'a'})}}</span>
                     </div>
                 </el-tooltip>
                 <span v-if='siteState && myInstitution.joinedSites > 0'>
@@ -120,7 +120,7 @@
             <span v-else>
                 <div class="add" style="cursor:not-allowed">
                     <img src="@/assets/add_site.png">
-                    <span>{{$t('m.common.add')}}</span>
+                    <span>{{$t('m.common.add',{type:'a'})}}</span>
                 </div>
                 <div v-if='siteState' class="apply" style="cursor:not-allowed;color:#c8c9cc" >
                     <span >{{$t('m.sitemanage.applySites')}} </span>
@@ -274,11 +274,8 @@
         </span>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="applydialog" class="apply-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="applydialog" :title="$t('m.sitemanage.apply')" class="apply-dialog" width="650px" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="dialog-box">
-            <div class="dialog-title">
-                {{$t('m.sitemanage.apply')}}
-            </div>
             <div class="line-text-one">
                 {{$t('m.sitemanage.selectTips')}}
             </div>
@@ -291,8 +288,8 @@
                 </el-checkbox-group>
             </div>
             <div class="dialog-foot">
-                <el-button type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
-                <el-button type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </div>
     </el-dialog>

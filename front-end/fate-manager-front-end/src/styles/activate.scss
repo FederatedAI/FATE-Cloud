@@ -5,17 +5,28 @@
         width: 100%;
         background: #F5F8FA;
         overflow: auto;
-        .is-required label{
-            position: relative;
-        }
-        .is-required label::after{
-            content: "*";
-            font-size: 18px;
-            color: #FF9D00;
-            top: 50%;
-            left: -15px;
-            transform: translate(2px,-50%);
-            position: absolute;
+        .is-required{
+            label{
+                position: relative;
+            }
+            label::after{
+                content: "*";
+                font-size: 16px;
+                color: #FF9D00;
+                top: 50%;
+                left: -15px;
+                transform: translate(2px,-50%);
+                position: absolute;
+            }
+            margin-bottom: 15px !important;
+            .el-form-item__label,
+            .el-form-item__content,
+            .el-input,
+            .el-input__inner
+            {
+                height: 24px;
+                line-height: 24px;
+            }
         }
 
         .add-info {
@@ -46,11 +57,11 @@
                     margin-bottom: 0;
 
                     .info-text {
-                        font-size: 18px;
+                        font-size: 16px;
                         color: #2D3642;
                     }
                     .link-text{
-                        font-size: 18px;
+                        font-size: 16px;
                         display: inline-block;
                         white-space: nowrap; //文本强制不换行；
                         text-overflow: ellipsis; // 文本溢出显示省略号；
@@ -61,8 +72,8 @@
                     //添加ip
                     .plus {
                         position: absolute;
-                        right: -38px;
-                        top: 22px;
+                        right: -3px;
+                        top: 0px;
                         cursor: pointer;
                         color: #217AD9;
                         font-size: 16px;
@@ -91,7 +102,26 @@
                         height: 30px;
                         line-height: 30px;
                     }
-                
+                    .el-switch{
+                        .el-switch__core {
+                            width: 30px !important;
+                            height: 16px;
+                            line-height: 16px;
+                            &::after{
+                                width: 12px;
+                                height: 12px;
+                                margin-left: 0;
+                            }
+                        }
+                        padding-bottom: 3px;
+                    }
+                    .el-switch.is-checked{
+                        .el-switch__core {
+                            &::after{
+                                margin-left: -13px;
+                            }
+                        }
+                    }
                     //工具icon
                     .tools:hover{
                         color: #217AD9;
@@ -101,12 +131,12 @@
                         right: -45px;
                         color: #217AD9;
                         cursor: pointer;
-                        font-size: 18px;
+                        font-size: 16px;
                     }
                     //icon显示
                     .view {
                         position: absolute;
-                        right: -35px;
+                        right: 0;
                         cursor: pointer;
                         top:10px;
                     }
@@ -115,7 +145,7 @@
                     }
                     //表单标题
                     .el-form-item__label {
-                        font-size: 18px;
+                        font-size: 16px;
                         color: #848C99;
                     }
                     .el-form-item__label:before{
@@ -178,7 +208,7 @@
                     border-top: 0px;
                     border-right: 0px;
                     border-left: 0px;
-                    font-size: 18px;
+                    font-size: 16px;
                     color: #2D3642;
                 }
                 .is-error .el-input__inner{
@@ -196,8 +226,11 @@
                 padding: 60px 0;
                 text-align: center;
                 .el-button {
-                    font-size: 18px;
+                    font-size: 16px;
                     width: 260px;
+                    height: 36px;
+                    line-height: 36px;
+                    padding: 0;
                 }
             }
 
@@ -220,15 +253,14 @@
             }
 
             .el-icon-success {
-                font-size: 80px;
+                font-size: 50px;
                 color: #217AD9;
                 opacity: 1;
-                margin-top: -20px;
                 margin-bottom: 24px
             }
 
             .el-dialog__body {
-                padding: 64px 20px;
+                padding: 36px 24px 24px;
             }
 
             .el-dialog__header {
@@ -241,7 +273,7 @@
                 // width:330px;
                 height: 39px;
                 font-size: 32px;
-                font-family: Product Sans;
+                font-family: "OPPOSans";
                 font-weight: bold;
                 line-height: 20px;
                 color: rgba(33, 122, 217, 1);
@@ -250,20 +282,24 @@
             }
 
             .line-text-one {
-                font-size: 18px;
+                font-size: 16px;
                 color: #848C99;
                 margin-bottom: 16px
             }
 
             .line-text-two {
-                font-size: 18px;
+                font-size: 16px;
                 color: #848C99;
-                margin-bottom: 48px
+                margin-bottom: 36px
             }
 
             .sure-btn {
                 width: 180px;
-                font-size: 18px
+                font-size: 16px;
+                height:24px;
+                line-height: 24px;
+                padding: 0;
+                border-radius: 2px;
             }
 
         }

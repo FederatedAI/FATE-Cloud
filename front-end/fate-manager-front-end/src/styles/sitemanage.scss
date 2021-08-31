@@ -171,24 +171,17 @@
     }
     .apply-dialog {
         .el-dialog__header {
-            display: none;
+            padding: 12px 24px 0;
         }
         .el-dialog__body {
             padding: 0;
         }
         .dialog-box {
-            
-            padding: 36px;
-            .dialog-title {
-                font-size: 32px;
-                color: #217AD9;
-                font-weight: bold;
-                margin-bottom: 36px
-            }
+            padding: 12px 36px 24px;
             .line-text-one{
-                font-size: 18px;
+                font-size: 16px;
                 color: #2D3642;
-                line-height: 32px;
+                line-height: 24px;
             }
             .line-text-gray{
                 font-size: 14px;
@@ -196,7 +189,7 @@
                 margin-top: 15px;
             }
             .dialog-main{
-                padding: 12px 24px;
+                padding: 12px;
                 margin-top: 24px;
                 max-height: 248px;
                 overflow:auto;
@@ -218,12 +211,6 @@
             .dialog-foot {
                 text-align: center;
                 margin: 36px 0 12px 0;
-                .el-button {
-                    height: 36px;
-                    width: 200px;
-                    padding: 0;
-                    font-size: 18px;
-                }
             }
 
         }
@@ -234,7 +221,7 @@
             padding: 10px 24px 24px;
         }
         .line-text-one {
-            font-size: 18px;
+            font-size: 16px;
             color: #4E5766;
             line-height: 1.5;
         }

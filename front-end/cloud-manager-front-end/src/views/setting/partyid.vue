@@ -131,20 +131,23 @@ export default {
             tableData: [],
             delTtempGroup: '', // 待删除项
             groupName: '', // 待删除项
-            typeSelect: [
-                {
-                    value: 1,
-                    label: this.$t('m.common.guest')
-                },
-                {
-                    value: 2,
-                    label: this.$t('m.common.host')
-                }
-            ],
             data: {
                 pageNum: 1,
                 pageSize: 20
             }
+        }
+    },
+    computed: {
+        typeSelect() {
+            return [
+                {
+                    value: 1,
+                    label: this.$t('m.common.guest')
+                }, {
+                    value: 2,
+                    label: this.$t('m.common.host')
+                }
+            ]
         }
     },
     created() {

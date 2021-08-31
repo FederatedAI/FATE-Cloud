@@ -58,7 +58,7 @@
             </el-form>
         </div>
         <activte-dialog ref="activtedialog"/>
-        <el-dialog :visible.sync="contactdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="contact-dialog">
+        <el-dialog :visible.sync="contactdialog" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="true" width="550px" class="contact-dialog">
             <div class="line-text-two">
                 {{$t('m.welcome.contactAdministratorTips')}}
             </div>

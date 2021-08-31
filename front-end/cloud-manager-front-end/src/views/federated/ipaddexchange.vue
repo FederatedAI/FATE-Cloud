@@ -29,10 +29,10 @@
                         :disabled="rollsiteList.length===1"
                         @click="removeRollsite(index)"
                     icon="el-icon el-icon-close"></el-button>
-                    <el-form-item :label="$t('m.ip.rollsiteNetworkAccess')" prop="networkAccess" >
+                    <el-form-item :label="$t('m.ip.rollsiteEntrances')" prop="networkAccess" >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.ip.rollsiteNetworkAccess')}}</span>
+                            <span>{{$t('m.ip.rollsiteEntrances')}}</span>
                         </span>
                         <el-input :class="{inputwarn: item.networkAccessWarnshow }"
                             @focus="item.networkAccessWarnshow = false"

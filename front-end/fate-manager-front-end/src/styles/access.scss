@@ -101,63 +101,71 @@
     }
     .access-delete-dialog {
         .el-dialog__body{
-            padding: 40px;
-        }
-        .el-button{
-            padding: 0;
-            height: 36px;
-            line-height: 36px;
-        }
-
-
-        .el-dialog__header {
-            display: none;
+            padding: 10px 24px 24px;
         }
 
         text-align: center;
 
         .line-text-one {
-            font-size: 24px;
+            font-size: 16px;
             color: #4E5766;
-            margin-bottom: 48px
-        }
-
-        .ok-btn {
-            width: 180px;
-            font-size: 18px;
+            margin-bottom: 36px;
+            font-weight: bold;
         }
 
     }
     .access-add-dialog {
         .el-dialog__header {
-            display: none;
-        }
-
-        .el-dialog__body {
             padding: 0;
         }
 
-        .dialog-box {
-            padding: 36px;
+        .el-dialog__body {
+            padding: 24px;
+        }
 
+        .dialog-box {
+            padding: 0;
             .dialog-title {
-                font-size: 32px;
-                color: #217AD9;
+                font-size: 18px;
+                color: #505765;
                 font-weight: bold;
-                margin-bottom: 48px
+                margin-bottom: 36px
             }
+            .role-select{
+                height: 105px !important;
+                .el-form-item__content{
+                    display: flex;
+                    .el-radio-group{
+                        display: flex;
+                        flex-direction: column;
+                        padding: 10px 0;
+                        .el-radio{
+                            margin-bottom: 20px;
+                            .el-radio__label{
+                                font-size: 16px
+                            }
+                            .el-radio__inner::after {
+                                transition: none!important;
+                            } 
+                        }
+                               
+                    }
+                }
+    
+            }
+
             .el-form-item{
                 margin-bottom: 10px;
             }
             .add-input {
-                margin-top: 12px;
                 position: relative;
                 height: 36px;
                 line-height: 36px;
+                padding: 0 12px;
                 .input-title{
                     display:inline-block;
                     width: 20%;
-                    font-size: 18px;
+                    font-size: 16px;
                     color: #848C99;
                     margin-bottom: 24px;
                 }
@@ -186,14 +194,7 @@
                     border-radius: 0;
                     font-size: 16px
                 }
-                .el-radio-group{
-                    .el-radio__label{
-                        font-size: 16px
-                    }
-                    .el-radio__inner::after {
-                        transition: none!important;
-                    }        
-                }
+                
                 .el-form-item__error{
                     top: 42px;
                     left: 140px;
@@ -214,10 +215,11 @@
             .permission{
                 line-height: 36px;
                 margin-top: 15px;
+                padding: 0 12px;
                 .input-title{
                     display:inline-block;
                     width: 20%;
-                    font-size: 18px;
+                    font-size: 16px;
                     color: #848C99;
                     margin-bottom: 24px;
                 }
@@ -245,7 +247,7 @@
                 }
             }
             .line-text-one{
-                font-size: 24px;
+                font-size: 16px;
                 color: #4E5766;
                 text-align: center;
                 margin-top: 28px;
@@ -253,13 +255,8 @@
 
             .dialog-foot {
                 text-align: center;
-                margin: 36px 0 12px 0;
-                .el-button {
-                    height: 36px;
-                    width: 200px;
-                    padding: 0;
-                    font-size: 18px;
-                }
+                margin: 36px 0 0 0;
+                
             }
 
         }
