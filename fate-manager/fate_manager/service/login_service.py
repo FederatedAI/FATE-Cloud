@@ -13,14 +13,14 @@ from fate_manager.utils.model_utils import transform_dict_key
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
 
 
-def fate_manager_activate(link, user_name):
+def fate_manager_activate(link, user_name, pass_word):
     link = str(link).replace('\\r', '\r').replace('\\n', '\n')
     logger.info(f"link: {link}, user_name: {user_name}")
     federated_url, institutions, fate_manager_id = deserialize_b64_decode(link)
     logger.info(f'federated_url {federated_url}, institutions {institutions}, fate_manager_id {fate_manager_id}')
-    users = DBOperator.query_entity(FateUserInfo, user_name=user_name)
+    users = DBOperator.query_entity(FateUserInfo, user_name=user_name, password=pass_word)
     if not users:
-        raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found ")
+        raise Exception(UserStatusCode.NoFoundUser, f"user {user_name} no found or password error")
 
     accounts = DBOperator.query_entity(AccountInfo, role=UserRole.ADMIN)
     if accounts:
