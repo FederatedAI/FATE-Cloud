@@ -19,8 +19,8 @@
 
 ```shell
 cd /data/projects
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.3.0/fate_manager_1.3.0_release-1.0.0.tar.gz
-tar -xzvf fate_manager_1.3.0_release-1.0.0.tar.gz
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_manager_1.4.0_rc3.tar.gz
+tar -xzvf fate_manager_1.4.0_rc3.tar.gz
 ```
 
 ### 2.2 配置文件修改和示例
@@ -39,7 +39,7 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | pname           |默认：soft-common                  |安装python和mysql文件夹名  |
 | lbase           |默认：/data/projects/logs         |日志文件路径             |
 | mysql_path      |默认：soft-common/mysql           |mysql安装子目录(用户选择部署本组件提供的mysql，此处填相对路径)|
-| mysql_admin_user |默认：root                       |mysql登入账号            |
+| mysql_admin_user |默认：fate                       |mysql登入账号            |
 | mysql_admin_pass |默认：fate_dev                   |mysql登入密码             |
 | mysql_port      |默认：3308                         |mysql服务监听端口        |
 | fate_manager_dbname  |默认：fate_manager           | 数据库名             |
@@ -96,7 +96,7 @@ cd fate_manager-install && sh common-deploy/common-deploy.sh fate-manager
 ## 4.启停服务
 
 ```
-cd /data/projects/FATE-Cloud/fate_manager/ 
+cd /data/projects/FATE-Cloud/fate-manager/ 
 sh service.sh start|stop|restart|status
 ```
 
