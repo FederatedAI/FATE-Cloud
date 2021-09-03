@@ -19,8 +19,8 @@
 
 ```shell
 cd /data/projects
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_manager_1.4.0_rc3.tar.gz
-tar -xzvf fate_manager_1.4.0_rc3.tar.gz
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.0/fate_manager_1.4.0_release-1.0.0.tar.gz
+tar -xzvf fate_manager_1.4.0_release-1.0.0.tar.gz
 ```
 
 ### 2.2 配置文件修改和示例
@@ -96,7 +96,7 @@ cd fate_manager-install && sh common-deploy/common-deploy.sh fate-manager
 ## 4.启停服务
 
 ```
-cd /data/projects/FATE-Cloud/fate-manager/ 
+cd /data/projects/FATE-Cloud/fate_manager/ 
 sh service.sh start|stop|restart|status
 ```
 
