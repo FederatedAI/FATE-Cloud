@@ -256,7 +256,7 @@ sh service.sh stop
 8.测试
 ======
 
-Cloud-Manager 是一个web服务.如果部署成功,可以通过网址(例:http://192.168.0.2:9999)访问.
+Cloud-Manager 是一个web服务.如果部署成功,可以通过网址(例:http://192.168.0.2:9999/cloud-manager)访问.
 
 注意: 请用真实配置的IP和端口访问,上文只是示例!
 
