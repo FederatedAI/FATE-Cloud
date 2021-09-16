@@ -99,5 +99,7 @@ cd fate_manager-install && sh common-deploy/common-deploy.sh fate-manager
 cd /data/projects/FATE-Cloud/fate_manager/ 
 sh service.sh start|stop|restart|status
 ```
+## 5. 使用文档
 
+请参阅: [FATE-Cloud产品使用手册](../../docs/FATE-Cloud产品使用手册v1.4.0.pdf)
 
