@@ -24,7 +24,7 @@ ruamel.yaml==0.16.10
 ruamel.yaml.clib==0.2.2
 setuptools==52.0.0.post20210125
 six==1.15.0
-urllib3==1.26.4
+urllib3==1.26.5
 Werkzeug==1.0.1
 wheel==0.36.2
 wincertstore==0.2
