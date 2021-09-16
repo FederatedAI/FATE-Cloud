@@ -147,7 +147,6 @@ export default {
         chartData: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal-dur')
                     this.options.series[0].data = newVal
                 }
             },

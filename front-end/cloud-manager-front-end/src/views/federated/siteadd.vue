@@ -317,7 +317,6 @@ export default {
                     required: true,
                     trigger: 'change',
                     validator: (rule, value, callback) => {
-                        console.log(value, 'value')
                         if (!value) {
                             callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessRequired')))
                         } else if (!checkip(value)) {
@@ -403,7 +402,7 @@ export default {
         // 检查partyid是否被占用
         tocheckPartyid() {
             this.$refs['infoform'].validateField('partyId', valid => {
-                console.log(valid, 'valid')
+                // console.log(valid, 'valid')
                 if (valid !== this.$t('m.siteAdd.partyIDRequired') && valid !== this.$t('m.siteAdd.invalidPartyID')) {
                     let data = {
                         id: this.$route.query.id,
@@ -535,12 +534,9 @@ export default {
             // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
             let link = res.data.registrationLink
             if (link.indexOf('?st') < 0) {
-                console.log('加密链接')
                 link = JSON.stringify(link).replace(new RegExp('"', 'g'), '')
             } else {
-                console.log('未加密链接')
                 link = JSON.stringify(link).replace(new RegExp('\\\\', 'g'), '')
-                console.log(link, 'link')
             }
             if (this.type === 'siteinfo') {
                 let resData = { ...res.data }
@@ -566,7 +562,6 @@ export default {
             if (type === 'tooltip') {
                 let dialogClipboard = new Clipboard('.dialogcopy')
                 dialogClipboard.on('success', e => {
-                    console.log(e, 'copy-e')
                     this.$message.success(this.$t('m.common.copySuccess'))
                     // 释放内存
                     dialogClipboard.destroy()
@@ -600,7 +595,6 @@ export default {
             })
         },
         getStatus(stauts) {
-            console.log(typeof stauts, 'typeof stauts')
             if (typeof stauts === 'number') {
                 return stauts === 1
             } else {

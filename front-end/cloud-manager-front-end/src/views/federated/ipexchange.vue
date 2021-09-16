@@ -17,7 +17,7 @@
                         <el-tooltip class="item" effect="light" :content="item.exchangeName" placement="top">
                             <span style="color:#4E5766;font-weight:bold">{{item.exchangeName}}</span>
                         </el-tooltip>
-                        <span class="collapse-title-vip">VIP Entrance：{{item.vipEntrance}}</span>
+                        <span class="collapse-title-vip">{{$t('m.ip.networkEntrances')}}：{{item.vipEntrance}}</span>
                         <span class="collapse-title-time"> {{$t('m.common.updateTime')}} ：{{item.updateTime | dateFormat}}</span>
                         <el-button style="margin-right:10px"  @click.stop="toAddRollsite(item)"  type="text">
                             {{$t('m.common.add')}} rollsite
@@ -136,7 +136,7 @@ export default {
             })
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`)
+            // console.log(`每页 ${val} 条`)
         },
         handleCurrentChange(val) {
             this.data.pageNum = val
@@ -164,7 +164,6 @@ export default {
                 this.activeName = []
             } else {
                 this.activeName = this.exchangeList.map(item => item.exchangeName)
-                console.log(this.activeName, 'activeName')
             }
             this.isAllFold = !this.isAllFold
         }

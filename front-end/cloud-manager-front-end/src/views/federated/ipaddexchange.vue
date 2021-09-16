@@ -2,7 +2,7 @@
   <div class="ipaddexchange-box">
         <div class="add-exchange">
             <div class="exchange-title">{{$t('m.ip.addExchange')}}</div>
-            <el-form ref="editform" class="edit-form" :rules="editRules" label-width="150px" label-position="left" :model="exchangeData">
+            <el-form ref="editform" class="edit-form" :rules="editRules" label-width="200px" label-position="left" :model="exchangeData">
                 <el-form-item label="Exchange" prop="exchangeName" >
                     <span slot="label">
                         <i style="margin-right: 3px;" class="el-icon-star-on"></i>
@@ -10,10 +10,10 @@
                     </span>
                     <el-input @blur="cancelValid('exchangeName')" @focus="cancelValid('exchangeName')" v-model="exchangeData.exchangeName"></el-input>
                 </el-form-item>
-                <el-form-item label="VIP " prop="vipEntrance" >
+                <el-form-item :label="$t('m.ip.networkEntrances')" prop="vipEntrance" >
                     <span slot="label">
                         <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                        <span>VIP Entrance :</span>
+                        <span>{{$t('m.ip.networkEntrances')}} :</span>
                     </span>
                     <el-input @blur="cancelValid('vipEntrance')" @focus="cancelValid('vipEntrance')"  v-model.trim="exchangeData.vipEntrance"></el-input>
                 </el-form-item>
@@ -41,13 +41,13 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item
-                        :label="$t('m.site.networkExits')"
+                        :label="$t('m.site.rollsiteExits')"
                         :key="index"
                         :prop="item.networkAccessExit"
                     >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.site.networkExits')}}</span>
+                            <span>{{$t('m.site.rollsiteExits')}}</span>
                         </span>
                         <el-input :class="{inputwarn: item.networkExitsWarnshow }"
                             @focus="cancelValid('networkAccessExit')"
@@ -74,7 +74,7 @@
                                 </el-table-column>
                                 <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  width="90" show-overflow-tooltip>
                                 </el-table-column>
-                                <el-table-column prop="networkAccess"  :label="$t('m.ip.routerNetworkAccess')"  width="180" show-overflow-tooltip>
+                                <el-table-column prop="networkAccess"  :label="$t('m.ip.networkEntrances')"  width="180" show-overflow-tooltip>
                                 </el-table-column>
                                 <el-table-column prop="secureStatus" :label="$t('m.ip.isSecure')" width="85">
                                     <template slot-scope="scope">
@@ -158,7 +158,7 @@
                     </el-form-item>
                     <el-form-item label="" prop="networkAccess" >
                         <span slot="label">
-                            <span>{{$t('m.ip.routerNetworkAccess')}}:</span>
+                            <span>{{$t('m.ip.networkEntrances')}}:</span>
                             <i style="margin-left: 3px;" class="el-icon-star-on"></i>
                         </span>
                         <span v-if="tempSiteNet.partyId==='default'">
@@ -190,7 +190,7 @@
                 </div>
             </div>
         </el-dialog> -->
-        <el-dialog :visible.sync="addSiteNet" :title="$t('m.ip.routerNetworkAccess')" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
+        <el-dialog :visible.sync="addSiteNet" :title="$t('m.ip.rollsiteEntrances')" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="site-net-table">
                 <el-form ref="siteNetform" class="edit-form" :rules="siteEditRules"  label-width="200px" label-position="top" :model="tempSiteNet">
                     <el-form-item class="inline" :class="{'inline':tempSiteNet.partyId === 'default'}" label="" prop="partyId">
@@ -210,7 +210,7 @@
                     <el-form-item label="" style="height:100%;" prop="networkAccess" >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.ip.routerNetworkAccess')}}：</span>
+                            <span>{{$t('m.ip.rollsiteEntrances')}}：</span>
                         </span>
                         <el-input
                             @focus="addShow('router')"
@@ -224,7 +224,7 @@
                      <el-form-item class="inline" :label="$t('m.ip.isSecure')" prop="isSecure" >
                          <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>isSecure:</span>
+                            <span>{{$t('m.ip.isSecure')}}:</span>
                          </span>
                         <el-switch v-model="isSecure">
                         </el-switch>
@@ -232,7 +232,7 @@
                     <el-form-item class="inline" :label="$t('m.ip.isPolling')" prop="isPolling" >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>isPolling:</span>
+                            <span>{{$t('m.ip.isPolling')}}:</span>
                         </span>
                         <span v-if="tempSiteNet.partyId==='exchange'">
                             <el-switch disabled v-model="isPolling">
@@ -334,7 +334,7 @@ export default {
                             value = value || ''
                             let val = value.trim()
                             if (!val) {
-                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.ip.routerNetworkAccess') })))
+                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.ip.networkEntrances') })))
                             } else if (!checkip(val)) {
                                 callback(new Error(this.$t('m.common.invalidInput')))
                             } else {
@@ -515,9 +515,7 @@ export default {
                 this.$message.error(this.$t('m.siteAdd.networkAcessExitRequired'))
                 return
             }
-            console.log(this.rollsiteList, 'rollsiteList')
             this.$refs['editform'].validate((valid) => {
-                console.log(valid, 'valid')
                 if (valid && passAdd && msgshow) {
                     let data = {
                         exchangeName: this.exchangeData.exchangeName.trim(),
@@ -548,7 +546,6 @@ export default {
         // 确定添加siteNet
         toAddSiteNet() {
             let index = this.rollsiteIndex
-            console.log(index, 'index')
             this.tempSiteNet.secureStatus = this.isSecure === true ? 1 : 2
             this.tempSiteNet.pollingStatus = this.isPolling === true ? 1 : 2
             this.$refs['siteNetform'].validate((valid) => {
@@ -667,7 +664,6 @@ export default {
             })
         },
         updateIp(data) {
-            console.log(data, 'data')
             this.$set(this.tempSiteNet, `${data.name}`, data.data)
         }
     }

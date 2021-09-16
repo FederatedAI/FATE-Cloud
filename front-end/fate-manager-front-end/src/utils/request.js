@@ -156,7 +156,7 @@ service.interceptors.response.use(
     error => {
         // 关闭全局loading
         loading.style.display = 'none'
-        console.log(error, 'error')
+        // console.log(error, 'error')
         // setErrorMsgToI18n(error)
         return Promise.reject(error)
     }

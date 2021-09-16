@@ -286,7 +286,6 @@ export const m = {
         'proxyNetworkAccessInvalid': '代理网关字段无效, 请再次输入。',
         'isSecure': '加密传输',
         'isPolling': '单向模式'
-
     },
     monitor: {
         'todayActiveData': '今日活跃数据',

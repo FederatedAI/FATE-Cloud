@@ -72,14 +72,6 @@
                         <el-form-item  :label="$t('m.sitemanage.networkEntrances')+'：'" >
                             <span class="info-text">{{form.ExchangeInfo.vipEntrances}}</span>
                         </el-form-item>
-                        <!-- <el-form-item>
-                            <div class="info-text placehodler-div" ></div>
-                        </el-form-item> -->
-                        <!-- <el-form-item :label="$t('m.sitemanage.networkAccessExits')+'：'" style="height:100%;" label-width="250px">
-                            <span class="info-text" v-if="form.ExchangeInfo.exchangeNetworkAccessExits">
-                                <div v-for="(item,index) in form.ExchangeInfo.exchangeNetworkAccessExits.split(';')" :key="index" >{{item}}</div>
-                            </span>
-                        </el-form-item> -->
                     </el-col>
                 </el-row>
             </el-form>
@@ -129,43 +121,11 @@
                                 </el-input>
                             </el-form-item>
                         </el-col>
-                        <!-- <el-col :span="12">
-                            <el-form-item :label="$t('m.sitemanage.networkExits')+'：'" style="height:100%;" prop="networkAccessExits" >
-                                <span class="info-text" v-if="editSubmitted!==2 && form.networkAccessExits">
-                                    <div v-for="(item,index) in form.networkAccessExits.split(';')" :key="index" >{{item}}</div>
-                                </span>
-                                <el-input
-                                    v-if="editSubmitted===2"
-                                    @focus="addShow('exit')"
-                                    @blur="cancelValid('networkAccessExits')"
-                                    :class="{ 'edit-text': true, 'plus-text':true,'Network-text':true,'exitwarn': networkAccessExitswarnshow }"
-                                    v-model="form.networkAccessExits"
-                                    placeholder >
-                                    <i slot="suffix" @click="addShow('exit')" class="el-icon-edit plus" />
-                                </el-input>
-                            </el-form-item>
-                        </el-col> -->
                     </el-row>
                 </div>
                 <!-- site network end -->
                 <!-- rollsite network start -->
                 <div class="plate">
-                    <!-- <div class="plate-title">
-                        <span class="title-text">{{$t('m.sitemanage.rollsiteNetworkConf')}}</span>
-                        <span  v-if="role.roleName==='Admin' || role.roleName==='Developer or OP'">
-                            <div class="info-del">
-                                <img
-                                    src="@/assets/edit_click.png"
-                                    v-if="rollSiteEditSubmitted === 1"
-                                    @click="toEdit('rollsite')"
-                                    class="edit"
-                                    :class="{'disable':(editSubmitted === 2 || clusterEditSubmitted === 2)}"
-                                    alt="" />
-                                <el-button v-if="rollSiteEditSubmitted === 2" @click="submit('rollsite')" :disabled="tosubmit" type="primary">{{$t('m.common.submit')}}</el-button>
-                                <el-button v-if="rollSiteEditSubmitted === 2" @click="cancel('rollsite')" type="info">{{$t('m.common.cancel')}}</el-button>
-                            </div>
-                        </span>
-                    </div> -->
                     <el-row :gutter="140">
                         <el-col :span="12">
                             <el-form-item :label="$t('m.sitemanage.rollsiteEntrances')+'：'" style="height:100%;" prop="fmRollSiteNetworkAccess" >
@@ -197,11 +157,11 @@
                                 </el-input>
                             </el-form-item>
                             <el-form-item class="inline" :label="$t('m.siteAdd.isSecure')" prop="secureStatus" >
-                                <span class="info-text" v-if="editSubmitted!==2">{{form.secureStatus | getBollen}}</span>
+                                <span class="info-text" v-if="editSubmitted!==2">{{$t(`m.common.${form.secureStatus}`)}}</span>
                                 <el-switch v-else v-model="form.secureStatus"></el-switch>
                             </el-form-item>
                             <el-form-item class="inline" :label="$t('m.siteAdd.isPolling')" prop="pollingStatus" >
-                                <span class="info-text" v-if="editSubmitted!==2">{{form.pollingStatus | getBollen}}</span>
+                                <span class="info-text" v-if="editSubmitted!==2">{{$t(`m.common.${form.pollingStatus}`)}}</span>
                                 <el-switch v-else v-model="form.pollingStatus"></el-switch>
                             </el-form-item>
                         </el-col>
@@ -285,20 +245,11 @@
     </div>
     <!-- 审批完成弹框 -->
     <el-dialog :visible.sync="noticedialog" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="true" class="site-finish-dialog" width="400px">
-      <div class="line-text-one">{{$t(`m.sitemanage.changedConfigurationStatus${noticedesc}`)}}</div>
+      <div class="line-text-one" v-if="noticedesc">{{$t(`m.sitemanage.changedConfigurationStatus${noticedesc}`)}}</div>
       <div class="dialog-footer">
         <el-button class="ok-btn" type="primary" @click="notice">{{$t('m.common.OK')}}</el-button>
       </div>
     </el-dialog>
-    <!-- 确定更改version版本弹框 -->
-    <!-- <el-dialog :visible.sync="versiondialog" :close-on-click-modal="false" :close-on-press-escape="false" class="site-delete-dialog" width="774px">
-        <div class="line-one">{{$t('m.sitemanage.sureChangeVersion')}}</div>
-        <div class="line-text-two">{{$t('m.sitemanage.resultsSynchronized')}}</div>
-        <div class="dialog-footer">
-            <el-button class="ok-btn" type="primary" @click="sureVersion">{{$t('m.common.sure')}}</el-button>
-            <el-button class="ok-btn" type="info" @click="versiondialog=false">{{$t('m.common.cancel')}}</el-button>
-        </div>
-    </el-dialog> -->
     <!-- 确定更改ip弹框 -->
     <el-dialog
         :visible.sync="changedialog"
@@ -364,13 +315,13 @@
             <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
-                <span>{{secureStatusOld | getBollen}}</span>
+                <span>{{$t(`m.common.${secureStatusOld}`)}}</span>
                 </div>
             </div>
             <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
-                <span>{{secureStatus | getBollen}}</span>
+                <span>{{$t(`m.common.${secureStatus}`)}}</span>
                 </div>
             </div>
             </div>
@@ -382,13 +333,13 @@
             <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.from')}}</div>
                 <div class="text">
-                <span>{{pollingStatusOld | getBollen}}</span>
+                <span>{{$t(`m.common.${pollingStatusOld}`)}}</span>
                 </div>
             </div>
             <div class="rigth-box">
                 <div class="from">{{$t('m.sitemanage.to')}}</div>
                 <div class="text">
-                <span>{{pollingStatus | getBollen}}</span>
+                <span>{{$t(`m.common.${pollingStatus}`)}}</span>
                 </div>
             </div>
             </div>
@@ -535,20 +486,6 @@
         <el-button class="ok-btn" type="primary" @click="updateNew()">{{$t('m.common.OK')}}</el-button>
 
     </el-dialog>
-    <!-- 审核结构弹窗 -->
-    <!-- <el-dialog class="connection-dialog" :visible.sync="showApplyResult" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" width="400px">
-        <div class="success-section" v-if="resultType === 1">
-            <div class="dialog-title">{{$t('m.sitemanage.connectingStatus',{type:$t('m.common.success')})}}</div>
-            <div class="dialog-text">{{$t('m.sitemanage.hasBeenUpdated',{type:$t('m.sitemanage.systemVersion')})}}</div>
-            <el-button class="ok-btn" type="primary" @click="flowOk">{{$t('m.common.OK')}}</el-button>
-        </div>
-
-        <div class="failed-section" v-if="resultType === 2">
-            <div class="dialog-title">{{$t('m.sitemanage.connectingStatus',{type:$t('m.common.failed')})}}</div>
-            <div class="dialog-text">{{$t('m.sitemanage.pleaseRetryFlow')}}</div>
-            <el-button class="ok-btn" type="primary" @click="flowOk">{{$t('m.common.OK')}}</el-button>
-        </div>
-    </el-dialog> -->
     <sitedetailip ref="sitedetailip" @updateIp="updateIp" />
   </div>
 </template>
@@ -656,7 +593,6 @@ export default {
                         required: true,
                         trigger: 'change',
                         validator: (rule, value, callback) => {
-                            console.log(arguments, 'arg')
                             if (!value) {
                                 this.networkAccessEntranceswarnshow = true
                                 callback(
@@ -680,7 +616,7 @@ export default {
                                 this.fmRollSiteNetworkAccessExitsListwarnshow = true
                                 callback(
                                     new Error(
-                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.networkExits') })
+                                        this.$t('m.common.requiredfieldWithType', { type: this.$t('m.sitemanage.rollsiteExits') })
                                     )
                                 )
                             } else {
@@ -747,16 +683,13 @@ export default {
         },
         'form.secureStatus': {
             handler: function(val) {
-                this.tosubmit = (this.getStatus(val) === this.secureStatusOld && this.getStatus(this.form.pollingStatus) === this.pollingStatusOld)
+                this.tosubmit = this.verifiAllchange()
             },
             immediate: true
         },
         'form.pollingStatus': {
             handler: function(val) {
-                // console.log(val, 'val-pollingStatus')
-                // console.log(this.pollingStatusOld, 'pollingStatusOld')
-                // console.log(this.getStatus(val), 'this.getStatus(pollingStatus)')
-                this.tosubmit = (this.getStatus(val) === this.pollingStatusOld && this.getStatus(this.form.secureStatus) === this.pollingStatusOld)
+                this.tosubmit = this.verifiAllchange()
             },
             immediate: true
         }
@@ -771,7 +704,6 @@ export default {
     },
     methods: {
         initInfo(updateMark) {
-            console.log(updateMark, 'updateMark')
             let data = {
                 partyId: parseInt(this.$route.query.partyId),
                 federatedId: parseInt(this.$route.query.federatedId),
@@ -790,16 +722,17 @@ export default {
                         'secureStatus': res.data.ExchangeInfo.secureStatus,
                         'pollingStatus': res.data.ExchangeInfo.pollingStatus
                     })
-                    console.log(this.form, 'form')
+                    this.$set(this.form, 'secureStatus', this.getStatus(this.form.ExchangeInfo.secureStatus))
+                    this.$set(this.form, 'pollingStatus', this.getStatus(this.form.ExchangeInfo.pollingStatus))
                     // 缓存数据，取消编辑还原
                     let exchangeInfo = this.form.ExchangeInfo
                     this.networkAccessEntrancesOld = exchangeInfo.networkAccessEntrances || '' // 旧ip入口
                     // this.networkAccessExitsOld = exchangeInfo.networkAccessExits || '' // 旧ip出口
                     this.fmRollSiteNetworkAccessExitsListOld = exchangeInfo.fmRollSiteNetworkAccessExitsList || '' // 旧ip出口
                     this.fmRollSiteNetworkAccessOld = exchangeInfo.fmRollSiteNetworkAccess || '' // 缓存rollsite
-                    this.secureStatusOld = exchangeInfo.secureStatus
+                    this.secureStatusOld = this.form.secureStatus
                     this.secureStatus = this.secureStatusOld
-                    this.pollingStatusOld = exchangeInfo.pollingStatus
+                    this.pollingStatusOld = this.form.pollingStatus
                     this.pollingStatus = this.pollingStatusOld
                     this.fateFlowIpOld = this.form.fateFlowIp || ''
                     if (res.data.editStatus.code === 1 || res.data.editStatus.code === -1) {
@@ -832,17 +765,16 @@ export default {
                 this.form.networkAccessEntrances = ExchangeInfo.networkAccessEntrancesNew
             }
             if (ExchangeInfo.secureStatusNew) {
-                this.$set(this.form.ExchangeInfo, 'secureStatus', ExchangeInfo.secureStatusNew)
-                this.form.secureStatus = ExchangeInfo.secureStatusNew
+                this.$set(this.form.ExchangeInfo, 'secureStatus', this.getStatus(ExchangeInfo.secureStatusNew))
+                this.form.secureStatus = this.getStatus(ExchangeInfo.secureStatusNew)
             }
             if (ExchangeInfo.pollingStatusNew) {
-                this.$set(this.form.ExchangeInfo, 'secureStatus', ExchangeInfo.pollingStatusNew)
-                this.form.pollingStatus = ExchangeInfo.pollingStatusNew
+                this.$set(this.form.ExchangeInfo, 'secureStatus', this.getStatus(ExchangeInfo.pollingStatusNew))
+                this.form.pollingStatus = this.getStatus(ExchangeInfo.pollingStatusNew)
             }
             if (ExchangeInfo.vipEntrancesNew && ExchangeInfo.vipEntrancesNew.length > 0) {
                 this.$set(this.form.ExchangeInfo, 'vipEntrances', ExchangeInfo.vipEntrancesNew)
             }
-            console.log(this.form, 'form')
             this.$nextTick(() => {
                 this.initInfo(1)
                 this.showChanges = false
@@ -851,7 +783,6 @@ export default {
         setExchange() {
             let exchangeInfo = this.form.ExchangeInfo
             this.changes.ExchangeInfo = exchangeInfo
-            console.log(exchangeInfo, 'exchangeInfo')
             if (exchangeInfo.exchangeNameNew && exchangeInfo.exchangeNameNew !== exchangeInfo.exchangeName) {
                 this.changes.exchangeList.hasChange = true
                 this.changes.exchangeList.new = exchangeInfo.exchangeNameNew
@@ -881,10 +812,10 @@ export default {
                 'rollsite': 'rollSiteEditSubmitted',
                 'cluster': 'clusterEditSubmitted'
             }
-            if (type === 'site') {
-                this.form.secureStatus = this.getStatus(this.form.secureStatus)
-                this.form.pollingStatus = this.getStatus(this.form.pollingStatus)
-            }
+            // if (type === 'site') {
+            //     this.form.secureStatus = this.getStatus(this.form.secureStatus)
+            //     this.form.pollingStatus = this.getStatus(this.form.pollingStatus)
+            // }
             this.tosubmit = true
             this[edit[type]] = 2
         },
@@ -938,15 +869,17 @@ export default {
                     paramName.every(item => {
                         self.$refs['form'].validateField(`${item}`, valid => {})
                     })
-                    if (typeof self.form.secureStatus !== 'number') {
-                        self.secureStatus = self.getStatus(self.form.secureStatus)
-                    }
-                    if (typeof self.form.pollingStatus !== 'number') {
-                        self.pollingStatus = self.getStatus(self.form.pollingStatus)
-                    }
+                    // if (typeof self.form.secureStatus !== 'number') {
+                    //     self.secureStatus = self.getStatus(self.form.secureStatus)
+                    // }
+                    // if (typeof self.form.pollingStatus !== 'number') {
+                    //     self.pollingStatus = self.getStatus(self.form.pollingStatus)
+                    // }
                     if (self.form.fmRollSiteNetworkAccess !== self.fmRollSiteNetworkAccessOld) {
                         self.testrollsite() // rollsite存在修改则先验证rollsite
                     } else {
+                        self.secureStatus = self.form.secureStatus
+                        self.pollingStatus = self.form.pollingStatus
                         self.changedialog = true // 待审核内容修改确认弹窗
                     }
                 }
@@ -957,9 +890,9 @@ export default {
             let data = { ...this.form }
             data.role = this.form.role.code
             data.networkAccessExits = data.fmRollSiteNetworkAccessExitsList
-            data.secureStatus = this.secureStatus
-            data.pollingStatus = this.pollingStatus
-            console.log(data, 'data')
+            data.secureStatus = this.getStatus(this.secureStatus)
+            data.pollingStatus = this.getStatus(this.pollingStatus)
+            // console.log(data, 'data')
             update(data).then(res => {
                 this.changedialog = false
                 this.initInfo()
@@ -971,7 +904,7 @@ export default {
             param.UpdateRollSiteInfo = 1
             param.secureStatus = this.getStatus(param.secureStatus)
             param.pollingStatus = this.getStatus(param.pollingStatus)
-            console.log(param, 'param')
+            // console.log(param, 'param')
             try {
                 update(param).then(res => {
                     this.$nextTick(() => {
@@ -995,7 +928,6 @@ export default {
             }
             try {
                 update(param).then(res => {
-                    console.log(res, 'updateFateflow')
                     if (res && res.code === 0 && res.msg === 'success') {
                         this.flowConnectionStatus = 2
                         this.flowCanClose = true
@@ -1021,7 +953,7 @@ export default {
                 'rollsite': 'fmRollSiteNetworkAccess'
             }
             let parameterName = editType[type]
-            console.log(this.form, 'form')
+            // console.log(this.form, 'form')
             if (this.form[parameterName]) {
                 let tempArr = []
                 this.form[parameterName].split(';').forEach(item => {
@@ -1041,7 +973,11 @@ export default {
         // 提交按钮是否可点击
         shouldtosubmit(paramName) {
             const self = this
-            self.tosubmit = verifiNochange(paramName)
+            if (paramName !== 'fateFlowIp') {
+                self.tosubmit = self.verifiAllchange()
+            } else {
+                self.tosubmit = verifiNochange(paramName)
+            }
             function verifiNochange(paramName) {
                 if (paramName.map) {
                     return paramName.every(item => {
@@ -1051,6 +987,13 @@ export default {
                     return self[`${paramName}Old`] === self.form[`${paramName}`]
                 }
             }
+        },
+        verifiAllchange() {
+            return (this.form.secureStatus === this.secureStatusOld &&
+                   this.form.pollingStatus === this.pollingStatusOld &&
+                   this.form.networkAccessEntrances === this.networkAccessEntrancesOld &&
+                   this.form.fmRollSiteNetworkAccessExitsList === this.fmRollSiteNetworkAccessExitsListOld &&
+                   this.form.fmRollSiteNetworkAccess === this.fmRollSiteNetworkAccessOld)
         },
         // 取消表单验证
         cancelValid(validtype) {
@@ -1092,7 +1035,7 @@ export default {
             }
         },
         updateIp(data) {
-            console.log(data, 'data')
+            // console.log(data, 'data')
             this.$set(this.form, `${data.name}`, data.data)
         },
         testrollsite() {
@@ -1106,7 +1049,6 @@ export default {
             this.rollsiteCanClose = false
             try {
                 testrollsite(param).then(res => {
-                    console.log(res, 'updateRollsite')
                     this.failedList = []
                     if (res && res.data && res.data.failed.length > 0) {
                         this.rollsiteConnectionStatus = 3
@@ -1156,9 +1098,6 @@ export default {
             })
         },
         getStatus(stauts) {
-            console.log(stauts, 'stauts')
-            console.log(typeof stauts, 'typeof stauts')
-            // return status === 1 ? this.$t('m.common.true') : this.$t('m.common.false')
             if (typeof stauts === 'number') {
                 return stauts === 1
             } else {

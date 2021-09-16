@@ -129,7 +129,7 @@
                                                                             {{item}}
                                                                         </div>
                                                                     </div>
-                                                                    <div style="margin-left: 30px;" class="to-tiltle" >{{$t('m.ip.to')}}</div>
+                                                                    <div style="margin-left: 15px;" class="to-tiltle" >{{$t('m.ip.to')}}</div>
                                                                     <div class="to-text">
                                                                         <div v-for="(item,i) in item.new" :key="i">
                                                                             {{item}}
@@ -409,7 +409,7 @@ export default {
                                 k = historyData
                             })
 
-                            console.log(item.historylist, 'historyDataList')
+                            // console.log(item.historylist, 'historyDataList')
                         })
                     }
                     return item
@@ -433,7 +433,7 @@ export default {
             this.initList()
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`)
+            // console.log(`每页 ${val} 条`)
         },
         handleCurrentChange(val) {
             this.data.pageNum = val
@@ -441,7 +441,6 @@ export default {
         },
         upDate(row, type) {
             this.dialogVisible = true
-            console.log(row, 'row')
             this.dialogData = {
                 caseId: row.caseId,
                 partyId: row.partyId,
@@ -505,16 +504,13 @@ export default {
             })
         },
         editData(row) {
-            console.log(row, 'row')
             this.$refs['ipedit'].editdialog = true
             this.$nextTick(() => {
                 this.rowData = JSON.parse(JSON.stringify(row))
             })
         },
         updateRowData(data) {
-            console.log(data, 'updateRowData')
             ipListEdit(data).then(res => {
-                console.log(res, 'res-updateRowData')
                 if (res && res.code === 0 && res.msg === 'Success!') {
                     this.$refs['ipedit'].editdialog = false
                     this.initList()
@@ -547,28 +543,32 @@ export default {
     padding: 0;
     background: #fff !important;
     .content{
-        padding: 36px 0;
+        padding: 20px 0 24px;
         // height:500px;
         .tiltle{
-            margin:0 36px;
-            font-size: 18px;
-            color: #217AD9;
+            margin:0 24px;
+            font-size: 16px;
+            color: #4E5766;
+            font-family: OPPOSans;
             font-weight: bold;
-            margin-bottom: 12px;
             .tiltle-time{
                 width: 26%;
                 display:inline-block;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #E6EBF0;
             }
             .tiltle-history{
                 width: 73%;
                 display:inline-block;
+                padding-bottom: 12px;
+                border-bottom: 1px solid #E6EBF0;
             }
         }
         .content-loop{
             max-height: 452px;
             overflow: auto;
             .loop{
-                margin:0 36px;
+                margin:0 24px;
                 .time{
                     width: 26%;
                     display:inline-block;
@@ -582,7 +582,7 @@ export default {
                     width: 73%;
                     display:inline-block;
                     .line{
-                        color: #2D3642;
+                        color: #4E5766;
                         font-size: 14px;
                         margin: 12px 0;
                     }
@@ -598,13 +598,15 @@ export default {
                             margin-right: 10px;
                         }
                         .from-tiltle{
-                            width: 25px;
+                            width: 35px;
                         }
                         .from-text,.to-text{
-                            color: #217AD9;
+                            color: #4E5766;
                             display:inline-block;
                             // width: 30%;
                             vertical-align: top;
+                            min-width: 135px;
+                            line-height: 1.5;
                         }
                     }
                 }

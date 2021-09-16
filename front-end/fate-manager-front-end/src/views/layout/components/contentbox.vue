@@ -27,8 +27,8 @@ export default {
     watch: {
         $route: {
             handler() {
-                let name = this.$route.name
-                console.log(name, 'router-name-1')
+                // let name = this.$route.name
+                // console.log(name, 'router-name-1')
                 this.toPath()
             },
             immediate: true

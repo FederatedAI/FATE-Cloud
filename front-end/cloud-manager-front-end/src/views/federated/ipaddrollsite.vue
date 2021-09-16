@@ -22,7 +22,7 @@
                     <el-form-item label="" prop="networkAccessExit" >
                         <span slot="label">
                             <i v-if="rollsiteType==='add'" style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.site.networkExits')}}</span>
+                            <span>{{$t('m.site.rollsiteExits')}}</span>
                         </span>
                         <span v-if="rollsiteType==='edit'">{{exchangeData.networkAccessExit}}</span>
                         <el-input  v-else
@@ -50,9 +50,9 @@
                                 </template>
                                 <el-table-column type="index"  :label="$t('m.common.index')" width="70">
                                 </el-table-column>
-                                <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  show-overflow-tooltip>
+                                <el-table-column prop="partyId" sortable :sort-method="sortByPartyId" :label="$t('m.common.partyID')"  show-overflow-tooltip>
                                 </el-table-column>
-                                <el-table-column prop="networkAccess"  :label="$t('m.ip.routerNetworkAccess')" width="180" show-overflow-tooltip>
+                                <el-table-column prop="networkAccess"  :label="$t('m.ip.networkEntrances')" width="180" show-overflow-tooltip>
                                 </el-table-column>
                                 <el-table-column prop="secureStatus" :label="$t('m.ip.isSecure')"  show-overflow-tooltip>
                                     <template slot-scope="scope">
@@ -64,7 +64,7 @@
                                         <span>{{scope.row.pollingStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="updateTime" sortable :label="$t('m.common.updateTime')" width="130" show-overflow-tooltip>
+                                <el-table-column prop="updateTime" sortable :sort-method="sortByDate" :label="$t('m.common.updateTime')" width="150" show-overflow-tooltip>
                                     <template slot-scope="scope">
                                         <span>{{scope.row.updateTime | dateFormat}}</span>
                                     </template>
@@ -113,7 +113,7 @@
             </div>
         </el-dialog>
         <!-- 添加site NetWork -->
-        <el-dialog :visible.sync="addSiteNet" :title="$t('m.ip.routerNetworkAccess')" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
+        <el-dialog :visible.sync="addSiteNet" :title="$t('m.ip.networkEntrances')" class="add-site-dialog" width="500px" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
             <div class="site-net-table">
                 <el-form ref="siteNetform" class="edit-form" :rules="siteEditRules"  label-width="200px" label-position="top" :model="tempSiteNet">
                     <el-form-item class="inline" :class="{'inline':tempSiteNet.partyId === 'default'}" label="" prop="partyId">
@@ -133,7 +133,7 @@
                     <el-form-item label="" style="height:100%;" prop="networkAccess" >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>{{$t('m.ip.routerNetworkAccess')}}：</span>
+                            <span>{{$t('m.ip.networkEntrances')}}：</span>
                         </span>
                         <el-input
                             @focus="addShow('router')"
@@ -147,7 +147,7 @@
                      <el-form-item class="inline" :label="$t('m.ip.isSecure')" prop="isSecure" >
                          <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>isSecure:</span>
+                            <span>{{$t('m.ip.isSecure')}}:</span>
                          </span>
                         <el-switch v-model="isSecure">
                         </el-switch>
@@ -155,7 +155,7 @@
                     <el-form-item class="inline" :label="$t('m.ip.isPolling')" prop="isPolling" >
                         <span slot="label">
                             <i style="margin-right: 3px;" class="el-icon-star-on"></i>
-                            <span>isPolling:</span>
+                            <span>{{$t('m.ip.isPolling')}}:</span>
                         </span>
                         <span v-if="tempSiteNet.partyId==='exchange'">
                             <el-switch disabled v-model="isPolling">
@@ -298,7 +298,7 @@ export default {
                             value = value || ''
                             let val = value.trim()
                             if (!val) {
-                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.site.networkExits') })))
+                                callback(new Error(this.$t('m.common.requiredfieldWithType', { type: this.$t('m.site.rollsiteExits') })))
                             } else if (!checkip(val)) {
                                 callback(new Error(this.$t('m.common.invalidInput')))
                             } else {
@@ -320,6 +320,16 @@ export default {
 
     },
     methods: {
+        sortByDate(obj1, obj2) {
+            let val1 = new Date(obj1.updateTime).getTime()
+            let val2 = new Date(obj2.updateTime).getTime()
+            return val1 - val2
+        },
+        sortByPartyId(obj1, obj2) {
+            let val1 = obj1.partyId * 1
+            let val2 = obj2.partyId * 1
+            return val1 - val2
+        },
         addShow(type) {
             this.$refs['ipeditadd'].networkacesstype = type
             this.$refs['ipeditadd'].adddialog = true
@@ -345,7 +355,6 @@ export default {
             }
         },
         updateIp(data) {
-            console.log(data, 'data')
             this.$set(this.tempSiteNet, `${data.name}`, data.data)
         },
         // 确认添加rollsite
@@ -420,13 +429,9 @@ export default {
             this.tempSiteNet.secureStatus = this.isSecure === true ? 1 : 2
             this.tempSiteNet.pollingStatus = this.isPolling === true ? 1 : 2
             let tempArr = this.tempExchangeDataList[this.siteNetIndex] // 获取点击编辑行临时数据
-
-            console.log('tempExchangeDataList==>>', this.tempExchangeDataList)
             this.$refs['siteNetform'].validate((valid) => {
                 if (valid) {
                     if (this.siteNetType === 'edit') {
-                        console.log(tempArr, 'tempArr')
-                        console.log(this.tempSiteNet, 'this.tempSiteNet')
                         if (tempArr.networkAccess !== this.tempSiteNet.networkAccess ||
                         tempArr.secureStatus !== this.tempSiteNet.secureStatus ||
                         tempArr.pollingStatus !== this.tempSiteNet.pollingStatus) {
@@ -471,7 +476,6 @@ export default {
             this.siteNetType = 'edit'
             this.addSiteNet = true
             this.tempSiteNet = { ...scope.row } // 点击编辑行临时数据
-            console.log(this.tempSiteNet, 'tempSiteNet')
             this.isSecure = this.tempSiteNet.secureStatus === 1
             this.isPolling = this.tempSiteNet.pollingStatus === 1
             this.siteNetIndex = scope.$index //
