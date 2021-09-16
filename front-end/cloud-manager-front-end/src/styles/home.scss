@@ -247,7 +247,7 @@
                         input {
                             color: #2D3642;
                             font-weight: 400;
-                            font-size: 1.5em
+                            font-size: 16px;
                         }
 
                     }
@@ -279,40 +279,31 @@
                 max-height: calc(100% - 30px);
                 max-width: calc(100% - 30px);
                 text-align: center;
-
-                .el-dialog__header {
-                    display: none
-                }
-
                 .el-dialog__body {
                     flex: 1;
                     overflow: auto;
-                    padding: 65px 20px;
+                    padding: 24px;
                     .line-text-one {
-                        margin-bottom: 24px;
-                        font-size: 24px;
+                        margin-bottom: 12px;
+                        font-size: 18px;
                         color: #2D3642
                     }
 
                     .line-text-two {
-                        margin-top: 64px;
-                        margin-bottom: 15px;
-                        font-size: 18px;
-                        color: #848C99
+                        margin-top: 36px;
+                        font-size: 14px;
+                        color: #848C99;
+                        padding: 0 10px;
+                        margin-bottom: 12px;
                     }
-                    .line-text-three {
-                        margin-bottom: 64px;
-                        font-size: 18px;
-                        color: #848C99
+                    .line-text-three{
+                        font-size: 14px;
+                        color: #848C99;
+                        padding: 0 10px;
+                        margin-bottom: 36px;
                     }
-
                 }
                 .dialog-footer{
-                    button{
-                        // width: 10.4vw;
-                        width: 200px;
-                        font-size: 18px;
-                    }
                     .sure-btn{
                         margin-left: 24px
                     }

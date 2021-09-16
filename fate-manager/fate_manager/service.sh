@@ -1,11 +1,17 @@
 #!/bin/bash
 
+workdir=$(cd $(dirname $0); pwd)
+. ${workdir}/conf/setup.conf
+venv=${pyenv}
+
 PROJECT_BASE=$(cd "$(dirname "$0")";cd ../;pwd)
 export PYTHONPATH=$PROJECT_BASE
 
-venv=$PROJECT_BASE/common/python/venv
+
 log_dir=$PROJECT_BASE/logs
 module=fate_manager_server.py
+
+
 
 getpid() {
     sleep 2

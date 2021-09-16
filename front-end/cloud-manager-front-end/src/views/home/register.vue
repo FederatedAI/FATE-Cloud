@@ -25,7 +25,7 @@
         ></el-input>
       </div>
       <el-button class="OK-btn" :type="type" :disabled="disabledbtn" @click="dialogVisible=true">{{$t('m.common.OK')}}</el-button>
-      <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" width="775px">
+      <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="true" width="600px">
         <div class="line-text-one">{{$t('You are creating your federated organization:')}}</div>
         <div class="line-text-one">{{$t('your name is :')}}
             <span style="color:#217AD9">  {{inputName}} </span>
@@ -37,8 +37,8 @@
         <div class="line-text-two">{{$t('The organization information will be synchronized to your federated sites.')}}</div>
         <div class="line-text-three">{{$t('Are you sure to creat it ?')}}</div>
         <div class="dialog-footer">
-          <el-button class="sure-btn" type="primary" @click="sureAction">{{$t('m.common.sure')}}</el-button>
-          <el-button class="cancel-btn" type="info" @click="dialogVisible = false">{{$t('m.common.cancel')}}</el-button>
+          <el-button class="ok-btn" type="primary" @click="sureAction">{{$t('m.common.sure')}}</el-button>
+          <el-button class="ok-btn" type="info" @click="dialogVisible = false">{{$t('m.common.cancel')}}</el-button>
         </div>
       </el-dialog>
     </div>

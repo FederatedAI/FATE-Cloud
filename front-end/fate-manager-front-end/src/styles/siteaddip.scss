@@ -1,6 +1,6 @@
 .add-dialog {
     .el-dialog {
-        height: 544px;
+        // height: 544px;
         display: flex;
         flex-direction: column;
         margin: 0 !important;
@@ -16,26 +16,30 @@
         }
 
         .add-dialog-head {
+            margin-top: 10px;
             margin-bottom: 25px;
-            font-size: 18px;
+            font-size: 16px;
             .deleteAll,
             .addUrl {
                 padding: 0;
-                font-size: 18px;
+                font-size: 16px;
             }
             .deleteAll{
                 margin-left: 60px !important;
             }
 
             .total {
-                margin-left: 225px;
+                float: right;
+                height: 24px;
+                line-height: 24px;
+                font-size: 16px;
             }
         }
 
         .add-dialog-body {
             height: 375px;
             overflow: auto;
-            width: 490px;
+            width: 100%;
             position: relative;
             color: #2D3642;
             .line-box{
@@ -47,7 +51,7 @@
                     height: 34px;
                     line-height: 34px;
                     position: relative;
-                    width: 480px;
+                    width: 100%;
                     .network-text {
                         // display: inline-block;
                         white-space: nowrap; //文本强制不换行；
@@ -85,8 +89,7 @@
                     }
     
                     .input-show {
-                        width: 480px;
-    
+                        width: 100%;
                         // background-color: rgb(74, 162, 255, 0.1);
                         //改变placeholder颜色
                         input::-webkit-input-placeholder {
@@ -123,16 +126,30 @@
             .message-add{
                 position: absolute;
                 bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
                 background: #2D3642;
-                width: 490px;
-                height: 35px;
-                line-height: 35px;
+                height: 24px;
+                line-height: 23px;
                 color: #FFFFFF;
-                font-size: 18px;
+                font-size: 14px;
+                border-radius: 24px;
+                padding: 0 8px;
+                color: rgba(255, 255, 255, .9);
+                .success{
+                    width: 280px;
+                }
                 .tips{
+                    display: flex;
+                    align-items: center;
+                    span{
+                        flex-shrink: 0;
+                    }
                     img{
-                        vertical-align: middle;
-                        margin: 0 12px;
+                        flex-shrink: 0;
+                        margin-right: 12px;
+                        height: 14px;
+                        width: 14px;
                     }
                 }
             }
@@ -143,10 +160,6 @@
         }
 
         .add-dialog-footer {
-            .el-button {
-                width: 125px;
-                font-size: 16px
-            }
             margin-top: 24px;
             text-align: center
         }

@@ -98,6 +98,7 @@ module.exports = {
         disableHostCheck: true,
         open: process.platform === 'darwin',
         host: '10.36.17.37',
+        // host: '10.58.32.145',
         port: 8088,
         https: false,
         hotOnly: false,
@@ -114,8 +115,10 @@ module.exports = {
                 // target: 'http://172.16.153.196:8999', // 1.2.1 联调服务
                 // target: 'http://172.16.153.224:8997', // 1.3.0 联调服务
                 target:
-                // 'http://172.16.153.116:7999', // 1.3.0 测试服务
-                'http://172.16.153.224:8998',
+                // 'http://172.16.153.116:7999', // 1.4.0 测试服务
+                // 'http://172.16.153.224:8998',
+                // 'http://172.16.153.224:8999',
+                'http://10.35.2.18:8080', // 1.4.0
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

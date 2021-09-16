@@ -12,8 +12,8 @@
         label-position="left"
         :rules="rules"
         label-width="250px">
+        <div class="basic-info">{{$t('m.siteAdd.Basic Info')}}</div>
         <el-form-item :label="$t('m.common.siteName')"  prop="siteName">
-
           <span v-if="type==='siteinfo'" class="info-text require">{{form.siteName}}</span>
           <el-input
             v-else
@@ -83,36 +83,6 @@
             :placeholder="$t('m.siteAdd.typePartyID')">
             </el-input>
         </el-form-item>
-        <el-form-item :label="$t('m.site.networkEntrances')" prop="networkAccessEntrances">
-          <span v-if="type==='siteinfo'" class="info-text">
-            <div v-for="(item,index) in form.networkAccessEntrances.split(';')" :key='index'>{{item}}</div>
-          </span>
-          <el-input
-            v-else
-            class="plus-text"
-            @focus="addShow('entrances')"
-            @blur="cancelValid('networkAccessEntrances')"
-            v-model="form.networkAccessEntrances"
-            placeholder  >
-            <i slot="suffix" @click="addShow('entrances')" v-if="type==='siteUpdate'" class="el-icon-edit plus" />
-            <i slot="suffix" @click="addShow('entrances')" v-if="type==='siteadd'" class="el-icon-plus plus" />
-          </el-input>
-        </el-form-item>
-        <el-form-item  :label="$t('m.site.networkExits')"  prop="networkAccessExits">
-          <span class="info-text"  v-if="type==='siteinfo'">
-            <div v-for="(item,index) in form.networkAccessExits.split(';')" :key='index'>{{item}}</div>
-          </span>
-          <el-input
-            v-if="type==='siteadd' || type==='siteUpdate'"
-            @focus="addShow('exit')"
-            @blur="cancelValid('networkAccessExits')"
-            class="plus-text"
-            v-model="form.networkAccessExits"
-            placeholder>
-            <i slot="suffix" @click="addShow('exit')" v-if="type==='siteUpdate'" class="el-icon-edit plus" />
-            <i slot="suffix" @click="addShow('exit')" v-if="type==='siteadd'" class="el-icon-plus plus" />
-          </el-input>
-        </el-form-item>
         <el-form-item v-show="false"  prop="exits">
             <el-input v-if="type==='siteUpdate' || type==='siteadd'" v-model="form.exits">
             </el-input>
@@ -139,28 +109,46 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item :label="$t('m.siteAdd.encryption')" prop="encryptType">
-                <span v-if="type==='siteinfo' && form.encryptType" class="info-text">{{form.encryptType===1 ? $t('m.siteAdd.encryptionType') : $t('m.siteAdd.unencrypted')}}</span>
-                <el-radio-group v-else  v-model="form.encryptType">
+                <span v-if="type==='siteinfo' && form.encryptType" class="info-text">{{form.encryptType===1? $t('m.siteAdd.encryptionType') : $t('m.siteAdd.unencrypted')}}</span>
+                <span v-else >
+                    <el-switch :width='35'  v-model="form.encryptType">
+                    </el-switch>
+                </span>
+
+                <!-- <el-radio-group v-else  v-model="form.encryptType">
                     <el-radio :label="1">{{$t('m.siteAdd.encryptionType')}}</el-radio>
                     <el-radio :label="2">{{$t('m.siteAdd.unencrypted')}}</el-radio>
-                </el-radio-group>
+                </el-radio-group> -->
             </el-form-item>
             <el-form-item :label="$t('m.siteAdd.proxyNetworkAccess')"  prop="network">
                 <span v-if="type==='siteinfo'" class="info-text">{{form.network}}</span>
                 <el-input v-else v-model="form.network"></el-input>
                 <span  v-if="type==='siteadd' || type==='siteUpdate'" @click="toResetNetwork" class="add-institutions">{{$t('m.siteAdd.resetDefault')}}</span>
             </el-form-item>
+            <el-form-item v-if="type==='siteinfo'" :label="$t('m.siteAdd.registrationLink')" >
+                <el-popover
+                    placement="top"
+                    width="300"
+                    trigger="hover"
+                    :content="form.registrationLink">
+                    <span slot="reference" class="link-text" style="color:#217AD9">{{form.registrationLink}}</span>
+                </el-popover>
+                <span class="copy formcopy" @click="toCopy('from')" :data-clipboard-text="form.registrationLink">{{$t('m.common.copy')}}</span>
+            </el-form-item>
         </span>
-        <el-form-item v-if="type==='siteinfo'" :label="$t('m.siteAdd.registrationLink')" >
-            <el-popover
-                placement="top"
-                width="300"
-                trigger="hover"
-                :content="form.registrationLink">
-                <span slot="reference" class="link-text" style="color:#217AD9">{{form.registrationLink}}</span>
-            </el-popover>
-            <span class="copy formcopy" @click="toCopy('from')" :data-clipboard-text="form.registrationLink">{{$t('m.common.copy')}}</span>
+        <div class="basic-info">{{$t('m.siteAdd.Exchange Info')}}</div>
+        <el-form-item label="Exchange"  prop="exchangeId">
+            <span v-if="type==='siteinfo'" class="info-text">{{form.exchangeName}}</span>
+            <el-select
+                v-else
+                @focus="cancelValid('exchangeId')"
+                v-model="form.exchangeId"
+                filterable
+                :placeholder="$t('m.siteAdd.exchange')">
+                <el-option v-for="item in exchangeList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            </el-select>
         </el-form-item>
+
       </el-form>
       <div class="Submit">
         <el-button type="primary" v-if="type==='siteadd'" @click="submitAction">{{$t('m.common.submit')}}</el-button>
@@ -168,11 +156,12 @@
         <el-button type="primary" v-if="type==='siteinfo'" @click="modifyAction">{{$t('m.common.modify')}}</el-button>
       </div>
     </div>
-    <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :close-on-press-escape="false" class="ok-dialog">
+    <!-- 添加成功 -->
+    <el-dialog :visible.sync="okdialog" :close-on-click-modal="false" :show-close="true" :close-on-press-escape="false" class="ok-dialog">
       <div class="icon">
         <i class="el-icon-success"></i>
       </div>
-      <div v-if="type==='siteadd'" class="line-text-one" >{{$t('m.siteAdd.addSuccessfully')}}</div>
+      <div v-if="type==='siteadd'" class="line-text-one">{{$t('m.siteAdd.addSuccessfully')}}</div>
       <div v-if="type==='siteUpdate'" class="line-text-one" >{{$t('m.siteAdd.modifySuccessfully')}}</div>
       <div class="line-text-two">{{$t('m.siteAdd.registrationLinkGenerated')}}</div>
       <div class="line-text-three">
@@ -190,12 +179,13 @@
         <el-button class="ok-btn" type="primary" @click="okAction">{{$t('m.common.OK')}}</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="700px">
+    <!-- 是否离开 -->
+    <el-dialog :visible.sync="isleavedialog" class="site-toleave-dialog" width="500px">
       <div class="line-text-one">{{$t('m.siteAdd.sureLeavePage')}}</div>
       <div class="line-text-two">{{$t('m.siteAdd.notSavedTips')}}</div>
       <div class="dialog-footer">
-        <el-button class="sure-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
-        <el-button class="sure-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
+        <el-button class="ok-btn" type="primary" @click="sureLeave">{{$t('m.common.sure')}}</el-button>
+        <el-button class="ok-btn" type="info" @click="cancelLeave">{{$t('m.common.cancel')}}</el-button>
       </div>
     </el-dialog>
     <siteaddip ref="siteaddip"/>
@@ -203,12 +193,20 @@
 </template>
 
 <script>
-import { getPartyRang, siteAdd, getSiteInfo, siteUpdate, checkPartId, checkSiteName, addInstitutionsList, resetNetwork } from '@/api/federated'
+import { getPartyRang,
+    siteAdd,
+    getSiteInfo,
+    siteUpdate,
+    checkPartId,
+    checkSiteName,
+    addInstitutionsList,
+    resetNetwork,
+    getExchangeList } from '@/api/federated'
 import { responseRange, requestRange } from '@/utils/idRangeRule'
 
 import Clipboard from 'clipboard'
 import siteaddip from './siteaddip'
-// import checkip from '@/utils/checkip'
+import { checkip } from '@/utils/checkip'
 
 export default {
     name: 'siteadd',
@@ -232,6 +230,7 @@ export default {
             downshow: false,
             siteNameExists: false,
             institutionsdownList: [],
+            exchangeList: [],
             form: {
                 groupId: '', // 每项role下拉，都有相应的groupId项。
                 siteName: '',
@@ -239,16 +238,15 @@ export default {
                 role: '',
                 partyId: '',
                 network: '',
-                networkAccessEntrances: '',
-                networkAccessExits: '',
                 secretInfo: {
                     key: '',
                     secret: ''
                 },
                 exits: '',
                 protocol: 'https://',
-                encryptType: 1,
-                registrationLink: ''
+                encryptType: true,
+                registrationLink: '',
+                mode: 'short' // 1.4.0 版本修改
             },
             roleOp: [
                 {
@@ -315,22 +313,21 @@ export default {
                         }
                     }
                 ],
-                networkAccessEntrances: [{ required: true, message: this.$t('m.siteAdd.networkAcessEntrancesRequired'), trigger: 'bulr' }],
-                networkAccessExits: [{ required: true, message: this.$t('m.siteAdd.networkAcessExitRequired'), trigger: 'bulr' }],
                 network: [{
                     required: true,
                     trigger: 'change',
                     validator: (rule, value, callback) => {
+                        console.log(value, 'value')
                         if (!value) {
                             callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessRequired')))
+                        } else if (!checkip(value)) {
+                            callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessInvalid')))
                         } else {
                             callback()
                         }
-                        // else if (!checkip(value)) {
-                        //     callback(new Error(this.$t('m.siteAdd.proxyNetworkAccessInvalid')))
-                        // }
                     }
-                }]
+                }],
+                exchangeId: [{ required: true, message: this.$t('m.siteAdd.ExchangRequired'), trigger: 'bulr' }]
             }
         }
     },
@@ -355,6 +352,7 @@ export default {
             })
         })
         this.toResetNetwork()
+        this.getExchangeList()
     },
     beforeDestroy() {},
     mounted() {
@@ -371,6 +369,16 @@ export default {
         })
     },
     methods: {
+        getExchangeList() {
+            getExchangeList().then(res => {
+                res.data.forEach(item => {
+                    let obj = {}
+                    obj.value = item.exchangeId
+                    obj.label = item.exchangeName
+                    this.exchangeList.push(obj)
+                })
+            })
+        },
         // 检查SiteName是否重名
         toCheckSiteName() {
             // SiteName不为空的是校验
@@ -420,37 +428,33 @@ export default {
         submitAction() {
             // 去除前后空格
             this.form.siteName = this.form.siteName.trim()
-            // console.log('this.form==', this.form)
+            if (typeof this.form.encryptType !== 'number') {
+                this.$set(this.form, 'encryptType', this.getStatus(this.form.encryptType))
+            }
             if (this.type === 'siteadd') {
-                this.$refs['infoform'].validate((valid) => {
+                this.$refs['infoform'].validate(async (valid) => {
                     if (valid) {
                         let data = { ...this.form }
-                        siteAdd(data).then(res => {
-                            if (res.code === 0) {
-                                this.isleave = true
-                                this.id = res.data// 获取id赋值
-                                this.okdialog = true
-                                setTimeout(() => {
-                                    this.getKeySansLink()
-                                }, 300)
-                            }
-                        })
+                        let res = await siteAdd(data)
+                        if (res.code === 0) {
+                            this.isleave = true
+                            this.id = res.data// 获取id赋值
+                            this.okdialog = true
+                            this.getKeySansLink()
+                        }
                     }
                 })
             } else if (this.type === 'siteUpdate') {
-                this.$refs['infoform'].validate((valid) => {
+                this.$refs['infoform'].validate(async (valid) => {
                     if (valid) {
                         let data = { ...this.form }
-                        siteUpdate(data).then(res => {
-                            if (res.code === 0) {
-                                this.isleave = true
-                                this.id = this.$route.query.id
-                                this.okdialog = true
-                                setTimeout(() => {
-                                    this.getKeySansLink()
-                                }, 300)
-                            }
-                        })
+                        let res = await siteUpdate(data)
+                        if (res.code === 0) {
+                            this.isleave = true
+                            this.id = this.$route.query.id
+                            this.okdialog = true
+                            this.getKeySansLink()
+                        }
                     }
                 })
             }
@@ -479,49 +483,10 @@ export default {
         },
         // 取消离开
         cancelLeave() {
-            // this.$router.go(0)
             this.$store.dispatch('SetMune', 'Site Manage')
-            console.log(this.$store, 'this.$store')
             this.isleavedialog = false
         },
-        // 添加/编辑出入口
-        addShow(type) {
-            this.$refs['siteaddip'].networkacesstype = type
-            this.$refs['siteaddip'].adddialog = true
-            if (type === 'entrances') {
-                if (this.form.networkAccessEntrances) {
-                    let tempArr = []
-                    this.form.networkAccessEntrances.split(';').forEach(item => {
-                        if (item) {
-                            let obj = {}
-                            obj.ip = item
-                            obj.show = false
-                            obj.checked = false
-                            tempArr.push(obj)
-                        }
-                    })
-                    this.$refs['siteaddip'].entrancesSelect = [...new Set(tempArr)]
-                } else {
-                    this.$refs['siteaddip'].entrancesSelect = []
-                }
-            } else if (type === 'exit') {
-                if (this.form.networkAccessExits) {
-                    let tempArr = []
-                    this.form.networkAccessExits.split(';').forEach(item => {
-                        if (item) {
-                            let obj = {}
-                            obj.ip = item
-                            obj.show = false
-                            obj.checked = false
-                            tempArr.push(obj)
-                        }
-                    })
-                    this.$refs['siteaddip'].entrancesSelect = [...new Set(tempArr)]
-                } else {
-                    this.$refs['siteaddip'].entrancesSelect = []
-                }
-            }
-        },
+
         // 跳转Party ID路由
         toPartyid() {
             this.$router.push({
@@ -530,7 +495,7 @@ export default {
         },
 
         // 下拉显示groupname
-        getPartyid(role) {
+        async getPartyid(role) {
             let data = {
                 pageNum: 1,
                 pageSize: 100,
@@ -542,16 +507,14 @@ export default {
                 this.form.partyId = ''// 清空原选中的partyId
             }
 
-            getPartyRang(data).then(res => {
-                res.data.list.forEach(item => {
-                    let obj = {}
-                    obj.value = item.groupName
-                    obj.label = item.groupName
-                    // obj.rangeInfo = responseRange(item.rangeInfo)
-                    obj.rangeInfo = responseRange(item.federatedGroupDetailDos)
-                    obj.groupId = item.groupId
-                    this.partyidname.push(obj)
-                })
+            let res = await getPartyRang(data)
+            res.data.list.forEach(item => {
+                let obj = {}
+                obj.value = item.groupName
+                obj.label = item.groupName
+                obj.rangeInfo = responseRange(item.federatedGroupDetailDos)
+                obj.groupId = item.groupId
+                this.partyidname.push(obj)
             })
         },
         // 获取groupName范围赋值
@@ -564,42 +527,39 @@ export default {
             })
         },
         // 获取最新信息
-        getKeySansLink() {
+        async getKeySansLink() {
             let data = {
                 id: this.id ? parseInt(this.id) : parseInt(this.$route.query.id)
             }
-            getSiteInfo(data).then(res => {
-                // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
-                let link = res.data.registrationLink
-                if (link.indexOf('?st') < 0) {
-                    console.log('加密链接')
-                    link = JSON.stringify(link).replace(new RegExp('"', 'g'), '')
-                } else {
-                    console.log('未加密链接')
-                    link = JSON.stringify(link).replace(new RegExp('\\\\', 'g'), '')
-                    console.log(link, 'link')
+            let res = await getSiteInfo(data)
+            // 内部包含\n，此处一定得做处理，不然前端把\n解析成空格或者换行
+            let link = res.data.registrationLink
+            if (link.indexOf('?st') < 0) {
+                console.log('加密链接')
+                link = JSON.stringify(link).replace(new RegExp('"', 'g'), '')
+            } else {
+                console.log('未加密链接')
+                link = JSON.stringify(link).replace(new RegExp('\\\\', 'g'), '')
+                console.log(link, 'link')
+            }
+            if (this.type === 'siteinfo') {
+                let resData = { ...res.data }
+                if (!res.data.protocol && !res.data.encryptType) {
+                    resData.protocol = 'https://'
+                    resData.encryptType = true
                 }
-                if (this.type === 'siteinfo') {
-                    let data = { ...res.data }
-                    if (!res.data.protocol && !res.data.encryptType) {
-                        data.protocol = 'https://'
-                        data.encryptType = 1
-                    }
-                    this.form = data
+                this.form = resData
+                this.form.mode = 'short' // 1.4.0 版本修改 短连接
+            } else {
+                if (res.data.registrationLink.indexOf('?st') < 0) {
+                    this.form.registrationLink = link
                 } else {
-                    if (res.data.registrationLink.indexOf('?st') < 0) {
-                        this.form.registrationLink = link
-                    } else {
-                        this.form.registrationLink = res.data.registrationLink
-                    }
+                    this.form.registrationLink = res.data.registrationLink
                 }
-                console.log(this.form.registrationLink, 'this.form.registrationLink')
-                this.partyidSelect = res.data.groupName // groupName范围下拉
-                this.getPartyid(res.data.role)// role下拉获取数据
-                setTimeout(() => {
-                    this.selectPartyid(res.data.groupName)// groupName范围赋值
-                }, 500)
-            })
+            }
+            this.partyidSelect = res.data.groupName // groupName范围下拉
+            await this.getPartyid(res.data.role)// role下拉获取数据
+            await this.selectPartyid(res.data.groupName)
         },
         // 复制
         toCopy(type) {
@@ -638,6 +598,14 @@ export default {
             resetNetwork().then(res => {
                 this.form.network = res.data.network
             })
+        },
+        getStatus(stauts) {
+            console.log(typeof stauts, 'typeof stauts')
+            if (typeof stauts === 'number') {
+                return stauts === 1
+            } else {
+                return stauts === true ? 1 : 2
+            }
         }
 
     }

@@ -26,7 +26,7 @@ import java.util.List;
 
 public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteManagerDo> {
 
-    FederatedSiteManagerDo findSiteByPartyId(@Param("partyId") Long partyId,@Param("secretInfo") String secretInfo, @Param("status") Object... status);
+    FederatedSiteManagerDo findSiteByPartyId(@Param("partyId") Long partyId, @Param("secretInfo") String secretInfo, @Param("status") Object... status);
 
     FederatedSiteManagerDo findSite(Long id);
 
@@ -38,7 +38,10 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     long findInstitutionsCount();
 
+    @Deprecated
     List<InstitutionsDto> findInstitutions(@Param("institutionQo") InstitutionQo institutionQo, @Param("startIndex") long startIndex);
+
+    List<InstitutionsDto> findInstitutionsByStatus(@Param("institutionQo") InstitutionQo institutionQo, @Param("startIndex") long startIndex);
 
     List<FederatedSiteManagerDo> findPagedSitesForFateManager(@Param("siteListForFateManagerQo") SiteListForFateManagerQo siteListForFateManagerQo, @Param("startIndex") long startIndex);
 
@@ -46,7 +49,10 @@ public interface FederatedSiteManagerMapper extends BaseMapper<FederatedSiteMana
 
     long findUsedSitesCount(UsedSiteListQo usedSiteListQo);
 
+    @Deprecated
     long countForInstitutions(InstitutionQo institutionQo);
+
+    int countInstitutionsByStatus(@Param("institutionQo") InstitutionQo institutionQo);
 
     List<InstitutionsWithSites> findInstitutionsWithSites(String institutions);
 

@@ -1,7 +1,7 @@
 database:
   name: fate_manager
-  user: root
-  passwd: root
+  user: fate
+  passwd: fate_dev
   host: 127.0.0.1
   port: 3306
   max_connections: 100

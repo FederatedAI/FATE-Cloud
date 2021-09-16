@@ -30,4 +30,5 @@ public interface FederatedExchangeMapper extends BaseMapper<FederatedExchangeDo>
 
     List<FederatedExchangeDo> findExchangePageForFateManager(@Param("startIndex") long startIndex, @Param("exchangePageForFateManagerQo") ExchangePageForFateManagerQo exchangePageForFateManagerQo);
 
+    Integer exchangeUsingCount(@Param("exchangeId") Long exchangeId);
 }

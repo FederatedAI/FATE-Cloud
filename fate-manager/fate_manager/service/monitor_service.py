@@ -7,7 +7,7 @@ from statistics import mean
 
 from fate_manager.db.db_models import ApplySiteInfo
 from fate_manager.entity.types import FateJobStatus, FateJobType, FateJobEndStatus
-from fate_manager.operation import federated_db_operator
+from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import monitor_logger as logger
 
@@ -15,7 +15,7 @@ from fate_manager.settings import monitor_logger as logger
 def get_total(request_data):
     query_info = get_date_info(request_data)
     logger.info(f"query job by:{query_info}")
-    site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    site_job_list = SingleOperation.query_fate_site_job(**query_info)
     logger.info(f"query job success")
     apply_site_list = DBOperator.query_entity(ApplySiteInfo)
     site_total_dict = {}
@@ -39,7 +39,7 @@ def get_total(request_data):
 def get_institutions_total(request_data):
     query_info = get_date_info(request_data)
     logger.info(f"query job by:{query_info}")
-    site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    site_job_list = SingleOperation.query_fate_site_job(**query_info)
     logger.info(f"query job success")
     return group_by_institutions(site_job_list)
 
@@ -47,7 +47,7 @@ def get_institutions_total(request_data):
 def get_site_total(request_data):
     query_info = get_date_info(request_data)
     logger.info(f"query job by:{query_info}")
-    site_job_list = federated_db_operator.query_fate_site_job(**query_info)
+    site_job_list = SingleOperation.query_fate_site_job(**query_info)
     logger.info(f"query job success")
     return group_by_site(site_job_list)
 
@@ -57,7 +57,7 @@ def get_detail_total(request_data):
     if request_data.get("party_id") and str(request_data.get("party_id", "")).lower() != "all":
         query_info["party_id"] = request_data.get("party_id")
     logger.info(f"start query fate job by {query_info}")
-    job_list = federated_db_operator.query_fate_site_job(**query_info)
+    job_list = SingleOperation.query_fate_site_job(**query_info)
     logger.info("start get day list")
     day_list = get_day_list(request_data)
     logger.info("start group by job type")

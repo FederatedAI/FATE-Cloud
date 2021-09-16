@@ -64,12 +64,13 @@
     .el-main {
         padding: 0;
         .welcomepage {
+            font-family: OPPOSans;
             text-align: center;
             .title {
-                font-size: 4em;
+                font-size: 64px;
                 color: #217ad9;
                 font-weight: bold;
-                margin-bottom: 1vw;
+                margin-bottom: 64px;
             }
             .text {
                 margin-bottom: 2vw;
@@ -100,14 +101,19 @@
                     text-align: center;
                     border-bottom: 2px solid #E6EBF0;
                     color: #2D3642;
-                    font-size: 1.5em
+                    font-size: 16px;
                 }
                 .from-text{
                     color:#848C99
                 }
                 .btn-login{
-                    font-size: 1.3vw;
-                    width: 18vw;
+                    font-size: 16px;
+                    width: 200px;
+                    height: 36px;
+                    line-height: 36px;
+                    padding: 0;
+                    border-radius: 4px;
+                    margin-bottom: 32px;
                 }
                 .el-form-item{
                     margin: 0.8vw 0 2vw 0;
@@ -140,42 +146,41 @@
     .contact-dialog{
         text-align: center;
         .el-dialog {
-            width: 700px;
             .el-dialog__header {
-                display: none
+                padding: 0;
             }
             .line-text-two {
-                font-size: 18px;
-                margin-top: 34px;
-                margin-bottom: 48px;
+                font-size: 16px;
+                margin-top: 36px;
+                margin-bottom: 36px;
+                font-weight: bold;
             }
             .ok-btn {
-                width: 200px;
-                font-size: 18px;
+                width: 180px;
+                font-size: 16px;
             }
         }
         
     }
     .activ-dialog{
        
-        .el-dialog__header {
-            display: none
-        }
         .dialog-header{
             font-size: 56px;
             color: #217AD9;
             text-align: center;
             margin-bottom: 76px
         }
+        .el-dialog__body{
+            padding: 0 24px 24px;
+        }
         .dialog-body{
-            text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             .activte-form{
-
-                width: 800px;
-                margin: 0 auto; 
+                padding: 0 12px;
                 .text-one{
-                    margin-top: 35px;
+                    color: #848C99;
+                    margin-top: 24px;
+                    margin-bottom: 10px;
                 }
                 .is-error .el-input__inner{
                     border-color:#FF9D00 !important;
@@ -197,72 +202,51 @@
                     text-align: center;
                     border-bottom: 2px solid #E6EBF0;
                     color: #2D3642;
-                    font-size: 1.5em
+                    font-size: 16px;
                 }
-            }
-        }
-        .dialog-footer{
-            text-align: center;
-            margin: 50px;
-            button{
-                width: 200px;
-                font-size: 18px;
-            }
-            .sure-btn{
-                margin-left: 24px
             }
         }
     }
     .ok-dialog {
         text-align: center;
-
+        .el-dialog__body{
+            padding: 0 24px 24px;
+        }
         //弹框居中
         .el-dialog {
-            width: 730px;
+            width: 580px;
 
-            .el-dialog__header {
-                display: none
-            }
             .icon {
-                font-size: 80px;
+                font-size: 50px;
                 color: #217AD9;
             }
 
             .line-text-one {
                 font-size: 32px;
                 margin-top: 16px;
-                margin-bottom: 60px;
+                margin-bottom: 36px;
                 color: #217AD9;
-                font-weight: 700;
+                font-weight: 600;
             }
             .line-text-two {
-                font-size: 24px;
+                font-size: 16px;
+                color: #848C99;
             }
 
             .ok-btn {
-                width: 200px;
-                font-size: 18px;
-                margin: 34px 0;
+                width: 180px;
+                font-size: 16px;
             }
         }
     }
     .siteAuth-dialog{
-        .el-dialog__header {
-            display: none
-        }
+        text-align: center;
        
         .line-text-two {
             font-size: 18px;
             line-height: 36px;
         }
-        text-align: center;
-        .ok-btn {
-            width: 100px;
-            font-size: 18px;
-            padding: 0;
-            line-height: 36px;
-            margin-top: 18px;
-        }
+       
     }
 
 }

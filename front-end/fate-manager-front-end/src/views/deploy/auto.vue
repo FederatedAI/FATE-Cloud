@@ -128,7 +128,7 @@ import { mapGetters } from 'vuex'
 import { toconnect, pagesStep, deployversion, connectansible } from '@/api/deploy'
 import { toClick } from '@/api/fatedeploy'
 import { ansibleClick } from '@/api/fatedeployAnsible'
-// import checkip from '@/utils/checkip'
+// import {checkip} from '@/utils/checkip'
 
 export default {
     name: 'auto',

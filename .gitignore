@@ -14,5 +14,6 @@ _build
 /cloud-manager/target/
 .vscode/*
 
-/fate_manager/fate_manager/apps/static
+/fate-manager/fate_manager/apps/static
 /logs
+/fate-manager/logs

@@ -38,6 +38,9 @@ public class InstitutionQo implements Serializable {
     @ApiModelProperty(value = "party id,site name")
     private String condition;
 
+    @ApiModelProperty(value = "2: Using, 3: Deleted")
+    private Integer status;
+
     @ApiModelProperty(value = "institutions")
     private String[] institutionsArray;
 

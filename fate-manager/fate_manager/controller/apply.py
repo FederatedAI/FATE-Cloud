@@ -1,7 +1,7 @@
 from fate_manager.db.db_models import AccountInfo, ApplyInstitutionsInfo
 from fate_manager.entity import item
 from fate_manager.entity.types import IsValidType, UserRole, ApplyReadStatusType
-from fate_manager.operation import federated_db_operator, db_operator
+from fate_manager.operation import db_operator
 from fate_manager.settings import stat_logger
 from fate_manager.utils.request_cloud_utils import request_cloud_manager
 
@@ -33,7 +33,7 @@ def apply_result_task(account):
     # get all end status institutions
     update_institutions_models = []
     add_institutions_info = []
-    all_institutions = federated_db_operator.get_apply_institutions_info()
+    all_institutions = db_operator.SingleOperation.get_apply_institutions_info()
     all_institutions_name = [model.institutions for model in all_institutions]
     stat_logger.info(f"all institutions name:{all_institutions_name}")
     if not resp:

@@ -88,7 +88,7 @@
         background-color: #fff;
         position: absolute;
         width: calc(100% - 24px);
-        height: calc(100% - 120px);
+        height: calc(100% - 124px);
         .table {
             height: calc(100% - 82px);
             .el-table {
@@ -110,31 +110,33 @@
         }
     }
     .auto-dialog {
-        .el-dialog__header {
-            display: none;
-        }
+        // .el-dialog__header {
+        //     display: none;
+        // }
 
         .el-dialog__body {
             padding: 0;
         }
 
         .dialog-box {
-            padding: 36px;
+            padding: 10px 36px;
 
             .dialog-title {
                 margin: 12px 0;
-                font-size: 32px;
+                font-size: 20px;
                 color: #217AD9;
                 font-weight: bold;
             }
             .dialog-line{
                 margin: 12px 0;
-                font-size: 18px;
+                font-size: 14px;
+                color: #848C99;
+                line-height: 1.5;
             }
             .add-input {
                 // margin-top: 24px;
                 .el-form-item{
-                    margin-bottom: 5px;
+                    margin-bottom: 24px;
                 }
                 position: relative;
                 .el-form-item__label:before{
@@ -142,16 +144,15 @@
                     color: #fff;
                 }
                 .input-title{
-                    font-size: 18px;
+                    font-size: 14px;
                     color: #848C99;
                 }
 
-
                 .el-input__inner {
-                    font-size: 16px;
+                    font-size: 14px;
                     background:#fff;
                     padding:0;
-                    border-bottom: 2px solid #E6EBF0;
+                    border-bottom: 1px solid #e6e6e6;
                     border-top: 0px;
                     border-right: 0px;
                     border-left: 0px;
@@ -174,7 +175,7 @@
                     }
                 }
                 .input{
-                    width: 270px;
+                    width: 230px;
                 }
                 .reset{
                     color: #217AD9;
@@ -185,25 +186,24 @@
             }
 
             .line-text-one{
-                font-size: 24px;
-       
+                font-size: 16px;
                 text-align: center;
-                margin-top: 28px;
+                margin-bottom: 36px;
             }
 
             .dialog-foot {
                 text-align: center;
                 margin: 24px 0 12px 0;
 
-                .el-button {
-                    height: 26px;
-                    line-height: 26px;
-                    width: 130px;
-                    border-radius: 2px;
-                    padding: 0;
-                    font-size: 16px;
+                // .el-button {
+                //     height: 26px;
+                //     line-height: 26px;
+                //     width: 130px;
+                //     border-radius: 2px;
+                //     padding: 0;
+                //     font-size: 16px;
 
-                }
+                // }
             }
 
         }
@@ -211,7 +211,6 @@
     .add-success-dialog {
         //弹框居中
         .el-dialog {
-            width: 700px;
             display: flex;
             flex-direction: column;
             margin: 0 !important;
@@ -222,11 +221,12 @@
             max-height: calc(100% - 30px);
             max-width: calc(100% - 30px);
 
-            .el-dialog__header {
-                display: none
-            }
+            // .el-dialog__header {
+            //     display: none
+            // }
             .el-dialog__body{
-                padding: 36px
+                padding: 36px;
+                padding-top: 12px;
             }
             .input-title{
                 font-size: 18px;
@@ -235,8 +235,9 @@
             .add-input {
                 // margin-top: 24px;
                 .el-form-item{
-                    margin-bottom: 5px;
+                    margin-bottom: 24px;
                     .el-form-item__label{
+                        text-align: left;
                         font-size: 18px;
                         color: #848C99;
                     }
@@ -248,11 +249,11 @@
                     width: 100%;
                     display: inline-block;
                     background-color: #FAFBFC;
-                    padding: 10px;
+                    padding: 12px;
                     box-sizing: border-box;
-                    .el-form-item__label{
-                        text-align: right;
-                    }
+                }
+                .link-area{
+                    padding-left: 12px;
                 }
                 .el-input__inner{
                     font-size: 16px;
@@ -305,17 +306,47 @@
             .dialog-footer{
                 text-align: center;
                 margin-top: 10px;
-                .ok-btn {
-                    height: 26px;
-                    line-height: 26px;
-                    width: 130px;
-                    border-radius: 2px;
-                    font-size: 16px;
-                    margin-right: 10px;
-                }
             }
             
+        }
+        .el-form-item__label:before{
+            display: none;
+        }
+    }
+    .res-institutions-dialog{
+        .el-dialog__body {
+            padding: 12px 20px 24px 20px;;
+        }
+        text-align: center;
+        .line-text-one {
+            font-weight:bold;
+            font-size: 16px;
+            color: #4E5766;
+            margin-bottom: 24px;
+            text-align: center;
+            white-space: nowrap; //文本强制不换行；
+            text-overflow:ellipsis; //文本溢出显示省略号；
+            overflow:hidden; //溢出的部分隐藏；
+        }
+        .line-text-two {
+            font-size: 14px;
+            color: #848C99;
+            margin-bottom: 36px;
+            text-align: center;
+            white-space: nowrap; //文本强制不换行；
+            text-overflow:ellipsis; //文本溢出显示省略号；
+            overflow:hidden; //溢出的部分隐藏；
         }
     }
 }
 
+.fm{
+    .el-dialog{
+        width: 690px !important;
+    }
+} 
+.cm{
+    .el-dialog{
+        width: 490px !important;
+    }
+}

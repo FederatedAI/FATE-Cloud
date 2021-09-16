@@ -16,7 +16,6 @@
 package com.webank.ai.fatecloud.system.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.common.CommonResponse;
 import com.webank.ai.fatecloud.common.util.PageBean;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedIpManagerDo;
@@ -28,9 +27,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -141,6 +142,7 @@ public class FederatedSiteController {
     public CommonResponse<NetworkDto> findCloudManagerNetwork() {
         return federatedSiteManagerServiceFacade.findCloudManagerNetwork();
     }
+
     @PostMapping(value = "/find/all")
     @ApiOperation(value = "find all site")
     public CommonResponse<List<Long>> findAllSite(@RequestBody AuthorityApplyDetailsQo authorityApplyDetailsQo) {
@@ -148,13 +150,12 @@ public class FederatedSiteController {
     }
 
     //interface for fate-manager
-
     @PostMapping(value = "/checkUrl")
     @ApiOperation(value = "checkUrl of Site for fate manager")
     public CommonResponse checkUrl(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
         log.info("siteActivateQo:{}", siteActivateQo);
         CommonResponse commonResponse = federatedSiteManagerServiceFacade.checkUrl(siteActivateQo, httpServletRequest);
-        log.info("response for check url :{}",commonResponse);
+        log.info("response for check url :{}", commonResponse);
         return commonResponse;
     }
 
@@ -163,10 +164,36 @@ public class FederatedSiteController {
     public CommonResponse activateSite(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
         log.info("siteActivateQo:{}", siteActivateQo);
         CommonResponse commonResponse = federatedSiteManagerServiceFacade.activateSite(siteActivateQo, httpServletRequest);
-        log.info("response for activate url :{}",commonResponse);
+        log.info("response for activate url :{}", commonResponse);
         return commonResponse;
     }
 
+    @PostMapping(value = "/activate/query/details")
+    @ApiOperation(value = "short link activate query activate details")
+    public CommonResponse<SiteDetailDto> querySiteActivateDetails(@RequestBody SiteActivateQo siteActivateQo, HttpServletRequest httpServletRequest) {
+        log.info("siteActivateQo:{}", siteActivateQo);
+        CommonResponse<SiteDetailDto> commonResponse = federatedSiteManagerServiceFacade.querySiteActivateDetails(siteActivateQo, httpServletRequest);
+        log.info("response for activate url :{}", commonResponse);
+        return commonResponse;
+    }
+
+    @PostMapping(value = "/activate/v2")
+    @ApiOperation(value = "short link activate Site for fate manager")
+    public CommonResponse<Void> shortLinkActivateSite(@RequestBody SiteActivateShortQo siteActivateShortQo, HttpServletRequest httpServletRequest) {
+        log.info("SiteActivateShortQo:{}", siteActivateShortQo);
+        CommonResponse<Void> commonResponse = federatedSiteManagerServiceFacade.shortLinkActivateSite(siteActivateShortQo, httpServletRequest);
+        log.info("response for activate url :{}", commonResponse);
+        return commonResponse;
+    }
+
+    @PostMapping(value = "/reactivate")
+    @ApiOperation(value = "reactivate Site for fate manager")
+    public CommonResponse<Boolean> reactivateSite(@RequestBody SiteUpdateQo siteUpdateQo) {
+        log.info("siteUpdateQo:{}", siteUpdateQo);
+        CommonResponse<Boolean> commonResponse = federatedSiteManagerServiceFacade.reactivateSite(siteUpdateQo);
+        log.info("response for reactivate url :{}", commonResponse);
+        return commonResponse;
+    }
 
     @PostMapping(value = "/findOneSite/fateManager")
     @ApiOperation(value = "find site info for fate manager ")
@@ -235,6 +262,15 @@ public class FederatedSiteController {
         return ipManagerQueryDtoCommonResponse;
     }
 
+    @PostMapping(value = "/ip/update/query")
+    @ApiOperation(value = "query Ip Modify Process for fate manager")
+    public CommonResponse<List<FederatedIpManagerDo>> queryUpdateIpModify(HttpServletRequest httpServletRequest) {
+        log.info("ipManagerQueryQo for ip update query:{}", httpServletRequest);
+        CommonResponse<List<FederatedIpManagerDo>> ipManagerQueryDtoCommonResponse = federatedIpManagerServiceFacade.queryUpdateIpModify(httpServletRequest);
+        log.info("response for ip update query:{}", ipManagerQueryDtoCommonResponse);
+        return ipManagerQueryDtoCommonResponse;
+    }
+
     @PostMapping(value = "/ip/query/history")
     @ApiOperation(value = "query Ip Modify history")
     public CommonResponse<List<FederatedIpManagerDo>> queryIpModifyHistory(@RequestBody HistoryQo historyQo) {
@@ -280,5 +316,18 @@ public class FederatedSiteController {
     @ApiOperation(value = "find all institutions for drop down")
     public CommonResponse<InstitutionsDropdownDto> findAllInstitutionsForDropdown() {
         return federatedSiteManagerServiceFacade.findAllInstitutionsForDropdown();
+    }
+
+    @PostMapping(value = "/institutions/status/dropdown")
+    @ApiOperation(value = "find institutions by status for drop down")
+    public CommonResponse<InstitutionsDropdownDto> findStatusInstitutionsForDropdown(@RequestBody InstitutionStateQo institutionStateQo) {
+        return federatedSiteManagerServiceFacade.findStatusInstitutionsForDropdown(institutionStateQo);
+    }
+
+    @PostMapping(value = "/institutions/delete")
+    @ApiOperation(value = "delete institutions, institutions go offline state")
+    public CommonResponse<Boolean> deleteInstitutions(@RequestBody InstitutionStateQo institutionStateQo) {
+        log.info("deleteInstitutions RequestBody:{}", institutionStateQo);
+        return federatedSiteManagerServiceFacade.deleteInstitutions(institutionStateQo);
     }
 }

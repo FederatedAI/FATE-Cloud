@@ -13,9 +13,11 @@
         <span v-if='exchangeList.length'>
             <el-collapse  class="collapse" v-model="activeName" v-for="(item, index) in exchangeList" :key="index" >
                 <el-collapse-item  :name="item.exchangeName">
-                    <template slot="title">
-                        <span class="collapse-title-name">{{item.exchangeName}}</span>
-                        <span class="collapse-title-vip">VIP：{{item.vip}}</span>
+                    <template slot="title" >
+                        <el-tooltip class="item" effect="light" :content="item.exchangeName" placement="top">
+                            <span style="color:#4E5766;font-weight:bold">{{item.exchangeName}}</span>
+                        </el-tooltip>
+                        <span class="collapse-title-vip">VIP Entrance：{{item.vipEntrance}}</span>
                         <span class="collapse-title-time"> {{$t('m.common.updateTime')}} ：{{item.updateTime | dateFormat}}</span>
                         <el-button style="margin-right:10px"  @click.stop="toAddRollsite(item)"  type="text">
                             {{$t('m.common.add')}} rollsite
@@ -24,7 +26,7 @@
                             {{$t('m.common.delete')}}
                         </el-button>
                     </template>
-                    <ipexchangetable  ref="ipexchangetable"   :exchangeId="item.exchangeId" />
+                    <ipexchangetable ref="ipexchangetable" :exchangeId="item.exchangeId" />
                 </el-collapse-item>
             </el-collapse>
         </span>
@@ -41,7 +43,7 @@
             ></el-pagination>
         </div>
          <!-- 删除 -->
-        <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="700px">
+        <el-dialog :visible.sync="deletedialog" class="access-delete-dialog" width="500px">
             <div class="line-text-one">
                 {{$t('m.ip.sureWantDeleteExchange')}}
             </div>
@@ -89,6 +91,7 @@ export default {
             deleteExchangeId: '',
             exchangeData: {
                 networkAccess: '',
+                networkAccessExit: '',
                 partyAddBeanList: []
             }, // 添加数据
             tempSiteNet: {} // sitenet数据
@@ -153,6 +156,7 @@ export default {
             this.$refs['ipaddrollsite'].exchangeId = row.exchangeId
             this.$refs['ipaddrollsite'].editdialog = true
             this.$refs['ipaddrollsite'].rollsiteType = 'add'
+            // this.$refs['ipaddrollsite'].resetFields()
         },
         // 展开或者折叠
         toFold() {

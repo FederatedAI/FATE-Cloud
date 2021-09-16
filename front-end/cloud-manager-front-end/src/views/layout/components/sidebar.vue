@@ -13,33 +13,36 @@
         <el-submenu index="Federated Site">
           <template slot="title">
             <div class="title">
-              <!-- <i class="el-icon-location"></i> -->
               <img src="@/assets/federated.png">
               <span>{{$t('Federated Site')}}</span>
             </div>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="Site Manage">{{$t('Site Manage')}}</el-menu-item>
+              <template v-for="(item, index) in menuFederatedList.children" >
+                    <el-menu-item v-if='item.hidden' :key="index" :index="item.name">{{$t(`${item.name}`)}}</el-menu-item>
+              </template>
+            <!-- <el-menu-item index="Site Manage">{{$t('Site Manage')}}</el-menu-item>
             <el-menu-item index="IP Manage">{{$t('IP Manage')}}</el-menu-item>
             <el-menu-item v-if='autostatus' index="Service Manage">{{$t('Service Manage')}}</el-menu-item>
             <el-menu-item index="Site Monitor">{{$t('Site Monitor')}}</el-menu-item>
-            <!-- 1.2.1在开放 -->
-            <el-menu-item index="Job Monitor">{{$t('Job Monitor')}}</el-menu-item>
+            <el-menu-item index="Job Monitor">{{$t('Job Monitor')}}</el-menu-item> -->
           </el-menu-item-group>
         </el-submenu>
         <el-submenu index="Setting">
           <template slot="title">
             <div class="title">
-              <!-- <i class="el-icon-s-tools"></i> -->
               <img src="@/assets/setting.png">
               <span>{{$t('Setting')}}</span>
             </div>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="Party ID">{{$t('Party ID')}}</el-menu-item>
+               <template v-for="(item, index) in menusettingList.children">
+                   <el-menu-item v-if='item.hidden' :key="index" :index="item.name">{{$t(`${item.name}`)}}</el-menu-item>
+               </template>
+            <!-- <el-menu-item index="Party ID">{{$t('Party ID')}}</el-menu-item>
             <el-menu-item index="Certificate">{{$t('Certificate')}}</el-menu-item>
             <el-menu-item index="Admin Access">{{$t('Admin Access')}}</el-menu-item>
-            <el-menu-item index="System Function Switch">{{$t('System Function Switch')}}</el-menu-item>
+            <el-menu-item index="System Function Switch">{{$t('System Function Switch')}}</el-menu-item> -->
           </el-menu-item-group>
         </el-submenu>
       </el-menu>
@@ -50,6 +53,8 @@
 <script>
 import { mapGetters } from 'vuex'
 import { switchState } from '@/api/setting'
+import menuFederatedList from '@/router/federatedRouter'
+import menusettingList from '@/router/settingRouter'
 // 国际化
 const local = {
     zh: {
@@ -83,6 +88,8 @@ export default {
     name: 'sidebar',
     data() {
         return {
+            menuFederatedList,
+            menusettingList
             // active: 'Site Manage'
         }
     },

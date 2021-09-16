@@ -48,10 +48,6 @@ export const constantRouterMap = [
                 name: 'register', //
                 hidden: true,
                 component: () => import('@/views/welcome/register')
-            }, {
-                name: 'activate', //
-                path: 'activate',
-                component: () => import('@/views/welcome/activate')
             }
         ]
     },
@@ -65,6 +61,11 @@ export const constantRouterMap = [
                 path: 'sitemanage',
                 name: 'sitemanage', //
                 component: () => import('@/views/home/sitemanage')
+            },
+            {
+                name: 'activate', //
+                path: 'activate',
+                component: () => import('@/views/welcome/activate')
             },
             {
                 path: 'index',
@@ -83,43 +84,44 @@ export const constantRouterMap = [
             }
         ]
     },
+    // {
+    //     path: '/deploy',
+    //     component: Layout,
+    //     name: 'deploy',
+    //     hidden: true,
+    //     children: [
+    //         {
+    //             path: 'auto',
+    //             name: 'auto', //
+    //             component: () => import('@/views/deploy/auto')
+    //         },
+    //         {
+    //             path: 'overview',
+    //             name: 'overview', //
+    //             component: () => import('@/views/deploy/overview')
+    //         },
+    //         {
+    //             path: 'service',
+    //             name: 'service', //
+    //             component: () => import('@/views/deploy/service')
+    //         },
+    //         {
+    //             path: 'prepare',
+    //             name: 'prepare', //
+    //             component: () => import('@/views/fatedeploy/prepare')
+    //         }, {
+    //             path: 'deploying',
+    //             name: 'deploying', //
+    //             component: () => import('@/views/fatedeploy/deploying')
+    //         },
+    //         {
+    //             path: 'ansible',
+    //             name: 'ansible', //
+    //             component: () => import('@/views/fatedeployAnsible/deployAnsible')
+    //         }
+    //     ]
+    // },
     {
-        path: '/deploy',
-        component: Layout,
-        name: 'deploy',
-        hidden: true,
-        children: [
-            {
-                path: 'auto',
-                name: 'auto', //
-                component: () => import('@/views/deploy/auto')
-            },
-            {
-                path: 'overview',
-                name: 'overview', //
-                component: () => import('@/views/deploy/overview')
-            },
-            {
-                path: 'service',
-                name: 'service', //
-                component: () => import('@/views/deploy/service')
-            },
-            {
-                path: 'prepare',
-                name: 'prepare', //
-                component: () => import('@/views/fatedeploy/prepare')
-            }, {
-                path: 'deploying',
-                name: 'deploying', //
-                component: () => import('@/views/fatedeploy/deploying')
-            },
-            {
-                path: 'ansible',
-                name: 'ansible', //
-                component: () => import('@/views/fatedeployAnsible/deployAnsible')
-            }
-        ]
-    }, {
         path: '/monitor',
         component: Layout,
         name: 'monitor',
@@ -144,7 +146,10 @@ export const constantRouterMap = [
 const originalPush = Router.prototype.push
 // 修改原型对象中的push方法
 Router.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch(err => err)
+    return originalPush.call(
+        this, location
+    )
+    // .catch(err => err)
 }
 
 const router = new Router({

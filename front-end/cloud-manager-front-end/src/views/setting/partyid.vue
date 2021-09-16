@@ -69,7 +69,7 @@
             ></el-pagination>
         </div>
     </div>
-    <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" width="700px">
+    <el-dialog :visible.sync="dialogVisible" class="partyid-delete-dialog" :show-close="true" width="500px">
         <div class="line-text-one">{{$t('Are you sure you want to delete')}} "{{groupName}}"?</div>
         <div class="line-text-two">{{$t(`You can't undo this action`)}} </div>
         <div class="dialog-footer">
@@ -131,20 +131,23 @@ export default {
             tableData: [],
             delTtempGroup: '', // 待删除项
             groupName: '', // 待删除项
-            typeSelect: [
-                {
-                    value: 1,
-                    label: this.$t('m.common.guest')
-                },
-                {
-                    value: 2,
-                    label: this.$t('m.common.host')
-                }
-            ],
             data: {
                 pageNum: 1,
                 pageSize: 20
             }
+        }
+    },
+    computed: {
+        typeSelect() {
+            return [
+                {
+                    value: 1,
+                    label: this.$t('m.common.guest')
+                }, {
+                    value: 2,
+                    label: this.$t('m.common.host')
+                }
+            ]
         }
     },
     created() {

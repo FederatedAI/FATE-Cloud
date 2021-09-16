@@ -6,20 +6,20 @@
             <tooltip  class="text" :width="'120px'" :content="`${myInstitution.federatedOrganization || ''}`" :placement="'top'"/>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('m.common.institution',{type:'i'})}}</span>
-            <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
+            <span class="title">{{$t('m.sitemanage.size')}}</span>
+            <div class="text"> {{myInstitution.size}} </div>
         </div>
         <div class="site-item-text">
-            <span class="title">{{$t('m.sitemanage.organizationSize')}}</span>
-            <div class="text"> {{myInstitution.size}} </div>
+            <span class="title">{{$t('m.common.institution',{type:'I'})}}</span>
+            <tooltip   class="text" :width="'120px'" :content="myInstitution.institutions" :placement="'top'"/>
         </div>
         <div class="site-item-text">
             <span class="title">{{$t('m.sitemanage.creationTime')}}</span>
             <div style="color:#4E5766;">{{myInstitution.createTime | dateFormat}}</div>
         </div>
-        <div class="site-title">
+        <!-- <div class="site-title">
             <span class="site-tiem-view" @click="togetexchangeList">{{$t('m.sitemanage.viewExchange')}}</span>
-        </div>
+        </div> -->
     </div>
     <div class="sitemanage-box">
         <div class="add-site">
@@ -27,7 +27,7 @@
                 <el-tooltip effect="dark" :content="$t('m.sitemanage.addNewSiteJoinOrganization')" placement="top">
                     <div  class="add" @click="toAddSite">
                         <img src="@/assets/add_site.png">
-                        <span>{{$t('m.common.add')}}</span>
+                        <span>{{$t('m.common.add',{type:'a'})}}</span>
                     </div>
                 </el-tooltip>
                 <span v-if='siteState && myInstitution.joinedSites > 0'>
@@ -100,6 +100,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="pagination-bar">
+                                    <el-pagination
+                                        v-if="historyTotal > 0"
+                                        background
+                                        @current-change="handleCurrentChange"
+                                        :current-page.sync="historyPageData.pageNum"
+                                        :page-size="historyPageData.pageSize"
+                                        layout="total, prev, pager, next, jumper"
+                                        :total="historyTotal"
+                                    ></el-pagination>
+                                </div>
                             </div>
                             <img slot="reference" class="tickets" src="@/assets/historyclick.png" @click="gethistory" alt="" >
                         </el-popover>
@@ -109,7 +120,7 @@
             <span v-else>
                 <div class="add" style="cursor:not-allowed">
                     <img src="@/assets/add_site.png">
-                    <span>{{$t('m.common.add')}}</span>
+                    <span>{{$t('m.common.add',{type:'a'})}}</span>
                 </div>
                 <div v-if='siteState' class="apply" style="cursor:not-allowed;color:#c8c9cc" >
                     <span >{{$t('m.sitemanage.applySites')}} </span>
@@ -174,23 +185,35 @@
                     <span>{{scope.row.status | getSiteStatus}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')" >
+            <!-- <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')" >
                 <template slot-scope="scope">
                     <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="role.desc" :label="$t('m.common.role')" >
                 <template slot-scope="scope">
                     <span>{{scope.row.role | getSiteType}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="partyId" :label="$t('m.common.partyID')" ></el-table-column>
-            <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
+            <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')" ></el-table-column>
+            <el-table-column prop="activationTime" sortable :label="$t('m.sitemanage.activationTime')">
                 <template slot-scope="scope">
                     <span>{{scope.row.activationTime | dateFormat}}</span>
                 </template>
             </el-table-column>
         </el-table>
+        <div class="pagination-bar">
+            <el-pagination
+                v-if="siteTotal > 0"
+                background
+                @current-change="handleCurrentChange"
+                :current-page.sync="sitePageData.pageNum"
+                :page-size="sitePageData.pageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="siteTotal"
+            ></el-pagination>
+        </div>
+
         <!-- 申请查看其它站点 -->
         <span v-if='siteState'>
             <span v-for="(item, index) in otherSiteList" :key="index" >
@@ -218,32 +241,41 @@
                             <span>{{scope.row.status | getSiteStatus}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')">
+                    <!-- <el-table-column prop="serviceStatus.desc" :label="$t('m.sitemanage.serviceStatus')">
                         <template slot-scope="scope">
                             <span>{{scope.row.serviceStatus | getServiceStatus}}</span>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                     <el-table-column prop="role.desc" :label="$t('m.common.role')">
                         <template slot-scope="scope">
                             <span>{{scope.row.role | getSiteType}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="partyId" :label="$t('m.common.partyID')"></el-table-column>
+                    <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"></el-table-column>
                     <el-table-column prop="activationTime" :label="$t('m.sitemanage.activationTime')">
                         <template slot-scope="scope">
                             <span>{{scope.row.activationTime | dateFormat}}</span>
                         </template>
                     </el-table-column>
+
                 </el-table>
+                <div class="pagination-bar">
+                    <el-pagination
+                        v-if="otherTotal > 0"
+                        background
+                        @current-change="handleCurrentChange"
+                        :current-page.sync="otherPageData.pageNum"
+                        :page-size="otherPageData.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="otherTotal"
+                        ></el-pagination>
+                </div>
             </span>
         </span>
     </div>
     <!-- 添加弹框 -->
-    <el-dialog :visible.sync="applydialog" class="apply-dialog" width="700px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog :visible.sync="applydialog" :title="$t('m.sitemanage.apply')" class="apply-dialog" width="650px" :close-on-click-modal="false" :close-on-press-escape="false">
         <div class="dialog-box">
-            <div class="dialog-title">
-                {{$t('m.sitemanage.apply')}}
-            </div>
             <div class="line-text-one">
                 {{$t('m.sitemanage.selectTips')}}
             </div>
@@ -256,56 +288,52 @@
                 </el-checkbox-group>
             </div>
             <div class="dialog-foot">
-                <el-button type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
-                <el-button type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
+                <el-button class="ok-btn" type="primary" @click="toApply">{{$t('m.common.OK')}}</el-button>
+                <el-button class="ok-btn" type="info" @click="applydialog=false">{{$t('m.common.cancel')}}</el-button>
             </div>
         </div>
     </el-dialog>
      <!-- 审批不通过查看弹框 -->
-    <el-dialog :visible.sync="applynotpass" class="apply-not-pass" width="700px">
+    <el-dialog :visible.sync="applynotpass" class="apply-not-pass" :show-close="true" width="500px">
         <span v-if='agreedList.length>0'>
-            <div class="line-text-one">{{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}</div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.agreed')})}}
                 <span class="span" v-for="(item, index) in agreedList" :key="index">
                     <span v-if="index===agreedList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
 
          <span v-if='rejectList.length>0'>
-            <div class="line-text-one">
-                <span v-if='agreedList.length>0'>{{$t('m.common.and')}}</span>
-                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.reject')})}}
-            </div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                <span v-if='agreedList.length>0'>,{{$t('m.common.and')}}</span>
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.rejected')})}}
                 <span class="span" v-for="(item, index) in rejectList" :key="index">
                     <span v-if="index===rejectList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
         <span v-if='cancelList.length>0'>
-            <div class="line-text-one">
-                <span v-if='rejectList.length>0'>{{$t('m.common.and')}}</span>
-                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.cancel')})}}
-            </div>
-            <div class="line-text-one" >
+            <span class="line-text-one">
+                <span v-if='rejectList.length>0'>,{{$t('m.common.and')}}</span>
+                {{$t('m.sitemanage.setStatusApplication',{type:$t('m.common.canceled')})}}
                 <span class="span" v-for="(item, index) in cancelList" :key="index">
                     <span v-if="index===cancelList.length-1">{{item}}</span>
                     <span v-else>{{item}},</span>
                 </span>
-            </div>
-            {{$t('m.sitemanage.applications')}}
+                {{$t('m.sitemanage.applications')}}
+            </span>
         </span>
         <div class="dialog-footer">
             <el-button class="ok-btn" type="primary" @click="toapplynotpass">{{$t('m.common.OK')}}</el-button>
         </div>
     </el-dialog>
-      <!-- Exchange弹框 -->
-    <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
+    <!-- Exchange弹框 -->
+    <!-- <el-dialog :visible.sync="exchangedialog" class="exchange-dialog" width="800px" >
         <div class="vip-box">
             <div class="dialog-title">{{$t('m.sitemanage.exchangeInfo')}}</div>
             <el-table
@@ -321,7 +349,7 @@
                 <el-table-column prop="vip" label="VIP"></el-table-column>
             </el-table>
         </div>
-    </el-dialog>
+    </el-dialog> -->
     <!-- 注册弹框 -->
     <siteregister ref="siteregister"/>
   </div>
@@ -362,14 +390,29 @@ export default {
             rejectList: [], // 拒绝列表
             cancelList: [], // 取消列表
             siteHistoryList: [], // 历史审批记录
-            exchangedialog: false,
+            // exchangedialog: false,
             exchangeList: { },
-            chartTimer: null // 轮询定时器
+            chartTimer: null, // 轮询定时器
+            siteTotal: 0,
+            otherTotal: 0,
+            historyTotal: 0,
+            otherPageData: {
+                pageSize: 10,
+                pageNum: 1
+            },
+            sitePageData: {
+                pageSize: 10,
+                pageNum: 1
+            },
+            historyPageData: {
+                pageSize: 10,
+                pageNum: 1
+            }
 
         }
     },
     computed: {
-        ...mapGetters(['role', 'siteState']),
+        ...mapGetters(['role', 'siteState', 'userName']),
         hostListText() {
             return this.viewContent.hostInstuList.length > 0 ? this.viewContent.hostInstuList.join(',') : this.$t('m.common.noData')
         },
@@ -396,15 +439,16 @@ export default {
     methods: {
         getList() {
             // 我的站点
-            mySiteList().then(res => {
+            mySiteList(this.sitePageData).then(res => {
                 if (res.data) {
-                    this.myInstitution = res.data[0]
+                    this.myInstitution = res.data.data[0]
+                    this.siteTotal = res.data.total
                     this.myInstitution.joinedSites = 0
-                    this.myInstitution.siteList = res.data[0].siteList && res.data[0].siteList.map(item => {
+                    this.myInstitution.siteList = res.data.data[0].siteList && res.data.data[0].siteList.map(item => {
                         if (item.status.code === 2) {
                             this.myInstitution.joinedSites += 1
                         }
-                        item.federatedId = res.data[0].federatedId
+                        item.federatedId = res.data.data[0].federatedId
                         return item
                     })
                 }
@@ -415,8 +459,10 @@ export default {
                 this.otherApplys()
             })
             // 查看他人站点
-            otherSitList().then(res => {
+            otherSitList(this.otherPageData).then(res => {
+                console.log(res, 'res')
                 this.otherSiteList = []
+                this.otherTotal = (res.data && res.data[0] && res.data[0].size) || 0
                 res.data && res.data.forEach((item, index) => {
                     this.otherSiteList.push(item)
                 })
@@ -436,7 +482,12 @@ export default {
             })
         },
         otherApplys() {
-            fatemanagerList().then(res => {
+            fatemanagerList({ 'user_name': this.userName }).then(res => {
+                if (res.code === 20002 || res.code === 30002) {
+                    this.clearPollingTimer()
+                    console.log(res, 'fatemanagerList-130')
+                    return
+                }
                 // res.data = []
                 let data = res.data.institutions || []
                 let scenarioType = data.scenarioType
@@ -476,12 +527,12 @@ export default {
             })
         },
         // 获取exchangeList 列表
-        togetexchangeList() {
-            this.exchangedialog = true
-            getexchangeList().then(res => {
-                this.exchangeList = res.data || []
-            })
-        },
+        // togetexchangeList() {
+        //     this.exchangedialog = true
+        //     getexchangeList().then(res => {
+        //         this.exchangeList = res.data || []
+        //     })
+        // },
         // 添加站点
         toAddSite() {
             // 前往注册
@@ -493,7 +544,7 @@ export default {
             this.$router.push({
                 name: 'siteinfo',
                 path: '/siteinfo/index',
-                query: { federatedId: row.federatedId, partyId: row.partyId }
+                query: { federatedId: row.federatedId, partyId: row.partyId, siteId: row.siteId }
             })
         },
         // 获取申请弹框列表
@@ -548,7 +599,8 @@ export default {
         // 获取历史记录
         gethistory() {
             this.siteHistoryList = []
-            applyHistory().then(res => {
+            applyHistory(this.historyPageData).then(res => {
+                this.historyTotal = (res && res.data && res.data.totalRecord) || 0
                 res.data && res.data.list && res.data.list.forEach(item => {
                     console.log(item, 'items')
                     let obj = {}
@@ -581,6 +633,11 @@ export default {
         },
         clearPollingTimer() {
             clearInterval(this.chartTimer)
+        },
+        handleCurrentChange() {
+            console.log(arguments, 'type-val')
+            // this[`${type}PageData`].pageNum = val
+            this.getList()
         }
     }
 }
@@ -592,6 +649,12 @@ export default {
     // margin-top: 0px !important;
     padding: 0;
     line-height:inherit;
+    .el-pagination{
+        float: right;
+        margin: 12px 20px;
+        margin-top: 12px;
+        margin-right: 20px;
+    }
     .content{
         padding: 12px 0px;
     }
@@ -643,6 +706,11 @@ export default {
             color: #666;
         }
     }
+}
+.pagination-bar{
+    clear: both;
+    width: 100%;
+    height: 42px;
 }
 
 </style>

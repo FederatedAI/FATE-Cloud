@@ -75,6 +75,25 @@ def deserialize_b64(src):
     return restricted_loads(src)
 
 
+def deserialize_b64_decode(src):
+    src = str(src).replace('\\r', '\r').replace('\\n', '\n')
+    if src.startswith("http:"):
+        url, info = src.split('?')
+        name, id = info.split('=')[1].rsplit('_', 1)
+    else:
+        src = base64.b64decode(string_to_bytes(src) if isinstance(src, str) else src)
+        url, info = src.decode('utf-8').split('?')
+        name, id = info.split('=')[1].rsplit('_', 1)
+
+    return url, name, id
+
+
+
+def change_link(src):
+    src = base64.b64decode(string_to_bytes(src) if isinstance(src, str) else src)
+    return src.decode('utf-8')
+
+
 safe_module = {
     'federatedml',
     'numpy',
