@@ -27,13 +27,10 @@ Cloud Manager作为一个单独的服务进行部署. 只要保证被部署的�
 
 FATE Manager是一个单独的应用，不依赖任何FATE服务。
 
-v1.1的FATE Manager支持通过KubeFATE来实现FATE的快速部署，所以在使用FATE Manager部署FATE之前，请确保已经部署好MySQL和[Kubernetes](https://github.com/FederatedAI/KubeFATE/blob/master/k8s-deploy/README.md)集群。
-v1.1的FATE Manager新增支持通过hyperion在裸机部署FATE，详情请看如下的FATE-Manager部署文档。
-
-有关更多详细的部署信息，请参考FATE Cloud部署文档([Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Deploy_Guide.md))。
+有关更多详细的部署信息，请参考FATE Cloud部署文档([Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md))。
 
 ## 使用 ##
-部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATE-Cloud产品使用手册v1.0.pdf)。
+部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)。
 
 ## FAQ ##
 **Cloud-Manager 部署失败**
