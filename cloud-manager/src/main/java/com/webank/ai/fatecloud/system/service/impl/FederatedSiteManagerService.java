@@ -434,6 +434,8 @@ public class FederatedSiteManagerService {
         FederatedSiteManagerDo federatedSiteManagerDo = new FederatedSiteManagerDo();
         Date date = new Date();
         federatedSiteManagerDo.setStatus(1);
+        federatedSiteManagerDo.setFateVersion("");
+        federatedSiteManagerDo.setFateServingVersion("");
         federatedSiteManagerDo.setActivationTime(date);
         int update = federatedSiteManagerMapper.update(federatedSiteManagerDo, ew);
 
