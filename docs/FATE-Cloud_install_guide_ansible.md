@@ -241,7 +241,7 @@ sh deploy/deploy.sh render
 
 ###### 2.5.2.4 使用部署辅助脚本进行部署或卸载
 
-     /bin/bash deploy/deploy.sh deloy|install|config|uninstall
+     /bin/bash deploy/deploy.sh deploy|install|config|uninstall
 
 参数说明：
 

@@ -27,7 +27,9 @@ Cloud Manager作为一个单独的服务进行部署. 只要保证被部署的�
 
 FATE Manager是一个单独的应用，不依赖任何FATE服务。
 
-有关更多详细的部署信息，请参考FATE Cloud部署文档([Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md))。
+有关更多详细的部署信息，请参考FATE Cloud部署文档:
+- 方式一(ansible): [FATE-Cloud](docs/FATE-Cloud_install_guide_ansible.md)
+- 方式二(单独部署): [Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)
 
 ## 使用 ##
 部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)。

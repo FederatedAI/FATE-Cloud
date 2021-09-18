@@ -26,7 +26,10 @@ FATE Manager is responsible for the management and maintenance of their respecti
 ## Deploy ##
 Cloud Manager is deployed as a separate service. As long as the deployed server has jdk8 environment and MySQL connection configuration is correct, the service can run normally. 
 
-For more detailed deployment information，please refer to FATE Cloud Deployment([Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)).
+For more detailed deployment information，please refer to FATE Cloud Deployment:
+- Method 1(ansible): [FATE-Cloud](docs/FATE-Cloud_install_guide_ansible.md)
+- Method 2(单独部署): [Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)
+
 
 ## Usage ##
 After deployment，please prefer to "[FATE Cloud product manual](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)" for detailed usage of FATE Cloud.
