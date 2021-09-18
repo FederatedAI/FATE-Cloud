@@ -1,6 +1,8 @@
-# Cloud-Manager部署指导文档 #
+# Cloud-Manager部署指导文档 
 
 
+## 一. 部署Cloud-Manager
+### 方式一：源码安装
 
 1.服务基本信息
 ============
@@ -12,7 +14,7 @@
 ============
 
 | 配置 | 描述                                           |
-| :--: | ---------------------------------------------- |
+| :-----------: | ----                               | 
 | 数量 | 1                                              |
 | 配置 | 内存 : 8 core /16GB   硬盘 : 500GB  带宽 : 10M |
 | 系统 | CentOS linux 7.2及以上,   Ubuntu 16.04 及以上. |
@@ -132,7 +134,7 @@ b. 授权列表authorized_keys的权限必须是600
 chmod 600 authorized_keys
 ```
 
-5.部署 
+4.部署 
 ==========
 
 部署服务器(部署Cloud-Manager服务)192.168.0.1, 源码下载目录 : /data/projects/, 用户 : app (可自定义).
@@ -141,7 +143,7 @@ chmod 600 authorized_keys
 
 
 
-5.1 源码拉取
+4.1 源码拉取
 ------------
 
 部署服务器:192.168.0.1
@@ -153,7 +155,7 @@ cd /data/projects/
 git clone https://github.com/FederatedAI/FATE-Cloud.git
 ```
 
-5.2 配置
+4.2 配置
 ----------------
 
 配置文件路径:  /data/projects/FATE-Cloud/cloud-manager/deploy/scripts/configurations.sh
@@ -192,7 +194,7 @@ cloud_db_dir=/data/projects/fate/common/mysql/mysql-8.0.13
 cloud_db_sock_path=/data/projects/fate/common/mysql/mysql-8.0.13/mysql.sock
 ```
 
-5.3 部署
+4.3 部署
 --------
 
 改完配置文件后,执行如下命令:
@@ -204,7 +206,7 @@ sh deploy.sh  all install
 
 
 
-6.配置检查
+5.配置检查
 ==========
 
 进入目标机器的安装目录,检查配置文件
@@ -218,10 +220,10 @@ cat ./conf/application.properties
 
 
 
-7.服务管理
+6.服务管理
 ================
 
-7.1 启动服务
+6.1 启动服务
 ------------
 
 例:
@@ -231,7 +233,7 @@ cd /data/projects/cloud-manager
 sh service.sh start
 ```
 
-7.2 检查状态
+6.2 检查状态
 ----------------
 
 例:
@@ -241,7 +243,7 @@ cd /data/projects/cloud-manager
 sh service.sh status
 ```
 
-7.3 关闭服务
+6.3 关闭服务
 ------------
 
 **例:**
@@ -253,7 +255,7 @@ sh service.sh stop
 
 
 
-8.测试
+7.测试
 ======
 
 Cloud-Manager 是一个web服务.如果部署成功,可以通过网址(例:http://192.168.0.2:9999/cloud-manager)访问.
@@ -261,11 +263,15 @@ Cloud-Manager 是一个web服务.如果部署成功,可以通过网址(例:http:
 注意: 请用真实配置的IP和端口访问,上文只是示例!
 
 
-9.其他
+8.其他
 ======
 
 Cloud-Manager支持账号系统的切换。如果有需要请重新实现接口com.webank.ai.fatecloud.system.Interface.FederatedCloudManagerOriginUserServiceInterface，并切换成新的实现类！
 
-10.部署Exchange
-======
-`ExChange`是中心端的一个路由模块，通过Cloud Manager可以管理Exchange的路由表，请参考[Exchange部署文档](https://github.com/FederatedAI/FATE/blob/v1.4.4/cluster-deploy/doc/Fate-exchange_deployment_guide_zh.md)
+### 方式二：cos部署包安装
+请参考:[cos部署包安装](./Cloud-Manager_Deploy_Guide_COS.md)
+
+
+## 二. 部署exchange
+
+`ExChange`是中心端的一个路由模块，通过Cloud Manager可以管理Exchange的路由表，请参考[Exchange部署文档](https://github.com/FederatedAI/FATE/blob/master/cluster-deploy/doc/Fate-exchange_deployment_guide_zh.md)

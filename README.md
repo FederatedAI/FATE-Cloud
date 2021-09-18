@@ -24,11 +24,12 @@ Cloud Manager is the management center of the federated network, which is respon
 FATE Manager is responsible for the management and maintenance of their respective federated sites, providing services such as a site joining the Federation Organization, automatic deployment and upgrade of a site, monitor of the federated cooperation modeling and cluster services of a site, and management of user roles and application permissions of a site, etc.
 
 ## Deploy ##
-Cloud Manager is deployed as a separate service. As long as the deployed server has jdk8 environment and MySQL connection configuration is correct, the service can run normally. 
-
-For more detailed deployment information，please refer to FATE Cloud Deployment:
+FATE Cloud Deployment:
 - Method 1(ansible): [FATE-Cloud](docs/FATE-Cloud_install_guide_ansible.md)
-- Method 2(单独部署): [Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)
+- Method 2(separate deployment): [Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)
+
+Other related module Deployment:
+- [Exchange](https://github.com/FederatedAI/FATE/blob/master/cluster-deploy/doc/Fate-exchange_deployment_guide_zh.md)
 
 
 ## Usage ##
