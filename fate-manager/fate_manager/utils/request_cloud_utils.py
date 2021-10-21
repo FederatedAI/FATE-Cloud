@@ -13,7 +13,8 @@ from fate_manager.entity.status_code import RequestCloudCode, UserStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole
 from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
-from fate_manager.settings import request_cloud_logger, CLOUD_URL, CLOUD_SITE_SIGNATURE, CLOUD_INSTITUTION_SIGNATURE
+from fate_manager.settings import request_cloud_logger, CLOUD_URL, CLOUD_SITE_SIGNATURE, CLOUD_INSTITUTION_SIGNATURE,\
+    SQUID_IP, SQUID_PORT
 
 
 def hash_hmac(key, code):
@@ -138,10 +139,23 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None, active=
         url = federated_info.federated_url
     url = url + uri
     request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
+
     if methods == "get":
-        response = requests.get(url, json=body, headers=head)
+        if SQUID_IP and SQUID_PORT:
+            proxies = {'http': str(SQUID_IP) + ':' + str(SQUID_PORT), 'https': str(SQUID_IP) + ':' + str(SQUID_PORT)}
+            request_cloud_logger.info(f'start request get proxies:{proxies}')
+            response = requests.get(url, json=body, headers=head, proxies=proxies)
+        else:
+            response = requests.get(url, json=body, headers=head)
+
     else:
-        response = requests.post(url, json=body, headers=head)
+        if SQUID_IP and SQUID_PORT:
+            proxies = {'http': str(SQUID_IP) + ':' + str(SQUID_PORT), 'https': str(SQUID_IP) + ':' + str(SQUID_PORT)}
+            request_cloud_logger.info(f'start request post proxies:{proxies}')
+            response = requests.post(url, json=body, headers=head, proxies=proxies)
+        else:
+            response = requests.post(url, json=body, headers=head)
+
     request_cloud_logger.info(f'response:{response.text}')
     if response.status_code == 200:
         if not response.json().get('code') or response.json().get('code') in [127, 145]:

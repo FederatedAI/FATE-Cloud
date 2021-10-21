@@ -38,6 +38,10 @@ monitor_logger = log.getLogger('monitor_service')
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
+
+SQUID_IP = get_base_config('squid_conf', {}).get('squid_ip', "")
+SQUID_PORT = get_base_config('squid_conf', {}).get('squid_port', "")
+
 API_VERSION = 'v1'
 
 ROLL_SITE_KEY = "fate"

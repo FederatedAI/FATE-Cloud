@@ -49,6 +49,8 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | host             |默认：不需要修改                   |fate manager ip  |
 | pro_base         |默认：/data/projects            | 项目部署目录              |
 | pro_name         |默认：FATE-Cloud 不需要修改         |项目部署名 |
+| squid_ip         |默认：null                        |正向代理：ip |
+| squid_port       |默认：null                       |正向代理：端口 |
 
 ### 2.3 部署
 
