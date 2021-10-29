@@ -129,7 +129,7 @@ export function applysite(data) {
 // 获取我的站点
 export function mySiteList(data) {
     return request({
-        url: `/${urlType}/api/site`,
+        url: `/${urlType}/api/site/getsite`,
         method: 'post',
         data
     })
