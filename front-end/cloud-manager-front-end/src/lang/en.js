@@ -108,7 +108,11 @@ export const m = {
         'The site has a binding exchange, but the selected switch is not this!': 'The site has a binding exchange, but the selected switch is not this!',
         'Site party already exists in other exchange, cannot be added!': 'Site party already exists in other exchange, cannot be added!',
         'Site roll site update error!': 'Site roll site update error!',
-        'This exchange name already exist!': 'This exchange name already exist!'
+        'This exchange name already exist!': 'This exchange name already exist!',
+        'The user doesnt get the authority!': "The user doesn't get the authority!",
+        'This cloud manager user exists!': 'This cloud manager user exists!',
+        'The institution has been used!': 'The institution has been used!'
+
     },
     login: {
         'signTitle': 'Sign in to FATE Cloud',
@@ -124,10 +128,12 @@ export const m = {
         'status': 'Status',
         'activationTime': 'Activation Time',
         'networkExits': 'Network Exits',
+        'rollsiteExits': 'Rollsite Exits',
+        'rollsiteEntrances': 'Rollsite Entrances',
         'networkEntrances': 'Network Entrances',
         'siteJoined': 'site joined',
         'sitesJoined': 'sites joined',
-        'cancalAuthorization': 'cancal authorization',
+        'cancalAuthorization': 'cancel authorization',
         'canView': 'has permission to view the sites of',
         'sitesOf': 'sites of',
         'sitesOfPlaceHodler': '',
@@ -218,7 +224,7 @@ export const m = {
         'appliesAcessExits': 'applies to change the Network Exits',
         'appliesChange': 'applies to change the {type}',
         'confirmUpdates': 'Do you confirm these updates?',
-        'toChange': 'to change the',
+        'toChange': ' to change the ',
         'telnet': 'telnet',
         'siteNetworkAccess': 'Site Network Access',
         'routerNetworkAccess': 'Router Network Access',

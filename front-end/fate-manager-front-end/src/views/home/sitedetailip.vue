@@ -89,7 +89,6 @@ export default {
     watch: {
         entrancesSelect: {
             handler: function(val) {
-                console.log(val, 'val')
                 this.addtotal = this.entrancesSelect.length
                 if (val.length >= 20) {
                     this.addDisabled = true

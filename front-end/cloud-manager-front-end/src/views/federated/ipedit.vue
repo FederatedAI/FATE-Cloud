@@ -234,7 +234,6 @@ export default {
             }
         },
         updateIp(data) {
-            console.log(data, 'data')
             this.$set(this.tempSiteNet, `${data.name}`, data.data)
         },
         toSureEdit() {
@@ -257,7 +256,6 @@ export default {
             this.tempSiteNet = JSON.parse(JSON.stringify(this.cacheTempSiteNet))
         },
         getStuts(stauts) {
-            console.log(typeof stauts, 'typeof stauts')
             if (typeof stauts === 'number') {
                 return stauts === 1
             } else {

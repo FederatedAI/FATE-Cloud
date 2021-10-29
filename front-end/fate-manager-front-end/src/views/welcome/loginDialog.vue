@@ -140,7 +140,7 @@ export default {
                     data.link = this.activteForm.link
                     data.userName = this.activteForm.userName
                     data.passWord = this.activteForm.passWord
-                    console.log(data, 'data')
+                    // console.log(data, 'data')
                     activateAct(data).then(res => {
                         this.okdialog = res.code === 0
                         this.activate = res.code === 0
@@ -167,9 +167,8 @@ export default {
                 // let obj = Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')
                 let urlStr = this.activteForm.link.split('\\n').join('')
                 let Url = utf8to16(decode64(urlStr))
-                console.log(Url, 'Url')
                 let obj = { ...JSON.parse(Url.split('st=')[1].replace(new RegExp('\\\\', 'g'), '')) }
-                console.log(obj, 'obj')
+                // console.log(obj, 'obj')
                 this.activteForm.link = this.activteForm.link.replace(/\\n/g, '\n')
                 this.activteForm.activateUrl = Url
                 this.activteForm.appKey = obj.fateManagerUser.secretInfo.key

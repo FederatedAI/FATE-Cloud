@@ -53,7 +53,7 @@
             <!-- 添加KEY解决偶现某个字段无法显示或表格显示错乱问题 -->
             <el-table :data="managertableData" :key="1" ref="managertable" header-row-class-name="tableHead" header-cell-class-name="tableHeadCell" cell-class-name="tableCell" height="100%" tooltip-effect="light">
                 <el-table-column prop="institutions" :label="$t('m.access.Institution')" show-overflow-tooltip width="200px"></el-table-column>
-                <el-table-column prop="fateManagerId" :label="$t('m.access.Admin ID')" width="600px"></el-table-column>
+                <el-table-column prop="fateManagerId" :label="$t('m.access.Admin ID')" width="550px" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creator" :label="$t('m.access.Creator')" width="120px"></el-table-column>
                 <el-table-column prop="createTime" sortable :label="$t('m.access.Create Time')" width="350px">
                     <template slot-scope="scope">

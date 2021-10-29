@@ -10,8 +10,8 @@
             <el-table-column>
                 <el-table-column prop="" type="index" width="120" :label="$t('m.common.index')" ></el-table-column>
                 <el-table-column prop="networkAccess" :label="$t('m.ip.rollsiteEntrances')" show-overflow-tooltip></el-table-column>
-                <!-- <el-table-column prop="networkAccessExit" :label="$t('m.site.networkExits')" show-overflow-tooltip></el-table-column> -->
-                <el-table-column prop="" :label="$t('m.ip.routerNetworkAccess')" show-overflow-tooltip>
+                <el-table-column prop="networkAccessExit" :label="$t('m.site.rollsiteExits')" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" :label="$t('m.ip.networkEntrances')" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span @click="toShowSiteNet(scope.row.partyDos)" style="color:#217AD9;cursor: pointer;">{{scope.row.partyDos && scope.row.partyDos.length}}</span>
                     </template>
@@ -62,9 +62,9 @@
                     max-height="250" >
                     <el-table-column type="index" :label="$t('m.common.index')" width="80" >
                     </el-table-column>
-                    <el-table-column prop="partyId" sortable :label="$t('m.common.partyID')"  width="120">
+                    <el-table-column prop="partyId" sortable :sort-method="sortByPartyId" :label="$t('m.common.partyID')"  width="120">
                     </el-table-column>
-                    <el-table-column  prop="networkAccess" :label="$t('m.ip.routerNetworkAccess')" width="185" show-overflow-tooltip>
+                    <el-table-column  prop="networkAccess" :label="$t('m.ip.networkEntrances')" width="185" show-overflow-tooltip>
                     </el-table-column>
                     <el-table-column  prop="secureStatus" :label="$t('m.ip.isSecure')" width="90">
                         <template slot-scope="scope">
@@ -76,7 +76,7 @@
                             <span>{{scope.row.pollingStatus===1? $t('m.common.true') : $t('m.common.false') }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column  prop="updateTime" sortable :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
+                    <el-table-column  prop="updateTime" sortable :sort-method="sortByDate" :label="$t('m.common.updateTime')" width="170" show-overflow-tooltip>
                         <template slot-scope="scope">
                             <span>{{scope.row.validTime | dateFormat}}</span>
                         </template>
@@ -109,6 +109,7 @@
 <script>
 import { getRollsiteList, toPublish, deleteRollsite } from '@/api/federated'
 import ipaddrollsite from './ipaddrollsite'
+import { sortByDate } from '@/filters/filter'
 
 export default {
     name: 'Ip',
@@ -149,6 +150,16 @@ export default {
 
     },
     methods: {
+        sortByDate(obj1, obj2) {
+            let val1 = new Date(obj1.validTime).getTime()
+            let val2 = new Date(obj2.validTime).getTime()
+            return val1 - val2
+        },
+        sortByPartyId(obj1, obj2) {
+            let val1 = obj1.partyId * 1
+            let val2 = obj2.partyId * 1
+            return val1 - val2
+        },
         togetRollsiteList() {
             this.data.exchangeId = this.exchangeId
             getRollsiteList(this.data).then(res => {
@@ -161,7 +172,7 @@ export default {
             this.$parent.$parent.$parent.initList()
         },
         handleSizeChange(val) {
-            console.log(`每页 ${val} 条`)
+            // console.log(`每页 ${val} 条`)
         },
         handleCurrentChange(val) {
             this.data.pageNum = val
@@ -184,7 +195,6 @@ export default {
         },
         // 编辑rollsite
         rollsiteEdit(row) {
-            console.log(row, 'row-openeidt')
             this.$refs['ipaddrollsite'].exchangeData.networkAccess = row.networkAccess
             this.$refs['ipaddrollsite'].exchangeData.networkAccessExit = row.networkAccessExit
             this.$refs['ipaddrollsite'].searchData.rollSiteId = row.rollSiteId

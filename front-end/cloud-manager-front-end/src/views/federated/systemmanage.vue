@@ -654,7 +654,7 @@ export default {
         },
         // 删除行
         toDeleteRow(row) {
-            console.log('productId==>>', row.productId)
+            // console.log('productId==>>', row.productId)
             this.productId = row.productId
             this.deleteVisible = true
         },
