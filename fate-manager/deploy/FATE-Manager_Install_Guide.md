@@ -19,8 +19,8 @@
 
 ```shell
 cd /data/projects
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.0/fate_manager_1.4.0_release-1.0.0.tar.gz
-tar -xzvf fate_manager_1.4.0_release-1.0.0.tar.gz
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.1/fate_manager_1.4.1_release-1.0.0.tar.gz
+tar -xzvf fate_manager_1.4.1_release-1.0.0.tar.gz
 ```
 
 ### 2.2 配置文件修改和示例
@@ -49,6 +49,8 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | host             |默认：不需要修改                   |fate manager ip  |
 | pro_base         |默认：/data/projects            | 项目部署目录              |
 | pro_name         |默认：FATE-Cloud 不需要修改         |项目部署名 |
+| proxy_ip |默认：null |正向代理 ip （用户选择使用正向代理） |
+| proxy_port |默认：null | 正向代理端口（用户选择使用正向代理） |
 
 ### 2.3 部署
 

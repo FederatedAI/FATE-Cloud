@@ -38,6 +38,10 @@ monitor_logger = log.getLogger('monitor_service')
 
 IP = get_base_config('fate_manager', {}).get('host', '127.0.0.1')
 PORT = get_base_config('fate_manager', {}).get('http_port', 9080)
+
+PROXY_IP = get_base_config('proxy_conf', {}).get('proxy_ip', "")
+PROXY_PORT = get_base_config('proxy_conf', {}).get('proxy_port', "")
+
 API_VERSION = 'v1'
 
 ROLL_SITE_KEY = "fate"
