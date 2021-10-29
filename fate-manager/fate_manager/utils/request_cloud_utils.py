@@ -14,7 +14,7 @@ from fate_manager.entity.types import ActivateStatus, UserRole
 from fate_manager.operation.db_operator import SingleOperation
 from fate_manager.operation.db_operator import DBOperator
 from fate_manager.settings import request_cloud_logger, CLOUD_URL, CLOUD_SITE_SIGNATURE, CLOUD_INSTITUTION_SIGNATURE,\
-    SQUID_IP, SQUID_PORT
+    PROXY_IP, PROXY_PORT
 
 
 def hash_hmac(key, code):
@@ -141,16 +141,16 @@ def request_cloud_manager(uri_key, data, body, methods="post", url=None, active=
     request_cloud_logger.info(f'start request uri:{url}, body:{body}, head:{head}')
 
     if methods == "get":
-        if SQUID_IP and SQUID_PORT:
-            proxies = {'http': str(SQUID_IP) + ':' + str(SQUID_PORT), 'https': str(SQUID_IP) + ':' + str(SQUID_PORT)}
+        if PROXY_IP and PROXY_PORT:
+            proxies = {'http': str(PROXY_IP) + ':' + str(PROXY_PORT), 'https': str(PROXY_IP) + ':' + str(PROXY_PORT)}
             request_cloud_logger.info(f'start request get proxies:{proxies}')
             response = requests.get(url, json=body, headers=head, proxies=proxies)
         else:
             response = requests.get(url, json=body, headers=head)
 
     else:
-        if SQUID_IP and SQUID_PORT:
-            proxies = {'http': str(SQUID_IP) + ':' + str(SQUID_PORT), 'https': str(SQUID_IP) + ':' + str(SQUID_PORT)}
+        if PROXY_IP and PROXY_PORT:
+            proxies = {'http': str(PROXY_IP) + ':' + str(PROXY_PORT), 'https': str(PROXY_IP) + ':' + str(PROXY_PORT)}
             request_cloud_logger.info(f'start request post proxies:{proxies}')
             response = requests.post(url, json=body, headers=head, proxies=proxies)
         else:

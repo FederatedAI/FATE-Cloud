@@ -49,8 +49,8 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | host             |默认：不需要修改                   |fate manager ip  |
 | pro_base         |默认：/data/projects            | 项目部署目录              |
 | pro_name         |默认：FATE-Cloud 不需要修改         |项目部署名 |
-| squid_ip |默认：null |正向代理 ip （用户选择使用正向代理，机构激活&站点注册，链接需要勾选https） |
-| squid_port |默认：null | 正向代理端口（用户选择使用正向代理，机构激活&站点注册，链接需要勾选https） |
+| proxy_ip |默认：null |正向代理 ip （用户选择使用正向代理） |
+| proxy_port |默认：null | 正向代理端口（用户选择使用正向代理） |
 
 ### 2.3 部署
 
