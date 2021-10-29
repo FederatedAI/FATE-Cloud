@@ -2,7 +2,7 @@ import operator
 import peewee
 
 from fate_manager.db.db_models import DB, FateSiteJobInfo, AccountInfo, FateUserInfo, ApplyInstitutionsInfo, \
-    FederatedInfo, ChangeLog, FateSiteInfo
+    FederatedInfo, ChangeLog, FateSiteInfo, backup_database_table, init_database_tables
 from fate_manager.entity.status_code import UserStatusCode
 from fate_manager.entity.types import UserRole, LogDealType, IsValidType
 from fate_manager.settings import stat_logger
@@ -48,6 +48,16 @@ class DBOperator:
                 return True
             return False
         return False
+
+
+    @classmethod
+    @DB.connection_context()
+    def delete_entity_data(cls, entity_model, **kwargs):
+        instances = entity_model.select()
+        if instances:
+            for instance in instances:
+                instance.delete_instance()
+            return True
 
     @classmethod
     @DB.connection_context()
@@ -148,6 +158,11 @@ class DBOperator:
             elif reverse is False:
                 instances = instances.order_by(getattr(entity_model, f"{order_by}").asc())
         return [item for item in instances]
+
+    @classmethod
+    def recreate(cls):
+        backup_database_table()
+        init_database_tables()
 
 
 class JointOperator:

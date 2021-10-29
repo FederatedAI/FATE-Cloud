@@ -24,15 +24,16 @@ Cloud Manager is the management center of the federated network, which is respon
 FATE Manager is responsible for the management and maintenance of their respective federated sites, providing services such as a site joining the Federation Organization, automatic deployment and upgrade of a site, monitor of the federated cooperation modeling and cluster services of a site, and management of user roles and application permissions of a site, etc.
 
 ## Deploy ##
-Cloud Manager is deployed as a separate service. As long as the deployed server has jdk8 environment and MySQL connection configuration is correct, the service can run normally. 
+FATE Cloud Deployment:
+- Method 1(ansible): [FATE-Cloud](docs/FATE-Cloud_install_guide_ansible.md)
+- Method 2(separate deployment): [Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Install_Guide.md)
 
-FATE Manager is a separate application and does not rely on any FATE service. FATE Manager in v1.0 supports the rapid deployment of FATE through KubeFATE. Therefore，before deploying FATE with FATE Manager，please ensure that MySQL and [Kubernetes](https://github.com/FederatedAI/KubeFATE/blob/master/k8s-deploy/README.md) cluster have been deployed.
-FATE Manager adds support for deploying FATE on bare metal through hyperion. For details, please refer to the following FATE-Manager deployment document.
+Other related module Deployment:
+- [Exchange](https://github.com/FederatedAI/FATE/blob/master/cluster-deploy/doc/Fate-exchange_deployment_guide_zh.md)
 
-For more detailed deployment information，please refer to FATE Cloud Deployment([Cloud-Manager](cloud-manager/deploy/doc/Cloud-Manager_Deploy_Guide.md) and [FATE-Manager](fate-manager/deploy/FATE-Manager_Deploy_Guide.md)).
 
 ## Usage ##
-After deployment，please prefer to "[FATE Cloud product manual](./docs/FATE-Cloud产品使用手册v1.0.pdf)" for detailed usage of FATE Cloud.
+After deployment，please prefer to "[FATE Cloud product manual](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)" for detailed usage of FATE Cloud.
 
 ## FAQ ##
 **Cloud Manager failed to deploy.**

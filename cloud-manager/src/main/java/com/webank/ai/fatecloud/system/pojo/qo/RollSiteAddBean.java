@@ -36,6 +36,9 @@ public class RollSiteAddBean implements Serializable {
     @ApiModelProperty(value = "network access ")
     private String networkAccess;
 
+    @ApiModelProperty(value = "network access exit")
+    private String networkAccessExit;
+
     @ApiModelProperty(value = "party details list")
     List<PartyAddBean> partyAddBeanList;
 

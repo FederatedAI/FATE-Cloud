@@ -56,6 +56,20 @@ class PermissionType:
             return "FATE-Studio"
 
 
+class PollingSecureType:
+    TRUE = 1
+    FALSE = 2
+
+    @staticmethod
+    def to_bool(status):
+        if status == 2:
+            return False
+        elif status == 1:
+            return True
+        else:
+            return None
+
+
 class ActivateStatus:
     NO = 0
     YES = 1

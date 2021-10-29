@@ -213,16 +213,15 @@ def get_login_user_manager_list(request_data):
     if not account_info_list:
         raise Exception(UserStatusCode.NoFoundAccount, f"no found account by user name {request_data.get('userName')}, "
                                                        f"status {IsValidType.YES}")
-    account_site_info_list = DBOperator.query_entity(AccountSiteInfo, **{"user_name": request_data.get("userName")})
+    site_list = DBOperator.query_entity(FateSiteInfo, **{"status": SiteStatusType.JOINED})
     data = []
-    for account_site in account_site_info_list:
-        site_list = DBOperator.query_entity(FateSiteInfo, **{"party_id": account_site.party_id,
-                                                             "status": SiteStatusType.JOINED})
-        if site_list:
+    for site in site_list:
+        if site.fate_flow_info:
             data.append({
-                "partyId": account_site.party_id,
-                "siteName": site_list[0].site_name,
-                "role": {"code": site_list[0].role, "desc": RoleType.to_str(site_list[0].role)} if site_list else {}
+                "partyId": site.party_id,
+                "siteName": site.site_name,
+                "role": {"code": site.role, "desc": RoleType.to_str(site.role)},
+                "address": "http://" + site.fate_flow_info
             })
     return data
 
@@ -289,7 +288,7 @@ def permission_authority(request_data):
 
 
 def get_allow_party_list(request_data):
-    federated_item_list = get_other_site_list()
+    federated_item_list = get_other_site_list(request_data)
     if not request_data.get("roleName"):
         return federated_item_list
     data = []

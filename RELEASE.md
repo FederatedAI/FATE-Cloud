@@ -1,3 +1,37 @@
+# **Release 1.4.0** #
+## Cloud Manager ##
+
+**Site Manage**
+- Improvements for site registration process.
+- Improvements for the generation rule of site registration link.
+- Add the function of deleting an institution，the institution will be removed registration from organization after deleted.
+- Add the function of reactivating a site，the site will be reset to "not joined" status and can be reactivated when there occurs errors.
+
+**IP Manage**
+- Cloud Manager can edit IP info and synchronize the changes to related FATE Manager. 
+- Add the logic of Exchange auto-update，the related Exchange router tables will update automatically while IP info updates.
+- Improvements for the structure of  Exchange
+
+**Admin Access**
+- Add the function of reactivating an institution，the institution will be reset to "unactivated" status and  can be reactivated when there occurs errors.
+- Improvements for the generation rule of institution invitation link.
+
+Others
+- Improvements for UI interface.
+- Lists in some menus can be sorted by party ID and time
+- Remove the related functions of "Auto-deploy" 
+
+
+## FATE Manager ##
+
+**Site Manage**
+- Improvements for site registration process，the site router table will update automatically when FATE Manager activates a site. 
+
+**Others**
+- Improvements for UI interface.
+- Remove the related functions of "Auto-deploy" 
+
+
 # **Release 1.3.0** #
 
 # **Major Features and Improvements** #

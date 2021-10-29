@@ -1,11 +1,17 @@
 #!/bin/bash
 
+workdir=$(cd $(dirname $0); pwd)
+. ${workdir}/conf/setup.conf
+venv=${pyenv}
+
 PROJECT_BASE=$(cd "$(dirname "$0")";cd ../;pwd)
 export PYTHONPATH=$PROJECT_BASE
 
-venv=$PROJECT_BASE/common/python/venv
+
 log_dir=$PROJECT_BASE/logs
 module=fate_manager_server.py
+
+
 
 getpid() {
     sleep 2
@@ -41,7 +47,7 @@ start() {
     if [[ $? -eq 0 ]]; then
         mklogsdir
         source ${venv}/bin/activate
-        python ${module}  >>"${log_dir}/console.log" 2>>"${log_dir}/error.log" &
+        nohup python ${module}  >>"${log_dir}/console.log" 2>>"${log_dir}/error.log" &
         if [[ $? -eq 0 ]]; then
             getpid
             echo "service start sucessfully. pid: ${pid}"
@@ -58,7 +64,7 @@ starting() {
     if [[ $? -eq 0 ]]; then
         mklogsdir
         source ${venv}/bin/activate
-        python ${module}  >>"${log_dir}/console.log" 2>>"${log_dir}/error.log"
+        exec python ${module}  >>"${log_dir}/console.log" 2>>"${log_dir}/error.log"
         if [[ $? -eq 0 ]]; then
             getpid
             echo "service start sucessfully. pid: ${pid}"
@@ -92,8 +98,8 @@ case "$1" in
         status
         ;;
     
-    sstart)
-        sstart
+    starting)
+        starting
         status
         ;;
 

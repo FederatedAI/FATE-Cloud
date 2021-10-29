@@ -35,8 +35,8 @@ public class ExchangeAddQo implements Serializable {
     @ApiModelProperty(value = "exchange name")
     private String exchangeName;
 
-    @ApiModelProperty(value = "vip address access ")
-    private String vip;
+    @ApiModelProperty(value = "vip entrance address access ")
+    private String vipEntrance;
 
     @ApiModelProperty(value = "exchange details list")
     List<RollSiteAddBean> rollSiteAddBeanList;

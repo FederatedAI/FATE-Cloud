@@ -29,6 +29,7 @@ public class IpManagerListDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public IpManagerListDto(FederatedSiteManagerDo federatedSiteManagerDo) {
+        this.id = federatedSiteManagerDo.getId();
         this.partyId = federatedSiteManagerDo.getPartyId();
         this.siteName = federatedSiteManagerDo.getSiteName();
         this.institutions = federatedSiteManagerDo.getInstitutions();
@@ -36,6 +37,9 @@ public class IpManagerListDto implements Serializable {
         this.networkAccessExitsOld=federatedSiteManagerDo.getNetworkAccessExits();
         this.updateTime=federatedSiteManagerDo.getCreateTime().getTime();
     }
+    @ApiModelProperty(value = "site id")
+    private Long id;
+
     @ApiModelProperty(value = "site name")
     private String siteName;
 
@@ -59,6 +63,24 @@ public class IpManagerListDto implements Serializable {
 
     @ApiModelProperty(value = "network access exits old")
     private String networkAccessExitsOld;
+
+    @ApiModelProperty(value = "exchange id")
+    private Long exchangeId;
+
+    @ApiModelProperty(value = "exchange name")
+    private String exchangeName;
+
+    @ApiModelProperty(value = "secure status")
+    private Integer secureStatus;
+
+    @ApiModelProperty(value = "secure status new")
+    private Integer secureStatusNew;
+
+    @ApiModelProperty(value = "polling status")
+    private Integer pollingStatus;
+
+    @ApiModelProperty(value = "polling status new")
+    private Integer pollingStatusNew;
 
     @ApiModelProperty(value = "update time")
     private Long updateTime;

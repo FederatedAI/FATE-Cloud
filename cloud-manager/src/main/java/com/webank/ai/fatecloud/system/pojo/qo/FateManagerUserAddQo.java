@@ -41,4 +41,7 @@ public class FateManagerUserAddQo implements Serializable {
 
     @ApiModelProperty("network")
     private String network;
+
+    @ApiModelProperty("generate registration link pattern, long or short")
+    private String mode;
 }

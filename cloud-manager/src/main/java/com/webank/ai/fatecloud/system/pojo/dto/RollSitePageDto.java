@@ -33,7 +33,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @ApiModel(value = "roll site details with count")
-public class RollSitePageDto   {
+public class RollSitePageDto {
 
     @ApiModelProperty(value = " published party count")
     private Integer count;
@@ -47,6 +47,9 @@ public class RollSitePageDto   {
     @ApiModelProperty(value = "network access ")
     public String networkAccess;
 
+    @ApiModelProperty(value = "network access exit")
+    public String networkAccessExit;
+
     @ApiModelProperty(value = "create time")
     public Date createTime;
 
@@ -58,13 +61,14 @@ public class RollSitePageDto   {
 
     public List<PartyDo> partyDos;
 
-    public RollSitePageDto(RollSiteDo rollSiteDo){
-        this.rollSiteId=rollSiteDo.getRollSiteId();
-        this.networkAccess=rollSiteDo.getNetworkAccess();
-        this.createTime=rollSiteDo.getCreateTime();
-        this.updateTime=rollSiteDo.getUpdateTime();
-        this.exchangeId=rollSiteDo.getRollSiteId();
-        this.partyDos=rollSiteDo.getPartyDos();
+    public RollSitePageDto(RollSiteDo rollSiteDo) {
+        this.rollSiteId = rollSiteDo.getRollSiteId();
+        this.networkAccess = rollSiteDo.getNetworkAccess();
+        this.networkAccessExit = rollSiteDo.getNetworkAccessExit();
+        this.createTime = rollSiteDo.getCreateTime();
+        this.updateTime = rollSiteDo.getUpdateTime();
+        this.exchangeId = rollSiteDo.getRollSiteId();
+        this.partyDos = rollSiteDo.getPartyDos();
     }
 
 }

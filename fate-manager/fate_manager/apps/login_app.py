@@ -17,14 +17,12 @@ def internal_server_error(e):
 @manager.route('/activate', methods=['post'])
 def activate():
     request_data = request.json
-    detect_utils.check_config(config=request_data,
-                              required_arguments=['activateUrl', 'appKey', 'appSecret', 'fateManagerId',
-                                                  'federatedId',
-                                                  'federatedOrganization', 'federatedUrl', 'institution',
-                                                  'institutions',
-                                                  'passWord', 'userName', 'link', 'createTime'])
-    login_service.fate_manager_activate(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data,required_arguments=['link', 'userName', 'passWord'])
+    data = login_service.fate_manager_activate(request_data.get('link'),
+                                               request_data.get('userName'),
+                                               request_data.get('passWord'),
+                                               )
+    return get_json_result(data=data)
 
 
 @manager.route('/login', methods=['post'])

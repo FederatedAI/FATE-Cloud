@@ -1,6 +1,8 @@
 from flask import Flask, request
 from flask_cors import CORS
 
+from fate_manager.controller import site_controller
+from fate_manager.controller.site_controller import site_page
 from fate_manager.service import site_service
 from fate_manager.utils import detect_utils
 from fate_manager.utils.api_utils import server_error_response, get_json_result
@@ -18,26 +20,41 @@ def internal_server_error(e):
 def register_site():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=['appKey', 'appSecret', 'federatedOrganization',
-                                                                       'federatedUrl', 'id', 'institutions',
-                                                                       'networkAccessEntrances', 'networkAccessExits',
-                                                                       'partyId', 'registrationLink', 'role', 'siteName'])
-    token = request.headers.get("token")
-    data = site_service.register_fate_site(request_data, token)
+                                                                       'id', 'institutions','partyId',"siteId",
+                                                                       'registrationLink','role','siteName',
+                                                                        'networkAccessEntrances',
+                                                                       'fmRollSiteNetworkEntrances',
+                                                                       'fmRollSiteNetworkAccessExitsList',
+                                                                        'pollingStatus', 'secureStatus',
+                                                                        'vipEntrance', 'exchangeName',
+                                                                       'cmRollSiteNetworkAccessExitsList'])
+
+    data = site_service.register_fate_site(request_data)
     return get_json_result(data=data)
 
 
 @manager.route('/checkUrl', methods=['post'])
 def check_url():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=['registrationLink', 'partyId', 'role', 'appKey'])
+    detect_utils.check_config(config=request_data, required_arguments=['link'])
+    data = site_service.check_register_url(request_data)
+    site_service.check_exists_site(data)
+    return get_json_result(data=data)
+
+
+@manager.route('/checkWeb', methods=['post'])
+def connect_test():
     request_data = request.json
-    site_service.check_register_url(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data, required_arguments=['ip', 'port'])
+    data = site_controller.connect_test(request_data.get('ip'), request_data.get('port'))
+    return get_json_result(data=data)
 
 
-@manager.route('/', methods=['get'])
+@manager.route('/getsite', methods=['post'])
 def get_site():
-    data = site_service.get_home_site_list()
+    request_data = request.json
+    site_info = site_service.get_home_site_list()
+    data = site_page(site_info, int(request_data.get('pageSize', 10)), int(request_data.get('pageNum', 1)))
     return get_json_result(data=data)
 
 
@@ -53,9 +70,10 @@ def fate_manager():
     return get_json_result(data={"institutions": allow_institutions_list, "size": len(allow_institutions_list)})
 
 
-@manager.route('/other', methods=['get'])
+@manager.route('/other', methods=['post'])
 def other_site():
-    data = site_service.get_other_site_list()
+    request_data = request.json
+    data = site_service.get_other_site_list(request_data)
     return get_json_result(data=data)
 
 
@@ -100,7 +118,7 @@ def apply_institutions():
 @manager.route('/info', methods=['post'])
 def site_info():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
+    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId", "siteId"])
     data = site_service.get_site_detail(request_data)
     return get_json_result(data=data)
 
@@ -108,19 +126,30 @@ def site_info():
 @manager.route('/update', methods=['post'])
 def update_site():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["federatedOrganization", "role", "appKey",
-                                                                       "appSecret", "networkAccessEntrances",
-                                                                       "networkAccessExits", "federatedId", "partyId"])
-    site_service.update_site(request_data)
-    return get_json_result()
+    UpdateFateFlowInfo = request_data.get('UpdateFateFlowInfo', None)
+    if UpdateFateFlowInfo:
+        data = site_service.update_version(request_data)
+        return get_json_result(retmsg=data.get('msg'))
+    else:
+        detect_utils.check_config(config=request_data, required_arguments=["federatedOrganization", "role", "appKey",
+                                                                           "appSecret", "networkAccessEntrances",
+                                                                           'fmRollSiteNetworkAccessExitsList',
+                                                                           'fmRollSiteNetworkAccess',
+                                                                           "pollingStatus","secureStatus",
+                                                                           "federatedId","partyId","siteId",
+                                                                           ])
+        site_service.update_site(request_data)
+        return get_json_result()
 
 
 @manager.route('/telnet', methods=['post'])
 def telnet_site_ip():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["partyId", "ip", "port"])
-    site_service.telnet_ip(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data, required_arguments=["ip", "port"])
+    ip = request_data.get('ip')
+    port = request_data.get('port')
+    res = site_service.connect_test(ip, int(port))
+    return get_json_result(retmsg=res)
 
 
 @manager.route('/readmsg', methods=['post'])
@@ -134,9 +163,9 @@ def readmsg():
 @manager.route('/getmsg', methods=['post'])
 def getmsg():
     request_data = request.json
-    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
-    site_service.get_change_msg(request_data)
-    return get_json_result()
+    detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId", "siteId"])
+    ret = site_service.get_change_msg(request_data)
+    return get_json_result(data=ret)
 
 
 @manager.route('/updateVersion', methods=['post'])
@@ -148,9 +177,10 @@ def update_version():
     return get_json_result()
 
 
-@manager.route('/applylog', methods=['get'])
+@manager.route('/applylog', methods=['post'])
 def apply_log():
-    data = site_service.get_apply_log()
+    request_data = request.json
+    data = site_service.get_apply_log(request_data)
     return get_json_result(data=data)
 
 
@@ -174,4 +204,11 @@ def secret_info():
     request_data = request.json
     detect_utils.check_config(config=request_data, required_arguments=["federatedId", "partyId"])
     data = site_service.get_secret_info(request_data)
+    return get_json_result(data=data)
+
+
+@manager.route('/testrollsite', methods=['post'])
+def connect_rollsite():
+    request_data = request.json
+    data = site_service.test_rollsite_ip(request_data)
     return get_json_result(data=data)

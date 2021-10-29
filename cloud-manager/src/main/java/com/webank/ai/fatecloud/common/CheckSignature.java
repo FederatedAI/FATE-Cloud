@@ -16,16 +16,9 @@
 package com.webank.ai.fatecloud.common;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.webank.ai.fatecloud.system.dao.entity.FederatedFateManagerUserDo;
-import com.webank.ai.fatecloud.system.dao.entity.FederatedSiteManagerDo;
-import com.webank.ai.fatecloud.system.dao.mapper.FederatedSiteManagerMapper;
 import com.webank.ai.fatecloud.system.pojo.dto.SiteDetailDto;
 import com.webank.ai.fatecloud.system.service.impl.FederatedFateManagerUserService;
 import com.webank.ai.fatecloud.system.service.impl.FederatedSiteManagerService;
@@ -36,10 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @Component
 @Slf4j
@@ -246,5 +235,139 @@ public class CheckSignature {
 
         }
         return true;
+    }
+
+    // v4 short link activate
+    public boolean shortLinkActivateCheckSignature(HttpServletRequest httpServletRequest, String httpBody, String type, int[] fateManagerUserStatus, Object... siteStatus) {
+        // judge the type of request
+        if (Dict.FATE_MANAGER_USER.equals(type)) {
+
+            // check header parameters
+            String signature = httpServletRequest.getHeader(Dict.SIGNATURE);
+            String timestamp = httpServletRequest.getHeader(Dict.TIMESTAMP);
+            String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+            String nonce = httpServletRequest.getHeader(Dict.NONCE);
+            String httpURI = httpServletRequest.getRequestURI();
+            Preconditions.checkArgument(StringUtils.isNoneEmpty(signature, timestamp, fateManagerUserId, nonce, httpURI));
+            log.info(
+                    "shortLinkActivateCheckSignature Head Information | timestamp:{},fateManagerUserId:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                    timestamp, fateManagerUserId, nonce, httpURI, httpBody, signature
+            );
+
+            if (fateManagerUserStatus == null || 0 == fateManagerUserStatus.length) {
+                throw new IllegalArgumentException();
+            }
+
+            // get data of the fate manager user
+            FederatedFateManagerUserDo fateManagerUserDo = federatedFateManagerUserService.findFateManagerUser(fateManagerUserId);
+            if (fateManagerUserDo == null) {
+                return false;
+            }
+
+            // check fate manager user status
+            for (int i : fateManagerUserStatus) {
+                if (i != fateManagerUserDo.getStatus()) {
+                    return false;
+                }
+            }
+
+            String trueSignature = EncryptUtil.generateSignature(fateManagerUserId, timestamp, fateManagerUserId, nonce, httpURI, httpBody);
+
+            log.info(
+                    "shortLinkActivateCheckSignature True Information | timestamp:{},fateManagerUserId:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                    timestamp, fateManagerUserId, nonce, httpURI, httpBody, trueSignature
+            );
+
+            return StringUtils.equals(signature, trueSignature);
+        } else {
+            if (Dict.FATE_SITE_USER.equals(type)) {
+                //check header parameters
+                String signature = httpServletRequest.getHeader(Dict.SIGNATURE);
+                String timestamp = httpServletRequest.getHeader(Dict.TIMESTAMP);
+                String partyId = httpServletRequest.getHeader(Dict.PARTY_ID);
+                String fateManagerUserId = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_ID);
+                String fateManagerUserAppKey = httpServletRequest.getHeader(Dict.FATE_MANAGER_USER_APP_KEY);
+                String appKey = httpServletRequest.getHeader(Dict.APP_KEY);
+                String nonce = httpServletRequest.getHeader(Dict.NONCE);
+                String httpURI = httpServletRequest.getRequestURI();
+
+                log.info(
+                        "Head Information | timestamp:{},partyId:{},fateManagerUserId:{},fateManagerUserAppKey:{},appKey:{},nonce:{},httpURI:{},httpBody:{},signature:{}",
+                        timestamp, partyId, fateManagerUserId, fateManagerUserAppKey, appKey, nonce, httpURI, httpBody, signature
+                );
+                Preconditions.checkArgument(StringUtils.isNoneEmpty(fateManagerUserId, fateManagerUserAppKey, partyId, appKey, timestamp, nonce, httpURI));
+
+                if (fateManagerUserStatus == null || 0 == fateManagerUserStatus.length) {
+                    throw new IllegalArgumentException();
+                }
+
+                if (siteStatus == null || 0 == siteStatus.length) {
+                    throw new IllegalArgumentException();
+                }
+
+                // get data of the fate manager user
+                FederatedFateManagerUserDo fateManagerUser = federatedFateManagerUserService.findFateManagerUser(fateManagerUserId);
+                if (fateManagerUser == null) {
+                    return false;
+                }
+
+                // check fate manager user status
+                boolean fateManagerUserStatusResult = false;
+                for (int i : fateManagerUserStatus) {
+                    if (i == fateManagerUser.getStatus()) {
+                        fateManagerUserStatusResult = true;
+                        break;
+                    }
+                }
+                if (!fateManagerUserStatusResult) {
+                    return false;
+                }
+
+                String fateManagerSecretInfoString = fateManagerUser.getSecretInfo();
+                SecretInfo fateManagerSecretInfo = JSON.parseObject(fateManagerSecretInfoString, new TypeReference<SecretInfo>() {
+                });
+                String fateManagerUserKey = fateManagerSecretInfo.getKey();
+                String fateManagerUserSecret = fateManagerSecretInfo.getSecret();
+
+                if (!fateManagerUserAppKey.equals(fateManagerUserKey)) {
+                    return false;
+                }
+
+
+                // get site information
+                SiteDetailDto site = federatedSiteManagerService.findSiteByPartyId(Long.parseLong(partyId), appKey, siteStatus);
+
+                if (site == null) {
+                    return false;
+                }
+
+                // check site belong to institutions
+                if (!fateManagerUser.getInstitutions().equals(site.getInstitutions())) {
+                    return false;
+                }
+
+
+                SecretInfo siteSecretInfo = site.getSecretInfo();
+                String siteKey = siteSecretInfo.getKey();
+                //String siteSecret = siteSecretInfo.getSecret();
+
+                if (!appKey.equals(siteKey)) {
+                    return false;
+                }
+
+                String trueSignature = EncryptUtil.generateSignature(fateManagerUserSecret,
+                        timestamp, partyId, fateManagerUserId, fateManagerUserAppKey, appKey, nonce, httpURI, httpBody);
+
+                log.info(
+                        "True Information | fateManagerUserSecret:{},timestamp:{},partyId:{},fateManagerUserId:{},fateManagerUserAppKey:{},appKey:{},nonce:{},httpURI:{},httpBody:{},trueSignature:{}",
+                        fateManagerUserSecret, timestamp, partyId, fateManagerUserId, fateManagerUserAppKey, appKey, nonce, httpURI, httpBody, trueSignature
+                );
+
+                return StringUtils.equals(signature, trueSignature);
+            } else {
+                return false;
+            }
+        }
+
     }
 }

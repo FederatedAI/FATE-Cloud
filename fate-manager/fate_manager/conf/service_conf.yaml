@@ -1,7 +1,7 @@
 database:
   name: fate_manager
-  user: root
-  passwd: root
+  user: fate
+  passwd: fate_dev
   host: 127.0.0.1
   port: 3306
   max_connections: 100
@@ -9,3 +9,6 @@ database:
 fate_manager:
   host: 0.0.0.0
   http_port: 9080
+proxy_conf:
+  proxy_ip:
+  proxy_port:

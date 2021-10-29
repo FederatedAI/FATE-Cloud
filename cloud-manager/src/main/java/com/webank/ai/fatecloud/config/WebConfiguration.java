@@ -76,7 +76,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/api/cloud/user/login")
 
                 .addPathPatterns("/api/fate/user/**")
-                .excludePathPatterns("/api/fate/user/activate")
+                .excludePathPatterns("/api/fate/user/activate", "/api/fate/user/activate/v2")
 
                 .addPathPatterns("/api/function/**")
                 .excludePathPatterns("/api/function/find/all/fateManager")
@@ -89,7 +89,8 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .addPathPatterns("/api/site/**")
                 .excludePathPatterns("/api/site/findOneSite", "/api/site/checkAuthority", "/api/site/heart", "/api/site/page",
                         "/api/site/findOneSite/fateManager", "/api/site/checkAuthority/fateManager", "/api/site/checkAuthority/fateManager/v3","/api/site/heart/fateManager", "/api/site/page/fateManager",
-                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version", "/api/site/rollsite/checkPartyId"
+                        "/api/site/checkUrl", "/api/site/activate", "/api/site/ip/accept", "/api/site/ip/query", "/api/site/fate/version", "/api/site/rollsite/checkPartyId",
+                        "/api/site/activate/v2", "/api/site/activate/query/details", "/api/site/ip/update/query"
                 )
 
                 .addPathPatterns("/api/system/**")

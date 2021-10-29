@@ -17,6 +17,21 @@ package com.webank.ai.fatecloud.system.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.webank.ai.fatecloud.system.dao.entity.PartyDo;
+import com.webank.ai.fatecloud.system.pojo.dto.PartyDetailsDto;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface PartyMapper extends BaseMapper<PartyDo> {
+    PartyDetailsDto selectPartyDetails(@Param("partyId") String partyId);
+
+    List<PartyDo> selectByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    List<PartyDo> selectExistByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    Integer countSiteByRollSiteId(@Param("rollSiteId") Long rollSiteId);
+
+    int deleteNotExistAssociateParty();
+
+    List<PartyDo> findAuthSyncParty(@Param("exchangeId") Long exchangeId);
 }

@@ -1,28 +1,47 @@
 import json
+import requests
+import socket
 from copy import deepcopy
 
-from fate_manager.utils.base_utils import current_timestamp
+from fate_manager.controller.site_controller import connect_test
+from fate_manager.utils.base_utils import current_timestamp, deserialize_b64_decode
 from fate_manager.controller import version_controller
 from fate_manager.controller.apply import apply_result_task, allow_apply_task
 from fate_manager.db.db_models import AccountInfo, FederatedInfo, FateSiteInfo, DeploySite, ChangeLog, TokenInfo, \
     AccountSiteInfo, ApplyInstitutionsInfo, ApplySiteInfo
 from fate_manager.entity import item
-from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode
+from fate_manager.entity.status_code import UserStatusCode, SiteStatusCode,FateFlowInfoStatusCode,RollsiteInfoStatusCode
 from fate_manager.entity.types import ActivateStatus, UserRole, SiteStatusType, EditType, ServiceStatusType, FuncDebug, \
-    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType
+    ApplyReadStatusType, RoleType, IsValidType, AuditStatusType, ReadStatusType, LogDealType, PollingSecureType
 from fate_manager.operation.db_operator import SingleOperation, JointOperator
 from fate_manager.operation.db_operator import DBOperator
-from fate_manager.settings import site_service_logger as logger, CLOUD_URL
-from fate_manager.utils.request_cloud_utils import request_cloud_manager, get_old_signature_head
+from fate_manager.settings import site_service_logger as logger, CLOUD_URL,FATE_FLOW_SETTINGS,ROLL_SITE_KEY,ROLL_SITE_FLAG,DEFAULT_GRPC_TIMEOUT
+from fate_manager.utils.request_cloud_utils import request_cloud_manager, SignatureHead
+from fate_manager.controller.roll_site import write_site_route,roll_site_actuator
+from fate_manager.utils.request_fate_flow_utils import post_fate_flow
 
 
-def register_fate_site(request_data, token):
-    token_info_list = DBOperator.query_entity(TokenInfo, **{"token": token})
-    user_name = token_info_list[0].user_name
-    account = DBOperator.query_entity(AccountInfo, **{"user_name": user_name, "status": IsValidType.YES})[0]
-    body = {"registrationLink": request_data.get("registrationLink")}
+def register_fate_site(request_data):
+    registrationLink = request_data.get("registrationLink")
+    url, institutions, id = deserialize_b64_decode(registrationLink)
+    logger.info(f'site registrationLink decode info:{url}--{institutions}--{id}')
+    request_data['federatedUrl'] = url
+    body = {
+        "pollingStatus": request_data.get("pollingStatus", PollingSecureType.FALSE),
+        "secureStatus": request_data.get("secureStatus", PollingSecureType.FALSE),
+        "registrationLink": request_data.get("registrationLink"),
+        "networkAccessEntrances": request_data.get("networkAccessEntrances"),
+        "networkAccessExits": request_data.get("fmRollSiteNetworkAccessExitsList")
+    }
+
+    logger.info("start save exchange info to rollsite")
+    ret = update_all_rollsite_info(request_data.get("vipEntrance"), request_data.get("fmRollSiteNetworkEntrances"),
+                             request_data.get("partyId"), is_secure=request_data.get("secureStatus"),
+                             is_polling=request_data.get("pollingStatus"))
+    logger.info(f"update rollsite info success")
     logger.info(f"start request cloud ActivateUri, data: {request_data}, body:{body}")
-    request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"))
+    request_cloud_manager(uri_key="ActivateUri", data=request_data, body=body, url=request_data.get("federatedUrl"),
+                          active=True, need_body=False)
     logger.info("request cloud success")
     federated_info = {
         "federated_id": request_data.get("id"),
@@ -34,19 +53,27 @@ def register_fate_site(request_data, token):
     logger.info(f"start save federated info: {federated_info}")
     DBOperator.safe_save(FederatedInfo, federated_info)
     logger.info("save federated info success")
-
     site_info = {
         "federated_id": request_data.get("id"),
         "federated_organization": request_data.get("federatedOrganization"),
         "party_id": request_data.get("partyId"),
+        "site_id": request_data.get("siteId"),
         "site_name": request_data.get("siteName"),
         "institutions": request_data.get("institutions"),
         "role": request_data.get("role"),
         "app_key": request_data.get("appKey"),
         "app_secret": request_data.get("appSecret"),
         "registration_link": request_data.get("registrationLink"),
+
         "network_access_entrances": request_data.get("networkAccessEntrances"),
-        "network_access_exits": request_data.get("networkAccessExits"),
+        "fm_rollsite_network_entrances": request_data.get("fmRollSiteNetworkEntrances") if ret else "",
+        "fm_rollsite_exits_list": request_data.get("fmRollSiteNetworkAccessExitsList"),
+        "polling_status": request_data.get("pollingStatus", PollingSecureType.FALSE),
+        "secure_status": request_data.get("secureStatus", PollingSecureType.FALSE),
+        "exchange_name": request_data.get("exchangeName"),
+        "vip_entrances": request_data.get("vipEntrance"),
+        "cm_rollsite_exits_list": request_data.get("cmRollSiteNetworkAccessExitsList"),
+
         "status": SiteStatusType.JOINED,
         "edit_status": EditType.YES,
         "service_status": ServiceStatusType.UNAVAILABLE,
@@ -61,13 +88,6 @@ def register_fate_site(request_data, token):
     })
     logger.info("save site info success")
 
-    # save account party id
-    # account_site = AccountSiteInfo()
-    # account_site.party_id = request_data.get("partyId")
-    # account_site.user_name = account.user_name
-    # account_site.fate_manager_id = account.fate_manager_id
-    # DBOperator.create_entity(AccountSiteInfo, account_site.to_json())
-
     logger.info(f"start request cloud SiteQueryUri")
     data = request_cloud_manager(uri_key="SiteQueryUri", data=item.SiteSignatureItem(**request_data).to_dict(), body={},
                                  url=request_data.get("federatedUrl"))
@@ -76,11 +96,15 @@ def register_fate_site(request_data, token):
 
 
 def check_register_url(request_data):
+    request_data = {'registrationLink': request_data.get("link")}
+    request_data['federatedUrl'], request_data['partyId'], request_data['appKey'] = deserialize_b64_decode(request_data.get("registrationLink"))
+    logger.info(f'site checkUrl request info:{request_data}')
     body = {"registrationLink": request_data.get("registrationLink")}
-    logger.info(f"start request cloud CheckUri, body:{body}")
-    request_cloud_manager(uri_key="CheckUri", data=item.SiteSignatureItem(**request_data).to_dict(), body=body,
-                          url=request_data.get("federatedUrl"))
-    logger.info("request cloud success")
+    logger.info(f"start request cloud site info, body:{body}")
+    message = request_cloud_manager(uri_key="ActivateUriInfo", data=item.SiteSignatureItem(**request_data).to_dict(),
+                                    body=body, url=request_data.get("federatedUrl"), active=True)
+    logger.info(f"request cloud ActivateUriInfo success: {message}")
+    return message
 
 
 def find_all_fatemanager():
@@ -120,6 +144,7 @@ def find_all_fatemanager():
 
 def get_home_site_list():
     logger.info("get all site")
+    DBOperator.delete_entity(FateSiteInfo,**{"status":1})
     federated_site_list = JointOperator.get_home_site()
     logger.info(f"federated_site_list:{federated_site_list}")
     account = SingleOperation.get_admin_info()
@@ -132,7 +157,16 @@ def get_home_site_list():
         federated_item.institutions = federated_site_list[0].institution
         federated_item.fateManagerInstitutions = account.institutions
         federated_item.federatedId = federated_site_list[0].federated_id
-        federated_item.createTime = federated_site_list[0].federated_organization_create_time
+        resp = request_cloud_manager(uri_key="FederationInfoUri",
+                                     data={"fateManagerId": account.fate_manager_id,
+                                           "appKey": account.app_key,
+                                           "appSecret":account.app_secret},
+                                     body={},
+                                     methods="get",
+                                     url=federated_site_list[0].federated_url,
+                                     )
+        federated_item.size = resp.get("total")
+        federated_item.createTime = resp.get("federatedOrganizationDto", {}).get("createTime")
         federated_item_dict = {federated_item.federatedId: federated_item.to_dict(need_none=True)}
     else:
         for site in federated_site_list:
@@ -176,13 +210,15 @@ def get_home_site_list():
                     "activation_time": resp_data.get("activationTime"),
                     "site_id": resp_data.get("id")
                 }
+                if int(site_item.status["code"]) == 3:
+                    site_info.update({"fate_flow_info":"","fate_version":""})
                 logger.info(f"start save site info:{site_info}")
                 DBOperator.safe_save(FateSiteInfo, site_info)
                 logger.info("save site info success")
 
                 # update fate version
-                if fate_site_info.fate_version or fate_site_info.fate_serving_version:
-                    version_controller.update_version_to_cloud_manager(site)
+                # if fate_site_info.fate_version or fate_site_info.fate_serving_version:
+                #     version_controller.update_version_to_cloud_manager(site)
             if federated_item.federatedId not in federated_item_dict.keys():
                 federated_item_dict[federated_item.federatedId] = federated_item.to_dict(need_none=True)
                 federated_item_dict[federated_item.federatedId]["siteList"] = [site_item.to_dict(need_none=True)]
@@ -200,7 +236,10 @@ def get_fate_manager_list():
     return allow_institutions_list
 
 
-def get_other_site_list():
+def get_other_site_list(request_data):
+    pageNum = request_data.get('pageNum', 1)
+    pageSize = request_data.get('pageSize', 5)
+
     federated_infos = SingleOperation.get_federated_info()
     account = SingleOperation.get_admin_info()
     apply_result_task(account)
@@ -218,8 +257,8 @@ def get_other_site_list():
                                                                    appSecret=account.app_secret).to_dict()
         resp = request_cloud_manager(uri_key="OtherSiteUri", data=institution_signature_item,
                                      body={"institutions": institutions_item.institutions,
-                                           "pageNum": 1,
-                                           "pageSize": 100},
+                                           "pageNum": pageNum,
+                                           "pageSize": pageSize},
                                      url=None
                                      )
         site_item_list = []
@@ -347,7 +386,9 @@ def read_apply_site():
 
 def get_site_detail(request_data):
     site_list = DBOperator.query_entity(FateSiteInfo, party_id=request_data.get("partyId"),
-                                        federated_id=request_data.get("federatedId"))
+                                        federated_id=request_data.get("federatedId"),
+                                        site_id=request_data.get("siteId")
+                                        )
     if not site_list:
         raise Exception(SiteStatusCode.NoFoundSite, f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')
     site = site_list[0]
@@ -359,12 +400,22 @@ def get_site_detail(request_data):
         "createTime": site.create_time,
         "editStatus": item.IdPair(code=site.edit_status, desc=EditType.to_str(site.edit_status)).to_dict(),
         "fateServingVersion": site.fate_serving_version,
+        "fateFlowIp": site.fate_flow_info,
         "fateVersion": site.fate_version,
         "federatedId": site.federated_id,
         "federatedOrganization": site.federated_organization,
         "institutions": site.institutions,
-        "networkAccessEntrances": site.network_access_entrances,
-        "networkAccessExits": site.network_access_exits,
+
+        "ExchangeInfo": {
+            "exchangeName": site.exchange_name,
+            "vipEntrances": site.vip_entrances,
+            "pollingStatus": site.polling_status,
+            "secureStatus": site.secure_status,
+            "networkAccessEntrances": site.network_access_entrances,
+            "fmRollSiteNetworkAccess": site.fm_rollsite_network_entrances,
+            "fmRollSiteNetworkAccessExitsList": site.fm_rollsite_exits_list,
+        },
+        "exchangeReadStatus": site.exchange_read_status,
         "partyId": site.party_id,
         "registrationLink": site.registration_link,
         "siteId": site.site_id,
@@ -373,19 +424,70 @@ def get_site_detail(request_data):
         "status": item.IdPair(code=site.status, desc=SiteStatusType.to_str(site.status)).to_dict(),
         "versionEditStatus": item.IdPair(code=EditType.YES, desc=EditType.to_str(EditType.YES)).to_dict()
     }
-    deploy_site_list = DBOperator.query_entity(DeploySite, party_id=request_data.get("partyId"),
-                                               federated_id=request_data.get("federatedId"),
-                                               deploy_type=1,
-                                               is_valid=IsValidType.YES
-                                               )
-    if deploy_site_list:
-        site_detail["versionEditStatus"] = item.IdPair(code=EditType.NO, desc=EditType.to_str(EditType.NO)).to_dict()
+
+    if request_data.get('updateMark'):
+        update_info = {
+            "party_id": request_data.get("partyId"),
+            "site_id": request_data.get("siteId"),
+            "federated_id": request_data.get("federatedId"),
+            "exchange_name_new": "",
+            "vip_entrances_new": "",
+            "polling_status_new": "",
+            "secure_status_new": "",
+            "network_access_entrances_new": "",
+            "exchange_read_status": 0,
+        }
+        if site.network_access_entrances_new and site.network_access_entrances != site.network_access_entrances_new:
+            update_info.update({"network_access_entrances": site.network_access_entrances_new})
+        if site.exchange_name_new and site.exchange_name_new != site.exchange_name:
+            update_info.update({"exchange_name": site.exchange_name_new})
+        if site.vip_entrances_new and site.vip_entrances_new != site.vip_entrances:
+            site.vip_entrances = site.vip_entrances_new
+            update_info.update({"vip_entrances": site.vip_entrances_new})
+        if site.polling_status_new and site.polling_status_new != site.polling_status:
+            site.polling_status = site.polling_status_new
+            update_info.update({"polling_status": site.polling_status_new})
+        if site.secure_status_new and site.secure_status_new != site.secure_status:
+            site.secure_status = site.secure_status_new
+            update_info.update({"secure_status": site.secure_status_new})
+        logger.info(f'update siteInfo from cm :{update_info}')
+        DBOperator.update_entity(FateSiteInfo, update_info)
+        # update rollsite info：
+        update_all_rollsite_info(site.vip_entrances,
+                                 site.fm_rollsite_network_entrances,
+                                 site.party_id,
+                                 is_secure=site.secure_status,
+                                 is_polling=site.polling_status)
+
+    else:
+        if site.exchange_read_status == 1:
+
+            if site.exchange_name_new and site.exchange_name_new != site.exchange_name:
+                site_detail["ExchangeInfo"].update({"exchangeNameNew": site.exchange_name_new})
+            if site.vip_entrances_new and site.vip_entrances_new != site.vip_entrances:
+                site_detail["ExchangeInfo"].update({"vipEntrancesNew": site.vip_entrances_new})
+            if site.polling_status_new and site.polling_status_new != site.polling_status:
+                site_detail["ExchangeInfo"].update({"pollingStatusNew": site.polling_status_new})
+            if site.secure_status_new and site.secure_status_new != site.secure_status:
+                site_detail["ExchangeInfo"].update({"secureStatusNew": site.secure_status_new})
+            if site.network_access_entrances_new and site.network_access_entrances != site.network_access_entrances_new:
+                site_detail["ExchangeInfo"].update({"networkAccessEntrancesNew": site.network_access_entrances_new})
+
+        deploy_site_list = DBOperator.query_entity(DeploySite, party_id=request_data.get("partyId"),
+                                                   federated_id=request_data.get("federatedId"),
+                                                   deploy_type=1,
+                                                   is_valid=IsValidType.YES
+                                                   )
+        if deploy_site_list:
+            site_detail["versionEditStatus"] = item.IdPair(code=EditType.NO, desc=EditType.to_str(EditType.NO)).to_dict()
     return site_detail
 
 
 def update_site(request_data):
     site_list = DBOperator.query_entity(FateSiteInfo, party_id=request_data.get("partyId"),
-                                        federated_id=request_data.get("federatedId"))
+                                        federated_id=request_data.get("federatedId"),
+                                        site_id=request_data.get("siteId"),
+                                        )
     if not site_list:
         raise Exception(SiteStatusCode.NoFoundSite, f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')
     site = site_list[0]
@@ -395,30 +497,54 @@ def update_site(request_data):
         raise Exception(SiteStatusCode.SITE_NOT_JOINED, f'site status is no join')
     elif site.edit_status == EditType.NO:
         raise Exception(SiteStatusCode.SITE_NOT_ALLOW_UPDATE, f'site not allow update')
-    federated_info = DBOperator.query_entity(FederatedInfo, federated_id=request_data.get("federatedId"))[0]
-    logger.info("start request cloud IpAcceptUri")
-    site_signature_req = item.SiteSignatureItem(partyId=request_data.get("partyId"), role=request_data.get("role"),
-                                                appKey=request_data.get("appKey"),
-                                                appSecret=request_data.get("appSecret")).to_dict()
-    resp = request_cloud_manager(uri_key="IpAcceptUri", data=site_signature_req,
-                                 body={"partyId": request_data.get("partyId"),
-                                       "networkAccessEntrances": request_data.get("networkAccessEntrances"),
-                                       "networkAccessExits": request_data.get("networkAccessExits")
-                                       }, url=federated_info.federated_url)
-    logger.info(f"request cloud success:{resp}")
-    change_log_info = {
-        "party_id": request_data.get("partyId"),
-        "network_access_entrances": request_data.get("networkAccessEntrances"),
-        "network_access_exits": request_data.get("networkAccessExits"),
-        "status": LogDealType.NO,
-        "federated_id": request_data.get("federatedId"),
-        "federated_organization": request_data.get("federatedOrganization"),
-        "case_id":resp.get("caseId")
-    }
-    logger.info(f"change log info: {change_log_info}")
-    DBOperator.create_entity(ChangeLog, entity_info=change_log_info)
-    DBOperator.update_entity(FateSiteInfo, {"site_id": site.site_id, "federated_id": site.federated_id,
-                                            "party_id": site.party_id, "edit_status": EditType.NO})
+
+    fmRollSiteNetworkEntrances = request_data.get('fmRollSiteNetworkAccess')
+
+    if request_data.get('UpdateRollSiteInfo'):
+        exchange_address = site.vip_entrances
+        party_id = site.party_id
+        is_secure = site.secure_status
+        is_polling = site.polling_status
+        update_all_rollsite_info(exchange_address,fmRollSiteNetworkEntrances,party_id,is_secure,is_polling)
+        DBOperator.update_entity(FateSiteInfo, {"site_id": site.site_id,
+                                               "federated_id": site.federated_id,
+                                                "party_id": site.party_id,
+                                               "fm_rollsite_network_entrances": request_data.get('fmRollSiteNetworkAccess')})
+    else:
+        if fmRollSiteNetworkEntrances and fmRollSiteNetworkEntrances != site.fm_rollsite_network_entrances:
+            DBOperator.update_entity(FateSiteInfo,{"site_id": site.site_id,
+                                                   "federated_id": site.federated_id,
+                                                    "party_id": site.party_id,
+                                                   "fm_rollsite_network_entrances_new": fmRollSiteNetworkEntrances})
+        federated_info = DBOperator.query_entity(FederatedInfo, federated_id=request_data.get("federatedId"))[0]
+        logger.info("start request cloud IpAcceptUri")
+        site_signature_req = item.SiteSignatureItem(partyId=request_data.get("partyId"), role=request_data.get("role"),
+                                                    appKey=request_data.get("appKey"),
+                                                    appSecret=request_data.get("appSecret")).to_dict()
+        resp = request_cloud_manager(uri_key="IpAcceptUri", data=site_signature_req,
+                                     body={"partyId": request_data.get("partyId"),
+                                           "networkAccessEntrances": request_data.get("networkAccessEntrances"),
+                                           "networkAccessExits": request_data.get("networkAccessExits"),
+                                           "pollingStatus": request_data.get("pollingStatus"),
+                                           "secureStatus": request_data.get("secureStatus"),
+                                           }, url=federated_info.federated_url)
+        logger.info(f"request cloud success:{resp}")
+        change_log_info = {
+            "party_id": request_data.get("partyId"),
+            "network_access_entrances": request_data.get("networkAccessEntrances"),
+            "rollsite_network_access_exits": request_data.get("networkAccessExits"),
+            "status": LogDealType.NO,
+            "federated_id": request_data.get("federatedId"),
+            "federated_organization": request_data.get("federatedOrganization"),
+            "case_id": resp.get("caseId"),
+            "polling_status":request_data.get("pollingStatus"),
+            "secure_status":request_data.get("secureStatus"),
+        }
+        logger.info(f"change log info: {change_log_info}")
+        DBOperator.create_entity(ChangeLog, entity_info=change_log_info)
+
+        DBOperator.update_entity(FateSiteInfo, {"site_id": site.site_id, "federated_id": site.federated_id,
+                                                "party_id": site.party_id, "edit_status": EditType.NO})
 
 
 def telnet_ip(request_data):
@@ -443,7 +569,9 @@ def read_change_msg(request_data):
 
 def get_change_msg(request_data):
     site_list = DBOperator.query_entity(FateSiteInfo, **{"federated_id": request_data.get("federatedId"),
-                                                         "party_id": request_data.get("partyId")})
+                                                         "party_id": request_data.get("partyId"),
+                                                         "site_id": request_data.get("siteId")
+                                                         })
     if not site_list:
         raise Exception(SiteStatusCode.NoFoundSite,
                         f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')
@@ -472,7 +600,9 @@ def update_component_version(request_data):
         raise Exception(SiteStatusCode.NoFoundSite, "no found site")
 
 
-def get_apply_log():
+def get_apply_log(request_data):
+    pageNum = request_data.get('pageNum', 1)
+    pageSize = request_data.get('pageSize', 5)
     account = SingleOperation.get_admin_info()
     logger.info("start request cloud ApplyLog")
     institution_signature_item = item.InstitutionSignatureItem(fateManagerId=account.fate_manager_id,
@@ -480,8 +610,8 @@ def get_apply_log():
                                                                appSecret=account.app_secret).to_dict()
     resp = request_cloud_manager(uri_key="ApplyLog", data=institution_signature_item,
                                  body={"institutions": account.institutions,
-                                       "pageNum": 1,
-                                       "pageSize": 100},
+                                       "pageNum": pageNum,
+                                       "pageSize": pageSize},
                                  url=None)
     logger.info(f'cloud return:{resp}')
     return resp
@@ -509,7 +639,7 @@ def check_site(request_data):
                                                    role=request_data.get("role"),
                                                    appKey=request_data.get("appKey"),
                                                    appSecret=request_data.get("appSecret"))
-        old_head = get_old_signature_head(uri, old_signature_item.to_dict(),
+        old_head = SignatureHead.old_signature_head(uri, old_signature_item.to_dict(),
                                           body=json.dumps({"partyId": request_data.get("srcPartyId")}, separators=(',', ':')))
         check_site_body = {
             "HTTP_BODY": {"partyId": request_data.get('srcPartyId')},
@@ -538,6 +668,102 @@ def get_secret_info(request_data):
     site = site_list[0]
     return {"appKey": site.app_key, "AppSecret": site.app_secret, "role": site.role}
 
+
+def update_version(request_data):
+
+    uri = FATE_FLOW_SETTINGS.get('QueryFateVersion')
+    federatedId = request_data.get('federatedId')
+    partyId = request_data.get('partyId')
+    siteId = request_data.get('siteId')
+    UpdateFateFlowInfo = request_data.get('UpdateFateFlowInfo')
+    site_list = DBOperator.query_entity(FateSiteInfo, party_id=partyId, federated_id=federatedId, site_id=siteId)
+    if not site_list:
+        raise Exception(SiteStatusCode.NoFoundSite,
+                        f'no found apply site by party id {request_data.get("partyId")}, federated id {request_data.get("federatedId")}')
+    site = site_list[0]
+    fate_flow_info = UpdateFateFlowInfo.split(':')
+    flow_ip = fate_flow_info[0]
+    flow_port = fate_flow_info[1]
+
+    url = 'http://' + flow_ip + ':' + flow_port + uri
+    try:
+        res = post_fate_flow(url, {"module": "FATE"})
+    except Exception as e:
+        logger.info(f'connect fate flow fail {url}')
+        return {'msg':'failed'}
+
+    logger.info(f"get_fate_version {res}")
+    fateVersion = res.get('FATE')
+    logger.info(f'update site fate version:{site.site_id}')
+    DBOperator.update_entity(FateSiteInfo, {"fate_version": fateVersion, "federated_id": site.federated_id,
+                                            "fate_flow_info": UpdateFateFlowInfo,"party_id": site.party_id,
+                                            "site_id":site.site_id
+                                            })
+
+    federated_id = site.federated_id
+    Fed_Info= DBOperator.query_entity(FederatedInfo, federated_id=federated_id)
+    site_signature_req = item.SiteSignatureItem(partyId=partyId,
+                                                role=site.role,
+                                                appKey=site.app_key,
+                                                appSecret=site.app_secret).to_dict()
+
+    request_cloud_manager(uri_key="UpdateVersionUri", data=site_signature_req,
+                                 body={"componentVersion": "",
+                                       "fateServingVersion": "",
+                                       "fateVersion": fateVersion,
+                                       }, url=Fed_Info[0].federated_url)
+    return {'msg':'success'}
+
+
+def test_rollsite_ip(request_data):
+    logger.info(f"start test connect rollsite, rollsite address:{request_data.get('fmRollSiteNetworkAccess')}")
+    partyId = request_data.get('partyId')
+    fmRollSiteNetworkEntrances = request_data.get('fmRollSiteNetworkAccess')
+    rollsite_list = fmRollSiteNetworkEntrances.split(';')[:-1]
+    connect_result = {'success': [], 'failed': []}
+    for rollsite in rollsite_list:
+        ip_port = rollsite.split(':')
+        roll_site_ip = ip_port[0]
+        roll_site_port = int(ip_port[1])
+        try:
+            roll_site_actuator(roll_site_ip, roll_site_port, ROLL_SITE_KEY, "", partyId,
+                                     operator="get_route_table", overall_timeout=DEFAULT_GRPC_TIMEOUT)
+            connect_result['success'].append(rollsite)
+        except Exception as e:
+            connect_result['failed'].append(rollsite)
+    logger.info(f"connect rollsite {connect_result}")
+    return connect_result
+
+
+def update_all_rollsite_info(exchange_address, rollsite_network_access, party_id, is_secure=2, is_polling=2):
+    rollsite_network_access = rollsite_network_access.split(';')[:-1]
+    exchange_ip = exchange_address.split(':')[0]
+    exchange_port = exchange_address.split(':')[1]
+    try:
+        for rollsite in rollsite_network_access:
+            rollsite_ip = rollsite.split(':')[0]
+            rollsite_port = rollsite.split(':')[1]
+            site_route = {'default': {'default': [{'port': int(exchange_port), 'ip': exchange_ip, 'is_secure': PollingSecureType.to_bool(is_secure),
+                                                "is_polling": PollingSecureType.to_bool(is_polling)}]}}
+            logger.info(f"write rollsite info:ip {rollsite_ip}, port {rollsite_port},key {ROLL_SITE_KEY}, route: {site_route}")
+
+            write_site_route(rollsite_ip, rollsite_port, ROLL_SITE_KEY, site_route, str(party_id))
+        return True
+    except Exception as e:
+        logger.info('write rollsite data failed')
+        if ROLL_SITE_FLAG:
+            raise Exception(RollsiteInfoStatusCode.Write_RollSite_Fail,f"failed to add routing table")
+        else:
+            return False
+
+
+def check_exists_site(data):
+    info = {"federated_id": data.get("id"),"party_id": data.get("partyId"),"status": 1}
+    site = DBOperator.query_entity(FateSiteInfo, info)
+    table_lst = [FateSiteInfo]
+    if site:
+        for tb_name in table_lst:
+            DBOperator.delete_entity(tb_name,federated_id=data.get("id"),party_id=data.get("partyId"))
 
 
 
