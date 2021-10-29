@@ -33,7 +33,7 @@ Vue.use(waterfall)
 
 Vue.component('v-chart', ECharts)// 全局使用
 Vue.component('v-bar', ECharts)
-console.log(_filter, '_filter')
+// console.log(_filter, '_filter')
 Object.keys(_filter).forEach(item => {
     Vue.filter(item, _filter[item])
 })

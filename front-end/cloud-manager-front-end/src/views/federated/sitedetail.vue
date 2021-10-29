@@ -82,7 +82,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item  style="height:100%;" label="VIP Entrances" >
+                    <el-form-item  style="height:100%;" :label="$t('m.ip.networkEntrances')" >
                        {{form.vipEntrance}}
                     </el-form-item>
                 </el-col>

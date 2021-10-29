@@ -52,9 +52,8 @@ export default {
                 if (val) {
                     this.inputClass = true
                     let url = this.inputform.input.split('\\n').join('')
-                    console.log(url, 'url-watch')
                     this.inputform.inputUrl = url ? utf8to16(decode64(url)).split('?st')[0] : ''
-                    console.log(this.inputform.inputUrl, 'this.inputform.inputUrl')
+                    // console.log(this.inputform.inputUrl, 'this.inputform.inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true

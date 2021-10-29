@@ -9,3 +9,6 @@ database:
 fate_manager:
   host: 0.0.0.0
   http_port: 9080
+proxy_conf:
+  proxy_ip:
+  proxy_port:

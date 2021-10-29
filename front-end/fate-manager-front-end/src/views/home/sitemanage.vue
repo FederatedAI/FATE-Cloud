@@ -102,7 +102,6 @@
                                 </div>
                                 <div class="pagination-bar">
                                     <el-pagination
-                                        v-if="historyTotal > 0"
                                         background
                                         @current-change="handleCurrentChange"
                                         :current-page.sync="historyPageData.pageNum"
@@ -204,7 +203,6 @@
         </el-table>
         <div class="pagination-bar">
             <el-pagination
-                v-if="siteTotal > 0"
                 background
                 @current-change="handleCurrentChange"
                 :current-page.sync="sitePageData.pageNum"
@@ -261,7 +259,6 @@
                 </el-table>
                 <div class="pagination-bar">
                     <el-pagination
-                        v-if="otherTotal > 0"
                         background
                         @current-change="handleCurrentChange"
                         :current-page.sync="otherPageData.pageNum"
@@ -460,7 +457,6 @@ export default {
             })
             // 查看他人站点
             otherSitList(this.otherPageData).then(res => {
-                console.log(res, 'res')
                 this.otherSiteList = []
                 this.otherTotal = (res.data && res.data[0] && res.data[0].size) || 0
                 res.data && res.data.forEach((item, index) => {
@@ -472,20 +468,17 @@ export default {
                 this.applyStatusList = res.data || []
                 // mock
                 // this.applyStatusList = ['test_wzh', 'stu1']
-                console.log(this.applyStatusList, 'applyStatusList')
                 if (this.applyStatusList.length > 0) {
                     this.applyStatus = 1 // 审批中
                 } else {
                     this.applyStatus = 3 // 无申请记录
                 }
-                console.log(this.applyStatus, 'applyStatus')
             })
         },
         otherApplys() {
             fatemanagerList({ 'user_name': this.userName }).then(res => {
                 if (res.code === 20002 || res.code === 30002) {
                     this.clearPollingTimer()
-                    console.log(res, 'fatemanagerList-130')
                     return
                 }
                 // res.data = []
@@ -504,8 +497,6 @@ export default {
                 }
                 // this.viewContent.totalLength = this.viewContent.allInstuList.length + this.viewContent.guestInstuList.length + this.viewContent.hostInstuList.length
                 this.viewContent.totalLength = data.total
-
-                console.log(this.viewContent)
             })
         },
         // 机构审批状态查询
@@ -571,7 +562,6 @@ export default {
                     return item
                 })
                 this.applyed = this.applyed.concat(applyedArr)
-                console.log(this.applyed, 'applyed')
                 this.applydialog = true
             })
         },
@@ -602,7 +592,6 @@ export default {
             applyHistory(this.historyPageData).then(res => {
                 this.historyTotal = (res && res.data && res.data.totalRecord) || 0
                 res.data && res.data.list && res.data.list.forEach(item => {
-                    console.log(item, 'items')
                     let obj = {}
                     obj.agree = []
                     obj.reject = []
@@ -635,7 +624,6 @@ export default {
             clearInterval(this.chartTimer)
         },
         handleCurrentChange() {
-            console.log(arguments, 'type-val')
             // this[`${type}PageData`].pageNum = val
             this.getList()
         }

@@ -107,7 +107,10 @@ export const m = {
         'The site has a binding exchange, but the selected switch is not this!': '选择的不是该站点已经绑定的exchange！',
         'Site party already exists in other exchange, cannot be added!': '部分站点存在于其他exchange，无法添加！',
         'Site roll site update error!': '更新rollsite失败',
-        'This exchange name already exist!': '这个exchange名称已被使用'
+        'This exchange name already exist!': '这个exchange名称已被使用',
+        'The user doesnt get the authority!': '用户没有权限！',
+        'This cloud manager user exists!': '该管理员已存在！',
+        'The institution has been used!': '该机构已被占用！'
     },
     login: {
         'signTitle': '登录FATE Cloud',
@@ -123,6 +126,8 @@ export const m = {
         'status': '站点状态',
         'activationTime': '激活时间',
         'networkExits': '网关出口',
+        'rollsiteExits': 'Rollsite出口',
+        'rollsiteEntrances': 'Rollsite入口',
         'networkEntrances': '网关入口',
         'siteJoined': '个站点已加入',
         'sitesJoined': '个站点已加入',

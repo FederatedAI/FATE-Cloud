@@ -50,7 +50,7 @@ def connect_test():
     return get_json_result(data=data)
 
 
-@manager.route('/', methods=['post'])
+@manager.route('/getsite', methods=['post'])
 def get_site():
     request_data = request.json
     site_info = site_service.get_home_site_list()

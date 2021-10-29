@@ -225,7 +225,7 @@ export default {
     created() {
         this.$i18n.mergeLocaleMessage('en', local.en)
         this.$i18n.mergeLocaleMessage('zh', local.zh)
-        console.log(this.$t(`xAxis`).split(','), 'xAxis')
+        // console.log(this.$t(`xAxis`).split(','), 'xAxis')
         this.$nextTick((e) => {
             // 解决v-charts 绑定不上事件问题
             this.$refs.chart_progress.chart.on('click', (e) => {
@@ -283,7 +283,6 @@ export default {
         chartData: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal-progress')
                     this.chartExtend.series[1].data = newVal.failed
                     this.chartExtend.series[2].data = newVal.success
                     let failedMax = Math.max(...newVal.failed)
@@ -299,7 +298,6 @@ export default {
         lang: {
             handler(newVal, oldVal) {
                 if (newVal) {
-                    console.log(newVal, 'newVal-lang-progress')
                     this.chartExtend.xAxis.data = newVal
                 }
             }

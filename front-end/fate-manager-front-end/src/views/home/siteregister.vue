@@ -55,8 +55,6 @@ export default {
                     } else {
                         this.inputform.inputUrl = url.split('?st')[0]
                     }
-                    console.log(url, 'url-watch')
-                    console.log(this.inputform.inputUrl, 'url-inputUrl')
                     this.$refs['inputform'].validateField('inputUrl', valid => {
                         if (valid) {
                             this.warnActive = true
@@ -86,7 +84,6 @@ export default {
             try {
                 let data = {}
                 data.link = Url
-                console.log(data, 'data')
                 checkUrl(data).then(res => {
                     if (res.code === 0) {
                         this.$router.push({
@@ -95,11 +92,9 @@ export default {
                         })
                     }
                 }).catch(res => {
-                    console.log(res, 'warn')
                     // this.warnActive = true
                 })
             } catch (err) {
-                console.log(err, 'erro')
                 // this.warnActive = true
             }
         },

@@ -24,7 +24,7 @@ class GetMessage {
             nowTextArr.push(item.innerHTML)
         })
         let msg = (options && options.typeof === 'string') ? options : options.message
-        console.log(nowTextArr, 'nowTextArr')
+        // console.log(nowTextArr, 'nowTextArr')
         if (single) {
             if (!nowMessage) {
                 Message[type](options)

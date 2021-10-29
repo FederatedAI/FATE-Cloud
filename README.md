@@ -33,7 +33,7 @@ Other related module Deployment:
 
 
 ## Usage ##
-After deployment，please prefer to "[FATE Cloud product manual](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)" for detailed usage of FATE Cloud.
+After deployment，please prefer to "[FATE Cloud product manual](./docs/FATE-Cloud产品使用手册.pdf)" for detailed usage of FATE Cloud.
 
 ## FAQ ##
 **Cloud Manager failed to deploy.**

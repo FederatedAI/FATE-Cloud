@@ -62,7 +62,7 @@
                         <i slot="suffix" @click="addShow('rollsite')" class="el-icon-plus plus" />
                     </el-input>
                 </el-form-item>
-                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.networkExits')"  prop="fmRollSiteNetworkAccessExitsList">
+                <el-form-item class="ip-input is-required" :label="$t('m.sitemanage.rollsiteExits')"  prop="fmRollSiteNetworkAccessExitsList">
                     <el-input
                         @focus="addShow('exit')"
                         @blur="cancelValid('fmRollSiteNetworkAccessExitsList')"
@@ -180,7 +180,7 @@ export default {
         } else {
             obj = JSON.parse(localStorage.getItem('activateData'))
         }
-        console.log(obj, 'obj')
+        // console.log(obj, 'obj')
         let fromObj = {}
         fromObj.appKey = obj.secretInfo.key
         fromObj.appSecret = obj.secretInfo.secret
@@ -247,13 +247,12 @@ export default {
             let pollingStatus = this.getStatus(data.pollingStatus)
             data.secureStatus = secureStatus
             data.pollingStatus = pollingStatus
-            console.log(data, 'sub-data')
+            // console.log(data, 'sub-data')
             this.$refs['infoform'].validate((valid) => {
                 if (valid) {
                     register(data).then((res) => {
                         this.confirmdialog = true
                         this.$store.dispatch('setSiteStatus', 'registered')
-                        console.log('激活成功并注册')
                         this.$router.push({
                             name: 'sitemanage',
                             path: 'sitemanage'
@@ -274,7 +273,6 @@ export default {
             })
         },
         getStatus(stauts) {
-            console.log(typeof stauts, 'typeof stauts')
             if (typeof stauts === 'number') {
                 return stauts === 1
             } else {
