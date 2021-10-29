@@ -31,7 +31,7 @@ FATE Cloud部署:
 - [Exchange](https://github.com/FederatedAI/FATE/blob/master/cluster-deploy/doc/Fate-exchange_deployment_guide_zh.md)
 
 ## 使用 ##
-部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATE-Cloud产品使用手册v1.4.0.pdf)。
+部署完成后，FATE Cloud详细的使用方法请参考[《FATE Cloud产品使用手册》](./docs/FATE-Cloud产品使用手册.pdf)。
 
 ## FAQ ##
 **Cloud-Manager 部署失败**

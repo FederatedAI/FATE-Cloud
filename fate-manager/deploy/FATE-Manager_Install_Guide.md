@@ -49,8 +49,8 @@ vi fate_manager-install/common-deploy/conf/setup.conf
 | host             |默认：不需要修改                   |fate manager ip  |
 | pro_base         |默认：/data/projects            | 项目部署目录              |
 | pro_name         |默认：FATE-Cloud 不需要修改         |项目部署名 |
-| proxy_ip |默认：null |正向代理 ip （用户选择使用正向代理） |
-| proxy_port |默认：null | 正向代理端口（用户选择使用正向代理） |
+| proxy_ip |默认：null |代理ip， fate manager无法请求fate cloud的情况下(如：fate manager是内网,fate cloud是外网)可配置该代理|
+| proxy_port |默认：null |代理端口|
 
 ### 2.3 部署
 
@@ -103,5 +103,5 @@ sh service.sh start|stop|restart|status
 ```
 ## 5. 使用文档
 
-请参阅: [FATE-Cloud产品使用手册](../../docs/FATE-Cloud产品使用手册v1.4.0.pdf)
+请参阅: [FATE-Cloud产品使用手册](../../docs/FATE-Cloud产品使用手册.pdf)
 

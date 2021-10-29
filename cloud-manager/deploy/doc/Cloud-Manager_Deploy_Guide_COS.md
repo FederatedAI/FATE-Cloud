@@ -6,15 +6,15 @@
 
 ```
 # 下载部署包
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.0/cloud_manager_1.4.0_release-1.0.0.tar.gz
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.1/cloud_manager_1.4.1_release-1.0.0.tar.gz
 
 # 解压包
-tar zxvf cloud_manager_1.4.0_release-1.0.0.tar.gz;
+tar zxvf cloud_manager_1.4.1_release-1.0.0.tar.gz;
 cd cloud-manager/;
 
 # 目录结构如下
 drwxr-xr-- 2 app apps     4096 8月  23 12:56 bin						 	# 执行脚本
--rwxr-xr-- 1 app apps 61295626 8月  16 10:57 cloud-manager-1.4.0.jar  	# 服务jar包
+-rwxr-xr-- 1 app apps 61295626 8月  16 10:57 cloud-manager-1.4.1.jar  	# 服务jar包
 drwxr-xr-- 2 app apps     4096 8月  23 12:54 config					 	# 服务配置文件
 drwxr-xr-- 2 app apps     4096 8月  23 12:57 deploy						# 服务部署文件
 drwxr-xr-- 2 app apps     4096 8月  23 11:16 sql						    # 服务数据库sql脚本
