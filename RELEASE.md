@@ -1,3 +1,9 @@
+# **Release 1.4.1** #
+## FATE Manager ##
+**Others**
+- Add proxy configuration, support internal network fate manger to access external network fate cloud through proxy.
+- Fix the problem that some front-end pages are not displayed in the external network environment.
+
 # **Release 1.4.0** #
 ## Cloud Manager ##
 
@@ -16,7 +22,7 @@
 - Add the function of reactivating an institution，the institution will be reset to "unactivated" status and  can be reactivated when there occurs errors.
 - Improvements for the generation rule of institution invitation link.
 
-Others
+**Others**
 - Improvements for UI interface.
 - Lists in some menus can be sorted by party ID and time
 - Remove the related functions of "Auto-deploy" 

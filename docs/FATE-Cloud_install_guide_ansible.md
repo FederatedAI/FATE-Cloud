@@ -1,6 +1,6 @@
 
 
-# ansible 部署FATE-Cloud-1.4.0指引
+# ansible 部署FATE-Cloud-1.4.1指引
 
 
 
@@ -30,7 +30,7 @@ FATE-Cloud官方网站：https://github.com/FederatedAI/FATE-Cloud
 | ---------------- | --------------------------------------------------- |
 | 系统             | Centos 7.6                                          |
 | 开发语言         | Python 3.6.5、Java 1.8                              |
-| 软件组件及其版本 | fate-manager-1.4.0 cloud-manager-1.4.0 mysql-8.0.13 |
+| 软件组件及其版本 | fate-manager-1.4.1 cloud-manager-1.4.1 mysql-8.0.13 |
 
 
 
@@ -117,7 +117,7 @@ FATE-Cloud官方网站：https://github.com/FederatedAI/FATE-Cloud
   参数说明：
           pname： 项目名称 fate-cloud
           version： 版本号
-  使用示例：	bash build/build.sh init fate-cloud 1.4.0
+  使用示例：	bash build/build.sh init fate-cloud 1.4.1
   ```
 
 ​        
@@ -147,10 +147,10 @@ FATE-Cloud官方网站：https://github.com/FederatedAI/FATE-Cloud
   products:
   - fate_manager
   - cloud_manager
-  product_fate_cloud_version: 1.4.0
+  product_fate_cloud_version: 1.4.1
   product_fate_cloud_versions:
-    fate_manager: 1.4.0
-    cloud_manager: 1.4.0
+    fate_manager: 1.4.1
+    cloud_manager: 1.4.1
   ```
   
   配置说明：
@@ -265,7 +265,7 @@ modules:				//调整需要部署或卸载的模块
   - cloud_manager
   
 2）/bin/bash deploy/deploy.sh render		//生成配置
-3）/bin/bash deploy/deploy.sh deloy|uninstall	//执行部署或卸载
+3）/bin/bash deploy/deploy.sh deploy|uninstall	//执行部署或卸载
 ```
 
 
@@ -378,8 +378,8 @@ deploy_modules:		---部署模块
 
 pname: "fate-cloud"			---项目名称
 versions:				---各服务版本号
-  cloud_manager: 1.4.0
-  fate_manager: 1.4.0
+  cloud_manager: 1.4.1
+  fate_manager: 1.4.1
 
 python:					---python部署信息
   version: 4.5.4
@@ -430,6 +430,9 @@ fate_cloud:
     ip: 192.168.0.1		---fate_manager部署机器的IP
     http_port: 9080		---fate_manager服务端口
     dbname: fate_manager	---fate_manager数据库db名称
+    proxy: false			---是否开启正向代理功能,true|True表示开启；代理软件(如：squid)需要提前部署好
+    proxy_ip: 192.168.0.1	---正向代理ip(用户选择使用正向代理，机构激活&站点注册，链接需要勾选https)
+    proxy_port: 3128		---正向代理端口
 
   mysql:
     enable: false			---true为需要部署此模块，False则否
@@ -506,9 +509,9 @@ ansible_become_pass=
 ###### 2.6.1.1 构建离线包
 
 ```
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_cloud_ansible_1.4.0-release.tar.gz
-tar xzf fate_cloud_ansible_1.4.0-release.tar.gz
-cd fate-cloud-ansible-1.4.0
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.1/fate_cloud_ansible_1.4.1-release.tar.gz
+tar xzf fate_cloud_ansible_1.4.1-release.tar.gz
+cd fate-cloud-ansible-1.4.1
 ```
 
 ###### 2.6.1.2构建非离线包
@@ -522,9 +525,9 @@ git clone
 - 方法2
 
 ```
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/AnsibleFATE_Cloud_1.4.0-release.tar.gz
-tar xzf AnsibleFATE_Cloud_1.4.0-release.tar.gz
-cd AnsibleFATE-Cloud-1.4.0-release
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.1/AnsibleFATE_Cloud_1.4.1-release.tar.gz
+tar xzf AnsibleFATE_Cloud_1.4.1-release.tar.gz
+cd AnsibleFATE-Cloud-1.4.1-release
 ```
 
 ###### 2.6.1.3 按需在线构建资源包
@@ -545,10 +548,10 @@ project: fate-cloud
 products:
 - fate_manager
 - cloud_manager
-product_fate_cloud_version: 1.4.0
+product_fate_cloud_version: 1.4.1
 product_fate_cloud_versions:
-  fate_manager: 1.4.0
-  cloud_manager: 1.4.0
+  fate_manager: 1.4.1
+  cloud_manager: 1.4.1
 ```
 
 执行构建
@@ -609,11 +612,11 @@ vi deploy/conf/setup.conf
 
 **访问cloud-manager**
 
-浏览器访问http://192.168.0.1:8998
+浏览器访问http://192.168.0.1:8998/cloud-manager
 
 **访问fate-manager**
 
-浏览器访问http://192.168.0.1:9080
+浏览器访问http://192.168.0.1:9080/fate-manager
 
 **查看进程和端口**
 
@@ -688,9 +691,9 @@ sh service.sh start/stop/status fate-cloud-mysql
 - 构建部署包
 
 ```
-wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate_cloud_ansible_1.4.0-release.tar.gz
-tar xzf fate_cloud_ansible_1.4.0-release.tar.gz
-cd fate-cloud-ansible-1.4.0
+wget https://webank-ai-1251170195.cos.ap-guangzhou.myqcloud.com/fate-cloud/1.4.1/fate_cloud_ansible_1.4.1-release.tar.gz
+tar xzf fate_cloud_ansible_1.4.1-release.tar.gz
+cd fate-cloud-ansible-1.4.1
 ```
 
 - 初始化生成部署配置文件
@@ -747,6 +750,9 @@ fate_cloud:
     ip: 192.168.0.2
     http_port: 9080
     dbname: fate_manager
+    proxy: false			---是否开启squid正向代理功能,true|True表示开启；squid需要提前部署好
+    squid_ip: 192.168.0.1	---正向代理ip(用户选择使用正向代理，机构激活&站点注册，链接需要勾选https)
+    squid_port: 3128		---正向代理端口
 
   mysql:
     enable: false
