@@ -430,9 +430,9 @@ fate_cloud:
     ip: 192.168.0.1		---fate_manager部署机器的IP
     http_port: 9080		---fate_manager服务端口
     dbname: fate_manager	---fate_manager数据库db名称
-    proxy: false			---是否开启正向代理功能,true|True表示开启；代理软件(如：squid)需要提前部署好
-    proxy_ip: 192.168.0.1	---正向代理ip(用户选择使用正向代理，机构激活&站点注册，链接需要勾选https)
-    proxy_port: 3128		---正向代理端口
+    proxy: false			---是否使用代理,true|True表示开启,默认关闭；代理软件(如：squid)需要提前部署好
+    proxy_ip: 192.168.0.1	---代理ip
+    proxy_port: 3128		---代理端口
 
   mysql:
     enable: false			---true为需要部署此模块，False则否
@@ -750,9 +750,9 @@ fate_cloud:
     ip: 192.168.0.2
     http_port: 9080
     dbname: fate_manager
-    proxy: false			---是否开启squid正向代理功能,true|True表示开启；squid需要提前部署好
-    squid_ip: 192.168.0.1	---正向代理ip(用户选择使用正向代理，机构激活&站点注册，链接需要勾选https)
-    squid_port: 3128		---正向代理端口
+    proxy: false			---是否使用代理,true|True表示开启,默认关闭；代理软件(如：squid)需要提前部署好
+    proxy_ip: 192.168.0.1	---代理ip
+    proxy_port: 3128		---代理端口
 
   mysql:
     enable: false
