@@ -61,13 +61,13 @@ export default {
         },
         toroute(item) {
             if (item === 'Manage') {
-                this.$router.push({ name: 'sitemanage' })
+                this.$router.push({ name: 'sitemanage' }).catch(() => {})
             }
             if (item === 'Auto Deploy') {
-                this.$router.push({ name: 'overview' })
+                this.$router.push({ name: 'overview' }).catch(() => {})
             }
             if (item === 'Monitor') {
-                this.$router.push({ name: 'cooperation' })
+                this.$router.push({ name: 'cooperation' }).catch(() => {})
             }
         }
     }

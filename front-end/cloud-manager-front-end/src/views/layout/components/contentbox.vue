@@ -65,6 +65,9 @@ export default {
             }
         },
         toroute(item) {
+            if (this.$route.name === item) {
+                return
+            }
             if (item === 'Federated Site' || item === 'Site Manage') {
                 this.$router.push({ name: 'Site Manage' })
             }

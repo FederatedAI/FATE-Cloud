@@ -101,32 +101,32 @@ export default {
     methods: {
         handleSelect(key, keyPath) {
             if (key === 'Auto-deploy') {
-                this.$router.push({ name: 'overview' })
+                this.$router.push({ name: 'overview' }).catch(() => {})
             } else if (key === 'Manage') {
-                this.$router.push({ name: 'sitemanage' })
+                this.$router.push({ name: 'sitemanage' }).catch(() => {})
             } else if (key === 'Monitor') {
-                this.$router.push({ name: 'cooperation' })
+                this.$router.push({ name: 'cooperation' }).catch(() => {})
             }
         },
         clickSite() {
             this.$router.push({
                 name: 'sitemanage'
-            })
+            }).catch(() => {})
         },
         clickAccess() {
             this.$router.push({
                 name: 'access'
-            })
+            }).catch(() => {})
         },
         clickCooperation() {
             this.$router.push({
                 name: 'cooperation'
-            })
+            }).catch(() => {})
         },
         clickJobmonitor() {
             this.$router.push({
                 name: 'jobmonitor'
-            })
+            }).catch(() => {})
         }
 
     }

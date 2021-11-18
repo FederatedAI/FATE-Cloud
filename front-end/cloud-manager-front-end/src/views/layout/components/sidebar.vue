@@ -139,6 +139,9 @@ export default {
 
         },
         handleSelect(key, keyPath) {
+            if (this.$route.name === key) {
+                return
+            }
             this.$store.dispatch('ToggleSideBar', keyPath)
             this.$store.dispatch('SetMune', key)
             this.$router.push({
