@@ -1,3 +1,8 @@
+# **Release 1.4.1.1** #
+## Cloud Manager ##
+**Others**
+- Remove redundant insecure dependency - velocity
+
 # **Release 1.4.1** #
 ## FATE Manager ##
 **Others**
