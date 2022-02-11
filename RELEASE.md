@@ -1,3 +1,9 @@
+# **Release 1.4.1.1** #
+## Cloud Manager ##
+- Remove redundant insecure dependency - velocity
+## FATE Manager ##
+- Update pip version to 21.1
+
 # **Release 1.4.1** #
 ## FATE Manager ##
 **Others**
