@@ -1,3 +1,5 @@
+The project is not maintained since 2022
+
 **DOC|[中文](./README-CN.md)**
 
 ## Overview ##
