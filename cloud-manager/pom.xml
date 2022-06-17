@@ -27,7 +27,7 @@
         <lombok.version>1.18.0</lombok.version>
         <swagger.version>2.9.2</swagger.version>
         <io.swagger>1.5.22</io.swagger>
-        <json.version>1.2.70</json.version>
+        <json.version>1.2.83</json.version>
 
         <grpc.version>1.25.0</grpc.version>
         <protobuf.version>3.6.1</protobuf.version>
