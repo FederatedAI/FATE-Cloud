@@ -26,5 +26,5 @@ setuptools==42.0.2
 six==1.15.0
 urllib3==1.26.5
 Werkzeug==1.0.1
-wheel==0.36.2
+wheel==0.38.1
 wincertstore==0.2
