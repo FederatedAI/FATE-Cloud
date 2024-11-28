@@ -98,8 +98,7 @@ module.exports = {
     devServer: {
         disableHostCheck: true,
         open: process.platform === 'darwin',
-        host: '10.36.17.37',
-        // host: '10.58.32.145',
+        host: '192.168.0.2',
         port: 8010,
         https: false,
         hotOnly: false,
@@ -108,24 +107,8 @@ module.exports = {
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
             '/fate-manager': {
-                // target: 'http://172.16.153.164:9080',
-                // target: 'http://172.16.153.88:9090',
-                // target: 'http://172.16.153.235:9090',
-                // target: 'http://172.16.153.196:8999',
-                // http://172.16.153.213:9070/
                 target:
-                // 'http://10.59.34.36:9080', // 1.3
-                // 'http://172.16.153.213:9070/',
-                // 'http://172.16.153.235:9080/',
-                // 'http://172.16.153.224:8998',
-                // 'http://172.16.153.186:9080',
-                // 'http://172.16.153.243:9070/',
-                // 'http://172.16.153.111:9080',
-                // 'http://10.59.32.194:9080',
-                'http://10.59.32.194:9070',
-                // 'http://172.16.153.181:9080',
-                // 'http://10.59.32.194:9060',
-
+                'http://192.168.0.2:9070',
                 changeOrigin: true,
                 pathRewrite: {
                     '^/fate-manager': '/fate-manager'
