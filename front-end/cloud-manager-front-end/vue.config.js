@@ -97,8 +97,7 @@ module.exports = {
     devServer: {
         disableHostCheck: true,
         open: process.platform === 'darwin',
-        host: '10.36.17.37',
-        // host: '10.58.32.145',
+        host: '192.168.0.1',
         port: 8088,
         https: false,
         hotOnly: false,
@@ -107,18 +106,8 @@ module.exports = {
         // 查阅 https://github.com/vuejs/vue-docs-zh-cn/blob/master/vue-cli/cli-service.md#配置代理
         proxy: {
             '/cloud-manager': {
-                // target: 'http://10.36.16.100:8080',
-                // target: 'http://172.16.153.21:8999',
-                // target: 'http://172.16.153.9:8088/',
-                // target: 'http://172.16.153.224:8080', // 1.1.2服务
-                // target: 'http://10.107.117.102:8999', // 1.2.0 联调服务
-                // target: 'http://172.16.153.196:8999', // 1.2.1 联调服务
-                // target: 'http://172.16.153.224:8997', // 1.3.0 联调服务
                 target:
-                // 'http://172.16.153.116:7999', // 1.4.0 测试服务
-                // 'http://172.16.153.224:8998',
-                // 'http://172.16.153.224:8999',
-                'http://10.35.2.18:8080', // 1.4.0
+                'http://192.168.0.1:8080', // 1.4.0
                 changeOrigin: true,
                 pathRewrite: {
                     '^/cloud-manager': '/cloud-manager'

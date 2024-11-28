@@ -33,10 +33,10 @@ rollsite:
   nodePort: 30001
   partyList:
   - partyId: 9999
-    partyIp: 172.16.153.131
+    partyIp: 192.168.0.1
     partyPort: 31001
   - partyId: 10000
-    partyIp: 172.16.153.131
+    partyIp: 192.168.0.1
     partyPort: 31002
 ```
 主要修改内容有：
