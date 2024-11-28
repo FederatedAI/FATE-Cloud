@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.FederatedGroupSetMapper">
+
+    <resultMap id="groupMap" type="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupSetDo">
+        <id property="groupId" column="group_id"></id>
+        <result property="groupName" column="group_name"></result>
+        <result property="role" column="role"></result>
+        <result property="rangeInfo" column="range_info"></result>
+        <result property="total" column="total"></result>
+        <result property="used" column="used"></result>
+        <result property="status" column="status"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <collection property="federatedGroupDetailDos"
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.FederatedGroupDetailDo">
+            <id property="id" column="id"></id>
+            <result property="leftRegion" column="left_region"></result>
+            <result property="rightRegion" column="right_region"></result>
+            <result property="size" column="size"></result>
+            <result property="status" column="status"></result>
+            <result property="useTag" column="use_tag"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+            <result property="groupId" column="group_id"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectGroupSetDetails" parameterType="long" resultMap="groupMap">
+        SELECT g.group_id, gd.left_region,gd.right_region
+        FROM t_federated_group_set g left join t_federated_group_range_detail gd
+        on g.group_id=gd.group_id
+        <where>
+            and g.group_id= #{groupId}
+            and g.status = 1
+        </where>
+
+    </select>
+
+    <select id="findPagedRegionInfo" resultMap="groupMap">
+        SELECT g.group_id, g.group_name, gd.left_region,gd.right_region
+        FROM t_federated_group_set g left join t_federated_group_range_detail gd
+        on g.group_id=gd.group_id
+        <where>
+            and g.group_id in ( select temp.group_id from (select group_id from t_federated_group_set tg
+            <where>
+                <if test="pageInfoQo.role!=null">
+                    and tg.role = #{pageInfoQo.role}
+                </if>
+                and tg.status = 1
+                limit #{startIndex}, #{pageInfoQo.pageSize}
+            </where>
+            ) as temp )
+        </where>
+
+    </select>
+
+    <select id="selectNewList" resultMap="groupMap">
+        SELECT g.*,gd.left_region,gd.right_region
+        FROM t_federated_group_set g left join t_federated_group_range_detail gd
+        on g.group_id=gd.group_id
+        <where>
+            and g.group_id in ( select temp.group_id from (select group_id from t_federated_group_set tg
+            <where>
+                <if test="federatedGroupSetQo.groupName!=null">
+                    and tg.group_name like #{federatedGroupSetQo.groupName}
+                </if>
+                <if test="federatedGroupSetQo.role!=null">
+                    <if test="federatedGroupSetQo.role!=0">
+                        and tg.role=#{federatedGroupSetQo.role}
+                    </if>
+                </if>
+                and tg.status=1
+            </where>
+            <if test="federatedGroupSetQo.orderRule!=null">
+                <if test="federatedGroupSetQo.orderRule==1">
+                    order by tg.${federatedGroupSetQo.orderField} asc
+                </if>
+                <if test="federatedGroupSetQo.orderRule!=1">
+                    order by tg.${federatedGroupSetQo.orderField} desc
+                </if>
+            </if>
+            limit #{startIndex}, #{federatedGroupSetQo.pageSize}
+
+            ) as temp )
+        </where>
+
+        <if test="federatedGroupSetQo.orderRule!=null">
+            <if test="federatedGroupSetQo.orderRule==1">
+                order by g.${federatedGroupSetQo.orderField} asc
+            </if>
+            <if test="federatedGroupSetQo.orderRule==2">
+                order by g.${federatedGroupSetQo.orderField} desc
+            </if>
+        </if>
+
+    </select>
+
+</mapper>

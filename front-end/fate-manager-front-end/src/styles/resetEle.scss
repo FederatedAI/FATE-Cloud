@@ -1,0 +1,121 @@
+button, input {
+    font-family: productsans;
+}
+
+.el-button {
+    border-radius: 0;
+}
+
+.el-input__icon {
+    color: #848C99;
+}
+.el-input__inner {
+    // background-color: #E6EBF0;
+    color: #848C99;
+    // border: 0px;
+    outline: none;
+    border-radius: 0;
+}
+
+.el-icon-arrow-up:before {
+    color: #848C99;
+    content: "\E78F";
+}
+
+.el-input__suffix {
+    color: #848C99;
+}
+
+// .table {
+//     .el-table {
+//         margin: 24px 36px;
+//     }
+// }
+
+.tableHead {
+    color: #4E5766;
+}
+
+.tableHeadCell,.tableCell {
+    border-bottom: 1px solid #e9e9e9!important;
+}
+// .tableHeadCell {
+//     border-bottom: 2px solid #4E5766!important;
+// }
+.pagination {
+    position: absolute;
+    bottom: 26px;
+    right: 88px;
+}
+.el-table--enable-row-hover .el-table__body tr:hover>td {
+    // background-color: #fff; //鼠标悬停每一行变色
+    background-color: rgb(74, 162, 255, 0.1);
+}
+.el-badge__content{
+    background-color:#FF9D00;
+    border:0px solid #fff;
+}
+
+
+//弹框居中
+.el-dialog {
+    display: flex;
+    flex-direction: column;
+    margin: 0 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: calc(100% - 30px);
+    max-width: calc(100% - 30px);
+    .el-dialog__header{
+        padding: 15px 24px;
+    }
+    .el-dialog__body{
+        padding: 10px 24px 24px;
+    }
+    .el-form-item__label {
+        font-size: 14px;
+        color: #848C99;
+        line-height: 36px;
+    }
+    .el-form-item__content {
+        line-height: 36px;
+        font-size: 14px;
+    }
+    .el-dialog__title{
+        line-height: 36px;
+        font-size: 18px;
+        color: #505765;
+        font-weight: bold;
+    }
+    .el-dialog__headerbtn{
+        top:10px;
+        right:15px;
+        font-size: 24px;
+    }
+    .el-input__inner {
+        outline: none;
+        height: 36px;
+        line-height: 36px;
+        font-size: 16px;
+    }
+    .el-input__inner::placeholder {
+        color: #B8BFCC;
+    }
+    .dialog-footer,.add-dialog-footer,.dialog-foot{
+        text-align: center;
+        margin-top: 36px;
+        .el-button{
+            border: 0;
+        }
+        .ok-btn{
+            padding: 0;
+            width: 130px;
+            height: 24px;
+            line-height: 22px;
+            border-radius: 2px;
+            font-size: 16px;
+        }
+    }
+}

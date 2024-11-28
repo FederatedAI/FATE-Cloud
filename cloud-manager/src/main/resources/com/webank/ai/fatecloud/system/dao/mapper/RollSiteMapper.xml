@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.webank.ai.fatecloud.system.dao.mapper.RollSiteMapper">
+
+    <resultMap id="rollSiteMap" type="com.webank.ai.fatecloud.system.dao.entity.RollSiteDo">
+        <id property="rollSiteId" column="roll_site_id"/>
+        <result property="networkAccess" column="network_access"/>
+        <result property="networkAccessExit" column="network_access_exit"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="exchangeId" column="exchange_id"/>
+
+        <collection property="partyDos"
+                    ofType="com.webank.ai.fatecloud.system.dao.entity.PartyDo"
+                    javaType="java.util.List">
+            <id property="id" column="id"/>
+            <result property="partyId" column="party_id"/>
+            <result property="networkAccess" column="party_network_access"/>
+            <result property="status" column="status"/>
+            <result property="createTime" column="party_create_time"/>
+            <result property="updateTime" column="party_update_time"/>
+        </collection>
+    </resultMap>
+
+    <select id="findMaxBatch"
+            parameterType="com.webank.ai.fatecloud.system.pojo.qo.ExchangeUpdateQo" resultType="long">
+        select max(batch) FROM t_exchange_details where exchange_id = #{exchangeId}
+    </select>
+
+    <select id="findRollSitePage"
+            resultMap="rollSiteMap">
+        select a.*,b.id,b.party_id,b.network_access party_network_access,b.status,b.create_time party_create_time,b.update_time party_update_time
+        from (select * FROM t_roll_site
+        where exchange_id = #{rollSitePageQo.exchangeId}
+        order by update_time desc
+        limit #{startIndex}, #{rollSitePageQo.pageSize}) a
+        LEFT JOIN t_roll_site_party rsp ON a.roll_site_id = rsp.roll_site_id
+        LEFT JOIN t_party b ON b.party_id = rsp.party_id
+
+    </select>
+
+
+</mapper>

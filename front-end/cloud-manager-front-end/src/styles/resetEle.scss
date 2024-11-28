@@ -1,0 +1,118 @@
+button, input {
+    font-family: 'OPPOSans';
+}
+
+
+
+.el-input__icon {
+    color: #848C99;
+    line-height: 36px;
+}
+.el-input__inner {
+    // background-color: #E6EBF0;
+    // color: #848C99;
+    // border: 0px;
+    outline: none;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 0;
+}
+
+.el-icon-arrow-up:before {
+    color: #848C99;
+    content: "\E78F";
+}
+
+.el-input__suffix {
+    color: #848C99;
+}
+
+.table {
+    .el-table {
+        margin: 24px 36px;
+    }
+}
+
+.tableHead {
+    color: #4E5766;
+}
+
+.tableHeadCell,.tableCell {
+    border-bottom: 1px solid #e6e6e6 !important;
+}
+.add {
+    float: left;
+    width: 125px;
+    font-size: 16px;
+}
+.go {
+    float: right;
+    width: 65px;
+    margin-left: 16px;
+    font-size: 16px;
+}
+.el-button{
+    padding: 0;
+    height: 36px;
+    line-height: 36px;
+}
+
+.pagination {
+    position: absolute;
+    bottom: 26px;
+    right: 88px;
+}
+.el-table--enable-row-hover .el-table__body tr:hover>td {
+    // background-color: #fff; //鼠标悬停每一行变色
+    background-color: rgb(74, 162, 255, 0.1);
+}
+//弹框居中
+.el-dialog {
+    display: flex;
+    flex-direction: column;
+    margin: 0 !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: calc(100% - 30px);
+    max-width: calc(100% - 30px);
+    .el-form-item__label {
+        font-size: 14px;
+        color: #848C99;
+        line-height: 24px;
+    }
+    .el-form-item__content {
+        line-height: 24px;
+        font-size: 14px;
+    }
+    .el-dialog__title{
+        line-height: 24px;
+        font-size: 18px;
+        color: #505765;
+        font-weight: bold;
+    }
+    .el-dialog__headerbtn{
+        top:10px;
+        right:15px;
+        font-size: 24px;
+    }
+    .el-input__inner {
+        outline: none;
+        height: 24px;
+        line-height: 24px;
+    }
+    .el-input__inner::placeholder {
+        color: #B8BFCC;
+    }
+    .dialog-footer,.dialog-foot,.add-dialog-footer{
+        text-align: center;
+        .ok-btn{
+            width: 130px;
+            height: 24px;
+            line-height: 22px;
+            border-radius: 2px;
+            font-size: 16px;
+        }
+    }
+}

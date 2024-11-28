@@ -1,0 +1,109 @@
+.partyid-box {
+    margin: 0px 12px;
+    .partyid-header {
+        height: 39px;
+        text-align: right;
+        background-color: #fff;
+        border-bottom:2px solid #E6EBF0; 
+        padding-top: 3px;
+        .input {
+            height: 24px;
+            width: 160px;
+            .search {
+                cursor: pointer;
+                margin-right: 0px
+            }
+        }
+        .sel-institutions {
+            width: 115px;
+            margin-left: 16px;
+        }
+        .add{
+            width: initial;
+            vertical-align: middle;
+            font-size: 16px;
+            margin-left: 36px;
+            img{
+                margin-right: 2px;
+                vertical-align: -7px
+            }
+        }
+  
+        .add:hover{
+            opacity: 0.85;
+        }
+
+    }
+    .partyid-body {
+        background-color: #fff;
+        position: absolute;
+        width: calc(100% - 24px);
+        height: calc(100% - 84px);
+        .table {
+            height: calc(100% - 128px);
+            .el-table {
+                width: calc(100% - 76px);
+                height:100% !important;
+                .el-button{
+                    padding:0;
+                    height: initial;
+                    line-height: initial;
+                }
+                .edit {
+                    margin-right: 10px;
+                    cursor: pointer;
+                    color: #217AD9
+                }
+                .delete {
+                    cursor: pointer;
+                    color: #217AD9
+                }
+            }
+
+        }
+    }
+   
+    .partyid-delete-dialog {
+
+        //弹框居中
+        .el-dialog {
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+        }
+
+        .el-dialog__body {
+            padding: 24px;
+        }
+
+        .el-dialog__header {
+            padding: 0;
+        }
+
+        text-align: center;
+
+        .line-text-one {
+            font-size: 18px;
+            color: #2D3642;
+            margin-bottom: 12px
+        }
+
+        .line-text-two {
+            font-size: 16px;
+            color: #848C99;
+            margin-bottom: 36px
+        }
+
+
+    }
+}
+
+// .el-select-dropdown__item {
+//     font-size: 18px;
+// }

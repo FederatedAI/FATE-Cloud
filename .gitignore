@@ -1,0 +1,19 @@
+# common file patterns
+.DS_STORE
+.idea
+*.iml
+*.pyc
+__pycache__
+*.jar
+*.class
+.project
+*.prefs
+_build
+
+# excluded paths
+/cloud-manager/target/
+.vscode/*
+
+/fate-manager/fate_manager/apps/static
+/logs
+/fate-manager/logs

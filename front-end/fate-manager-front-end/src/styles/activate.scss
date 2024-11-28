@@ -1,0 +1,307 @@
+.activate {
+    .site-add {
+        position: absolute;
+        height: calc(100% - 65px);
+        width: 100%;
+        background: #F5F8FA;
+        overflow: auto;
+        .is-required{
+            label{
+                position: relative;
+            }
+            label::after{
+                content: "*";
+                font-size: 16px;
+                color: #FF9D00;
+                top: 50%;
+                left: -15px;
+                transform: translate(2px,-50%);
+                position: absolute;
+            }
+            margin-bottom: 15px !important;
+            .el-form-item__label,
+            .el-form-item__content,
+            .el-input,
+            .el-input__inner
+            {
+                height: 24px;
+                line-height: 24px;
+            }
+        }
+
+        .add-info {
+            width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100%;
+            .title {
+                text-align: center;
+                color: #217AD9;
+                font-size: 32px;
+                padding-top: 64px;
+                font-weight: 600;
+            }
+
+            .el-form {
+                margin: 0 auto;
+                width: 650px;
+                .module-title{
+                    font-size: 20px;
+                    font-family: OPPOSans;
+                    font-weight: bold;
+                    line-height: 20px;
+                    color: #505765;
+                    margin: 45px 0 24px;
+                }
+                .el-form-item {
+                    margin-bottom: 0;
+
+                    .info-text {
+                        font-size: 16px;
+                        color: #2D3642;
+                    }
+                    .link-text{
+                        font-size: 16px;
+                        display: inline-block;
+                        white-space: nowrap; //文本强制不换行；
+                        text-overflow: ellipsis; // 文本溢出显示省略号；
+                        overflow: hidden; //溢出的部分隐藏；
+                        width: 95%;
+                        height: 35px;
+                    }
+                    //添加ip
+                    .plus {
+                        position: absolute;
+                        right: -3px;
+                        top: 0px;
+                        cursor: pointer;
+                        color: #217AD9;
+                        font-size: 16px;
+                        font-weight: 900;
+                    }
+                    //选择器
+                    .el-select{
+                        width: 100%;
+                        .el-select-dropdown {
+                            .el-select-dropdown__item {
+                                font-size: 14px
+                            }
+                        }
+                    }
+                    .plus-text {
+                        .el-input__inner {
+                            padding-right: 35px;
+                            width: 100%;
+                            white-space: nowrap; //文本强制不换行；
+                            text-overflow: ellipsis; // 文本溢出显示省略号；
+                            overflow: hidden; //溢出的部分隐藏；
+                        }   
+                    }
+                    .el-input__icon {
+                        margin-top: 7px;
+                        height: 30px;
+                        line-height: 30px;
+                    }
+                    .el-switch{
+                        .el-switch__core {
+                            width: 30px !important;
+                            height: 16px;
+                            line-height: 16px;
+                            &::after{
+                                width: 12px;
+                                height: 12px;
+                                margin-left: 0;
+                            }
+                        }
+                        padding-bottom: 3px;
+                    }
+                    .el-switch.is-checked{
+                        .el-switch__core {
+                            &::after{
+                                margin-left: -13px;
+                            }
+                        }
+                    }
+                    //工具icon
+                    .tools:hover{
+                        color: #217AD9;
+                    }
+                    .copy{
+                        position: absolute;
+                        right: -45px;
+                        color: #217AD9;
+                        cursor: pointer;
+                        font-size: 16px;
+                    }
+                    //icon显示
+                    .view {
+                        position: absolute;
+                        right: 0;
+                        cursor: pointer;
+                        top:10px;
+                    }
+                    .view:hover{
+                        opacity: 0.7;
+                    }
+                    //表单标题
+                    .el-form-item__label {
+                        font-size: 16px;
+                        color: #848C99;
+                    }
+                    .el-form-item__label:before{
+                        display: none
+                    }
+                    .add-institutions{
+                        width: 130px;
+                        position: absolute;
+                        cursor: pointer;
+                        top:0;
+                        margin-left: 10px;
+                        font-size: 16px;
+                        color: #217AD9;
+    
+                    }
+
+                }
+                .dropdown {
+                    line-height: 28px;
+                    background-color: #F5F8FA;
+                    width: 100%;
+                    .down {
+                        color: #848C99;
+                        font-size: 14px;
+                        height: 30px;
+                        position: absolute;
+                        top: 7px;
+                        right: 10px;
+                        z-index: 999;
+                        cursor: pointer;
+                    }
+    
+                    .down-text {
+                        text-align: left;
+                        padding: 0px 0px 0px 10px;
+                        width: 90%;
+                        font-size: 14px;
+                        height: 28px;
+                        color: #848C99;
+                        white-space: nowrap; //文本强制不换行；
+                        text-overflow: ellipsis; //文本溢出显示省略号；
+                        overflow: hidden; // 溢出的部分隐藏；
+                    }
+    
+                    .el-textarea__inner {
+                        font-family: inherit;
+                        color: #848C99;
+                        border: 0px;
+                        outline: none;
+                        resize: none;
+                        font-size: 14px;
+                        padding: 3px 30px 3px 10px;
+                    }
+                }
+    
+                .el-input__inner{
+                    background:#fff;
+                    padding:0;
+                    border-bottom: 2px solid #E6EBF0;
+                    border-top: 0px;
+                    border-right: 0px;
+                    border-left: 0px;
+                    font-size: 16px;
+                    color: #2D3642;
+                }
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
+                //错误提示
+                .el-form-item__error{
+                    top:90%;
+                    color: #FF9D00;
+                    font-size: 14px
+                }
+            }
+
+            .Submit {
+                padding: 60px 0;
+                text-align: center;
+                .el-button {
+                    font-size: 16px;
+                    width: 260px;
+                    height: 36px;
+                    line-height: 36px;
+                    padding: 0;
+                }
+            }
+
+        }
+
+        .site-toleave-dialog {
+
+            //弹框居中
+            .el-dialog {
+                // height: 284px; //弹框宽度
+                display: flex;
+                flex-direction: column;
+                margin: 0 !important;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-height: calc(100% - 30px);
+                max-width: calc(100% - 30px);
+            }
+
+            .el-icon-success {
+                font-size: 50px;
+                color: #217AD9;
+                opacity: 1;
+                margin-bottom: 24px
+            }
+
+            .el-dialog__body {
+                padding: 36px 24px 24px;
+            }
+
+            .el-dialog__header {
+                display: none;
+            }
+
+            text-align: center;
+
+            .line-text-success {
+                // width:330px;
+                height: 39px;
+                font-size: 32px;
+                font-family: "OPPOSans";
+                font-weight: bold;
+                line-height: 20px;
+                color: rgba(33, 122, 217, 1);
+                opacity: 1;
+                margin-bottom: 30px
+            }
+
+            .line-text-one {
+                font-size: 16px;
+                color: #848C99;
+                margin-bottom: 16px
+            }
+
+            .line-text-two {
+                font-size: 16px;
+                color: #848C99;
+                margin-bottom: 36px
+            }
+
+            .sure-btn {
+                width: 180px;
+                font-size: 16px;
+                height:24px;
+                line-height: 24px;
+                padding: 0;
+                border-radius: 2px;
+            }
+
+        }
+    }
+}

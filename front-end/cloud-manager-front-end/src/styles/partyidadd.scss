@@ -1,0 +1,170 @@
+.partyid-add {
+    .add-groud {
+        //弹框居中
+        .el-dialog {
+            width: 400px;
+            // height: 450px; //弹框宽度
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+
+            .el-dialog__header {
+                .el-dialog__title {
+                    font-size: 16px;
+                    color: #505765;
+                    font-weight: 550;
+                    font-weight: bold;
+                }
+            }
+
+            .el-dialog__body {
+                padding: 10px 36px 24px;
+
+                .info-text {
+                    border-bottom: 1px #fff solid;
+                    padding: 0 0 5px;
+                }
+
+                .edit-text {
+                    border-bottom: 2px #e6ebf0 solid;
+                    padding: 0 0 5px;
+                }
+
+                .info-text,
+                .edit-text {
+                    font-size: 14px;
+                    color: #2d3642;
+                    width: 100%;
+                }
+                .select {
+                    .el-select-dropdown {
+                        top: 196px !important;
+                        left: 37px!important;
+                        .el-select-dropdown__item {
+                            font-size: 14px;
+                        }
+                    }
+                }
+
+                .el-form-item {
+                    margin-bottom: 15px;
+
+                    .range-info {
+                        margin-left: 10px;
+                    }
+
+                    .range-info:hover {
+                        color: #ff9d00;
+                    }
+                }
+                .groupNamewarn {
+                    border-bottom: 2px #ff9d00 solid !important;
+                }
+                .el-form-item__label {
+                    font-size: 14px;
+                    color: #848c99;
+                    padding-bottom: 5px;
+                }
+
+                .el-form-item__error {
+                    top: 103%;
+                    padding-top: 0;
+                    color: #ff9d00;
+                    font-size: 14px;
+                }
+
+                .el-form-item__label:before {
+                    // content:''
+                    display: none;
+                }
+
+                .textarea {
+                    .el-textarea__inner {
+                        background-color: #f5f8fa;
+                        color: #2d3642;
+                        border: 0px;
+                        outline: none;
+                        resize: none;
+                        font-size: 14px;
+                        height: 120px;
+                        font-family: 'OPPOSans';
+                        padding: 0;
+                        padding: 5px;
+                    }
+                }
+
+                .el-input__inner {
+                    border: 0px;
+                    background-color: #fff;
+                    font-size: 14px;
+                    color: #2d3642;
+                    padding: 0 15px 0 0;
+                }
+            }
+
+            .dialog-footer {
+                text-align: center;
+                margin-top:36px;
+            }
+        }
+    }
+
+    .ok-dialog {
+        text-align: center;
+
+        //弹框居中
+        .el-dialog {
+            width: 710px;
+            height: 320px; //弹框宽度
+            display: flex;
+            flex-direction: column;
+            margin: 0 !important;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: calc(100% - 30px);
+            max-width: calc(100% - 30px);
+
+            .el-dialog__header {
+                display: none;
+            }
+
+            .line-text-one {
+                font-size: 32px;
+                margin: 26px 0;
+
+                .el-icon-success {
+                    margin-right: 20px;
+                }
+            }
+
+            .line-text-two {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .line-text-three {
+                font-size: 18px;
+                color: #217ad9;
+                text-decoration: underline;
+                margin-bottom: 40px;
+
+                .copy {
+                    margin-left: 50px;
+                    cursor: pointer;
+                }
+            }
+
+            .ok-btn {
+                width: 200px;
+            }
+        }
+    }
+}

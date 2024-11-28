@@ -1,0 +1,252 @@
+.home {
+    // vw 相对于视窗的宽度
+    // vh 相对于视窗的高度
+    // vmin 相对于视口的宽度或高度中较小的那个被均分为100单位的vmin
+    // vmax 相对于视口的宽度或高度中较大的那个被均分为100单位的vmax
+    // px：绝对单位，页面按精确像素展示。
+    // em：相对单位，基准点为父节点字体的大小，如果自身定义了font-size按自身来计算（浏览器默认字体是16px），整个页面内1em不是一个固定的值。
+    // rem：相对单位，可理解为”root em”, 相对根节点html的字体大小来计算，CSS3新加属性，chrome/firefox/IE9+支持
+    float: left;
+    width: 100%;
+
+    .el-header {
+        padding: 0;
+        background-color: #217ad9;
+        color: #fff;
+        text-align: center;
+        height: 65px !important;
+        line-height: 65px;
+
+        .logo {
+            cursor: pointer;
+            position: absolute;
+            font-size: 2em;
+            font-weight: bold;
+            img {
+                vertical-align: top;
+                height: 65px;
+                margin-left: 5px;
+            }
+            span{
+                margin-left: 30px
+            }
+        }
+        .right-bar{
+            cursor: pointer;
+            height: 65px;
+            line-height: 65px;
+            position: absolute;
+            display: inline-block;
+            right: 125px;
+            top: 0px;
+            span{
+                font-size: 14px;
+            }
+        }
+        .lang-bar{
+            cursor: pointer;
+            height: 65px;
+            line-height: 65px;
+            position: absolute;
+            display: inline-block;
+            font-size: 16px;
+            right: 40px;
+            top: 0px;
+            .text-link{
+                color: #fff
+            }
+            .focusing:focus {
+                outline:none;
+            }
+        }
+    }
+
+    .el-main {
+        padding: 0;
+        .welcomepage {
+            font-family: OPPOSans;
+            text-align: center;
+            .title {
+                font-size: 64px;
+                color: #217ad9;
+                font-weight: bold;
+                margin-bottom: 64px;
+            }
+            .text {
+                margin-bottom: 2vw;
+                font-size: 1.25em;
+                color: #4e5766;
+            }
+     
+            .login-form{
+                width: 466px;
+                margin: 0 auto; 
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
+                .el-form-item__error{
+                    width: 466px;
+                    top:95%;
+                    color: #FF9D00;
+                    font-size: 14px;
+                }
+                 //改变placeholder颜色
+                input{
+                    // width: 466px;
+                    .el-input__inner{
+                        width: 100%;
+                    }
+                    border: 0;
+                    box-shadow: inset 0 0 0 1000px #fff!important;
+                    text-align: center;
+                    border-bottom: 2px solid #E6EBF0;
+                    color: #2D3642;
+                    font-size: 16px;
+                }
+                .from-text{
+                    color:#848C99
+                }
+                .btn-login{
+                    font-size: 16px;
+                    width: 200px;
+                    height: 36px;
+                    line-height: 36px;
+                    padding: 0;
+                    border-radius: 4px;
+                    margin-bottom: 32px;
+                }
+                .el-form-item{
+                    margin: 0.8vw 0 2vw 0;
+                    .view{
+                        top:7px;
+                        right: 10px;
+                        position: absolute;
+                        cursor: pointer;
+                        margin-right: 3px;
+                    }
+                    .view:hover{
+                        opacity: 0.75;
+                    }
+                    
+                }
+                .Remember-text{
+                    margin-top: -10px;
+                    margin-bottom: 2vw
+                }
+                .activate-it{
+                    margin-top: -18px;
+                    .it{
+                        color: #217AD9;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+    }
+    .contact-dialog{
+        text-align: center;
+        .el-dialog {
+            .el-dialog__header {
+                padding: 0;
+            }
+            .line-text-two {
+                font-size: 16px;
+                margin-top: 36px;
+                margin-bottom: 36px;
+                font-weight: bold;
+            }
+            .ok-btn {
+                width: 180px;
+                font-size: 16px;
+            }
+        }
+        
+    }
+    .activ-dialog{
+       
+        .dialog-header{
+            font-size: 56px;
+            color: #217AD9;
+            text-align: center;
+            margin-bottom: 76px
+        }
+        .el-dialog__body{
+            padding: 0 24px 24px;
+        }
+        .dialog-body{
+            font-size: 16px;
+            .activte-form{
+                padding: 0 12px;
+                .text-one{
+                    color: #848C99;
+                    margin-top: 24px;
+                    margin-bottom: 10px;
+                }
+                .is-error .el-input__inner{
+                    border-color:#FF9D00 !important;
+                }
+               
+                .el-form-item__error{
+                    width: 800px;
+                    top:95%;
+                    color: #FF9D00;
+                    font-size: 14px;
+                }
+                 //改变placeholder颜色
+                input{
+                    .el-input__inner{
+                        width: 100%;
+                    }
+                    border: 0;
+                    box-shadow: inset 0 0 0 1000px #fff!important;
+                    text-align: center;
+                    border-bottom: 2px solid #E6EBF0;
+                    color: #2D3642;
+                    font-size: 16px;
+                }
+            }
+        }
+    }
+    .ok-dialog {
+        text-align: center;
+        .el-dialog__body{
+            padding: 0 24px 24px;
+        }
+        //弹框居中
+        .el-dialog {
+            width: 580px;
+
+            .icon {
+                font-size: 50px;
+                color: #217AD9;
+            }
+
+            .line-text-one {
+                font-size: 32px;
+                margin-top: 16px;
+                margin-bottom: 36px;
+                color: #217AD9;
+                font-weight: 600;
+            }
+            .line-text-two {
+                font-size: 16px;
+                color: #848C99;
+            }
+
+            .ok-btn {
+                width: 180px;
+                font-size: 16px;
+            }
+        }
+    }
+    .siteAuth-dialog{
+        text-align: center;
+       
+        .line-text-two {
+            font-size: 18px;
+            line-height: 36px;
+        }
+       
+    }
+
+}
